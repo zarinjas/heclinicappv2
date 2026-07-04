@@ -3,10 +3,10 @@
 Last Updated: 2026-07-04
 
 ## Active Task
-None — awaiting Director assignment.
+P1-T03 (fix-minsdk-version) — IN-REVIEW. Changed minSdkVersion 35 → 23 in android/app/build.gradle.
 
 ## Last Completed Task
-P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — IN-REVIEW. Replaced hardcoded Plato token with user auth token, updated EnvConfig to point to Laravel proxy.
+P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — DONE.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)
