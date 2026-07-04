@@ -102,7 +102,7 @@ bot.callbackQuery(/^(approve|reject)_(.+)$/, async (ctx) => {
         owner: GH_OWNER,
         repo: GH_REPO,
         workflow_id: GH_WORKFLOW_ID,
-        ref: "develop",
+        ref: "main",
         inputs: {
           action: "approve",
         },
@@ -126,7 +126,7 @@ bot.callbackQuery(/^(approve|reject)_(.+)$/, async (ctx) => {
         owner: GH_OWNER,
         repo: GH_REPO,
         workflow_id: GH_WORKFLOW_ID,
-        ref: "develop",
+        ref: "main",
         inputs: {
           action: "reject",
         },
