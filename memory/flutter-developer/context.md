@@ -1,21 +1,19 @@
 # Flutter Developer — Context
 
-Last Updated: —
+Last Updated: 2026-07-05
 
 ## Active Task
-None.
+None — awaiting Director assignment.
 
 ## Last Completed Task
-None yet.
+None.
 
 ## Known Constraints
-- All Plato API calls must route through Laravel proxy — never direct to Plato
-- Use EnvConfig for all base URLs — never hardcode API URLs
-- flutter_animate is available for skeleton loaders and transitions
-- FlutterFlow naming conventions: FFAppState, *Widget, *Model, *Call, *Group
-- GoRouter is the router — no Navigator.push directly
-- Design tokens from v2-ux-spec.md Section 1 apply to all UI work
-- Every list/content screen must implement: skeleton loader, empty state, error state
+- All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)
+- Use EnvConfig for all base URLs — never hardcode
+- Follow FlutterFlow-inherited patterns in docs/CODEBASE.md
+- Apply design tokens from docs/v2-ux-spec.md Section 1
+- Always implement skeleton loaders, empty states, and error states on list/content screens
 
 ## Pending Items
 None.

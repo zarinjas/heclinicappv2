@@ -1,0 +1,11 @@
+{
+  "pending": false,
+  "task_id": null,
+  "task_title": null,
+  "completed_by": null,
+  "qa_result": null,
+  "reviewer_decision": null,
+  "created_at": null,
+  "approved_at": null,
+  "approved": null
+}

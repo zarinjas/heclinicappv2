@@ -1,15 +1,15 @@
 # Project Manager — Context
 
-Last Updated: —
+Last Updated: 2026-07-05
 
 ## Current Process
 Process 1 — Security and Foundation
 
 ## Active Tasks
-None yet.
+None — awaiting first workflow_dispatch trigger.
 
 ## Blocked Tasks
-None yet.
+None currently. P1-T02 will be blocked until P1-T01 is DONE.
 
 ## Open Decisions (from v2-decisions.md — Still Pending)
 - Email provider not resolved (Mailgun / SES / SMTP / SendGrid) — blocks Process 8 Notifications
@@ -18,8 +18,14 @@ None yet.
 - Flutter version upgrade timing undecided — blocks Process 4 UI Overhaul
 
 ## Next Task to Create
-Process 1, Step 1 — Move Plato API token to Laravel .env (server-side proxy)
+Process 1 Step 1 is fully defined (10 tasks). Next process creation: Process 2 — Laravel Admin Scaffold (after all Process 1 DONE).
+
+## Agentic AI Setup
+- AI Director workflow: `.github/workflows/agent-director.yml`
+- Approval via Telegram: https://t.me/CyberocketBot
+- Laravel proxy controller: `laravel/app/Http/Controllers/Api/PlatoProxyController.php`
+- VPS bot server: `/var/www/heclinic-bot/` (PM2)
 
 ## Notes
-Process 1 is the gate for everything. No Process 2+ tasks should be created
-until all Process 1 tasks are in done/.
+Process 1 Track A (P1-T01, P1-T02) requires Laravel repo on VPS.
+Process 1 Track B (P1-T03–P1-T10) are all Flutter tasks — ready to run immediately.

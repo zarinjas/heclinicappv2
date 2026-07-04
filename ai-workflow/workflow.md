@@ -2,6 +2,10 @@
 
 > Defines the lifecycle of every task from creation to completion.
 
+> **Single entry point:** The AI Director (`ai-workflow/director.md`) is the only
+> entity that initiates workflow steps. No agent self-activates. All state transitions
+> are triggered and validated by the Director before the next step begins.
+
 ---
 
 ## Task States
@@ -26,6 +30,17 @@ BLOCKED → BACKLOG (when dependency is resolved)
 ---
 
 ## Step-by-Step Lifecycle
+
+> Each step below is triggered by the AI Director. Agents act only when called.
+
+### Step 0 — Director: Scan and Select
+
+1. Read all task folders and `memory/project-manager/task-index.md`
+2. Identify the highest-priority actionable task using the Selection Rules in `director.md`
+3. Determine which agent to call based on the task's current state
+4. Proceed to the relevant step below
+5. After agent completes work, validate output before advancing state
+6. If task reaches DONE, present summary to user and wait for approval before looping
 
 ### Step 1 — Project Manager: Task Creation
 
@@ -88,8 +103,8 @@ BLOCKED → BACKLOG (when dependency is resolved)
 
 A task becomes BLOCKED when it cannot proceed due to an external dependency.
 
-1. Developer or PM identifies the block
-2. PM moves task file to `tasks/blocked/`
+1. Developer or PM signals the block to the Director
+2. Director instructs PM to move task file to `tasks/blocked/`
 3. PM documents the block in the `Blocked Reason` field of the task file
 4. PM notes the block in `memory/project-manager/context.md`
 5. When block is resolved: PM moves task back to `tasks/backlog/`, clears the block reason
@@ -99,6 +114,21 @@ Common block triggers:
 - Dependency task not yet in `tasks/done/`
 - External API access not available (e.g., Plato GET /systemsetup access unconfirmed)
 - Design mockup not yet approved by client
+
+---
+
+## Human Approval Gate
+
+After every task reaches DONE, the Director pauses the loop and presents a summary
+to the user. The summary includes: task ID, what was built, QA result, Reviewer
+decision, and any deviations logged in `memory/reviewer/decisions-log.md`.
+
+The Director does not start the next task until the user explicitly approves.
+
+If the user rejects the completed task:
+- Director routes the task back to `tasks/in-progress/`
+- Rejection reason is recorded in the task file under Reviewer Notes
+- Developer is re-assigned on the next loop iteration
 
 ---
 

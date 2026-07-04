@@ -69,9 +69,65 @@ jobs:
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}
           "rm -rf /var/www/heclinic/*"
 
-      - name: Deploy via rsync
+      - name: Deploy Flutter web via rsync
         run: >
           rsync -avz --delete
           -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
           build/web/
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/heclinic/
+
+      # --- Laravel Deploy ---
+
+      - name: Deploy Laravel via rsync
+        run: >
+          rsync -avz --delete
+          --exclude '.env' --exclude 'storage/logs/*' --exclude 'bootstrap/cache/*'
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          laravel/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/heclinic-laravel/
+
+      - name: Post-deploy Laravel commands
+        run: >
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          "cd /var/www/heclinic-laravel &&
+           composer install --no-dev --optimize-autoloader --no-interaction &&
+           php artisan migrate --force --no-interaction || true &&
+           php artisan config:clear &&
+           php artisan cache:clear &&
+           php artisan route:cache || true"
+
+      # --- Telegram Bot Deploy ---
+
+      - name: Deploy Telegram Bot via rsync
+        run: >
+          rsync -avz --delete
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          telegram-bot/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/heclinic-bot/
+
+      - name: Post-deploy Bot commands
+        run: >
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          "cd /var/www/heclinic-bot &&
+           npm install &&
+           pm2 restart heclinic-bot || pm2 start ecosystem.config.cjs"
+
+      # --- Nginx Config Deploy ---
+
+      - name: Deploy nginx config via rsync
+        run: >
+          rsync -avz
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          nginx/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/root/nginx/
+
+      # --- Scripts Deploy ---
+
+      - name: Deploy scripts via rsync
+        run: >
+          rsync -avz
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          scripts/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/root/scripts/
