@@ -43,5 +43,14 @@ HIGH — appointment detail screen is completely non-functional without this fix
 ## Estimated Effort
 2–3 hours
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-04
+
 ## Status
-Backlog
+IN-PROGRESS
+
+## Implementation Notes
+—
