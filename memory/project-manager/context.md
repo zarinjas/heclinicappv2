@@ -6,7 +6,7 @@ Last Updated: 2026-07-05
 Process 1 — Security and Foundation
 
 ## Active Tasks
-None — awaiting first workflow_dispatch trigger.
+- P1-T01 (add-laravel-proxy-env-token) — assigned to laravel-developer, IN-PROGRESS since 2026-07-04
 
 ## Blocked Tasks
 None currently. P1-T02 will be blocked until P1-T01 is DONE.
