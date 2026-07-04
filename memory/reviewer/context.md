@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 None.
 
 ## Last Decision
-P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — APPROVED. All Plato API calls rerouted through Laravel proxy. Hardcoded token removed. Aligned with v2-decisions.md Process 1 Step 2 and security requirements.
+P1-T03 (fix-minsdk-version) — APPROVED. minSdkVersion 35 → 23 in build.gradle. Matches v2-decisions.md Process 1 Step 3. No API or UX impact.
 
 ## Notes
 Always cross-check against v2-decisions.md locked decisions table before approving.
