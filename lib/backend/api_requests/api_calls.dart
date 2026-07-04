@@ -584,7 +584,7 @@ class GetPatientCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/patient',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -651,7 +651,7 @@ class GetproviderCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/facility',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -721,7 +721,7 @@ class DeletePatientForAdminOnlyCall {
           '${EnvConfig.platomBaseUrl}/patient/${idplato}',
       callType: ApiCallType.DELETE,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -790,7 +790,7 @@ class CeknumberphoneCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/search/patient',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {
@@ -862,7 +862,7 @@ class GetPatientbyidCall {
           '${EnvConfig.platomBaseUrl}/patient/${idpatient}',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -936,7 +936,7 @@ class GetPatientbyidCopyCall {
           '${EnvConfig.platomBaseUrl}/patient/${idpatient}',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},
@@ -1074,7 +1074,7 @@ class GetReportCall {
           '${EnvConfig.platomBaseUrl}/patient/${patientId}/note',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {},
@@ -1162,7 +1162,7 @@ class LetterCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/letter',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {
@@ -1224,7 +1224,7 @@ class LetterCopyCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {
@@ -1333,7 +1333,7 @@ class GetAppointmentCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {
@@ -1379,7 +1379,7 @@ class GetAppointmentUpcomingCall {
       apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {
@@ -1453,7 +1453,7 @@ class GetAppointmentDetailsCall {
           '${EnvConfig.platomBaseUrl}/appointment/a052e78b3a5547bba54ddbbc83619e93',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {
@@ -1497,7 +1497,7 @@ class GetAppointmentCodeCall {
           '${EnvConfig.platomBaseUrl}/appointment/codes',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {},
@@ -1556,7 +1556,7 @@ class GetAppointmentCopyCall {
           '${EnvConfig.platomBaseUrl}/appointments/calendars',
       callType: ApiCallType.GET,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
       params: {},
@@ -1608,7 +1608,7 @@ class EditPatiendCall {
           '${EnvConfig.platomBaseUrl}/patient/${patientId}',
       callType: ApiCallType.PUT,
       headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Content-Type': 'application/json',
       },
       params: {},

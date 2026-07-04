@@ -67,8 +67,12 @@ flutter-developer
 2026-07-04
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
 
 ## Implementation Notes
 
-(To be filled by developer)
+- **lib/env_config.dart**: Updated `platomBaseUrl` default from `https://clinic.platomedical.com/api/hemedclinic` to `https://heclinic.cyberoket.cloud/api/v2/plato` (Laravel proxy URL). The `PLATOM_URL` dart-define can still override this at build time (e.g., for mock mode: `--dart-define=PLATOM_URL=http://localhost:4000/platom`).
+- **lib/backend/api_requests/api_calls.dart**: Replaced all 15 occurrences of the hardcoded Plato API token (`1463d1150e7b199effa2793c2d809034`) with `FFAppState().tokenauth` — the mobile user's Bearer token. This authenticates the mobile user against Laravel Sanctum, which then applies the Plato token server-side via the proxy.
+- All 15 Plato call classes updated: GetPatientCall, GetproviderCall, DeletePatientForAdminOnlyCall, CeknumberphoneCall, GetPatientbyidCall, GetPatientbyidCopyCall, GetReportCall, LetterCall, LetterCopyCall, GetAppointmentCall, GetAppointmentUpcomingCall, GetAppointmentDetailsCall, GetAppointmentCodeCall, GetAppointmentCopyCall, EditPatiendCall.
+- No import changes needed — `FFAppState` is already exported via `flutter_flow_util.dart` which `api_calls.dart` already imports.
+- Mock mode preserved: the `PLATOM_URL` dart-define override at build time still works, allowing local mock server usage.
