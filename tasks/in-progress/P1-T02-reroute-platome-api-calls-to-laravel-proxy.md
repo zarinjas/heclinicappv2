@@ -60,5 +60,15 @@ CRITICAL — completes the security fix started in P1-T01
 ## Estimated Effort
 3–4 hours
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-04
+
 ## Status
-Backlog
+IN-PROGRESS
+
+## Implementation Notes
+
+(To be filled by developer)
