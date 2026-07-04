@@ -61,7 +61,18 @@ CRITICAL — completes the security fix started in P1-T01
 3–4 hours
 
 ## Status
-IN-REVIEW
+DONE
+
+## Reviewer Notes
+**Reviewed By:** Reviewer (AI)
+**Date:** 2026-07-05
+**Decision:** APPROVED
+
+### Alignment Check:
+- **v2-decisions.md Decision #1:** ✅ Plato token removed from mobile APK — now server-side through Laravel proxy.
+- **v2-decisions.md Process 1 Step 2:** ✅ All PlatomeApiGroup calls rerouted through Laravel proxy with FFAppState().tokenauth for Sanctum auth.
+- **v2-ux-spec.md:** N/A — no UI changes in this task.
+- **No deviations** from locked decisions found.
 
 ## Assignment
 **Assigned To:** flutter-developer
