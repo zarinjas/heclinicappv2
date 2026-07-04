@@ -106,14 +106,6 @@ jobs:
           telegram-bot/
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/heclinic-bot/
 
-      - name: Post-deploy Bot commands
-        run: >
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
-          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
-          "cd /var/www/heclinic-bot &&
-           npm install &&
-           pm2 restart heclinic-bot || pm2 start ecosystem.config.cjs"
-
       # --- Nginx Config Deploy ---
 
       - name: Deploy nginx config via rsync
@@ -131,3 +123,11 @@ jobs:
           -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
           scripts/
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/root/scripts/
+
+      - name: Post-deploy Bot commands
+        run: >
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          "cd /var/www/heclinic-bot &&
+           npm install &&
+           (npm install -g pm2 && pm2 restart heclinic-bot || pm2 start ecosystem.config.cjs) || true"
