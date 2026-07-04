@@ -40,5 +40,11 @@ CRITICAL — app cannot be tested on most Android devices without this fix
 ## Estimated Effort
 1 hour
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-04
+
 ## Status
-Backlog
+IN-PROGRESS

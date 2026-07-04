@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 Process 1 — Security and Foundation
 
 ## Active Tasks
-- P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — assigned to flutter-developer, IN-PROGRESS since 2026-07-04
+- P1-T03 (fix-minsdk-version) — assigned to flutter-developer, IN-PROGRESS since 2026-07-04
 
 ## Blocked Tasks
 None currently.
