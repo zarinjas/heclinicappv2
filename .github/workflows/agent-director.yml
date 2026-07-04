@@ -19,14 +19,11 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
-      id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
-          persist-credentials: true
 
       - name: Configure Git
         run: |
@@ -34,128 +31,12 @@ jobs:
           git config --global user.email "agent@heclinic.cyberoket.cloud"
           git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/zarinjas/heclinicappv2.git
 
-      - name: Run OpenCode Director
-        uses: anomalyco/opencode/github@latest
+      - name: Install OpenCode
+        run: npm install -g opencode-ai
+
+      - name: Run Director
+        run: opencode run "Read .github/scripts/director-prompt.md and execute exactly as instructed. Start now."
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           VPS_BOT_URL: ${{ secrets.VPS_BOT_URL }}
           TRIGGER_ACTION: ${{ github.event.inputs.action }}
-        with:
-          model: deepseek/deepseek-chat
-          use_github_token: true
-          prompt: |
-            You are the AI Director for the He Clinic V2 project.
-
-            Follow the rules in ai-workflow/director.md exactly.
-
-            ## PHASE 0 — Read State
-            1. Read tasks/.approval-state.json
-            2. Read memory/project-manager/task-index.md
-            3. Read memory/project-manager/context.md
-            4. List all files in tasks/backlog/, tasks/in-progress/, tasks/in-review/, tasks/done/, tasks/blocked/
-
-            ## PHASE 1 — Handle Pending Approval
-            If tasks/.approval-state.json has pending=true:
-              - Read the TRIGGER_ACTION env var (the action from workflow_dispatch)
-              - If action is "approve": set pending=false, approved_at=now, commit + push. Proceed to Phase 2.
-              - If action is "reject": move the task back to tasks/in-progress/, clear approval state, commit + push. Exit.
-              - If action is "run" (or unknown): exit with message "Waiting for approval. No action taken."
-
-            ## PHASE 2 — Scan Tasks
-            Scan all task folders. Identify the highest-priority actionable task using rules from ai-workflow/director.md:
-            1. Tasks with resolved blocks > furthest in pipeline > earlier process > lower task ID
-            2. Parallel OK only if different developer types
-
-            Skip tasks that depend on Laravel repo changes (P1-T01, P1-T02) unless the laravel/ directory exists.
-
-            ## PHASE 3 — Process Task Through Full Lifecycle (LOOP)
-
-            Take the selected task and process it through EVERY applicable stage in a SINGLE workflow run.
-            Do NOT stop after one stage — keep applying the next matching stage until the task reaches DONE.
-
-            ### Node 1 — ASSIGN (BACKLOG → IN-PROGRESS)
-            If task is in tasks/backlog/:
-              - Read ai-workflow/agents.md for PM responsibilities
-              - Update task: Assigned To, Assigned Date (today), Status = IN-PROGRESS
-              - Move file to tasks/in-progress/
-              - Update memory/project-manager/task-index.md and context.md
-              - Commit: git add -A && git commit -m "ai: <task_id> — assign" && git push origin main
-
-            ### Node 2 — IMPLEMENT (IN-PROGRESS → IN-REVIEW)
-            If task is in tasks/in-progress/ and assigned to flutter-developer:
-              - Read the task file, docs/CODEBASE.md, docs/v2-ux-spec.md, docs/v2-decisions.md
-              - Implement ONLY what the task specifies — no scope creep
-              - Write actual Flutter/Dart code using the Edit tool
-              - Fill Implementation Notes section
-              - Move file to tasks/in-review/
-              - Update memory/flutter-developer/context.md
-              - Commit: git add -A && git commit -m "ai: <task_id> — implement" && git push origin main
-            If task is in tasks/in-progress/ and assigned to laravel-developer:
-              - Read the task file, docs/v2-decisions.md
-              - Write actual Laravel/PHP code using the Edit tool
-              - Fill Implementation Notes section
-              - Move file to tasks/in-review/
-              - Update memory/laravel-developer/context.md
-              - Commit: git add -A && git commit -m "ai: <task_id> — implement" && git push origin main
-
-            ### Node 3 — QA VERIFY (IN-REVIEW QA)
-            If task is in tasks/in-review/ and QA Notes section is empty:
-              - Read the task file acceptance criteria
-              - Verify each criterion against the implemented code
-              - Fill in QA Notes with PASS/FAIL per criterion
-              - If ALL PASS: mark QA = PASSED, DO NOT move file (stays in tasks/in-review/ for Reviewer)
-              - If ANY FAIL: mark QA = FAILED, move file back to tasks/in-progress/
-              - Update memory/qa/context.md
-              - Commit: git add -A && git commit -m "ai: <task_id> — qa <PASSED/FAILED>" && git push origin main
-
-            ### Node 4 — REVIEWER APPROVE (IN-REVIEW → DONE)
-            If task is in tasks/in-review/ and QA Notes show PASSED:
-              - Read the task file, Implementation Notes, QA Notes
-              - Verify alignment with docs/v2-decisions.md and docs/v2-ux-spec.md
-              - If APPROVED: set status to DONE, move file to tasks/done/
-              - If REJECTED: document rejection reason, move file back to tasks/in-progress/
-              - Update memory/reviewer/context.md
-              - Commit: git add -A && git commit -m "ai: <task_id> — <APPROVED/REJECTED>" && git push origin main
-
-            ### Node 5 — HUMAN GATE (DONE → Telegram)
-            If task just moved to tasks/done/ and approval not yet sent:
-              1. Write tasks/.approval-state.json with:
-                 {
-                   "pending": true,
-                   "task_id": "<TASK_ID>",
-                   "task_title": "<TITLE>",
-                   "completed_by": "<agent>",
-                   "qa_result": "PASSED",
-                   "reviewer_decision": "APPROVED",
-                   "created_at": "<ISO timestamp>",
-                   "approved": null
-                 }
-              2. Commit and push: git add -A && git commit -m "ai: <task_id> — pending approval" && git push origin main
-              3. Call Telegram bot using bash:
-                 curl -X POST "$VPS_BOT_URL/bot/request-approval" \
-                   -H "Content-Type: application/json" \
-                   -d '{"task_id":"<TASK_ID>","title":"<TITLE>","qa_result":"PASSED","reviewer_decision":"APPROVED"}'
-              4. Exit — bot will trigger next workflow run when user approves.
-
-            ### Continue loop
-            After committing at any node ABOVE, go back and check if the same task is now in a new state
-            that matches the NEXT node. Keep looping through nodes 1→5 until the task is either DONE,
-            BLOCKED, or no further progress can be made.
-
-            ## PHASE 4 — Exit
-            If no actionable task found: print summary of why and exit.
-            If task reached DONE and Telegram was called: exit.
-            If task is stuck at any intermediate state: exit — next workflow run will continue.
-
-            ## REPOSITORY CONTEXT
-            This is a Flutter + Laravel monorepo:
-            - lib/ — Flutter mobile app (Dart)
-            - laravel/ — Laravel Admin Panel (PHP)
-            - docs/ — Project documentation
-            - ai-workflow/ — Agent rules
-            - memory/ — Agent state
-            - tasks/ — Task files
-
-            Start executing now. Read the state files and determine the next action.
