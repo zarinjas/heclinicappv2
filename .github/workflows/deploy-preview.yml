@@ -1,0 +1,61 @@
+name: Deploy Flutter Web Preview
+
+on:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: heclinic-preview
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+
+      - name: Verify Flutter
+        run: flutter --version
+
+      - run: flutter pub get
+
+      - run: flutter analyze
+
+      - name: Run tests (if any)
+        run: |
+          if [ -d test ] && [ "$(ls -A test 2>/dev/null)" ]; then
+            flutter test
+          fi
+
+      - run: flutter build web --release
+
+      - name: Install rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Clean remote directory
+        run: >
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          "rm -rf /var/www/heclinic/*"
+
+      - name: Deploy via rsync
+        run: >
+          rsync -avz --delete
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          build/web/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/heclinic/
