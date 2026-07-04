@@ -61,4 +61,9 @@ CRITICAL — completes the security fix started in P1-T01
 3–4 hours
 
 ## Status
-Backlog
+IN-PROGRESS
+
+## Assignment
+**Assigned To:** flutter-developer
+**Assigned Date:** 2026-07-05
+**Assigned By:** AI Director (project-manager)
