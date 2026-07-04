@@ -1,6 +1,43 @@
-# He Clinic Mobile App
+# He Clinic V2 — Development Workspace
 
-> FlutterFlow-generated Flutter project — Healthcare/Clinic booking app.
+> This repository is the development workspace for He Clinic V2.
+> The existing FlutterFlow implementation is a reference and starting point only. It is **not** the target architecture.
+> The objective is to build the best possible Flutter V2 using AI.
+
+---
+
+## Project Philosophy
+
+The AI working on this project should think like a senior software engineer, not a code generator.
+
+- The existing implementation is a starting point, not a constraint.
+- Architecture improvements are encouraged whenever they provide measurable benefits.
+- Before making significant architectural changes, explain:
+  - why the current approach is insufficient
+  - why the proposed approach is better
+  - migration impact
+  - risks
+- Preserve application behaviour unless the task explicitly changes it.
+- Do not refactor unrelated modules.
+- Prefer evolutionary improvements over unnecessary rewrites.
+- Deliver working software first, then improve the architecture incrementally.
+- When multiple valid solutions exist, prefer the one that reduces long-term maintenance cost.
+
+---
+
+## Flutter Developer Guidelines
+
+The Flutter developer (human or AI) working on this project should:
+
+- Understand existing code before changing it.
+- Use existing code as reference, not as a limitation.
+- Recommend better architectures when appropriate, with clear justification.
+- Explain important architectural decisions before implementing them.
+- Keep commits small and task-focused.
+- Avoid unnecessary large-scale rewrites — migrate incrementally.
+- Produce clean, maintainable Flutter code instead of FlutterFlow-style generated code whenever practical.
+
+---
 
 ---
 

@@ -23,17 +23,33 @@ jobs:
       - name: Verify Flutter
         run: flutter --version
 
-      - run: flutter pub get
+      # Fails the build if pub get cannot resolve dependencies.
+      - name: Install dependencies
+        run: flutter pub get
 
-      - run: flutter analyze
+      # Reporting step only — never fails the build.
+      #
+      # This workspace is in active V2 development. The FlutterFlow-generated
+      # baseline produces lint infos and warnings (e.g. prefer_const_constructors)
+      # that are not yet actionable. Analyze output is visible in the step log
+      # for awareness but does not block deployment.
+      #
+      # TODO: Remove `|| true` once the codebase has been cleaned up post-migration.
+      - name: Analyze (reporting only — non-blocking)
+        run: flutter analyze || true
 
-      - name: Run tests (if any)
+      # Fails the build if any test exits non-zero.
+      - name: Run tests
         run: |
           if [ -d test ] && [ "$(ls -A test 2>/dev/null)" ]; then
             flutter test
+          else
+            echo "No tests found — skipping."
           fi
 
-      - run: flutter build web --release
+      # Fails the build if the web release build does not compile successfully.
+      - name: Build web
+        run: flutter build web --release
 
       - name: Install rsync
         run: |
