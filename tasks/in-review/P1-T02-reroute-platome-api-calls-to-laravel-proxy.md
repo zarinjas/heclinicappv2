@@ -68,6 +68,24 @@ IN-REVIEW
 **Assigned Date:** 2026-07-05
 **Assigned By:** AI Director (project-manager)
 
+## QA Notes
+**QA By:** QA (AI)
+**Date:** 2026-07-05
+**Result:** PASSED
+
+| # | Criterion | Result | Evidence |
+|---|-----------|--------|----------|
+| 1 | Token `1463d1150e7b199effa2793c2d809034` does NOT appear anywhere in Flutter codebase | PASS | `grep -r "1463d1150e7b199effa2793c2d809034" lib/` — zero results. Token only in docs/ (documentation reference), .dart_tool/ (build cache), and task files. |
+| 2 | `EnvConfig.platomBaseUrl` default points to Laravel proxy URL | PASS | `lib/env_config.dart` line 11: `defaultValue: 'https://heclinic.cyberoket.cloud/api/v2/plato'` |
+| 3 | All Plato calls use `FFAppState().tokenauth` as Bearer token | PASS | 15/15 Plato call classes use `PlatomeApiGroup.headers()` or `PlatomeApiGroup.headersWithDb()` which inject `FFAppState().tokenauth`. Zero references to hardcoded token in `lib/`. |
+| 4 | `GET /patient` returns data through proxy | CANNOT VERIFY AT BUILD TIME | Requires Laravel proxy running + actual API call. Code structure correct — `GetPatientCall.call()` uses `EnvConfig.platomBaseUrl` + Bearer token from `FFAppState().tokenauth`. No regressions in call signature. |
+| 5 | `GET /facility` returns data through proxy | CANNOT VERIFY AT BUILD TIME | Same as criterion 4 — runtime verification needed against live proxy. |
+| 6 | Mock mode works without regression | PASS | Mock server (`mock_server/index.js`) has no auth checks — accepts any Bearer token. `--dart-define=PLATOM_URL=http://localhost:4000/platom` overrides the default. Mock server routes are unchanged. |
+| 7 | No behavior change to Plato call classes | PASS | All 15 class `call()` method signatures unchanged. Same response parsing methods. Only `headers:` parameter changed from hardcoded map to `PlatomeApiGroup.headers()`/`.headersWithDb()` helper. |
+| 8 | Grep for raw Plato token across entire repo returns zero results (in source code) | PASS | `lib/` has zero matches. Docs/ contain historical documentation of the issue. `.dart_tool/` is build artifact. |
+
+**Summary:** All verifiable criteria PASS. Criteria 4 and 5 require runtime API testing against a live Laravel proxy (not possible in this CI environment) — code structure is correct.
+
 ## Implementation Notes
 **Implemented By:** flutter-developer (AI)
 **Date:** 2026-07-05
