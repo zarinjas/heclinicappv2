@@ -37,13 +37,13 @@ jobs:
       - name: Run OpenCode Director
         uses: anomalyco/opencode/github@latest
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           VPS_BOT_URL: ${{ secrets.VPS_BOT_URL }}
           TRIGGER_ACTION: ${{ github.event.inputs.action }}
         with:
-          model: openai/gpt-4o
+          model: deepseek/deepseek-chat
           use_github_token: true
           prompt: |
             You are the AI Director for the He Clinic V2 project.
