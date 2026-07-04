@@ -575,6 +575,21 @@ class ForgotchangeCall {
       ));
 }
 
+/// Start PLATO API Group — Proxy via Laravel
+
+class PlatomeApiGroup {
+  static String getBaseUrl() => EnvConfig.platomBaseUrl;
+  static Map<String, String> headers() => {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'Content-Type': 'application/json',
+      };
+  static Map<String, String> headersWithDb() => {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'Content-Type': 'application/json',
+        'db': 'hemedclinic',
+      };
+}
+
 /// End MEDICAL APPS API Group Code
 
 class GetPatientCall {
@@ -583,10 +598,7 @@ class GetPatientCall {
       callName: 'getPatient',
       apiUrl: '${EnvConfig.platomBaseUrl}/patient',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -650,10 +662,7 @@ class GetproviderCall {
       callName: 'getprovider',
       apiUrl: '${EnvConfig.platomBaseUrl}/facility',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -720,10 +729,7 @@ class DeletePatientForAdminOnlyCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/patient/${idplato}',
       callType: ApiCallType.DELETE,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -789,10 +795,7 @@ class CeknumberphoneCall {
       callName: 'ceknumberphone',
       apiUrl: '${EnvConfig.platomBaseUrl}/search/patient',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {
         'telephone': telephone,
       },
@@ -861,10 +864,7 @@ class GetPatientbyidCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/patient/${idpatient}',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -935,10 +935,7 @@ class GetPatientbyidCopyCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/patient/${idpatient}',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -1073,10 +1070,7 @@ class GetReportCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/patient/${patientId}/note',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -1161,10 +1155,7 @@ class LetterCall {
       callName: 'Letter',
       apiUrl: '${EnvConfig.platomBaseUrl}/letter',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {
         'patient_id': patientId,
       },
@@ -1223,10 +1214,7 @@ class LetterCopyCall {
       callName: 'Letter Copy',
       apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {
         'patient_id': patientId,
       },
@@ -1332,10 +1320,7 @@ class GetAppointmentCall {
       callName: 'Get Appointment',
       apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {
         'patient_id': patientId,
         'modified_since': modifiedSince,
@@ -1378,10 +1363,7 @@ class GetAppointmentUpcomingCall {
       callName: 'Get Appointment upcoming',
       apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {
         'patient_id': patientId,
         'start_date': startDate,
@@ -1452,10 +1434,7 @@ class GetAppointmentDetailsCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/appointment/a052e78b3a5547bba54ddbbc83619e93',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {
         'patient_id': patientId,
         'modified_since': modifiedSince,
@@ -1496,10 +1475,7 @@ class GetAppointmentCodeCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/appointment/codes',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -1555,10 +1531,7 @@ class GetAppointmentCopyCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/appointments/calendars',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'db': 'hemedclinic',
-      },
+      headers: PlatomeApiGroup.headersWithDb(),
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -1607,10 +1580,7 @@ class EditPatiendCall {
       apiUrl:
           '${EnvConfig.platomBaseUrl}/patient/${patientId}',
       callType: ApiCallType.PUT,
-      headers: {
-        'Authorization': 'Bearer 1463d1150e7b199effa2793c2d809034',
-        'Content-Type': 'application/json',
-      },
+      headers: PlatomeApiGroup.headers(),
       params: {},
       body: ffApiRequestBody,
       bodyType: BodyType.JSON,

@@ -7,7 +7,7 @@ Process 1 — Security and Foundation
 
 ## Active Tasks
 - P1-T01 (add-laravel-proxy-env-token) — assigned to laravel-developer, DONE
-- P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — assigned to flutter-developer, IN-PROGRESS since 2026-07-05
+- P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — assigned to flutter-developer, IN-REVIEW since 2026-07-05
 
 ## Blocked Tasks
 None currently. P1-T02 will be blocked until P1-T01 is DONE.

@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-None — awaiting Director assignment.
+P1-T02 (reroute-platome-api-calls-to-laravel-proxy) — IN-REVIEW awaiting QA
 
 ## Last Completed Task
-None.
+P1-T02 — Rerouted all 15 PlatomeApiGroup call classes to use FFAppState().tokenauth via Laravel proxy. Created PlatomeApiGroup helper class. Updated EnvConfig default URL.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)

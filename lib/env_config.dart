@@ -8,7 +8,7 @@ class EnvConfig {
 
   static const String platomBaseUrl = String.fromEnvironment(
     'PLATOM_URL',
-    defaultValue: 'https://clinic.platomedical.com/api/hemedclinic',
+    defaultValue: 'https://heclinic.cyberoket.cloud/api/v2/plato',
   );
 
   static const String wordpressBaseUrl = String.fromEnvironment(

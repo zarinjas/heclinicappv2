@@ -61,9 +61,34 @@ CRITICAL — completes the security fix started in P1-T01
 3–4 hours
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
 
 ## Assignment
 **Assigned To:** flutter-developer
 **Assigned Date:** 2026-07-05
 **Assigned By:** AI Director (project-manager)
+
+## Implementation Notes
+**Implemented By:** flutter-developer (AI)
+**Date:** 2026-07-05
+
+### Changes Made:
+
+1. **`lib/env_config.dart`** — Updated `platomBaseUrl` default from `https://clinic.platomedical.com/api/hemedclinic` to `https://heclinic.cyberoket.cloud/api/v2/plato` (Laravel proxy URL).
+
+2. **`lib/backend/api_requests/api_calls.dart`** — Created `PlatomeApiGroup` helper class with:
+   - `getBaseUrl()` — returns `EnvConfig.platomBaseUrl`
+   - `headers()` — returns `{Authorization: Bearer <FFAppState().tokenauth>, Content-Type: application/json}`
+   - `headersWithDb()` — same as headers() plus `db: hemedclinic`
+   
+3. **Removed hardcoded token** from all 15 Plato call classes:
+   - `GetPatientCall`, `GetproviderCall`, `DeletePatientForAdminOnlyCall`, `CeknumberphoneCall`, `GetPatientbyidCall`, `GetPatientbyidCopyCall` — use `PlatomeApiGroup.headers()`
+   - `GetReportCall`, `LetterCall`, `LetterCopyCall`, `GetAppointmentCall`, `GetAppointmentUpcomingCall`, `GetAppointmentDetailsCall`, `GetAppointmentCodeCall`, `GetAppointmentCopyCall` — use `PlatomeApiGroup.headersWithDb()`
+   - `EditPatiendCall` — uses `PlatomeApiGroup.headers()`
+
+4. **Mock server** — No changes needed. Mock server accepts any Bearer token (no auth validation). The `PLATOM_URL` dart-define can still point to `http://localhost:4000/platom` in mock mode.
+
+### Verification:
+- `grep -r "1463d1150e7b199effa2793c2d809034" lib/` — returns zero results (token fully removed from Flutter codebase).
+- All 15 Plato class signatures (call() method parameters) remain unchanged — no behavior change, same request/response shape.
+- Mock mode unaffected — `--dart-define=PLATOM_URL=http://localhost:4000/platom` still works, no auth check on mock server.
