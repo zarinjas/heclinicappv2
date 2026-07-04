@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "254839499256",
+    "project_id": "heclinicapps-8be27",
+    "storage_bucket": "heclinicapps-8be27.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254839499256:android:6688bb01fbbf6394528e0d",
+        "android_client_info": {
+          "package_name": "com.hemedgroup.heclinicapps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuyP6JJc3LPDG0oYU37H5SngWy4qNiSu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:254839499256:android:50bbe528af6332b5528e0d",
+        "android_client_info": {
+          "package_name": "com.mycompany.heclinicapps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuyP6JJc3LPDG0oYU37H5SngWy4qNiSu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

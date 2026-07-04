@@ -1,0 +1,14 @@
+# ~/.continue/config.yaml
+name: Biznes AI
+version: 1.0.0
+models:
+  - name: Claude Sonnet 4.6
+    provider: openai
+    model: claude-sonnet-4.6
+    apiBase: https://api.biznes.my/v1
+    apiKey: sk-e4d8997f3ce154024ee632b772ad37817750c2061bafe03b
+    roles:
+      - chat
+      - edit
+      - apply
+
