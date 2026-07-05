@@ -6,7 +6,8 @@ Last Updated: 2026-07-05
 Process 3 — Mobile App: Data Layer Refactor (Flutter)
 
 ## Active Tasks
-P3-T01 — P3-T06 created and in BACKLOG. Ready for AI Director to pick up.
+P3-T01 — Global API Error Interceptor (IN-PROGRESS)
+P3-T02 — P3-T06 in BACKLOG
 
 ## Blocked Tasks
 None currently.

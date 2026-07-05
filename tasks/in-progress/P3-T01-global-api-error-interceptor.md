@@ -33,5 +33,11 @@ Currently `lib/backend/api_requests/api_manager.dart` has no global error handli
 
 ## Reviewer Notes
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
 ## Status
-BACKLOG
+IN-PROGRESS
