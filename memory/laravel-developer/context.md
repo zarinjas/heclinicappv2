@@ -1,9 +1,28 @@
 # Laravel Developer — Context
 
-Last Updated: 2026-07-05 (P9-T01 implemented)
+Last Updated: 2026-07-05 (P9-T02 implemented)
 
 ## Active Task
-P9-T01 — Sliders CMS — Admin Panel + Mobile (IN-REVIEW)
+P9-T02 — Service Packages CMS — Admin Panel + Mobile (IN-REVIEW)
+
+## Implementation Summary — P9-T02
+- `laravel/database/migrations/2026_07_05_000016_create_cms_service_packages_table.php`: new migration for cms_service_packages table (id, name, description, image, is_active, sort_order, timestamps, indexes)
+- `laravel/app/Models/CmsServicePackage.php`: new model with fillable, boolean+integer casts, image_url accessor via asset('storage/...')
+- `laravel/app/Http/Requests/StoreCmsServicePackageRequest.php`: form request with name (required, max 255), description (nullable text), image (required on create, nullable on update, mimes:jpeg/png/webp, max 5MB), is_active (boolean), sort_order (nullable int min 0)
+- `laravel/app/Http/Controllers/Admin/CmsServicePackageController.php`: full CRUD — index (filter by status), create, store (file upload to storage/service-packages/), edit, update (old image deletion on replace), destroy (image cleanup)
+- `laravel/app/Http/Controllers/Api/CmsServicePackageController.php`: public GET /api/v2/cms/service-packages — returns active packages ordered by sort_order ASC with id, name, description, image_url, sort_order
+- `laravel/resources/views/admin/cms/service-packages/index.blade.php`: list view with All/Active/Inactive filter chips, table with thumbnail preview, name, description (truncated), sort order, status badge, edit/delete actions, empty state, pagination
+- `laravel/resources/views/admin/cms/service-packages/form.blade.php`: shared create/edit form with name input, description textarea, image file input + current image preview, sort order, active toggle
+- `laravel/routes/web.php`: added CmsServicePackageController under admin.cms.service-packages.* routes
+- `laravel/routes/api.php`: added public GET /api/v2/cms/service-packages
+- `lib/env_config.dart`: added laravelBaseUrl config pointing to Laravel API server
+- `lib/backend/api_requests/api_calls.dart`: updated ServicesPackagesCall to target Laravel CMS API with full response parsers (id, name, description, image, sort_order)
+- `lib/service_package/service_package/service_package_widget.dart`: rewritten from hardcoded static images to dynamic API-driven list with CachedNetworkImage, skeleton loader (SkeletonCard + SkeletonTextBlock), empty state, error state with retry button
+- `lib/service_package/service_package/service_package_model.dart`: rewritten with isLoading/hasError/errorMessage/packages state, loadPackages() method
+- All PHP files pass syntax check (php -l)
+
+## Last Completed Task
+P9-T01 — Sliders CMS — Admin Panel + Mobile (DONE)
 
 ## Implementation Summary — P9-T01
 - `laravel/database/migrations/2026_07_05_000015_create_cms_sliders_table.php`: new migration for cms_sliders table (id, image, title, link_url, is_active, sort_order, timestamps, indexes)
