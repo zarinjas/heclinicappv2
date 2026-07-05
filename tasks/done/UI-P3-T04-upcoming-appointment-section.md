@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell) |
 | Blocked Reason | N/A |
@@ -117,23 +117,31 @@ Implement the upcoming appointment section on the home screen using the `Appoint
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+- [x] Upcoming appointment card is displayed when patient has a future appointment — PASS
+- [x] Card shows branch name, doctor name, date, and status chip — PASS (StatusChipVariant parsed from API)
+- [x] AppSkeleton shimmer is displayed while appointment data is loading — PASS
+- [x] AppEmptyState with 'Book Now' CTA is shown when no upcoming appointments exist — PASS (onCtaTap navigates to booking)
+- [x] 'See All' tap navigates to appointments tab — PASS (goes to MyBookingPageWidget)
+- [x] Book Now CTA navigates to booking flow — PASS
+- [x] flutter analyze passes with zero errors — PASS
 
 ### Failure Details
-
-
----
+N/A---
 
 ## Reviewer Notes
 
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
+- v2-decisions.md alignment: YES — business logic preserved, API calls unchanged
+- v2-ux-spec.md alignment: YES — matches home screen upcoming appointment spec
+- ui-design-system.md alignment: YES — AppointmentCard from Phase 0 used, design tokens throughout
 
 ### Rejection Reason
-
+N/A
