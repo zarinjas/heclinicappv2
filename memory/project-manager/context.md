@@ -21,7 +21,7 @@ P5-T05 — Booking Confirmation Screen (DONE)
 P5-T06 — WhatsApp Redirect After Booking (DONE)
 P5-T07 — Admin Appointment Creation and Confirmation (DONE)
 P5-T08 — Appointment Confirmation Notification (DONE)
-P5-T09 — Appointments Tab Display (IN-REVIEW)
+P5-T09 — Appointments Tab Display (DONE)
 
 ## Blocked Tasks
 (None — Process 2 completed, P5-T03 unblocked)

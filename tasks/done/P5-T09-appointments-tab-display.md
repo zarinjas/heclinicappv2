@@ -17,7 +17,7 @@ Appointments Tab Display
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T08 |
 | Blocked Reason | N/A |
@@ -176,11 +176,11 @@ Created `lib/pages/appointments/appointments_screen.dart` — a complete appoint
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 9 (GET /appointment via Laravel proxy, appointments tab display) fully implemented
+- v2-ux-spec.md alignment: YES — Upcoming/Past tabs, appointment cards with date/time/doctor/branch/status, color bar, tap→detail bottom sheet, pull-to-refresh, empty/loading/error states, V2 design system colors/typography/spacing
 
 ### Rejection Reason
 {If REJECTED}
