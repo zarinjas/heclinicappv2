@@ -10,7 +10,8 @@ P3-T01 — Global API Error Interceptor (DONE)
 P3-T02 — Pagination Helper (DONE)
 P3-T03 — modified_since Strategy (DONE)
 P3-T04 — HTTP 429 Exponential Backoff (DONE)
-P3-T05 — P3-T06 in BACKLOG
+P3-T05 — Rate Limit Monitor (IN-PROGRESS)
+P3-T06 — Laravel Proxy URL Audit (BACKLOG)
 
 ## Blocked Tasks
 None currently.

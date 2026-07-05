@@ -37,5 +37,11 @@ Plato API includes `x-ratelimit-limit` and `x-ratelimit-remaining` headers in ev
 
 ## Reviewer Notes
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
 ## Status
-BACKLOG
+IN-PROGRESS
