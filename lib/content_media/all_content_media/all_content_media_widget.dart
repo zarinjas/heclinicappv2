@@ -1,7 +1,11 @@
-import '/backend/backend.dart';
+import '/backend/api_requests/api_calls.dart';
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -23,18 +27,87 @@ class _AllContentMediaWidgetState extends State<AllContentMediaWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _isLoading = true;
+  bool _hasError = false;
+  List<_CmsVideoItem> _videos = [];
+  int _currentPage = 1;
+  int _lastPage = 1;
+  bool _isLoadingMore = false;
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => AllContentMediaModel());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadVideos());
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+  Future<void> _loadVideos({int page = 1}) async {
+    if (page == 1) {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    } else {
+      setState(() => _isLoadingMore = true);
+    }
+
+    try {
+      final response = await GetCmsVideosCall.call(limit: 10, page: page);
+      if (mounted) {
+        if (response.succeeded) {
+          final json = response.jsonBody;
+          final titles = GetCmsVideosCall.title(json) ?? [];
+          final thumbnails = GetCmsVideosCall.thumbnailUrl(json) ?? [];
+          final tiktokUrls = GetCmsVideosCall.tiktokUrl(json) ?? [];
+          final authors = GetCmsVideosCall.tiktokAuthor(json) ?? [];
+          final total = GetCmsVideosCall.total(json) ?? 0;
+          final currentPage = GetCmsVideosCall.currentPage(json) ?? 1;
+          final lastPage = GetCmsVideosCall.lastPage(json) ?? 1;
+
+          final items = <_CmsVideoItem>[];
+          for (int i = 0; i < titles.length; i++) {
+            items.add(_CmsVideoItem(
+              title: titles[i],
+              thumbnailUrl: i < thumbnails.length ? thumbnails[i] : '',
+              tiktokUrl: i < tiktokUrls.length ? tiktokUrls[i] : '',
+              tiktokAuthor: i < authors.length ? authors[i] : null,
+            ));
+          }
+
+          setState(() {
+            if (page == 1) {
+              _videos = items;
+            } else {
+              _videos.addAll(items);
+            }
+            _currentPage = currentPage;
+            _lastPage = lastPage;
+            _isLoading = false;
+            _isLoadingMore = false;
+            _hasError = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _isLoadingMore = false;
+            _hasError = true;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+          _hasError = true;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
@@ -47,9 +120,9 @@ class _AllContentMediaWidgetState extends State<AllContentMediaWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        backgroundColor: AppColors.bgLight,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
+          backgroundColor: AppColors.primary,
           automaticallyImplyLeading: false,
           leading: InkWell(
             splashColor: Colors.transparent,
@@ -59,115 +132,178 @@ class _AllContentMediaWidgetState extends State<AllContentMediaWidget> {
             onTap: () async {
               context.safePop();
             },
-            child: Icon(
+            child: const Icon(
               Icons.arrow_back,
-              color: FlutterFlowTheme.of(context).alternate,
+              color: Colors.white,
               size: 24.0,
             ),
           ),
           title: Text(
-            'Content & Media',
-            style: FlutterFlowTheme.of(context).titleMedium.override(
-                  fontFamily: FlutterFlowTheme.of(context).titleMediumFamily,
-                  color: FlutterFlowTheme.of(context).alternate,
-                  letterSpacing: 0.0,
-                  useGoogleFonts:
-                      !FlutterFlowTheme.of(context).titleMediumIsCustom,
-                ),
+            'Videos',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
           actions: [],
           centerTitle: true,
-          elevation: 3.0,
+          elevation: 0.0,
         ),
         body: SafeArea(
           top: true,
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 10.0, 16.0, 10.0),
-            child: StreamBuilder<List<VideosRecord>>(
-              stream: queryVideosRecord(
-                queryBuilder: (videosRecord) =>
-                    videosRecord.orderBy('timestamp'),
-              ),
-              builder: (context, snapshot) {
-                // Customize what your widget looks like when it's loading.
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: Image.asset(
-                      'assets/images/output-onlinegiftools.gif',
-                    ),
-                  );
-                }
-                List<VideosRecord> listViewVideosRecordList = snapshot.data!;
-
-                return ListView.builder(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: listViewVideosRecordList.length,
-                  itemBuilder: (context, listViewIndex) {
-                    final listViewVideosRecord =
-                        listViewVideosRecordList[listViewIndex];
-                    return Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 10.0),
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          await launchURL(listViewVideosRecord.videoUrl);
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          height: 500.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 4.0,
-                                color: Color(0x33000000),
-                                offset: Offset(
-                                  0.0,
-                                  2.0,
-                                ),
-                              )
-                            ],
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.network(
-                                  listViewVideosRecord.thumbnail,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Align(
-                                alignment: AlignmentDirectional(0.0, 0.0),
-                                child: Icon(
-                                  Icons.play_circle,
-                                  color: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
-                                  size: 80.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+          child: _buildBody(),
         ),
       ),
     );
   }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12.0,
+            mainAxisSpacing: 12.0,
+            childAspectRatio: 1.2,
+          ),
+          itemCount: 8,
+          itemBuilder: (_, __) => const SkeletonCard(height: 200.0),
+        ),
+      );
+    }
+
+    if (_hasError) {
+      return Center(
+        child: ErrorStateWidget(
+          onRetry: () => _loadVideos(),
+        ),
+      );
+    }
+
+    if (_videos.isEmpty) {
+      return const EmptyStateWidget(
+        icon: Icons.video_library_outlined,
+        title: 'No videos yet',
+        subtitle: 'Check back soon for our latest videos',
+      );
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollNotification) {
+        if (scrollNotification is ScrollEndNotification &&
+            scrollNotification.metrics.pixels >=
+                scrollNotification.metrics.maxScrollExtent - 200 &&
+            _currentPage < _lastPage &&
+            !_isLoadingMore) {
+          _loadVideos(page: _currentPage + 1);
+        }
+        return false;
+      },
+      child: GridView.builder(
+        padding: const EdgeInsets.all(16.0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12.0,
+          mainAxisSpacing: 12.0,
+          childAspectRatio: 1.2,
+        ),
+        itemCount: _videos.length + (_isLoadingMore ? 2 : 0),
+        itemBuilder: (context, index) {
+          if (index >= _videos.length) {
+            return const SkeletonCard(height: 200.0);
+          }
+          final video = _videos[index];
+          return GestureDetector(
+            onTap: () => launchURL(video.tiktokUrl),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                color: AppColors.divider,
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    child: video.thumbnailUrl.isNotEmpty
+                        ? Image.network(
+                            video.thumbnailUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.video_library_outlined,
+                              size: 40.0,
+                              color: AppColors.textSecondary,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.video_library_outlined,
+                            size: 40.0,
+                            color: AppColors.textSecondary,
+                          ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 48.0,
+                      height: 48.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: AppColors.primary,
+                        size: 28.0,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(AppRadius.lg),
+                        ),
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                      child: Text(
+                        video.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _CmsVideoItem {
+  final String title;
+  final String thumbnailUrl;
+  final String tiktokUrl;
+  final String? tiktokAuthor;
+
+  _CmsVideoItem({
+    required this.title,
+    required this.thumbnailUrl,
+    required this.tiktokUrl,
+    this.tiktokAuthor,
+  });
 }

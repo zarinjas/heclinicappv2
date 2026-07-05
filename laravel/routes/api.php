@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
 use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
+use App\Http\Controllers\Api\CmsVideoController as ApiCmsVideoController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
@@ -42,3 +43,6 @@ Route::get('/v2/cms/sliders', [ApiCmsSliderController::class, 'index'])
 
 Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, 'index'])
     ->name('cms.service-packages');
+
+Route::get('/v2/cms/videos', [ApiCmsVideoController::class, 'index'])
+    ->name('cms.videos');

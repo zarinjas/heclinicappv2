@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsArticleController;
 use App\Http\Controllers\Admin\CmsSliderController;
 use App\Http\Controllers\Admin\CmsServicePackageController;
+use App\Http\Controllers\Admin\CmsVideoController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
@@ -49,6 +50,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::resource('sliders', CmsSliderController::class);
             Route::resource('service-packages', CmsServicePackageController::class);
             Route::resource('articles', CmsArticleController::class);
+            Route::resource('videos', CmsVideoController::class);
+            Route::post('videos/fetch-info', [CmsVideoController::class, 'fetchInfo'])->name('videos.fetch-info');
         });
     });
 });

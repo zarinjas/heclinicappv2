@@ -1305,6 +1305,85 @@ class GetArticlesCall {
           .toList();
 }
 
+class GetCmsVideosCall {
+  static Future<ApiCallResponse> call({
+    int limit = 10,
+    int page = 1,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetCmsVideos',
+      apiUrl: '${EnvConfig.laravelBaseUrl}/v2/cms/videos?limit=$limit&page=$page',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<int>? id(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<int>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? title(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].title''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? tiktokUrl(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].tiktok_url''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? thumbnailUrl(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].thumbnail_url''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? tiktokAuthor(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].tiktok_author''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static int? total(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.total''',
+      ));
+  static int? currentPage(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.current_page''',
+      ));
+  static int? lastPage(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.last_page''',
+      ));
+}
+
 class GetReportCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',

@@ -44,10 +44,12 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   bool _slidersLoaded = false;
   bool _upcomingLoaded = false;
   bool _articlesLoaded = false;
+  bool _videosLoaded = false;
 
   bool _slidersError = false;
   bool _upcomingError = false;
   bool _articlesError = false;
+  bool _videosError = false;
 
   @override
   void initState() {
@@ -65,6 +67,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
       _loadSliders(),
       _loadUpcomingAppointment(),
       _loadArticles(),
+      _loadVideos(),
     ]);
     if (mounted) safeSetState(() {});
   }
@@ -242,6 +245,23 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
       if (mounted) setState(() {
         _articlesLoaded = true;
         _articlesError = true;
+      });
+    }
+  }
+
+  Future<void> _loadVideos() async {
+    try {
+      _model.apiResultu9n = await GetCmsVideosCall.call(limit: 6);
+      if (mounted) {
+        setState(() {
+          _videosLoaded = true;
+          _videosError = !(_model.apiResultu9n?.succeeded ?? false);
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() {
+        _videosLoaded = true;
+        _videosError = true;
       });
     }
   }
@@ -904,6 +924,39 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   Widget _buildVideos() {
     final theme = FlutterFlowTheme.of(context);
 
+    if (!_videosLoaded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeaderWithAction(
+              'Videos',
+              'See All',
+              () => context.pushNamed(AllContentMediaWidget.routeName),
+            ),
+            const SizedBox(height: 8.0),
+            const SkeletonGrid(itemCount: 4),
+          ],
+        ),
+      );
+    }
+
+    if (_videosError) {
+      return _buildSectionError('Videos', _loadVideos);
+    }
+
+    final titles = GetCmsVideosCall.title(_model.apiResultu9n?.jsonBody ?? '') ?? [];
+    final thumbnails = GetCmsVideosCall.thumbnailUrl(_model.apiResultu9n?.jsonBody ?? '') ?? [];
+    final tiktokUrls = GetCmsVideosCall.tiktokUrl(_model.apiResultu9n?.jsonBody ?? '') ?? [];
+    final displayCount = titles.length > 4 ? 4 : titles.length;
+
+    if (displayCount == 0) return const SizedBox.shrink();
+
+    final displayTitles = titles.sublist(0, displayCount);
+    final displayThumbnails = thumbnails.length >= displayCount ? thumbnails.sublist(0, displayCount) : thumbnails;
+    final displayUrls = tiktokUrls.length >= displayCount ? tiktokUrls.sublist(0, displayCount) : tiktokUrls;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
       child: Column(
@@ -915,97 +968,84 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
             () => context.pushNamed(AllContentMediaWidget.routeName),
           ),
           const SizedBox(height: 8.0),
-          StreamBuilder<List<VideosRecord>>(
-            stream: queryVideosRecord(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SkeletonGrid(itemCount: 4);
-              }
-
-              final videos = snapshot.data!;
-              if (videos.isEmpty) return const SizedBox.shrink();
-
-              final displayVideos = videos.length > 4
-                  ? videos.sublist(0, 4)
-                  : videos;
-
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: EdgeInsets.zero,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12.0,
-                  mainAxisSpacing: 12.0,
-                  childAspectRatio: 1.2,
-                ),
-                itemCount: displayVideos.length,
-                itemBuilder: (_, index) {
-                  final video = displayVideos[index];
-                  return GestureDetector(
-                    onTap: () => launchURL(video.videoUrl),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                        color: AppColors.divider,
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(AppRadius.lg),
-                            child:                           video.thumbnail.isNotEmpty
-                                ? Image.network(
-                                    video.thumbnail,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => _videoPlaceholder(),
-                                  )
-                                : _videoPlaceholder(),
-                          ),
-                          Container(
-                            width: 36.0,
-                            height: 36.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                            child: const Icon(
-                              Icons.play_arrow,
-                              color: AppColors.primary,
-                              size: 22.0,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(AppRadius.lg),
-                                ),
-                                color: Colors.black.withOpacity(0.5),
-                              ),
-                              child: Text(
-                                video.title ?? '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12.0,
+              mainAxisSpacing: 12.0,
+              childAspectRatio: 1.2,
+            ),
+            itemCount: displayCount,
+            itemBuilder: (_, index) {
+              return GestureDetector(
+                onTap: () {
+                  if (index < displayUrls.length) {
+                    launchURL(displayUrls[index]);
+                  }
                 },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    color: AppColors.divider,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        child: index < displayThumbnails.length && displayThumbnails[index].isNotEmpty
+                            ? Image.network(
+                                displayThumbnails[index],
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _videoPlaceholder(),
+                              )
+                            : _videoPlaceholder(),
+                      ),
+                      Container(
+                        width: 36.0,
+                        height: 36.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: AppColors.primary,
+                          size: 22.0,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(AppRadius.lg),
+                            ),
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                          child: Text(
+                            index < displayTitles.length ? displayTitles[index] : '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             },
           ),
