@@ -17,7 +17,7 @@ Laravel Project Setup with Auth and Roles
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -110,17 +110,19 @@ Set up Laravel authentication and role system for the Admin Panel. Install Larav
 
 ### What Was Done
 Installed and configured Laravel authentication and role system for the Admin Panel:
-- Created migration to add `role` (enum: super_admin, branch_admin, staff) and `branch_id` (nullable FK) to users table
+- Created migration to add `role` (enum: super_admin, branch_admin, staff) and `branch_id` (nullable) to users table. branch_id has no FK constraint — FK to be added in P2-T02 when branches table exists.
 - Created RoleMiddleware with support for multiple roles per route; registered as `role` alias in bootstrap/app.php
 - Created Admin AuthController with login/logout using session-based authentication
 - Created Admin DashboardController with dashboard view showing user role and placeholder stats
 - Created Blade views: auth/login.blade.php (login form with He Clinic branding), layouts/admin.blade.php (sidebar layout with dark navigation), admin/dashboard.blade.php (stats cards + welcome message)
 - Created UserSeeder with Super Admin (from .env ADMIN_EMAIL/ADMIN_PASSWORD) and sample Staff user
-- Updated User model with role constants (ROLE_SUPER_ADMIN, ROLE_BRANCH_ADMIN, ROLE_STAFF), helper methods (isSuperAdmin(), isBranchAdmin(), isStaff(), hasRole()), and branch relationship
+- Updated User model with role constants (ROLE_SUPER_ADMIN, ROLE_BRANCH_ADMIN, ROLE_STAFF), helper methods (isSuperAdmin(), isBranchAdmin(), isStaff(), hasRole()). branch() relationship deferred to P2-T02.
 - Updated DatabaseSeeder to call UserSeeder
 - Added admin web routes: /admin/login (GET/POST), /admin/logout (POST), /admin/dashboard (GET, protected by auth + role middleware)
 - Added ADMIN_EMAIL and ADMIN_PASSWORD to .env.example
 - Sidebar includes placeholder links for Branches, Doctors, and Calendar Setup (marked "Soon")
+
+**QA Fix (Round 2):** Removed `dropForeign(['branch_id'])` from migration down() — no FK was created (foreignId without constrained()). Removed `branch()` relationship from User model — deferred to P2-T02 when Branch model exists.
 
 ### Files Changed
 - `laravel/database/migrations/2026_07_05_000000_add_role_and_branch_to_users_table.php` — new migration
@@ -131,7 +133,7 @@ Installed and configured Laravel authentication and role system for the Admin Pa
 - `laravel/resources/views/layouts/admin.blade.php` — new admin layout
 - `laravel/resources/views/admin/dashboard.blade.php` — new dashboard view
 - `laravel/database/seeders/UserSeeder.php` — new seeder
-- `laravel/app/Models/User.php` — added role constants, helper methods, branch relationship
+- `laravel/app/Models/User.php` — added role constants, helper methods (branch() deferred to P2-T02)
 - `laravel/database/seeders/DatabaseSeeder.php` — updated to call UserSeeder
 - `laravel/routes/web.php` — added admin routes
 - `laravel/bootstrap/app.php` — registered role middleware alias

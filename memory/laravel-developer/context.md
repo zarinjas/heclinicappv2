@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T01 — Laravel Project Setup with Auth and Roles (IN-REVIEW)
+P2-T01 — Laravel Project Setup with Auth and Roles (IN-REVIEW — Round 2 after QA fix)
 
 ## Last Completed Task
 None (first Process 2 task implemented).
