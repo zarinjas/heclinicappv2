@@ -44,5 +44,11 @@ MEDIUM — code quality and attack surface reduction
 ## Estimated Effort
 1 hour
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
 ## Status
-Backlog
+IN-PROGRESS
