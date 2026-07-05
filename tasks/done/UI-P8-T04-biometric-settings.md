@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -173,10 +173,14 @@ Created `lib/features/profile/biometric_screen.dart` — V2 Biometric Settings s
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
+- v2-decisions.md alignment: YES — Biometric login with local_auth, existing saveBiometricStatus/loadBiometricStatus preserved
+- v2-ux-spec.md alignment: YES — Biometric Login toggle from Profile Tab expanded into dedicated settings screen, toggle + explanation pattern
+- ui-design-system.md compliance: YES — AppColors, AppTextStyles, AppSpacing, AppRadius, AppShadows, AppAppBar.sub, Switch with accent activeColor, AppSkeleton shimmer, AppErrorState with retry, AppToast for status messages, dark mode implemented, zero FF/FFTheme references
+- ui-migration-plan.md alignment: YES — Phase 8.4, Biometric Settings at `lib/features/profile/biometric_screen.dart`, preserve local_auth logic, replace only UI
 
 ### Rejection Reason
+N/A
 
