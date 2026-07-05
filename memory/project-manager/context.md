@@ -1,12 +1,12 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 4 — tasks created, pending)
+Last Updated: 2026-07-05 (UI Epic Phase 4 — UI-P4-T01 DONE)
 
 ## Current Process
 Epic: UI Migration — Phase 4 (Booking Flow Screens)
 
 ## Active Tasks
-- UI-P4-T01 (booking-branch-screen) — IN-REVIEW (implemented, pending QA)
+- UI-P4-T01 (booking-branch-screen) — DONE (2026-07-05)
 
 ## Phase 4 — PENDING
 - 6 tasks created: UI-P4-T01 through UI-P4-T06
@@ -18,7 +18,7 @@ Epic: UI Migration — Phase 4 (Booking Flow Screens)
 ## Phase 4 Tasks
 | Task ID | Name |
 |---------|------|
-| UI-P4-T01 | Booking Branch Selection | IN-REVIEW |
+| UI-P4-T01 | Booking Branch Selection | DONE |
 | UI-P4-T02 | Booking Doctor Selection |
 | UI-P4-T03 | Booking Date & Time |
 | UI-P4-T04 | Booking Confirmation & WhatsApp |

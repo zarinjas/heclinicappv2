@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -129,4 +129,12 @@ Created `lib/features/booking/booking_branch_screen.dart`:
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes. Leave blank until Reviewer picks up the task.
+APPROVED — Full design system compliance verified:
+- No hardcoded colors (all via AppColors)
+- No hardcoded font sizes (all via AppTextStyles/component internals)
+- No magic numbers (all via AppSpacing/AppRadius)
+- Dark mode: handled via Theme.of(context).brightness in all components
+- Skeleton + empty + error states present
+- All shared components used (AppAppBar, StepIndicator, BranchCard, AppButton, AppEmptyState, AppErrorState)
+- v2-ux-spec §4 (Booking Flow Step 1) alignment: layout, step indicator, card list, selection, button state — all match
+- v2-decisions.md booking flow model respected
