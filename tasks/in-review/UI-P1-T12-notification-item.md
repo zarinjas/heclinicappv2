@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -71,6 +71,21 @@ Build the `NotificationItem` reusable component for the Notifications tab list. 
 - Design tokens only
 - Dark mode support
 - Swipe gesture must work on both platforms
+
+---
+
+## Implementation Notes
+
+- Created `lib/core/widgets/notification_item.dart`
+- StatelessWidget with constructor params: title, body, createdAt, isRead, type, deepLink, reference, onTap, onDismiss
+- Leading icon: 24px Material icon mapped by type (calendar/appointment/document/alarm/campaign/default)
+- Title: `AppTextStyles.heading3` with `AppColors.primary` (light) / `AppColors.textPrimaryDark` (dark)
+- Body: `AppTextStyles.body2` with `AppColors.textSecondary`, maxLines 2
+- Timestamp: `AppTextStyles.caption` with relative formatting (m/h/d ago)
+- Unread: accented tinted bg + 6px blue dot on icon; Read: transparent bg, no dot
+- Dismissible: swipe end-to-start with red delete background, confirmDismiss fires onDismiss
+- Dark mode: all text colors adapt
+- `flutter analyze`: zero errors
 
 ---
 
