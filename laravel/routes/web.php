@@ -37,5 +37,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('notifications.compose');
         Route::post('notifications/compose', [NotificationController::class, 'send'])
             ->name('notifications.send');
+        Route::get('notifications', [NotificationController::class, 'index'])
+            ->name('notifications.index');
+        Route::get('notifications/{notification}', [NotificationController::class, 'show'])
+            ->name('notifications.show');
     });
 });

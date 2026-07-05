@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Doctor;
 use App\Models\NotificationLog;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -72,5 +73,53 @@ class NotificationController extends Controller
         return redirect()
             ->route('admin.notifications.compose')
             ->with('success', 'Notification draft saved.');
+    }
+
+    public function index(Request $request): View
+    {
+        $query = NotificationLog::query();
+
+        if ($request->filled('search')) {
+            $search = $request->string('search')->trim();
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('body', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type'));
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->string('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->string('date_to'));
+        }
+
+        if ($request->filled('sort') && $request->filled('direction')) {
+            $query->orderBy($request->string('sort'), $request->string('direction'));
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $notifications = $query->paginate(20)->withQueryString();
+
+        return view('admin.notifications.index', compact('notifications'));
+    }
+
+    public function show(NotificationLog $notification): View|JsonResponse
+    {
+        if (request()->wantsJson()) {
+            return response()->json($notification);
+        }
+
+        return view('admin.notifications.show', compact('notification'));
     }
 }

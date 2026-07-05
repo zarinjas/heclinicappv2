@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T01 |
 | Blocked Reason | N/A |
@@ -125,12 +125,30 @@ Follow existing list page patterns from `BranchController@index` or `DoctorContr
 > Filled in by the Developer after implementation.
 
 ### What Was Done
+- Created notification history list page at `GET /admin/notifications` with paginated table (20 per page), search, type/status/date range filters, sortable columns
+- Created notification detail view at `GET /admin/notifications/{notification}` with full content, targeting info, channel badges, and timestamps
+- Added collapsible sidebar submenu "Notifications" with "Compose" and "History" links
+- Color-coded badges for type (Manual/Confirmed/Reminder/Doc Uploaded), status (Draft/Pending/Sent/Failed), target (All/Branch/Doctor/Date Range/Patient), and channel icons
 
 ### Files Changed
+- `laravel/app/Http/Controllers/Admin/NotificationController.php` — ADDED: `index()` (search, filters, sort, pagination 20/page), `show()` (detail view with JSON API support)
+- `laravel/routes/web.php` — ADDED: `GET /admin/notifications` (index), `GET /admin/notifications/{notification}` (show)
+- `laravel/resources/views/admin/notifications/index.blade.php` — NEW: list view following Branch index pattern
+- `laravel/resources/views/admin/notifications/show.blade.php` — NEW: detail view following Branch show pattern
+- `laravel/resources/views/layouts/admin.blade.php` — UPDATED: Notifications sidebar from single link to collapsible submenu with Compose and History sub-items + JavaScript toggle
 
 ### Decisions Made During Implementation
+- Used Blade templates (not Vue) to match existing admin panel patterns
+- Routes added after existing `notifications/compose` routes to avoid wildcard conflicts
+- Index table rows are clickable (navigates to show view) for UX convenience
+- Show route uses Route Model Binding with automatic 404 on missing records
+- Branch Admin scope restriction (not implemented) — out of scope per task spec; future Process 10 audit will handle
 
 ### Known Limitations
+- No real-time Firebase delivery status tracking (future work per scope)
+- No bulk actions (delete, resend) — future Process 10
+- No CSV export — future
+- Branch Admin scope filtering for their own branch's notifications deferred (no `branch_id` on notifications_log table)
 
 ---
 

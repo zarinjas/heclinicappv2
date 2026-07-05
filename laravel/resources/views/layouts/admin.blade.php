@@ -70,12 +70,34 @@
 
             <a href="{{ route('admin.notifications.compose') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                      {{ request()->routeIs('admin.notifications.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                      {{ request()->routeIs('admin.notifications.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}"
+               onclick="event.preventDefault(); toggleNotificationsSubmenu()">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
                 Notifications
+                <svg id="notifications-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.notifications.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </a>
+            <div id="notifications-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.notifications.*') ? '' : 'hidden' }}">
+                <a href="{{ route('admin.notifications.compose') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.notifications.compose') || request()->routeIs('admin.notifications.send') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Compose
+                </a>
+                <a href="{{ route('admin.notifications.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.notifications.index') || request()->routeIs('admin.notifications.show') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    History
+                </a>
+            </div>
         </nav>
 
         <div class="absolute bottom-0 w-64 p-4 border-t border-[#1e2d52]">
@@ -115,5 +137,13 @@
     </main>
 
     @stack('scripts')
+    <script>
+        function toggleNotificationsSubmenu() {
+            const submenu = document.getElementById('notifications-submenu');
+            const chevron = document.getElementById('notifications-chevron');
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-90');
+        }
+    </script>
 </body>
 </html>
