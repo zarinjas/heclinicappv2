@@ -150,11 +150,11 @@ Last Updated: 2026-07-05 (UI Epic Phase 8 tasks created)
 - UI-P7-T01 (Notifications Screen) — single task, no dependencies
 
 | UI-P7-T01 | notifications-screen | Epic UI — Phase 7 | Step 7.1 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P8-T01 | profile-screen | Epic UI — Phase 8 | Step 8.1 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P8-T02 | edit-profile-screen | Epic UI — Phase 8 | Step 8.2 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P8-T03 | change-password-screen | Epic UI — Phase 8 | Step 8.3 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P8-T04 | biometric-settings | Epic UI — Phase 8 | Step 8.4 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P8-T05 | notification-preferences | Epic UI — Phase 8 | Step 8.5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T01 | profile-screen | Epic UI — Phase 8 | Step 8.1 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P8-T02 | edit-profile-screen | Epic UI — Phase 8 | Step 8.2 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P8-T03 | change-password-screen | Epic UI — Phase 8 | Step 8.3 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P8-T04 | biometric-settings | Epic UI — Phase 8 | Step 8.4 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P8-T05 | notification-preferences | Epic UI — Phase 8 | Step 8.5 | Flutter | flutter-developer | IN-PROGRESS | — |
 | UI-P8-T06 | clinic-info-screen | Epic UI — Phase 8 | Step 8.6 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P8-T07 | privacy-policy-screen | Epic UI — Phase 8 | Step 8.7 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P8-T08 | terms-of-service-screen | Epic UI — Phase 8 | Step 8.8 | Flutter | flutter-developer | BACKLOG | — |
