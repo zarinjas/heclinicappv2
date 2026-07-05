@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -99,16 +99,18 @@ N/A (foundation token file only)
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/theme/app_colors.dart` with all color tokens from ui-design-system.md §2. Includes primary, semantic, surface, light/dark overrides, skeleton, loyalty, chip, and toast colors.
 
 ### Files Changed
-- `lib/core/theme/app_colors.dart`
+- `lib/core/theme/app_colors.dart` — created with AppColors class (all constants)
 
 ### Decisions Made During Implementation
-{}
+- Added chip-specific colors (chipConfirmedBg, chipConfirmedText, chipPendingBg, etc.) and toast bar colors from §11 and §18 for use by AppChip and AppToast components
+- Added inputBorderFocus and inputBorderError for AppInput use
+- Used private constructor pattern for non-instantiability
 
 ### Known Limitations
-{}
+None
 
 ---
 
