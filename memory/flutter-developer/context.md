@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P3-T02 (pagination-helper) — IN-REVIEW. Created `lib/backend/api_requests/pagination_helper.dart` with `PaginationHelper.fetchAllPages()` that loops `current_page` until response is empty. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to use the helper.
+P3-T03 (modified-since-strategy) — IN-REVIEW. Created `lib/backend/api_requests/modified_since_helper.dart` with timestamp persistence per endpoint in SharedPreferences. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to inject `modified_since` param with automatic timestamp tracking and `forceRefresh` support.
 
 ## Last Completed Task
-P3-T01 (global-api-error-interceptor) — DONE. Implemented global API error interceptor via callback-based `ApiInterceptor` class.
+P3-T02 (pagination-helper) — DONE. Created `lib/backend/api_requests/pagination_helper.dart` with `PaginationHelper.fetchAllPages()`.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy

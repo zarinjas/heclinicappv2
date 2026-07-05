@@ -32,6 +32,28 @@ Plato API supports the `modified_since` parameter (UNIX timestamp) to return onl
 - [ ] Works with pagination — `modified_since` param is included in every page of the pagination loop.
 
 ## Implementation Notes
+- Created `lib/backend/api_requests/modified_since_helper.dart` — standalone utility class that persists last-fetch UNIX timestamps per endpoint in SharedPreferences.
+  - `getLastFetchTimestamp(endpointName)` — returns int? for the stored timestamp
+  - `setLastFetchTimestamp(endpointName, timestamp)` — persists timestamp in seconds
+  - `clearLastFetchTimestamp(endpointName)` — removes a stored timestamp (force-reset)
+  - `now()` — convenience to get current UNIX timestamp in seconds
+- Updated all 8 Plato list endpoint call classes in `api_calls.dart`:
+  - GetPatientCall — GET /patient
+  - GetproviderCall — GET /facility
+  - LetterCall — GET /letter
+  - GetInvoiceCall — GET /invoice
+  - GetAppointmentCall — GET /appointment (integrated with existing modifiedSince param)
+  - GetAppointmentUpcomingCall — GET /appointment with start_date
+  - GetAppointmentCodeCall — GET /appointment/codes
+  - GetAppointmentCopyCall — GET /appointments/calendars
+- Each call class now:
+  - Accepts optional `forceRefresh` bool parameter (defaults to false)
+  - Reads last-fetch timestamp from ModifiedSinceHelper (unless forceRefresh=true)
+  - Includes `modified_since` param in every page of the PaginationHelper loop
+  - Stores the current UNIX timestamp after a successful full fetch
+  - On first fetch (no stored timestamp), no modified_since is sent — full fetch
+- Call signature changes are backward-compatible — existing callers with no parameters continue to work
+- If API returns 0 records (no changes since last fetch), PaginationHelper returns an empty list — UI should preserve cached data (expected behavior)
 
 ## QA Notes
 
@@ -44,4 +66,4 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW

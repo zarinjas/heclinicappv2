@@ -6,6 +6,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/env_config.dart';
 import 'api_manager.dart';
 import 'pagination_helper.dart';
+import 'modified_since_helper.dart';
 
 export 'api_manager.dart' show ApiCallResponse;
 
@@ -579,8 +580,20 @@ class ForgotchangeCall {
 /// End MEDICAL APPS API Group Code
 
 class GetPatientCall {
-  static Future<ApiCallResponse> call() async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+  static Future<ApiCallResponse> call({
+    bool forceRefresh = false,
+  }) async {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('patient');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'getPatient',
         apiUrl: '${EnvConfig.platomBaseUrl}/patient',
@@ -589,9 +602,7 @@ class GetPatientCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'Content-Type': 'application/json',
         },
-        params: {
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -600,6 +611,15 @@ class GetPatientCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'patient',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? id(dynamic response) => (getJsonField(
@@ -650,8 +670,20 @@ class GetPatientCall {
 }
 
 class GetproviderCall {
-  static Future<ApiCallResponse> call() async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+  static Future<ApiCallResponse> call({
+    bool forceRefresh = false,
+  }) async {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('facility');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'getprovider',
         apiUrl: '${EnvConfig.platomBaseUrl}/facility',
@@ -660,9 +692,7 @@ class GetproviderCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'Content-Type': 'application/json',
         },
-        params: {
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -671,6 +701,15 @@ class GetproviderCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'facility',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? id(dynamic response) => (getJsonField(
@@ -1092,8 +1131,20 @@ class GetReportCall {
 class LetterCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
+    bool forceRefresh = false,
   }) async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('letter');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'patient_id': patientId ?? '',
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'Letter',
         apiUrl: '${EnvConfig.platomBaseUrl}/letter',
@@ -1102,10 +1153,7 @@ class LetterCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'patient_id': patientId,
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1114,6 +1162,15 @@ class LetterCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'letter',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? subject(dynamic response) => (getJsonField(
@@ -1157,8 +1214,20 @@ class LetterCall {
 class GetInvoiceCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
+    bool forceRefresh = false,
   }) async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('invoice');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'patient_id': patientId ?? '',
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'GetInvoice',
         apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
@@ -1167,10 +1236,7 @@ class GetInvoiceCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'patient_id': patientId,
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1179,6 +1245,15 @@ class GetInvoiceCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'invoice',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? itemname(dynamic response) => (getJsonField(
@@ -1269,8 +1344,22 @@ class GetAppointmentCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
     String? modifiedSince = '',
+    bool forceRefresh = false,
   }) async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+    final int? effectiveModifiedSince = forceRefresh
+        ? null
+        : (modifiedSince != null && modifiedSince.isNotEmpty
+            ? int.tryParse(modifiedSince)
+            : await ModifiedSinceHelper.getLastFetchTimestamp('appointment'));
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'patient_id': patientId ?? '',
+        'current_page': currentPage.toString(),
+      };
+      if (effectiveModifiedSince != null) {
+        params['modified_since'] = effectiveModifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'Get Appointment',
         apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
@@ -1279,11 +1368,7 @@ class GetAppointmentCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'patient_id': patientId,
-          'modified_since': modifiedSince,
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1292,6 +1377,15 @@ class GetAppointmentCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'appointment',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
@@ -1318,8 +1412,21 @@ class GetAppointmentUpcomingCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
     String? startDate = '',
+    bool forceRefresh = false,
   }) async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('appointment_upcoming');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'patient_id': patientId ?? '',
+        'start_date': startDate ?? '',
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'Get Appointment upcoming',
         apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
@@ -1328,11 +1435,7 @@ class GetAppointmentUpcomingCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'patient_id': patientId,
-          'start_date': startDate,
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1341,6 +1444,15 @@ class GetAppointmentUpcomingCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'appointment_upcoming',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
@@ -1441,8 +1553,20 @@ class GetAppointmentDetailsCall {
 }
 
 class GetAppointmentCodeCall {
-  static Future<ApiCallResponse> call() async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+  static Future<ApiCallResponse> call({
+    bool forceRefresh = false,
+  }) async {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('appointment_codes');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'Get Appointment Code',
         apiUrl:
@@ -1452,9 +1576,7 @@ class GetAppointmentCodeCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1463,6 +1585,15 @@ class GetAppointmentCodeCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'appointment_codes',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? codes(dynamic response) => (getJsonField(
@@ -1504,8 +1635,20 @@ class GetAppointmentCodeCall {
 }
 
 class GetAppointmentCopyCall {
-  static Future<ApiCallResponse> call() async {
-    return PaginationHelper.fetchAllPages((currentPage) {
+  static Future<ApiCallResponse> call({
+    bool forceRefresh = false,
+  }) async {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('appointment_calendars');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
       return ApiManager.instance.makeApiCall(
         callName: 'Get Appointment Copy',
         apiUrl:
@@ -1515,9 +1658,7 @@ class GetAppointmentCopyCall {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
           'db': 'hemedclinic',
         },
-        params: {
-          'current_page': currentPage.toString(),
-        },
+        params: params,
         returnBody: true,
         encodeBodyUtf8: false,
         decodeUtf8: false,
@@ -1526,6 +1667,15 @@ class GetAppointmentCopyCall {
         alwaysAllowBody: false,
       );
     });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'appointment_calendars',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
