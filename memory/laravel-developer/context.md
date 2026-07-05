@@ -1,9 +1,25 @@
 # Laravel Developer — Context
 
-Last Updated: 2026-07-05 (P8-T08 implemented)
+Last Updated: 2026-07-05 (P9-T01 implemented)
 
 ## Active Task
-P8-T08 — Notification History Log — Admin Panel (IN-REVIEW)
+P9-T01 — Sliders CMS — Admin Panel + Mobile (IN-REVIEW)
+
+## Implementation Summary — P9-T01
+- `laravel/database/migrations/2026_07_05_000015_create_cms_sliders_table.php`: new migration for cms_sliders table (id, image, title, link_url, is_active, sort_order, timestamps, indexes)
+- `laravel/app/Models/CmsSlider.php`: new model with fillable, boolean+integer casts, image_url accessor via asset('storage/...')
+- `laravel/app/Http/Requests/StoreCmsSliderRequest.php`: form request with image validation (required on create, nullable on update, mimes:jpeg/png/webp, max 5MB), title/url/sort_order validation
+- `laravel/app/Http/Controllers/Admin/CmsSliderController.php`: full CRUD — index (filter by status), create, store (file upload to storage/sliders/), edit, update (old image deletion on replace), destroy (image cleanup)
+- `laravel/app/Http/Controllers/Api/CmsSliderController.php`: public GET /api/v2/cms/sliders — returns active sliders ordered by sort_order ASC with image_url, title, link_url
+- `laravel/resources/views/admin/cms/sliders/index.blade.php`: list view with All/Active/Inactive filter chips, table with thumbnail preview, title, link URL, sort order, status badge, edit/delete actions, empty state, pagination
+- `laravel/resources/views/admin/cms/sliders/form.blade.php`: shared create/edit form with image file input + current image preview, title, link URL, sort order, active toggle
+- `laravel/routes/web.php`: added CmsSliderController under admin.cms.sliders.* routes
+- `laravel/routes/api.php`: added public GET /api/v2/cms/sliders
+- `laravel/resources/views/layouts/admin.blade.php`: added CMS collapsible sidebar menu with Sliders sub-item, toggleCmsSubmenu() JS function
+- All PHP files pass syntax check (zero errors)
+
+## Last Completed Task
+P8-T08 — Notification History Log — Admin Panel (DONE)
 
 ## Implementation Summary — P8-T08
 - `laravel/app/Http/Controllers/Admin/NotificationController.php`: added `index()` (search by title/body, filter by type/status/date range, sortable columns, paginate 20/page withQueryString) and `show()` (returns view or JSON based on Accept header)

@@ -128,16 +128,29 @@ CREATE TABLE cms_sliders (
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Laravel back-end for Sliders CMS module implemented: migration, model, form request validation, admin controller with full CRUD (index with filter, create, store with file upload, edit, update with file replace, destroy with file cleanup), public API controller, admin Blade views (index list with thumbnail preview + filter chips, form with image upload preview), routes (web + api), and CMS sidebar navigation in admin layout.
 
 ### Files Changed
-
+- `laravel/database/migrations/2026_07_05_000015_create_cms_sliders_table.php` — new migration for cms_sliders table
+- `laravel/app/Models/CmsSlider.php` — new model with image_url accessor
+- `laravel/app/Http/Requests/StoreCmsSliderRequest.php` — new form request with image + field validation
+- `laravel/app/Http/Controllers/Admin/CmsSliderController.php` — new admin controller (index, create, store, edit, update, destroy)
+- `laravel/app/Http/Controllers/Api/CmsSliderController.php` — new public API controller (GET /api/v2/cms/sliders)
+- `laravel/resources/views/admin/cms/sliders/index.blade.php` — list view with filter chips + thumbnails table
+- `laravel/resources/views/admin/cms/sliders/form.blade.php` — create/edit form with image upload preview
+- `laravel/routes/web.php` — added CMS slider routes (admin.cms.sliders.*)
+- `laravel/routes/api.php` — added public GET /api/v2/cms/sliders
+- `laravel/resources/views/layouts/admin.blade.php` — added CMS sidebar menu with Sliders submenu
 
 ### Decisions Made During Implementation
-
+- Image upload uses Laravel local `public` disk storage (consistent with existing DoctorController pattern), served via `asset('storage/...')` helper. Firebase Storage integration can be swapped later by changing the service layer.
+- Used a single `form.blade.php` for both create and edit views (detected via `$slider->exists`), matching the DRY pattern preferred for simple forms.
+- Sort order defaults to 0 and sliders are returned ASC by sort_order then by created_at desc.
+- Public API (`/api/v2/cms/sliders`) is unauthenticated — consistent with read-only content endpoints.
 
 ### Known Limitations
-
+- Flutter home screen integration (replace SlidersCall with new CMS endpoint) not yet implemented — this is the Laravel half of a Both-type task.
+- Image storage uses local disk; migrating to Firebase Storage requires a service layer update.
 
 ---
 

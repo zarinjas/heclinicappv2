@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CalendarSetupController;
+use App\Http\Controllers\Admin\CmsSliderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
@@ -41,5 +42,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('notifications.index');
         Route::get('notifications/{notification}', [NotificationController::class, 'show'])
             ->name('notifications.show');
+
+        Route::prefix('cms')->name('cms.')->group(function (): void {
+            Route::resource('sliders', CmsSliderController::class);
+        });
     });
 });
