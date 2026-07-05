@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -66,6 +66,20 @@ Build the `TransactionItem` reusable component for the loyalty points transactio
 ### Constraints
 - Design tokens only
 - Dark mode support
+
+---
+
+## Implementation Notes
+
+- Created `lib/core/widgets/transaction_item.dart`
+- StatelessWidget with `TransactionType` enum (earned/redeemed/expired)
+- Constructor params: description, date, points (int), type, onTap
+- Leading: 40px tinted circle with type-appropriate icon (add/remove/clock), color matches amount color
+- Title: `AppTextStyles.body1` + titleColor (primary/primaryDark)
+- Subtitle: `AppTextStyles.body2` + subtitleColor (textSecondary/textSecondaryDark)
+- Trailing: arrow icon + formatted amount with color coding (success=green, error=red, expired=grey)
+- Dark mode: all text colors adapt, circle tint opacity differs (15%/10%)
+- `flutter analyze`: zero errors
 
 ---
 
