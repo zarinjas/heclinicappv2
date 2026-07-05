@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P2-T01",
-  "task_title": "Laravel Project Setup with Auth and Roles",
+  "pending": true,
+  "task_id": "P2-T02",
+  "task_title": "MySQL Schema: Branches, Doctors, Calendars, Settings, Notifications Log",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": "2026-07-05T09:06:02Z",
-  "approved": true
+  "created_at": "2026-07-05T09:06:02Z",
+  "approved_at": null,
+  "approved": null
 }
