@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 Process 1 — Security and Foundation
 
 ## Active Tasks
-- P1-T09 (remove-duplicate-booking-pages) — in-review, implemented 2026-07-05
+None.
 
 ## Blocked Tasks
 None currently.

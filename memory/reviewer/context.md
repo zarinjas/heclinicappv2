@@ -2,13 +2,5 @@
 
 Last Updated: 2026-07-05
 
-## Active Review
-None.
-
-## Last Decision
-P1-T08 (remove-duplicate-profile-pages) — APPROVED. Matches v2-decisions.md Process 1 Step 6 (Copy duplicate cleanup). Consolidated to ProfileWidget, profile_copy/ deleted, all references updated. Zero ProfileCopy references.
-
-## Notes
-Always cross-check against v2-decisions.md locked decisions table before approving.
-UI tasks must also align with v2-ux-spec.md screen specifications.
-Log any deviation in decisions-log.md regardless of whether the task is approved or rejected.
+## Last Review
+P1-T09 (remove-duplicate-booking-pages) — APPROVED. Aligns with v2-decisions.md Process 1 Step 3. Merged 3 duplicate page variants into canonical widgets. Clean, zero orphaned references.

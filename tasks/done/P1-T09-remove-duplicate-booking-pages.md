@@ -62,7 +62,10 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-REVIEW
+DONE
+
+## Reviewer Notes
+**Decision: APPROVED.** Aligns with v2-decisions.md Process 1 Step 3 (cleanup Copy duplicate pages and copy variants). Consistent pattern with P1-T05, P1-T06, P1-T07, P1-T08. Clean implementation — merged unique functionality (cas, namecase, isReschedule) into canonical widgets with optional parameters. All 5 caller sites updated to use canonical widgets. Zero orphaned references across lib/. No scope creep, no deviations from locked decisions or v2-ux-spec.md.
 
 ## Implementation Notes
 - Audited all three duplicate directories against canonical counterparts. Found they were actively used in different flows (case-based booking, reschedule).
