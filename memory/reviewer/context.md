@@ -3,6 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
+P8-T04 — FCM Push Notification — Cloud Function Upgrade (APPROVED, moved to DONE)
 P8-T03 — Channel Selection — Notifications (APPROVED — 2026-07-05)
 
 ## Review History

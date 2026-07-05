@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P8-T02, P8-T03 |
 | Blocked Reason | N/A |
@@ -173,8 +173,14 @@ else:
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
-### Rejection Reason
+- v2-decisions.md Process 8 Step 4: Push upgrade implemented correctly ✓
+- FirebaseService::writePushNotification() now accepts all targeting fields ✓
+- NotificationService has public sendTargetedPush() for composer integration ✓
+- Cloud Function resolvers handle branch_ids, doctor_ids, target_date_range ✓
+- Backward compatibility preserved (broadcast-all fallback when no targeting) ✓
+- Zero PHP syntax errors ✓
+- No hardcoded values outside configuration ✓
+- Cross-layer data flow correct: Laravel → Firestore → Cloud Function → FCM ✓
