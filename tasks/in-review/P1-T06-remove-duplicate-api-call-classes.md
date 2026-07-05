@@ -56,4 +56,23 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
+
+## Implementation Notes
+**P1-T06 implemented by flutter-developer on 2026-07-05.**
+
+### Changes made:
+1. **Deleted `GetPatientbyidCopyCall` class** (lines 929-1001) from `lib/backend/api_requests/api_calls.dart`. This was a full duplicate of `GetPatientbyidCall` with identical implementation — no call sites existed outside api_calls.dart, so no additional file changes needed.
+
+2. **Renamed `LetterCopyCall` → `GetInvoiceCall`** in `lib/backend/api_requests/api_calls.dart`. The class was misnamed — it calls `GET /invoice`, not `GET /letter`. Also updated `callName` from `'Letter Copy'` to `'GetInvoice'`.
+
+3. **Updated call sites:**
+   - `lib/front_page/reports/reports_widget.dart` — 12 occurrences of `LetterCopyCall` → `GetInvoiceCall`
+   - `lib/booking_page/visits/visits_widget.dart` — 4 occurrences of `LetterCopyCall` → `GetInvoiceCall`
+
+### Verification:
+- Grep for `GetPatientbyidCopyCall` across `lib/`: **zero results**
+- Grep for `LetterCopyCall` across `lib/`: **zero results**
+- `GetInvoiceCall` class correctly defined in api_calls.dart at line 1145
+- All call sites in reports_widget.dart and visits_widget.dart correctly updated
+- No scope creep — only the specified duplicate/misnamed classes were touched

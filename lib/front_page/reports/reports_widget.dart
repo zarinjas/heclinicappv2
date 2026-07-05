@@ -161,7 +161,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 10.0, 0.0, 10.0, 0.0),
                             child: FutureBuilder<ApiCallResponse>(
-                              future: LetterCopyCall.call(
+                              future: GetInvoiceCall.call(
                                 patientId: FFAppState().idplato,
                               ),
                               builder: (context, snapshot) {
@@ -178,7 +178,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
 
                                 return Builder(
                                   builder: (context) {
-                                    final visitlist = LetterCopyCall.itemname(
+                                    final visitlist = GetInvoiceCall.itemname(
                                           listViewLetterCopyResponse.jsonBody,
                                         )?.toList() ??
                                         [];
@@ -196,7 +196,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                           final visitlistItem =
                                               visitlist[visitlistIndex];
                                           return Visibility(
-                                            visible: (LetterCopyCall.inventori(
+                                            visible: (GetInvoiceCall.inventori(
                                                   listViewLetterCopyResponse
                                                       .jsonBody,
                                                 )?.elementAtOrNull(
@@ -264,7 +264,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                                                   AutoSizeText(
                                                                     valueOrDefault<
                                                                         String>(
-                                                                      LetterCopyCall
+                                                                      GetInvoiceCall
                                                                           .itemname(
                                                                         listViewLetterCopyResponse
                                                                             .jsonBody,
@@ -319,7 +319,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                                                               {
                                                                             'cas':
                                                                                 serializeParam(
-                                                                              LetterCopyCall.itemname(
+                                                                              GetInvoiceCall.itemname(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )?.elementAtOrNull(visitlistIndex),
                                                                               ParamType.String,
@@ -379,31 +379,31 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                                                         valueOrDefault<
                                                                             String>(
                                                                           functions.countMatchingGivenId(
-                                                                              LetterCopyCall.otherpackage(
+                                                                              GetInvoiceCall.otherpackage(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .toList(),
-                                                                              (LetterCopyCall.givenid(
+                                                                              (GetInvoiceCall.givenid(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .elementAtOrNull(visitlistIndex))!,
-                                                                              LetterCopyCall.givenid(
+                                                                              GetInvoiceCall.givenid(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .toList(),
-                                                                              LetterCopyCall.kategori(
+                                                                              GetInvoiceCall.kategori(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .toList(),
-                                                                              LetterCopyCall.redemptions(
+                                                                              GetInvoiceCall.redemptions(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .toList(),
-                                                                              LetterCopyCall.idlist(
+                                                                              GetInvoiceCall.idlist(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .toList(),
-                                                                              (LetterCopyCall.idlist(
+                                                                              (GetInvoiceCall.idlist(
                                                                                 listViewLetterCopyResponse.jsonBody,
                                                                               )!
                                                                                   .elementAtOrNull(visitlistIndex))!),

@@ -926,79 +926,6 @@ class GetPatientbyidCall {
       ));
 }
 
-class GetPatientbyidCopyCall {
-  static Future<ApiCallResponse> call({
-    String? idpatient = '',
-  }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'getPatientbyid Copy',
-      apiUrl:
-          '${EnvConfig.platomBaseUrl}/patient/${idpatient}',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  static List<String>? id(dynamic response) => (getJsonField(
-        response,
-        r'''$[:]._id''',
-        true,
-      ) as List?)
-          ?.withoutNulls
-          .map((x) => castToType<String>(x))
-          .withoutNulls
-          .toList();
-  static List<String>? name(dynamic response) => (getJsonField(
-        response,
-        r'''$[:].name''',
-        true,
-      ) as List?)
-          ?.withoutNulls
-          .map((x) => castToType<String>(x))
-          .withoutNulls
-          .toList();
-  static List<String>? nric(dynamic response) => (getJsonField(
-        response,
-        r'''$[:].nric''',
-        true,
-      ) as List?)
-          ?.withoutNulls
-          .map((x) => castToType<String>(x))
-          .withoutNulls
-          .toList();
-  static List<String>? dob(dynamic response) => (getJsonField(
-        response,
-        r'''$[:].dob''',
-        true,
-      ) as List?)
-          ?.withoutNulls
-          .map((x) => castToType<String>(x))
-          .withoutNulls
-          .toList();
-  static List<String>? email(dynamic response) => (getJsonField(
-        response,
-        r'''$[:].email''',
-        true,
-      ) as List?)
-          ?.withoutNulls
-          .map((x) => castToType<String>(x))
-          .withoutNulls
-          .toList();
-  static String? givenid(dynamic response) => castToType<String>(getJsonField(
-        response,
-        r'''$[:].given_id''',
-      ));
-}
 
 class GetArticlesCall {
   static Future<ApiCallResponse> call() async {
@@ -1215,12 +1142,12 @@ class LetterCall {
           .toList();
 }
 
-class LetterCopyCall {
+class GetInvoiceCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
   }) async {
     return ApiManager.instance.makeApiCall(
-      callName: 'Letter Copy',
+      callName: 'GetInvoice',
       apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
       callType: ApiCallType.GET,
       headers: {

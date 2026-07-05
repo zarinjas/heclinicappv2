@@ -109,7 +109,7 @@ class _VisitsWidgetState extends State<VisitsWidget> {
           child: Padding(
             padding: EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 10.0, 0.0),
             child: FutureBuilder<ApiCallResponse>(
-              future: LetterCopyCall.call(
+              future: GetInvoiceCall.call(
                 patientId: FFAppState().idplato,
               ),
               builder: (context, snapshot) {
@@ -125,7 +125,7 @@ class _VisitsWidgetState extends State<VisitsWidget> {
 
                 return Builder(
                   builder: (context) {
-                    final appointmentList = LetterCopyCall.itemname(
+                    final appointmentList = GetInvoiceCall.itemname(
                           listViewLetterCopyResponse.jsonBody,
                         )?.toList() ??
                         [];
@@ -181,7 +181,7 @@ class _VisitsWidgetState extends State<VisitsWidget> {
                                             children: [
                                               Text(
                                                 valueOrDefault<String>(
-                                                  LetterCopyCall.itemname(
+                                                  GetInvoiceCall.itemname(
                                                     listViewLetterCopyResponse
                                                         .jsonBody,
                                                   )?.elementAtOrNull(
@@ -220,7 +220,7 @@ class _VisitsWidgetState extends State<VisitsWidget> {
                                                       .routeName,
                                                   queryParameters: {
                                                     'cas': serializeParam(
-                                                      LetterCopyCall.itemname(
+                                                      GetInvoiceCall.itemname(
                                                         listViewLetterCopyResponse
                                                             .jsonBody,
                                                       )?.elementAtOrNull(
