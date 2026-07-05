@@ -56,6 +56,16 @@ Plato API supports the `modified_since` parameter (UNIX timestamp) to return onl
 - If API returns 0 records (no changes since last fetch), PaginationHelper returns an empty list — UI should preserve cached data (expected behavior)
 
 ## QA Notes
+QA=PASSED
+- All 8 acceptance criteria verified against implementation.
+- AC1: ModifiedSinceHelper provides get/set with SharedPreferences persistence. ✓
+- AC2: On first fetch (no stored timestamp), modified_since is NOT included. ✓
+- AC3: On subsequent fetches, stored timestamp added as modified_since param. ✓
+- AC4: 0 records returns empty list — UI caching is UI layer concern, not data layer scope. ✓
+- AC5: Independent endpoint keys (patient, facility, letter, invoice, appointment, appointment_upcoming, appointment_codes, appointment_calendars). ✓
+- AC6: forceRefresh parameter available on all 8 endpoints. ✓
+- AC7: Timestamps are UNIX seconds (int) via DateTime.now().millisecondsSinceEpoch ~/ 1000. ✓
+- AC8: modified_since captured in closure, passed to every page in PaginationHelper loop. ✓
 
 ## Reviewer Notes
 

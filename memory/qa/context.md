@@ -3,4 +3,4 @@
 Last Updated: 2026-07-05
 
 ## Last QA Activity
-P3-T02 (pagination-helper) — PASSED (11/11). All 8 Plato list endpoints updated to use PaginationHelper.fetchAllPages(). Non-list endpoints untouched. Headers preserved for P3-T05.
+P3-T03 (modified-since-strategy) — PASSED (8/8). All 8 acceptance criteria verified. ModifiedSinceHelper persists timestamps per endpoint in SharedPreferences. All 8 Plato list endpoints updated with forceRefresh support and automatic timestamp injection.
