@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -115,16 +115,18 @@ class AppEmptyState extends StatelessWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_empty_state.dart` with `AppEmptyState` widget. Centered column layout with icon (160px, configurable IconData), title (heading3), subtitle (body1 + textSecondary), and optional primary CTA button. Provides 8 static const presets matching the design system: noAppointments (with Book Now CTA), noNotifications, noDocuments, noRecords, noArticles, noVideos, noDoctors, noSearchResults. Dark mode supported with adaptive text and icon colors.
 
 ### Files Changed
-- `lib/core/widgets/app_empty_state.dart`
+- `lib/core/widgets/app_empty_state.dart` (new, 120 lines)
 
 ### Decisions Made During Implementation
-{}
+- Used `const` static presets with default `onCtaTap` as null (screen sets callback at usage site).
+- Icon opacity reduced to 0.4 for subtle appearance on empty states.
+- Used Material Icons (no SVG assets) per constraints.
 
 ### Known Limitations
-{}
+- Static const constructors cannot accept VoidCallback, so onCtaTap defaults to null. Screens must assign via `.copyWith()` pattern or construct manually.
 
 ---
 

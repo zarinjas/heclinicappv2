@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -111,16 +111,18 @@ class AppToast {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_toast.dart` with `AppToast` utility class providing 4 static methods: `success`, `error`, `warning`, `info`. All use Overlay-based positioning above the nav bar (accounts for bottom inset + 64px nav bar + 12px spacing). Each toast has pill shape (24px radius), slide-up + fade-in animation (250ms), and auto-dismiss after 3 seconds. Uses AppToastSuccessBar (green), AppToastErrorBar (red), AppToastWarningBar (orange) from AppColors for left accent bars. Info toast uses primary background with white text.
 
 ### Files Changed
-- `lib/core/widgets/app_toast.dart`
+- `lib/core/widgets/app_toast.dart` (new, 247 lines)
 
 ### Decisions Made During Implementation
-{}
+- Used `Overlay` approach rather than `ScaffoldMessenger` for precise positioning control above the bottom nav bar.
+- Toast positions calculated as: `bottomPadding = bottomSafeArea + 64 (navBar) + 12 (spacing)`.
+- Warning, Error, Success toasts have left color bar + icon. Info toast has solid primary background.
 
 ### Known Limitations
-{}
+- Concurrent toasts from rapid calls will overlap. Only one toast at a time is supported per Overlay entry.
 
 ---
 

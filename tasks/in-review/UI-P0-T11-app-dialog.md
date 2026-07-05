@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -121,16 +121,18 @@ class AppDialog extends StatelessWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_dialog.dart` with `AppDialog` widget implementing all 4 dialog variants: Confirmation (warning icon, Cancel ghost + Confirm destructive/primary), Success (animated checkmark 64px, primary button), Loading (CircularProgressIndicator 32px, blocks interaction via Overlay), Redemption Code (checkmark, code block with accent border, discount text, Done button). All use AppColors, AppTextStyles, AppRadius, AppShadows tokens. Dark mode supported. AnimatedCheckmarkDialog uses AnimationController with scale + opacity. Confirmation returns `Future<bool?>`. Loading uses Overlay for global blocking.
 
 ### Files Changed
-- `lib/core/widgets/app_dialog.dart`
+- `lib/core/widgets/app_dialog.dart` (new, 394 lines)
 
 ### Decisions Made During Implementation
-{}
+- Used `AnimationController` (built-in Flutter) instead of `flutter_animate` for checkmark animation to reduce dependency footprint while maintaining spec-compliant animation.
+- Loading dialog implemented using `OverlayEntry` instead of `showDialog` to ensure proper blocking across all UI layers.
+- TweenAnimationBuilder used for dialog scale-in entrance animation.
 
 ### Known Limitations
-{}
+- Checkmark animation uses ScaleTransition (scale 0→1) rather than stroke-draw animation. Functional equivalent per design spec.
 
 ---
 

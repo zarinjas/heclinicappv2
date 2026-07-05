@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -124,16 +124,20 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_app_bar.dart` with `AppAppBar` widget implementing both variants. Main Tab variant: primary (#131C3C) background, He Clinic logo (32px, left-aligned, with fallback text when asset missing), notification bell icon (white) with red circular badge (18px, positioned -6/-6) showing count, badge hidden when count=0. Sub-page variant: scaffoldBg background, back arrow (Icons.arrow_back_ios, 20px, primary color), screen title (heading3, primary color), optional trailing action widget. Implements PreferredSizeWidget with 56px height.
 
 ### Files Changed
-- `lib/core/widgets/app_app_bar.dart`
+- `lib/core/widgets/app_app_bar.dart` (new, 159 lines)
 
 ### Decisions Made During Implementation
-{}
+- Used Row-based layout with SafeArea padding inset instead of NavigationToolbar for broader Flutter version compatibility.
+- Logo uses Image.asset with errorBuilder fallback showing medical_services icon + "He Clinic" text.
+- Badge shows "99+" when count exceeds 99.
+- Sub-page variant uses AppColors.scaffoldBg which maps to scaffoldBgDark in dark mode.
 
 ### Known Limitations
-{}
+- Logo asset path ('assets/images/logo.png') assumed to exist. Falls back to text-based logo if missing.
+- Badge count limited to 2 digits + "99+" cap.
 
 ---
 

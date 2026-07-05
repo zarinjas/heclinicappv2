@@ -2,8 +2,12 @@
 
 Last Updated: 2026-07-05
 
-## Active Task
-P6-T05 — Pagination and Modified Since for Health Tab (IN-REVIEW)
+## Active Tasks (Batch 3: UI-P0-T11 to UI-P0-T15, IN-REVIEW)
+UI-P0-T11 — AppDialog (IN-REVIEW): Created `lib/core/widgets/app_dialog.dart` with 4 dialog variants (confirmation, success, loading, redemption code)
+UI-P0-T12 — AppToast (IN-REVIEW): Created `lib/core/widgets/app_toast.dart` with 4 toast types (success, error, warning, info)
+UI-P0-T13 — AppEmptyState (IN-REVIEW): Created `lib/core/widgets/app_empty_state.dart` with 8 preset empty states
+UI-P0-T14 — AppErrorState (IN-REVIEW): Created `lib/core/widgets/app_error_state.dart` with configurable title/subtitle/retry
+UI-P0-T15 — AppAppBar (IN-REVIEW): Created `lib/core/widgets/app_app_bar.dart` with main tab + sub-page variants
 
 ## Recent Work
 - P6-T05 — Health Tab Pagination + modified_since (IN-REVIEW): Upgraded GetReportCall, GetVitalsGraphingCall, GetPatientDocumentsCall with PaginationHelper.fetchAllPages() and ModifiedSinceHelper patterns matching LetterCall reference. Added `forceRefresh` parameter to all three. Modified _loadRecords(), _loadVitals(), _loadDocuments() to skip skeleton during forceRefresh (stale-while-revalidate). Added RefreshIndicator to all three Health sub-tab list views with AppColors accent/primary styling.
