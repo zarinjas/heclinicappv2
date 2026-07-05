@@ -43,9 +43,9 @@ When ALL current process tasks are in tasks/done/ and no tasks remain in backlog
 3. Determine the NEXT process to execute using this FIXED order:
    - Process 3 — Mobile App: Data Layer Refactor (Flutter)
    - Process 4 — Mobile App: UI/UX Overhaul (Flutter)
+   - Process 2 — Laravel Admin Panel Scaffold (Laravel) ← needed before Process 5
    - Process 5 — Booking Flow (Flutter + Laravel endpoints)
    - Process 6 — Health Tab (Flutter)
-   - Process 2 — Laravel Admin Panel Scaffold (Laravel)
    - Process 7 — Admin Panel: Patient & Appointment Mgmt (Laravel)
    - Process 8 — Notifications Module (Laravel + Firebase)
    - Process 9 — CMS Module (Laravel + Flutter)
@@ -90,8 +90,14 @@ If task is in tasks/in-progress/ and assigned to laravel-developer:
 If task is in tasks/in-review/ and QA Notes section is empty:
   - Act as QA. Read task file acceptance criteria. Verify each criterion (PASS/FAIL).
   - Fill QA Notes. If ALL PASS: mark QA=PASSED. DO NOT move file (stays for Reviewer).
-  - If ANY FAIL: mark QA=FAILED, move file back to tasks/in-progress/.
-  - Update memory/qa/context.md. Commit and push to main. Then go back and check Node 3 or 4.
+  - If ANY FAIL due to missing dependency from another process (e.g., needs Laravel Admin Panel):
+    → Move task to tasks/blocked/ with "Blocked Reason" documented
+    → Commit and push
+    → Go back to Phase 2B to start the blocking process
+  - If ANY FAIL due to implementation bug (not dependency):
+    → Mark QA=FAILED, move file back to tasks/in-progress/
+    → Continue loop (Node 2 will re-implement)
+  - Update memory/qa/context.md. Commit and push to main.
 
 ### Node 4 — REVIEWER (IN-REVIEW → DONE)
 If task is in tasks/in-review/ and QA Notes show PASSED:
@@ -103,12 +109,14 @@ If task is in tasks/in-review/ and QA Notes show PASSED:
 ### Node 5 — HUMAN GATE (DONE → Telegram)
 If task just moved to tasks/done/ and approval not yet sent:
   1. Write tasks/.approval-state.json with pending=true
-  2. Commit and push to main
-  3. Call Telegram bot:
+  2. Merge main into develop for preview deploy:
+     git checkout develop && git merge main --no-edit && git push origin develop && git checkout main
+  3. Commit and push to main
+  4. Call Telegram bot:
      curl -X POST "$VPS_BOT_URL/bot/request-approval" \
        -H "Content-Type: application/json" \
        -d '{"task_id":"<ID>","title":"<TITLE>","qa_result":"PASSED","reviewer_decision":"APPROVED"}'
-  4. Exit — bot will trigger next workflow.
+  5. Exit — bot will trigger next workflow.
 
 ### Loop
 After committing at any node, CHECK the same task's new state. If it matches the NEXT node, continue. Keep looping through nodes 1→5 until DONE or no further progress.
