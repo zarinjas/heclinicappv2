@@ -10,8 +10,8 @@
 | Process Step | Step 3.2 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell for integration) |
 | Blocked Reason | N/A |
