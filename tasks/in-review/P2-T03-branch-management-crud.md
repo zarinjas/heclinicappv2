@@ -17,7 +17,7 @@ Branch Management Module — CRUD with WhatsApp Number and Plato Facility ID
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P2-T02 |
 | Blocked Reason | N/A |
@@ -119,16 +119,66 @@ Build the Branch Management module in the Laravel Admin Panel. Provide full CRUD
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created full Branch Management CRUD module in Laravel Admin Panel:
+- BranchController with index (search + sort + paginate), create, store, show, edit, update, destroy
+- StoreBranchRequest and UpdateBranchRequest with validation (Malaysian WhatsApp prefix +60 required, unique Plato facility ID)
+- Blade views: index (searchable table with active/inactive badges, sortable name column, pagination), create/edit forms with all fields, show detail view
+- Sidebar navigation updated: Branches placeholder replaced with active route link
+- Resource routes registered under /admin/ with auth + role:super_admin middleware
+- BranchSeeder with 3 sample Malaysian branches (Shah Alam, Bangi active; Putrajaya inactive)
+- Flash success messages on create/update/delete
+- Delete confirmation via JavaScript confirm()
+- Hidden input for is_active to handle unchecked checkbox (value=0)
 
 ### Files Changed
-- {To be filled}
+- laravel/app/Http/Controllers/Admin/BranchController.php (new)
+- laravel/app/Http/Requests/StoreBranchRequest.php (new)
+- laravel/app/Http/Requests/UpdateBranchRequest.php (new)
+- laravel/resources/views/admin/branches/index.blade.php (new)
+- laravel/resources/views/admin/branches/create.blade.php (new)
+- laravel/resources/views/admin/branches/edit.blade.php (new)
+- laravel/resources/views/admin/branches/show.blade.php (new)
+- laravel/resources/views/layouts/admin.blade.php (updated sidebar)
+- laravel/routes/web.php (added resource route)
+- laravel/database/seeders/BranchSeeder.php (new)
+- laravel/database/seeders/DatabaseSeeder.php (added BranchSeeder call)
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used Laravel resource route (Route::resource) which provides all 7 CRUD routes automatically
+- Search filters by name, phone, or Plato facility ID
+- Sortable column on name with ascending/descending toggle via URL params
+- Clipboard-friendly empty state on index page when no branches exist
 
 ### Known Limitations
-{To be filled}
+- Image field is a URL text input; file upload to be added in future process (Process 9 CMS covers branch profile photos)
+- Delete uses JavaScript confirm() rather than a Blade modal; can upgrade later
+- pagination navigation uses default Tailwind/Laravel style; styling pass needed for consistency
+
+### Files Changed
+- laravel/app/Http/Controllers/Admin/BranchController.php (new)
+- laravel/app/Http/Requests/StoreBranchRequest.php (new)
+- laravel/app/Http/Requests/UpdateBranchRequest.php (new)
+- laravel/resources/views/admin/branches/index.blade.php (new)
+- laravel/resources/views/admin/branches/create.blade.php (new)
+- laravel/resources/views/admin/branches/edit.blade.php (new)
+- laravel/resources/views/admin/branches/show.blade.php (new)
+- laravel/resources/views/layouts/admin.blade.php (updated sidebar)
+- laravel/routes/web.php (added resource route)
+- laravel/database/seeders/BranchSeeder.php (new)
+- laravel/database/seeders/DatabaseSeeder.php (added BranchSeeder call)
+
+### Decisions Made During Implementation
+- Used Laravel resource route (Route::resource) which provides all 7 CRUD routes automatically
+- Search filters by name, phone, or Plato facility ID
+- Sortable column on name with ascending/descending toggle via URL params
+- Inactive branches are marked with gray badge and hidden unchecked checkbox on create
+- Delete uses JavaScript confirm() for immediate feedback
+
+### Known Limitations
+- Image field is a URL text input; file upload to be added in Process 9 (CMS)
+- Delete confirmation via JS prompt rather than modal component; can upgrade later
+- Pagination uses default Tailwind/Laravel style (pagination passed to view via ->links())
+- Branch admin scope restriction (own branch only) not enforced yet — middleware ready for future scoping as noted in task constraints
 
 ---
 

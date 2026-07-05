@@ -3,10 +3,22 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T02 — MySQL Schema (IN-REVIEW)
+P2-T03 — Branch Management CRUD (IN-REVIEW)
 
 ## Last Completed Task
-P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
+P2-T02 — MySQL Schema (DONE)
+
+## Implementation Summary — P2-T03
+- BranchController: full CRUD resource controller (index, create, store, show, edit, update, destroy)
+- StoreBranchRequest: validation (name required, WhatsApp +60 prefix, Plato facility ID unique)
+- UpdateBranchRequest: same rules with ignore current branch on unique check
+- Blade views: index (searchable table, sortable name, active/inactive badges, pagination), create/edit forms, show detail
+- Updated admin.blade.php: Branches sidebar placeholder replaced with active route link
+- Routes: Route::resource('branches', BranchController::class) under auth+role middleware
+- BranchSeeder: 3 sample Malaysian branches (Shah Alam, Bangi active; Putrajaya inactive)
+- DatabaseSeeder: added BranchSeeder call
+- Flash success messages via session on create/update/delete
+- Delete confirmation via JS confirm() dialog
 
 ## Implementation Summary — P2-T02
 - migrations: branches, doctors, plato_calendars, settings, notifications_log tables created
@@ -36,6 +48,5 @@ P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
 - Admin Panel timeout: 10s per Plato request, retry once, then fail with message
 
 ## Pending Items
-- Branch model referenced in User::branch() — resolves when P2-T02 creates Branch model
-- Sidebar links for Branches, Doctors, Calendar Setup are placeholders — implemented in P2-T03, P2-T04, P2-T06
+- Sidebar links for Doctors, Calendar Setup are placeholders — implemented in P2-T04, P2-T06
 - Admin password reset flow not implemented (out of scope)
