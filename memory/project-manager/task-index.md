@@ -20,16 +20,21 @@ Last Updated: 2026-07-05
 | P3-T04 | exponential-backoff-429 | 3 | Step 4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T05 | rate-limit-monitor | 3 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T06 | laravel-proxy-url-audit | 3 | Step 6 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P4-T01 | apply-design-system | 4 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T02 | bottom-nav-5-tabs | 4 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T03 | dynamic-doctor-list | 4 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T04 | home-screen-redesign | 4 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T05 | consolidate-profile-screen | 4 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T06 | global-states | 4 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
-- Process 3 all tasks are sequential (each depends on the previous):
-  - P3-T01 → P3-T02 → P3-T03 → P3-T04 → P3-T05 → P3-T06
-- P3-T01 (error interceptor) — foundation for all subsequent tasks
-- P3-T02 (pagination) — depends on interceptor
-- P3-T03 (modified_since) — depends on pagination helper
-- P3-T04 (429 backoff) — depends on interceptor
-- P3-T05 (rate limit monitor) — depends on interceptor + backoff
-- P3-T06 (proxy URL audit) — verification after all refactoring done
+- Process 4 tasks have the following dependency chain:
+  - P4-T01 (design system) — foundation for all subsequent UI tasks (no dependencies)
+  - P4-T02 (nav 5 tabs) — depends on P4-T01 (needs design system for nav colors)
+  - P4-T03 (doctor list) — depends on P4-T01 (needs design system for cards/sheets)
+  - P4-T04 (home screen) — depends on P4-T01, P4-T02, P4-T03 (needs design, nav, and doctor components)
+  - P4-T05 (profile) — depends on P4-T01, P4-T02 (needs design and nav)
+  - P4-T06 (global states) — depends on P4-T01 (needs design tokens; applied across all screens)
 
 **Note:** Agentic AI Director is now active via GitHub Actions + Telegram approval.
 Bot URL: https://heclinic.cyberoket.cloud/bot/webhook
