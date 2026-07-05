@@ -74,6 +74,22 @@ Last Updated: 2026-07-05 (Process 10 tasks added)
 | P10-T06 | firestore-security-rules | 10 | Step 6 | Both | flutter-developer | DONE | 2026-07-05 |
 | P10-T07 | remove-unused-firebase-deps | 10 | Step 7 | Both | flutter-developer | DONE | 2026-07-05 |
 | P10-T08 | flutter-version-upgrade-assessment | 10 | Step 8 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P0-T01 | app-colors | Epic UI — Phase 0 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T02 | app-text-styles | Epic UI — Phase 0 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T03 | app-spacing-radius-shadows | Epic UI — Phase 0 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T04 | app-theme | Epic UI — Phase 0 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T05 | app-button | Epic UI — Phase 0 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T06 | app-input | Epic UI — Phase 0 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T07 | app-card | Epic UI — Phase 0 | Step 7 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T08 | app-chip | Epic UI — Phase 0 | Step 8 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T09 | app-skeleton | Epic UI — Phase 0 | Step 9 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T10 | app-bottom-sheet | Epic UI — Phase 0 | Step 10 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T11 | app-dialog | Epic UI — Phase 0 | Step 11 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T12 | app-toast | Epic UI — Phase 0 | Step 12 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T13 | app-empty-state | Epic UI — Phase 0 | Step 13 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T14 | app-error-state | Epic UI — Phase 0 | Step 14 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T15 | app-app-bar | Epic UI — Phase 0 | Step 15 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
