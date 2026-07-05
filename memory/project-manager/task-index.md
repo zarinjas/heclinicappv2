@@ -92,9 +92,9 @@ Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 | UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T01 | appointment-card | Epic UI — Phase 1 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T02 | doctor-card | Epic UI — Phase 1 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P1-T03 | article-card | Epic UI — Phase 1 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P1-T04 | video-card | Epic UI — Phase 1 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P1-T05 | loyalty-card | Epic UI — Phase 1 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T03 | article-card | Epic UI — Phase 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P1-T04 | video-card | Epic UI — Phase 1 | Step 4 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P1-T05 | loyalty-card | Epic UI — Phase 1 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T06 | health-record-card | Epic UI — Phase 1 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T07 | hero-slider | Epic UI — Phase 1 | Step 7 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T08 | quick-action-grid | Epic UI — Phase 1 | Step 8 | Flutter | flutter-developer | BACKLOG | — |
