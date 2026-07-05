@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P8-T01 — Notification Composer — Admin Panel (PASSED — 8/8 criteria)
+P8-T03 — Channel Selection — Notifications (PASSED — 6/6 criteria)
 
 ## Verification History
-- P8-T01 (2026-07-05): PASSED — 8/8 criteria. NotificationController@compose shows Blade form with title (max 255, char counter), body textarea (max 2000, char counter), image_url (optional URL). @send validates all fields, saves NotificationLog with type=manual, status=draft, target=all, channels=['push','email','in_app']. Redirect with success flash. Routes in auth+role middleware. Sidebar nav link with bell icon. Migration adds image_url column. php -l passes all 4 files.
+- P8-T03 (2026-07-05): PASSED — 6/6 criteria. Compose form has 3 channel checkboxes (Push/Email/In-App) all checked by default. Controller validates channels as required array with min:1, custom message "Please select at least one delivery channel." Controller stores validated channels array into NotificationLog. NotificationService.sendAppointmentConfirmation() accepts optional $channels parameter defaulting to all 3 for backward compat; gates sendPush/sendEmail/sendInApp with in_array() checks. php -l passes all 4 PHP files.
+- P8-T01 (2026-07-05): PASSED — 8/8 criteria.
 - P7-T06 (2026-07-05): PASSED — 9/9 criteria. AdminAppointmentController@show($id) finds appointment by primary key, then by plato_appointment_id, then falls back to Plato proxy; abort(404) if not found. show.blade.php follows branches/show.blade.php pattern with grouped sections: Patient Info (Name, NRIC, Phone, Profile link), Appointment Details (Date, Time, Status badge, monospace Plato ID), Assignment (Doctor, Branch, Calendar Color ID), Notes (or "No notes" placeholder), Local Record timestamps (Created/Updated/Notification Sent). Index view replaced disabled button with active link to show route. Routes updated to include 'show'. php -l passes all 4 modified files.
 
 ## Verification History

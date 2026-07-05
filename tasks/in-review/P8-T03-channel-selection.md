@@ -132,11 +132,19 @@ Added channel selection to notification composer. Admin can now select Push, Ema
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
 
+- [x] The compose form shows 3 channel checkboxes: Push, Email, In-App (all checked by default) — **PASS** — Delivery Channels section with 3 checkboxes present in compose.blade.php, all default-checked via `old('channels', ['push', 'email', 'in_app'])`
+- [x] Deselecting all checkboxes and submitting shows a validation error "Please select at least one delivery channel" — **PASS** — Controller validates `channels` as `required|array|min:1` with custom message; `@error('channels')` renders in view
+- [x] Submitting with only "Push" checked stores `["push"]` in the `channels` JSON column of `notifications_log` — **PASS** — Controller uses `$validated['channels']`, model casts `channels` to `array` via `$casts`
+- [x] Submitting with all 3 checked stores `["push", "email", "in_app"]` in the `channels` column — **PASS** — Same mechanism as above, array stored as JSON
+- [x] An existing automated notification (e.g. appointment confirmation) still sends all 3 channels when no explicit channel filter is passed — **PASS** — `sendAppointmentConfirmation()` accepts `?array $channels = null`, defaults to `['push', 'email', 'in_app']` when null, all 3 send methods called
+- [x] A manual notification saved with channels=["push"] only triggers push send and skips email + in-app — **PASS** — `sendPush`/`sendEmail`/`sendInApp` each gated with `in_array()` check against `$selectedChannels`
+
 ### Failure Details
+None. All 6 acceptance criteria pass.
 
 ---
 
