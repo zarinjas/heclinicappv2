@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -106,8 +106,21 @@ Build the shared Appointment Detail screen for the Appointments Tab. Navigated t
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
+### What Was Done
+Created `lib/features/appointments/appointment_detail_screen.dart` — a full appointment detail screen adapted from the existing V2-compliant booking detail screen. Displays a header card with doctor initial avatar, name, specialty, and AppChip status chip; a detail card with branch, date, time, appointment type, and notes using AppCard and icon-labeled rows; and a destructive Cancel Appointment button with AppDialog.confirm confirmation dialog. On cancel success, shows AppDialog.success and pops with `true` result. Includes shimmer skeleton loading state and AppErrorState with retry. Accepts appointmentId, doctorName, branch, date, time, status as constructor parameters for both API-loaded and pre-populated use cases.
+
+### Files Changed
+- `lib/features/appointments/appointment_detail_screen.dart` — Created. Full detail screen with loading/error/loaded/cancel states.
+
+### Decisions Made During Implementation
+- Preserved API logic from existing booking detail screen (GetAppointmentDetailsCall + Platom cancel endpoint)
+- Used AppCard + custom detail rows instead of a single detail card per row design patterns
+- Skeleton uses flutter_animate shimmer (consistent with existing booking detail screen)
+- Status fallback chains: API value → constructor parameter → empty string → "Pending"
+
+### Known Limitations
+- WhatsApp button not included (branch WhatsApp number not available via current API response); can be added when branch data infrastructure is complete
+- Reschedule button not implemented (requires navigation to booking datetime screen, Phase 12 nav wiring needed)
 
 ---
 

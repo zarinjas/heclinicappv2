@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -102,8 +102,19 @@ Implement the Upcoming appointments inner tab content within the Appointments Ta
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
+### What Was Done
+Built the Upcoming appointments inner tab content within `lib/features/appointments/appointments_screen.dart`. Renders a vertical ListView of AppointmentCard components for appointments with future dates. Each card displays the doctor name, branch, formatted date/time, and a Confirmed status chip. Uses the AppointmentCard.daysToGo parameter to show "X days to go" badge when the appointment is in the future. Includes pull-to-refresh via RefreshIndicator, AppEmptyState with "Book Now" CTA when empty, and the shared AppSkeleton/AppErrorState from the parent screen. All styling uses AppColors, AppTextStyles, AppSpacing tokens — no hardcoded values.
+
+### Files Changed
+- `lib/features/appointments/appointments_screen.dart` — Added _buildUpcomingTab, _buildUpcomingCard, _daysToGo, _parseStatus methods. Added AppointmentCard usage with daysToGo badge support.
+
+### Decisions Made During Implementation
+- Status always shown as Confirmed for upcoming appointments (derived from date, not API status field)
+- daysToGo badge only shown when days > 0 (hidden for same-day appointments)
+- Pull-to-refresh wraps the list for manual reload after booking new appointments
+
+### Known Limitations
+- Tap on AppointmentCard does not navigate to detail screen yet (onTap is placeholder); navigation wiring pending NavBarPage integration
 
 ---
 

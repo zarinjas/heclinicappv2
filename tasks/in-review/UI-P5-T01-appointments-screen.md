@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -94,8 +94,21 @@ Build the Appointments Tab shell — the 5th bottom nav tab. Contains an Upcomin
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
+### What Was Done
+Created `lib/features/appointments/appointments_screen.dart` — the Appointments Tab shell screen. Implements a scaffold with AppAppBar.sub (title: "Appointments"), a tab switcher using AppChip filter chips (Upcoming/Past), and a body area that switches between Upcoming and Past tab content. Preserves the existing business logic from the old `lib/pages/appointments/appointments_screen.dart` (GetAppointmentCall + GetAppointmentCodeCall for data loading, date-based upcoming/past splitting) while replacing the UI with V2 design system components.
+
+### Files Changed
+- `lib/features/appointments/appointments_screen.dart` — Created. Contains AppointmentsScreen (tab shell with AppChip-based tab switcher), _buildUpcomingTab content (UI-P5-T02), and _buildPastTab content (UI-P5-T03).
+
+### Decisions Made During Implementation
+- Used AppChip filter chips (type: AppChipType.filter) for tab switcher instead of Material TabBar, as specified in the migration plan
+- Preserved GetAppointmentCall API pattern from old appointments screen (no separate upcoming/past endpoint)
+- Used AppAppBar.sub for consistent styling with MyBookingsScreen
+- Status derived from date comparison (future=Confirmed, past=Completed) since GetAppointmentCall API does not expose a status field
+
+### Known Limitations
+- NavBarPage in main.dart currently uses old AppointmentsScreenWidget; needs Phase 12 navigation migration to wire this new screen
+- onBack callback is no-op since this is a tab page (not pushed), but AppAppBar.sub requires it
 
 ---
 

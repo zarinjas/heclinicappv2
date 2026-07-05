@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -101,8 +101,20 @@ Implement the Past appointments inner tab content within the Appointments Tab sh
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
+### What Was Done
+Built the Past appointments inner tab content within `lib/features/appointments/appointments_screen.dart`. Renders a vertical ListView of AppointmentCard components for appointments with past dates. Each card displays the doctor name, branch, formatted date/time, and a Completed status chip. Past appointments are sorted in reverse chronological order (newest first). Includes pull-to-refresh via RefreshIndicator, AppEmptyState when no past appointments, and shares the AppSkeleton/AppErrorState infrastructure from the parent screen. All styling uses design system tokens.
+
+### Files Changed
+- `lib/features/appointments/appointments_screen.dart` — Added _buildPastTab, _buildPastCard methods. Added AppEmptyState for past tab empty state.
+
+### Decisions Made During Implementation
+- Status always shown as Completed for past appointments (consistent with old appointments screen behavior)
+- No days-to-go badge for past appointments (irrelevant for completed appointments)
+- Past list sorted newest-first for relevance
+
+### Known Limitations
+- Tap on AppointmentCard does not navigate to detail screen yet (onTap is placeholder); navigation wiring pending NavBarPage integration
+- Past appointments with "No Preference" doctor show as "No Preference" (same behavior as old screen)
 
 ---
 
