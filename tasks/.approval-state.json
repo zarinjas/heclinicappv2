@@ -1,11 +1,11 @@
 {
-  "pending": true,
+  "pending": false,
   "task_id": "P7-T03",
   "task_title": "Patient Document Upload — PDF to Firebase Storage",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
   "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": null,
-  "approved": null
+  "approved_at": "2026-07-05T00:00:00Z",
+  "approved": true
 }
