@@ -1,17 +1,17 @@
-# Terms of Service Screen
+# Privacy Policy Screen
 
 ## Header
 
 | Field | Value |
 |-------|-------|
-| Task ID | UI-P8-T08 |
-| Slug | terms-of-service-screen |
+| Task ID | UI-P8-T07 |
+| Slug | privacy-policy-screen |
 | Process | Epic: UI Migration — Phase 8 |
-| Process Step | Step 8.8 |
+| Process Step | Step 8.7 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -20,15 +20,15 @@
 
 ## Description
 
-Build the Terms of Service screen — accessed from Profile Tab's About section. A scrollable rich text content screen displaying the clinic's terms and conditions. Replaces the old `info_page/` terms view. Uses `AppAppBar` (sub-page variant), `AppCard` for content container, `AppSkeleton` shimmer while loading content, and `AppErrorState` on fetch failure. Content sourced from existing CMS/API endpoint.
+Build the Privacy Policy screen — accessed from Profile Tab's About section. A scrollable rich text content screen displaying the clinic's privacy policy. Replaces the old `info_page/` privacy policy view. Uses `AppAppBar` (sub-page variant), `AppCard` for content container, `AppSkeleton` shimmer while loading content, and `AppErrorState` on fetch failure. Content sourced from existing CMS/API endpoint.
 
 ---
 
 ## Context
 
 - `docs/ui-design-system.md` — §§2 (AppColors), 3 (AppTextStyles), 4–6 (Spacing/Radius/Shadows), 10 (AppCard), 13 (AppAppBar), 15 (AppSkeleton), 17 (AppErrorState), 24 (Dark Mode)
-- `docs/ui-migration-plan.md` — Phase 8.8 (lines 203–221)
-- `docs/v2-ux-spec.md` — Profile Tab — Terms of Service
+- `docs/ui-migration-plan.md` — Phase 8.7 (lines 203–221)
+- `docs/v2-ux-spec.md` — Profile Tab — Privacy Policy
 - `docs/v2-decisions.md` — CMS content
 - `docs/design-system-v2.png` — Visual target reference
 
@@ -37,9 +37,9 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 ## Scope
 
 ### In Scope
-- Create `lib/features/profile/terms_screen.dart` with V2 design system
+- Create `lib/features/profile/privacy_screen.dart` with V2 design system
 - Scrollable rich text or HTML content display
-- App bar: "Terms of Service" title, back arrow
+- App bar: "Privacy Policy" title, back arrow
 - Content loaded from existing CMS content API (or static content fallback)
 - `AppSkeleton` shimmer during content load
 - `AppErrorState` with retry on fetch failure
@@ -48,24 +48,24 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 
 ### Out of Scope
 - Profile screen shell (Phase 8.1 — separate task)
-- Terms content editing (CMS admin — already done)
-- Privacy Policy (Phase 8.7 — separate task)
+- Privacy policy content editing (CMS admin — already done)
+- Terms of Service (Phase 8.8 — separate task)
 
 ---
 
 ## Technical Spec
 
 ### Files to Create or Modify
-- `lib/features/profile/terms_screen.dart` — Create new terms of service screen
+- `lib/features/profile/privacy_screen.dart` — Create new privacy policy screen
 
 ### API Endpoints
-- Existing CMS content endpoint for terms of service (or static text fallback)
+- Existing CMS content endpoint for privacy policy (or static text fallback)
 
 ### Data / Schema
-- Terms: title (String), body (String/HTML), lastUpdated (DateTime)
+- Privacy policy: title (String), body (String/HTML), lastUpdated (DateTime)
 
 ### UI Components
-- `AppAppBar` (sub-page variant) — "Terms of Service" title, back arrow
+- `AppAppBar` (sub-page variant) — "Privacy Policy" title, back arrow
 - `AppCard` — content container with padding
 - Rich text renderer — HTML content to Flutter widgets (existing `flutter_html` or TextStyle mapping)
 - `AppSkeleton` — shimmer text blocks during content load
@@ -84,9 +84,9 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 
 ## Acceptance Criteria
 
-- [ ] Screen renders at `lib/features/profile/terms_screen.dart`
-- [ ] "Terms of Service" title in `AppAppBar` with back arrow
-- [ ] Scrollable content area with terms of service text
+- [ ] Screen renders at `lib/features/profile/privacy_screen.dart`
+- [ ] "Privacy Policy" title in `AppAppBar` with back arrow
+- [ ] Scrollable content area with privacy policy text
 - [ ] Content loaded from CMS API or static fallback
 - [ ] `AppSkeleton` shimmer shown during content load
 - [ ] `AppErrorState` rendered with retry on fetch failure
@@ -106,27 +106,27 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 > Leave blank until implementation is complete.
 
 ### What Was Done
-- Created `lib/features/profile/terms_screen.dart` with V2 design system
-- Scrollable content area with terms of service text in `AppCard`
-- App bar: "Terms of Service" title with back arrow via `AppAppBar.sub()`
-- `AppSkeleton` shimmer during content load using slider presets
+- Created `lib/features/profile/privacy_screen.dart` with V2 design system
+- Scrollable content area with privacy policy text in `AppCard`
+- App bar: "Privacy Policy" title with back arrow via `AppAppBar.sub()`
+- `AppSkeleton` shimmer during content load
 - `AppErrorState` with retry on fetch failure
 - Dark mode support throughout
 - Zero `FFButtonWidget` or `FlutterFlowTheme` references
 - All colors from `AppColors`, typography from `AppTextStyles`, spacing from `AppSpacing`
-- Registered route `/termsOfServiceScreen` in `nav.dart`
+- Registered route `/privacyPolicyScreen` in `nav.dart`
 
 ### Files Changed
-- `lib/features/profile/terms_screen.dart` — Created (187 lines)
+- `lib/features/profile/privacy_screen.dart` — Created (185 lines)
 - `lib/flutter_flow/nav/nav.dart` — Added route registration + import
 
 ### Decisions Made During Implementation
-- Used static terms of service text as fallback (no dedicated CMS page API exists yet; structure supports API plugin)
+- Used static privacy policy text as fallback (no dedicated CMS page API exists yet; structure supports API plugin)
 - Content uses plain text with `AppTextStyles.body1` at 1.7 line height for readability
 - Async loading pattern supports replacement with CMS API call
 
 ### Known Limitations
-- Terms of service text is static; needs CMS endpoint integration for dynamic content
+- Privacy policy text is static; needs CMS endpoint integration for dynamic content
 - No rich text/HTML rendering (plain text only)
 
 
@@ -141,9 +141,9 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 ### Result: PASSED
 
 ### Criteria Results
-- [x] Screen renders at `lib/features/profile/terms_screen.dart` ✅
-- [x] "Terms of Service" title in `AppAppBar` with back arrow ✅
-- [x] Scrollable content area with terms of service text ✅
+- [x] Screen renders at `lib/features/profile/privacy_screen.dart` ✅
+- [x] "Privacy Policy" title in `AppAppBar` with back arrow ✅
+- [x] Scrollable content area with privacy policy text ✅
 - [x] Content loaded from CMS API or static fallback ✅ (static fallback used)
 - [x] `AppSkeleton` shimmer shown during content load ✅
 - [x] `AppErrorState` rendered with retry on fetch failure ✅
@@ -167,10 +167,23 @@ N/A — All criteria PASSED
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
+- ✅ v2-decisions.md: No conflicts; static content per CMS-backed static pages
+- ✅ v2-ux-spec.md: Profile Tab — Privacy Policy section followed
+- ✅ ui-design-system.md: Full compliance
+  - All colors: AppColors.* tokens only (no hardcoded hex)
+  - All typography: AppTextStyles.* tokens (no hardcoded sizes)
+  - All spacing: AppSpacing.* constants (no magic numbers)
+  - Border radius: AppRadius.* tokens
+  - Shadows: AppShadows.* where applicable
+  - Shared components: AppAppBar.sub(), AppCard, AppSkeleton, AppErrorState
+  - Dark mode: scaffoldBgDark + surfaceDark + correct text colors on all states
+  - Skeleton: shimmer card preset during load
+  - Error state: AppErrorState with retry
+  - Zero FFButtonWidget or FlutterFlowTheme references
 
 ### Rejection Reason
+N/A
 
