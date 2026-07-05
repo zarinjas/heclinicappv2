@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P4-T05 — Consolidate Profile Screen (IN-REVIEW)
+None (idle)
 
 ## Recent Work
-- P4-T05 — Consolidate Profile Screen: Rewrote profile_widget.dart with V2 layout per v2-ux-spec.md Section 4. Removed AppBar, added avatar+initials header (FFAppState data), My Details/Settings/About sections with V2 card rows, Log Out with V2 confirmation modal. Cleaned up profile_model.dart. ProfileCopy directory already removed from codebase — no references found. (IN-REVIEW)
+- P4-T05 — Consolidate Profile Screen: Rewrote profile_widget.dart with V2 layout per v2-ux-spec.md Section 4. Removed AppBar, added avatar+initials header (FFAppState data), My Details/Settings/About sections with V2 card rows, Log Out with V2 confirmation modal. Cleaned up profile_model.dart. ProfileCopy directory already removed from codebase — no references found. (DONE)
 - P4-T04 — Home Screen Redesign: Rewrote HomepageNewWidget from ~2700 to ~1287 lines with V2 design system. Implemented: hero slider with auto-scroll, 2x2 quick actions grid, upcoming appointment card, doctor horizontal list (via P4-T03 widget), WordPress articles, video grid. All sections with skeleton/empty/error states. (DONE)
 - P4-T03 — Dynamic Doctor List: Created DoctorCardWidget, DoctorDetailSheet, DoctorListWidget; refactored AllDoctorWidget from 3434 lines (17 hardcoded doctors) to 85 lines using dynamic components (DONE)
 - P4-T02 — Bottom Nav 5 Tabs: Updated main.dart NavBarPage + nav.dart routes (DONE)

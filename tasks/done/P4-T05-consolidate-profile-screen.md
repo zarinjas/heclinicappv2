@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P4-T01, P4-T02 |
 | Blocked Reason | N/A |
@@ -205,11 +205,9 @@ Per v2-ux-spec.md section 5 Confirmation Modal:
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO — {note if deviation found}
-- v2-ux-spec.md alignment: YES / NO — {note if deviation found}
-
-### Rejection Reason
+- v2-decisions.md alignment: YES — Process 4 Step 5 "Profile screen — consolidated (remove ProfileCopy duplicate)" fully implemented. Profile widget rewritten with V2 layout. ProfileCopy already removed from codebase (no directory, no routes, no imports).
+- v2-ux-spec.md alignment: YES — Section 4 "SCREEN: Profile Tab" layout (avatar, name/email/NRIC, My Details, Settings, About, Log Out) and "Confirmation Modal" pattern (warning icon, centered text, Cancel + Log Out) both match spec exactly.
 
