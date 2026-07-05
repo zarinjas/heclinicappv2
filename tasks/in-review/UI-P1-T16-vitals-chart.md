@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -91,3 +91,20 @@ Build the `VitalsChart` reusable component for displaying health vitals trends i
 - [ ] Dark mode: chart grid lines and labels adapt to dark colors
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/vitals_chart.dart`:
+- `VitalChartPoint` data class with `date` and `value` fields
+- `VitalsChart` widget accepting `title`, `unit`, `lineColor`, `dataPoints`, optional `errorMessage`/`onRetry`
+- Uses `fl_chart` `LineChart` with curved lines, area fill, dot markers (hidden when >30 points)
+- Empty state: `AppEmptyState` with chart icon inside `AppCard`
+- Error state: `AppErrorState` inside `AppCard` with retry callback
+- Skeleton: `VitalsChartSkeleton` using `AppSkeleton.slider()` + `AppSkeleton.listItem()` inside `AppCard`
+- Dark mode: grid lines, axis labels, tooltip adapt via `isDark` check
+- All tokens: `AppColors.*`, `AppTextStyles.*`, `AppSpacing.*` — no hardcoded hex
+- Chart height: 190px with bottom/left axis labels, 2.5px line, 25 alpha area fill
+
+## QA Notes
