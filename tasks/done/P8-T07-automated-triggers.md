@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P8-T04, P8-T05, P8-T06 |
 | Blocked Reason | N/A |
@@ -228,8 +228,18 @@ None — all 9 criteria passed. BUILD GATE: php -l on all laravel/app/**/*.php r
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
 
+v2-decisions.md Process 8 Step 7 specifies: "Automated triggers: appointment confirmed (Push+Email+In-App, immediate), appointment reminder (Push+In-App, 24h and 1h before), new document uploaded (Push+In-App, immediate)."
+
+- Trigger 1 (appointment confirmed, Push+Email+In-App, immediate): Fully verified — AppointmentService::createAppointment() already dispatches via sendAppointmentConfirmation() with email resolution + deep links. No new code needed; prior P8-T04/T05/T06 work covers this.
+- Trigger 2 (appointment reminder, Push+In-App, 24h and 1h before): New SendAppointmentReminders command with proper date/time window queries. Reminder columns (reminded_24h_at, reminded_1h_at) ensure idempotency. Scheduler registered at everyMinute() in routes/console.php. No email for reminders per spec.
+- Trigger 3 (new document uploaded, Push+In-App, immediate): PatientController::uploadDocument() hooks into upload flow. sendDocumentUploadedNotification() dispatches push+in-app with deep_link health/documents. Includes filename in body.
+- All 3 triggers log to notifications_log with correct type values (appointment_confirmation, appointment_reminder, document_uploaded).
+- No spec deviations. All 9 QA criteria PASS. BUILD GATE: zero PHP parse errors.
+
 ### Rejection Reason
+
+N/A

@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P8-T06 — In-App Notifications — Deep Link Support (APPROVED, moved to DONE)
+P8-T07 — Automated Notification Triggers (APPROVED, moved to DONE)
 
 ## Review History
+- P8-T07 (2026-07-05): APPROVED — v2-decisions Process 8 Step 7 "Automated triggers: appointment confirmed (Push+Email+In-App, immediate), appointment reminder (Push+In-App, 24h and 1h before), new document uploaded (Push+In-App, immediate)" fully met. Trigger 1 already wired by P8-T04/T05/T06. Trigger 2: SendAppointmentReminders command with 24h/1h window queries and timestamp-based idempotency, scheduled everyMinute(). Trigger 3: PatientController::uploadDocument() hooks into upload flow with filename in body. All 3 log to notifications_log with correct types. No spec deviations. All 9 QA criteria PASS.
 - P8-T06 (2026-07-05): APPROVED — v2-decisions Process 8 Step 6 "In-App: Write to Firestore historynotif with deep link support" fully met. FirebaseService writes id_patient/read:false/deep_link/type fields. NotificationService::sendInApp() accepts $deepLink/$type params. Flutter historynotif_record.dart has readBool with backward compat for String "yes"/"no". notification_page_widget.dart routes deep_link to MyBookingPage/Reports/HomepageNew with old message/tittle fallback. All 7 QA criteria PASS.
 - P8-T05 (2026-07-05): APPROVED — v2-decisions Process 8 Step 5 "Email: Laravel Mail — resolve email provider before this step" handled by making system provider-agnostic via .env + config/mail.php. Two Notification classes (AppointmentNotification, GeneralNotification) with toMail() using subject/greeting/body/salutation. sendEmail() accepts nullable $recipientEmail param, skips gracefully with warning on missing email. Plato patient email resolution via NRIC/name lookup with try/catch. sendAppointmentConfirmation() creates NotificationLog record. All 7 QA criteria PASS.
 

@@ -13,7 +13,7 @@ P8-T03 — Channel Selection (DONE)
 P8-T04 — FCM Push Notification — Cloud Function Upgrade (DONE)
 P8-T05 — Email Provider Configuration (DONE)
 P8-T06 — In-App Notifications — Deep Link Support (DONE)
-P8-T07 — Automated Notification Triggers (IN-REVIEW)
+P8-T07 — Automated Notification Triggers (DONE)
 P8-T08 — Notification History Log — Admin Panel (BACKLOG)
 
 **Process 6 — Health Tab (completed):**
