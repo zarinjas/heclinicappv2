@@ -30,7 +30,39 @@ Find the highest-priority actionable task:
 1. Furthest in pipeline (REVIEWER > QA > IN-PROGRESS > BACKLOG)
 2. Earlier process first
 3. Lower task ID first
-Skip P1-T01 and P1-T02 unless laravel/ directory exists.
+
+If an actionable task is found → go to Phase 3.
+If NO actionable task AND backlog is empty → go to Phase 2B.
+
+## PHASE 2B — Process Transition (Auto-Create Next Process Tasks)
+
+When ALL current process tasks are in tasks/done/ and no tasks remain in backlog/in-progress/in-review:
+
+1. Read memory/project-manager/context.md to identify the current (completed) process
+2. Read docs/v2-decisions.md section "IMPLEMENTATION PROCESS" (lines 32-133)
+3. Determine the NEXT process to execute using this FIXED order:
+   - Process 3 — Mobile App: Data Layer Refactor (Flutter)
+   - Process 4 — Mobile App: UI/UX Overhaul (Flutter)
+   - Process 5 — Booking Flow (Flutter + Laravel endpoints)
+   - Process 6 — Health Tab (Flutter)
+   - Process 2 — Laravel Admin Panel Scaffold (Laravel)
+   - Process 7 — Admin Panel: Patient & Appointment Mgmt (Laravel)
+   - Process 8 — Notifications Module (Laravel + Firebase)
+   - Process 9 — CMS Module (Laravel + Flutter)
+   - Process 10 — Polish and Remaining Features (Mixed)
+4. Skip any process whose tasks are ALL already in tasks/done/
+5. For the next process, create ONE task file per step listed in v2-decisions.md:
+   - Filename: tasks/backlog/P{N}-T{NN}-{slug}.md (e.g., P3-T01-global-error-interceptor.md)
+   - Use ai-workflow/task-template.md format
+   - Fill ALL sections: Header, Description, Context, Scope, Technical Spec, Acceptance Criteria
+   - Type: Flutter or Laravel (based on what the task changes)
+   - Assigned To: flutter-developer or laravel-developer
+   - Reference specific docs sections, file paths, and code from the existing codebase
+   - Write 3-8 specific testable acceptance criteria per task
+6. Update memory/project-manager/task-index.md with ALL new tasks
+7. Update memory/project-manager/context.md — set "Current Process" to the new one
+8. Commit: git add -A && git commit -m "ai: create Process {N} tasks" && git push origin main
+9. Then proceed to Phase 3 with the first task from the new process
 
 ## PHASE 3 — Process Task Through Full Lifecycle (LOOP)
 Process the selected task through EVERY applicable stage in a single run. Do NOT stop after one stage — loop through all stages until DONE.
