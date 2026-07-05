@@ -10,7 +10,7 @@ Process 8 — Notifications Module (Laravel + Firebase)
 P8-T01 — Notification Composer — Admin Panel (DONE)
 P8-T02 — Targeting System (DONE)
 P8-T03 — Channel Selection (DONE)
-P8-T04 — FCM Push Notification — Cloud Function Upgrade (BACKLOG)
+P8-T04 — FCM Push Notification — Cloud Function Upgrade (IN-PROGRESS) ← ACTIVE
 P8-T05 — Email Provider Configuration (BACKLOG)
 P8-T06 — In-App Notifications — Deep Link Support (BACKLOG)
 P8-T07 — Automated Notification Triggers (BACKLOG)
