@@ -142,19 +142,22 @@ Create the doctor selection screen for the Booking Flow (Step 2 of 4). The user 
 
 > Filled in by QA after verification.
 
-### Result: PENDING
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Step indicator step 2 active
-- [ ] No Preference card at top
-- [ ] Doctor list filtered by branch — RE-CHECK after Process 2 completion (branch filtering now implemented)
-- [ ] is_visible_in_app filter works — RE-CHECK after Process 2 completion (is_visible_in_app filtering now implemented)
-- [ ] Doctor card rendering
-- [ ] Selection highlight
-- [ ] Next button disabled state
-- [ ] Navigation to next screen
-- [ ] Loading state
-- [ ] Empty state
+- [x] Step indicator step 2 active — PASS: 4 steps rendered with step 2 highlighted (accent circle + white text). Lines 159-164.
+- [x] No Preference card at top — PASS: Groups icon, "No Preference" label, subtitle text; always first in list (index==0). Lines 361-363.
+- [x] Doctor list filtered by branch — PASS: Now uses GetDoctorsCall with branch_id from BookingFlowModel.selectedBranchId. Laravel DoctorConfigController resolves Plato facility ID → MySQL branch_id via branches.plato_facility_id mapping.
+- [x] is_visible_in_app filter works — PASS: visible=true passed to GetDoctorsCall. Laravel controller applies where('is_visible_in_app', true) as base filter.
+- [x] Doctor card rendering — PASS: CircleAvatar (64px), initial-letter avatar, name (16px/600), specialty (12px/400).
+- [x] Selection highlight — PASS: 2px solid #00C9A7 border + check_circle icon on selected item.
+- [x] Next button disabled state — PASS: Disabled (grey #E5E7EB) when no selection; enabled (accent) after selection.
+- [x] Navigation to next screen — PASS: context.push('/dateTimeSlotSelection') on Next tap; doctor data in BookingFlowModel.
+- [x] Loading state — PASS: 5 skeleton cards with circle + text bar placeholders during API load.
+- [x] Empty state — PASS: person_off icon, "No doctors available for this branch" message, "Please check back later" subtitle.
+
+### Verification Summary
+All 10/10 acceptance criteria PASS. Both previously failing criteria (branch filtering and is_visible_in_app filtering) are now resolved through the new Laravel `/api/v2/config/doctors` endpoint that queries MySQL doctors table with proper join through branches.plato_facility_id. Process 2 (Laravel Admin Panel Scaffold) completion enabled both fixes.
 
 ---
 
