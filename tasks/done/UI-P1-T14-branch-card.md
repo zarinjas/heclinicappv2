@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -96,3 +96,36 @@ Build the `BranchCard` reusable component for branch selection in the Booking fl
 - [ ] Dark mode renders correctly
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+## QA Notes
+
+**Build Gate:** `flutter analyze` — PASSED (zero errors)
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Branch name heading3 | PASS |
+| 2 | Address + location pin icon, body2/textSecondary | PASS |
+| 3 | Operating hours + clock icon, body2/textSecondary | PASS |
+| 4 | Selected: 1.5px accent border + accent tinted bg | PASS |
+| 5 | Unselected: 1px divider border + surface bg | PASS |
+| 6 | Tap callback fires | PASS |
+| 7 | BranchCardSkeleton renders card + 3 bars | PASS |
+| 8 | Dark mode | PASS |
+| 9 | No hardcoded tokens | PASS |
+| 10 | flutter analyze zero errors | PASS |
+
+**QA Verdict: PASSED**
+
+---
+## Reviewer Notes
+
+- ui-design-system.md compliance: All tokens from AppColors/AppTextStyles/AppSpacing/AppRadius/AppShadows. No hardcoded values.
+- Dark mode: Supported (surface/surfaceDark, text colors, divider, skeleton palette)
+- Selected state: 1.5px accent border + tinted bg matching spec
+- BranchCardSkeleton: Card-shaped placeholder with skeleton palette colors
+- AppButton/AppInput/AppCard: N/A (custom card variant for branch selection; matches AppCard base pattern)
+- v2-decisions.md alignment: PASS
+- v2-ux-spec.md alignment: PASS (matches branch selection card in Booking Flow)
+
+**Reviewer Decision: APPROVED**
