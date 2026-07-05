@@ -17,7 +17,7 @@ Calendar Setup UI — Map Doctors to Plato Calendar Color IDs
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P2-T04 |
 | Blocked Reason | N/A |
@@ -185,10 +185,10 @@ N/A — All criteria passed code review verification.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 2 Step 6 "GET /systemsetup sync — Calendar Setup UI — map doctor to Plato calendar color ID" fully implemented. Uses PlatoProxyService internally (via PlatoSystemSetupService), stores synced calendars in plato_calendars table, provides full CRUD UI for doctor-calendar mappings. Follows existing Branch/Doctor controller patterns. Sidebar updated from placeholder to active link.
 
 ### Rejection Reason
-{If REJECTED}
+N/A

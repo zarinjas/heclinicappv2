@@ -12,7 +12,7 @@ P2-T02 — MySQL Schema (DONE)
 P2-T03 — Branch Management CRUD (DONE)
 P2-T04 — Doctor Management CRUD (DONE)
 P2-T05 — Plato API Proxy Layer (DONE)
-P2-T06 — Calendar Setup UI (IN-REVIEW)
+P2-T06 — Calendar Setup UI (DONE)
 
 **Process 5 — Booking Flow (paused, blocked by Process 2):**
 P5-T03 — Doctor Selection Screen (BLOCKED — requires Process 2: Laravel Admin Panel Scaffold)

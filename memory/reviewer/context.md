@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P2-T05 — Plato API Proxy Layer (APPROVED — 2026-07-05)
+P2-T06 — Calendar Setup UI (APPROVED — 2026-07-05)
 
 ## Review History
-- P2-T05 (2026-07-05): APPROVED — v2-decisions Process 2 Step 5 "Plato API proxy layer — all Plato calls route through Laravel with token in .env" fully aligned. PlatoProxyService with full HTTP method support, Bearer token from env, rate-limit header forwarding, normalized error responses, configurable caching per endpoint type, IP-based proxy rate limiting, dedicated plato log channel, health endpoint. No scope creep — server-side retry logic correctly deferred to Flutter's exponential backoff, data transformation is Flutter's responsibility per task spec. QA passed 10/10.
+- P2-T06 (2026-07-05): APPROVED — v2-decisions Process 2 Step 6 "GET /systemsetup sync — Calendar Setup UI — map doctor to Plato calendar color ID" fully aligned. PlatoSystemSetupService fetches via PlatoProxyService, parses calendar entries, upserts into plato_calendars. Full CRUD Controller with proper search/filter/sort, nullable doctor_id migration for unlinked synced entries, sidebar updated from placeholder, duplicate prevention, last sync timestamp. Follows existing Branch/Doctor patterns. QA passed 9/9.
+- P2-T05 (2026-07-05): APPROVED — v2-decisions Process 2 Step 5 fully aligned. PlatoProxyService with full HTTP method support, Bearer token from env, rate-limit header forwarding, normalized error responses, configurable caching per endpoint type, IP-based proxy rate limiting, dedicated plato log channel, health endpoint. No scope creep — server-side retry logic correctly deferred to Flutter's exponential backoff, data transformation is Flutter's responsibility per task spec. QA passed 10/10.
 - P2-T04 (2026-07-05): APPROVED.
 - P2-T03 (2026-07-05): APPROVED.
 - P2-T02 (2026-07-05): APPROVED.
