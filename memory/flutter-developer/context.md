@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-None.
+P1-T09 (remove-duplicate-booking-pages) — IN-REVIEW. Consolidated 3 duplicate directories into canonical widgets with merged functionality.
 
 ## Last Completed Task
 P1-T08 (remove-duplicate-profile-pages) — DONE. Audited profile/ and profile_copy/ (identical). Consolidated to ProfileWidget with clean /profile path. Updated main.dart (tab 3), nav.dart (route + standalone removal), push_notifications_handler.dart, index.dart. Deleted profile_copy/ directory. Zero ProfileCopy references across lib/.

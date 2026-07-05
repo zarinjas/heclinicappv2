@@ -62,4 +62,17 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
+
+## Implementation Notes
+- Audited all three duplicate directories against canonical counterparts. Found they were actively used in different flows (case-based booking, reschedule).
+- **SelectDatecaseWidget → SelectDateWidget**: Added optional `namecase` param. When provided, uses dynamic reason in WhatsApp URL. Near-identical otherwise (2 lines diff).
+- **SelectDateResheceduleWidget → SelectDateWidget**: Added `isReschedule` flag. When true: shows "Reschedule Appointment" title, reason text field, and reschedule-specific WhatsApp format.
+- **BookingPagecasseWidget → BookingPageWidget**: Added optional `cas` param. When provided: shows AppBar with back button for standalone navigation, passes `namecase=cas` to SelectDateWidget.
+- Updated model: SelectDateModel now includes reasonFocusNode and reasonTextController for reschedule flow (only initialized when isReschedule=true).
+- Updated nav.dart: removed 3 duplicate routes, updated BookingPageWidget route to accept `cas`, SelectDateWidget route to accept `namecase` and `isReschedule`.
+- Updated push_notifications_handler.dart: removed 3 duplicate entries, updated route params for remaining entries.
+- Updated all callers: reports_widget (2 refs), visits_widget (1 ref), confirmdialog_alert_widget (1 ref), homepage_new_widget (1 ref).
+- Deleted 6 files across 3 directories.
+- Verified: grep for BookingPagecasse, SelectDatecase, SelectDateReshecedule across lib/ returns zero results.
+- grep for booking_pagecasse, select_datecase, select_date_reshecedule across lib/ returns zero results.
