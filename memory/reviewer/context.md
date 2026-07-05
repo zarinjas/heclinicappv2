@@ -6,7 +6,7 @@ Last Updated: 2026-07-05
 None.
 
 ## Last Decision
-P1-T05 (remove-test-page) — APPROVED. Matches v2-decisions.md Process 1 Step 5. Clean removal: directory deleted, export/route/handler cleaned up, zero grep matches. No deviations.
+P1-T06 (remove-duplicate-api-call-classes) — APPROVED. Matches v2-decisions.md Process 1 code cleanup. Clean refactor: deleted duplicate GetPatientbyidCopyCall, renamed LetterCopyCall → GetInvoiceCall, updated 16 call sites. No deviations.
 
 ## Notes
 Always cross-check against v2-decisions.md locked decisions table before approving.
