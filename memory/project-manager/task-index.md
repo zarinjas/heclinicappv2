@@ -23,7 +23,7 @@ Last Updated: 2026-07-05
 | P4-T01 | apply-design-system | 4 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P4-T02 | bottom-nav-5-tabs | 4 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P4-T03 | dynamic-doctor-list | 4 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| P4-T04 | home-screen-redesign | 4 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| P4-T04 | home-screen-redesign | 4 | Step 4 | Flutter | flutter-developer | IN-PROGRESS | — |
 | P4-T05 | consolidate-profile-screen | 4 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
 | P4-T06 | global-states | 4 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 
