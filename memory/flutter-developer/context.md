@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P1-T08 (remove-duplicate-profile-pages) — IN-REVIEW
+None.
 
 ## Last Completed Task
-P1-T07 (remove-duplicate-auth-pages) — DONE. Confirmed RegisterPageWidget is the active route (not RegisterPageCopy). Removed RegisterPageCopyWidget route from nav.dart, export from index.dart, and entry from push_notifications_handler.dart. Deleted register_page_copy/ directory. Verified zero remaining references across lib/.
+P1-T08 (remove-duplicate-profile-pages) — DONE. Audited profile/ and profile_copy/ (identical). Consolidated to ProfileWidget with clean /profile path. Updated main.dart (tab 3), nav.dart (route + standalone removal), push_notifications_handler.dart, index.dart. Deleted profile_copy/ directory. Zero ProfileCopy references across lib/.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)
