@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P4-T01 |
 | Blocked Reason | N/A |
@@ -178,14 +178,13 @@ N/A — All criteria PASS.
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes.
-> Leave blank until Reviewer picks up the task.
-
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO — {note if deviation found}
-- v2-ux-spec.md alignment: YES / NO — {note if deviation found}
+- v2-decisions.md alignment: YES — Process 4 Step 3 implemented; GET /facility via GetproviderCall; is_visible_in_app filtering prepared for CMS; 17 hardcoded modals removed from navigation flow
+- v2-ux-spec.md alignment: YES — Cards use 16px radius, surface bg, border, shadow low per spec. Bottom sheet uses 24px top radius, handle bar (4x36, #E5E7EB), max 90% height. Doctor detail: 100px avatar, heading-md name, body-md specialty, body-sm branch, About section, Bio, Book Appointment button in #00C9A7. Horizontal scroll with avatar+name+specialty.
 
 ### Rejection Reason
+
+N/A
 
