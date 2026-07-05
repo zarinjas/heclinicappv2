@@ -63,7 +63,7 @@ class _DoctorSelectionScreenWidgetState
         setState(() {
           _isLoading = false;
           _hasError = true;
-          _errorMessage = response.statusText ?? 'Failed to load doctors';
+          _errorMessage = 'Error ${response.statusCode}: Failed to load doctors';
         });
       }
     } catch (e) {

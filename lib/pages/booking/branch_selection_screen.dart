@@ -67,7 +67,7 @@ class _BranchSelectionScreenWidgetState
         setState(() {
           _isLoading = false;
           _hasError = true;
-          _errorMessage = response.statusText ?? 'Failed to load branches';
+          _errorMessage = 'Error ${response.statusCode}: Failed to load branches';
         });
       }
     } catch (e) {
