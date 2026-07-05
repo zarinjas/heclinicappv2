@@ -97,9 +97,9 @@ Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 | UI-P1-T05 | loyalty-card | Epic UI — Phase 1 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T06 | health-record-card | Epic UI — Phase 1 | Step 6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T07 | hero-slider | Epic UI — Phase 1 | Step 7 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P1-T08 | quick-action-grid | Epic UI — Phase 1 | Step 8 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P1-T09 | step-indicator | Epic UI — Phase 1 | Step 9 | Flutter | flutter-developer | BACKLOG | — |
-| UI-P1-T10 | otp-input-row | Epic UI — Phase 1 | Step 10 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T08 | quick-action-grid | Epic UI — Phase 1 | Step 8 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P1-T09 | step-indicator | Epic UI — Phase 1 | Step 9 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P1-T10 | otp-input-row | Epic UI — Phase 1 | Step 10 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T11 | section-header | Epic UI — Phase 1 | Step 11 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T12 | notification-item | Epic UI — Phase 1 | Step 12 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T13 | transaction-item | Epic UI — Phase 1 | Step 13 | Flutter | flutter-developer | BACKLOG | — |
