@@ -17,7 +17,7 @@ MySQL Schema: Branches, Doctors, Calendars, Settings, Notifications Log
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P2-T01 |
 | Blocked Reason | N/A |
@@ -225,10 +225,10 @@ N/A — all criteria pass.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Schema exactly matches Process 2 Step 2 specification (branches, doctors, plato_calendars, settings, notifications_log). is_visible_in_app defaults to false per "default OFF" requirement. All column types, foreign keys, and indexes match the Technical Spec precisely. No deviation from plan.
 
 ### Rejection Reason
-{If REJECTED}
+N/A

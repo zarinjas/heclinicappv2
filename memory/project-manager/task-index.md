@@ -15,7 +15,7 @@ Last Updated: 2026-07-05
 | P1-T09 | remove-duplicate-booking-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T10 | remove-hardcoded-doctor-modals | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P2-T01 | laravel-auth-role-setup | 2 | Step 1 | Laravel | laravel-developer | DONE | 2026-07-05 |
-| P2-T02 | mysql-schema | 2 | Step 2 | Laravel | laravel-developer | IN-REVIEW | |
+| P2-T02 | mysql-schema | 2 | Step 2 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P2-T03 | branch-management-crud | 2 | Step 3 | Laravel | laravel-developer | BACKLOG | |
 | P2-T04 | doctor-management-crud | 2 | Step 4 | Laravel | laravel-developer | BACKLOG | |
 | P2-T05 | plato-api-proxy-layer | 2 | Step 5 | Laravel | laravel-developer | BACKLOG | |
