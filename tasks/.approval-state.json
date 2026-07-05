@@ -1,5 +1,5 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "UI-P2-T01", "title": "Splash Screen"},
     {"task_id": "UI-P2-T02", "title": "Onboarding Screen"},
@@ -8,5 +8,6 @@
     {"task_id": "UI-P2-T05", "title": "Register Step 1 Screen"}
   ],
   "created_at": "2026-07-05T22:00:00Z",
-  "approved": null
+  "approved_at": "2026-07-05T22:00:00Z",
+  "approved": true
 }
