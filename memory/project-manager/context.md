@@ -9,7 +9,7 @@ Process 10 — Polish and Remaining Features (ACTIVE)
 **Process 10 — Polish and Remaining Features (NEW):**
 P10-T01 — WhatsApp Center — Admin Panel (DONE)
 P10-T02 — Queue Tracker — Mobile App (DONE)
-P10-T03 — Payment History — Mobile App (BACKLOG)
+P10-T03 — Payment History — Mobile App (DONE)
 P10-T04 — Analytics Dashboard — Admin Panel (BACKLOG)
 P10-T05 — Role and Permission Audit (BACKLOG)
 P10-T06 — Firestore Security Rules Audit and Tighten (BACKLOG)

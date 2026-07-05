@@ -52,3 +52,5 @@ export '/pages/appointments/appointments_screen.dart'
     show AppointmentsScreenWidget;
 export '/pages/queue/queue_tracker_screen.dart'
     show QueueTrackerScreenWidget;
+export '/pages/payment/payment_history_screen.dart'
+    show PaymentHistoryScreenWidget;

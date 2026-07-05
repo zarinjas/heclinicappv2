@@ -173,6 +173,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const QueueTrackerScreenWidget(),
         ),
         FFRoute(
+          name: PaymentHistoryScreenWidget.routeName,
+          path: PaymentHistoryScreenWidget.routePath,
+          builder: (context, params) => const PaymentHistoryScreenWidget(),
+        ),
+        FFRoute(
           name: RegisterPageWidget.routeName,
           path: RegisterPageWidget.routePath,
           builder: (context, params) => RegisterPageWidget(),

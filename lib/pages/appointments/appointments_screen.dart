@@ -7,6 +7,7 @@ import '/components/skeleton_loaders.dart';
 import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
 import '/pages/queue/queue_tracker_screen.dart';
+import '/pages/payment/payment_history_screen.dart';
 import '/app_state.dart';
 
 class AppointmentsScreenWidget extends StatefulWidget {
@@ -390,6 +391,17 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
             tooltip: 'Queue Tracker',
             onPressed: () {
               context.pushNamed(QueueTrackerScreenWidget.routeName);
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.receipt_long_outlined,
+              color: AppColors.textInverse,
+              size: 24.0,
+            ),
+            tooltip: 'Payment History',
+            onPressed: () {
+              context.pushNamed(PaymentHistoryScreenWidget.routeName);
             },
           ),
         ],
