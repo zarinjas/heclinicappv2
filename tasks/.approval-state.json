@@ -1,5 +1,5 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "P10-T01", "title": "WhatsApp Center — Admin Panel"},
     {"task_id": "P10-T02", "title": "Queue Tracker — Mobile App"},
@@ -8,5 +8,5 @@
     {"task_id": "P10-T05", "title": "Role and Permission Audit"}
   ],
   "created_at": "2026-07-05T00:00:00Z",
-  "approved": null
+  "approved_at": "2026-07-05T00:00:00Z"
 }
