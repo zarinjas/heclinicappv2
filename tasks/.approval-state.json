@@ -1,11 +1,11 @@
 {
-  "pending": true,
+  "pending": false,
   "task_id": "P7-T04",
   "task_title": "Appointment Calendar View — Admin Panel",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
   "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": null,
-  "approved": null
+  "approved_at": "2026-07-05T00:00:00Z",
+  "approved": true
 }
