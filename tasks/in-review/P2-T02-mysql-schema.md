@@ -204,20 +204,20 @@ Created 6 migrations and 5 Eloquent models for the MySQL schema per v2-decisions
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] All tables created — PASS / FAIL
-- [ ] Migration rollback works — PASS / FAIL
-- [ ] Foreign keys enforced — PASS / FAIL
-- [ ] Models complete — PASS / FAIL
-- [ ] is_visible_in_app defaults to false — PASS / FAIL
-- [ ] Indexes confirmed — PASS / FAIL
-- [ ] settings.key unique — PASS / FAIL
-- [ ] users.branch_id FK — PASS / FAIL
+- [x] All tables created — PASS — 6 migration files create branches, doctors, plato_calendars, settings, notifications_log + FK on users
+- [x] Migration rollback works — PASS — all down() methods use dropIfExists()
+- [x] Foreign keys enforced — PASS — cascadeOnDelete on doctors.branch_id and plato_calendars.doctor_id; nullOnDelete on doctors.user_id and users.branch_id
+- [x] Models complete — PASS — Branch, Doctor, PlatoCalendar, Setting, NotificationLog all have $fillable, $casts, and relationship methods. User.php updated with branch() BelongsTo.
+- [x] is_visible_in_app defaults to false — PASS — confirmed in doctors migration: `->default(false)->index()`
+- [x] Indexes confirmed — PASS — doctors.plato_facility_id has ->index(), doctors.is_visible_in_app has ->index(), status in notifications_log indexed
+- [x] settings.key unique — PASS — `->unique()` constraint confirmed
+- [x] users.branch_id FK — PASS — migration 000006 adds foreign key from users.branch_id to branches.id with nullOnDelete
 
 ### Failure Details
-{If FAILED}
+N/A — all criteria pass.
 
 ---
 
