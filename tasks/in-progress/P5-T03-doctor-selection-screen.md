@@ -16,8 +16,8 @@ Doctor Selection Screen
 | Process Step | Step 3 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P5-T02 |
 | Blocked Reason | N/A |
