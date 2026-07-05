@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (Process 8 tasks added)
+Last Updated: 2026-07-05 (Process 9 tasks added)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -60,6 +60,12 @@ Last Updated: 2026-07-05 (Process 8 tasks added)
 | P8-T06 | inapp-deep-links | 8 | Step 6 | Both | laravel-developer | DONE | 2026-07-05 |
 | P8-T07 | automated-triggers | 8 | Step 7 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P8-T08 | notification-history-log-ui | 8 | Step 8 | Laravel | laravel-developer | DONE | 2026-07-05 |
+| P9-T01 | sliders-cms | 9 | Step 1 | Both | laravel-developer | BACKLOG | — |
+| P9-T02 | service-packages-cms | 9 | Step 2 | Both | laravel-developer | BACKLOG | — |
+| P9-T03 | articles-cms | 9 | Step 3 | Both | laravel-developer | BACKLOG | — |
+| P9-T04 | videos-cms | 9 | Step 4 | Both | laravel-developer | BACKLOG | — |
+| P9-T05 | doctor-profiles-cms | 9 | Step 5 | Laravel | laravel-developer | BACKLOG | — |
+| P9-T06 | branch-profiles-cms | 9 | Step 6 | Laravel | laravel-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
@@ -102,6 +108,14 @@ Last Updated: 2026-07-05 (Process 8 tasks added)
   - P8-T06 (in-app deep links) — depends on P8-T04 (needs push infrastructure)
   - P8-T07 (automated triggers) — depends on P8-T04, P8-T05, P8-T06 (needs all channels)
   - P8-T08 (notification history log UI) — depends on P8-T01 (needs composer for log entries)
+
+- Process 9 tasks have the following dependency chain:
+  - P9-T01 (sliders CMS) — no dependencies (parallel)
+  - P9-T02 (service packages CMS) — no dependencies (parallel)
+  - P9-T03 (articles CMS) — no dependencies (parallel with T01-T02)
+  - P9-T04 (videos CMS) — no dependencies (parallel with T01-T03)
+  - P9-T05 (doctor profiles CMS) — depends on P2-T04 (doctor CRUD exists; DONE); parallel with T01-T04
+  - P9-T06 (branch profiles CMS) — depends on P2-T03 (branch CRUD exists; DONE); parallel with T01-T05
 
 **Note:** Agentic AI Director is now active via GitHub Actions + Telegram approval.
 Bot URL: https://heclinic.cyberoket.cloud/bot/webhook
