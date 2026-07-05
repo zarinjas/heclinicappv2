@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN PROGRESS |
+| Status | IN REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -106,15 +106,28 @@ Build the Terms of Service screen — accessed from Profile Tab's About section.
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Created `lib/features/profile/terms_screen.dart` with V2 design system
+- Scrollable content area with terms of service text in `AppCard`
+- App bar: "Terms of Service" title with back arrow via `AppAppBar.sub()`
+- `AppSkeleton` shimmer during content load using slider presets
+- `AppErrorState` with retry on fetch failure
+- Dark mode support throughout
+- Zero `FFButtonWidget` or `FlutterFlowTheme` references
+- All colors from `AppColors`, typography from `AppTextStyles`, spacing from `AppSpacing`
+- Registered route `/termsOfServiceScreen` in `nav.dart`
 
 ### Files Changed
-
+- `lib/features/profile/terms_screen.dart` — Created (187 lines)
+- `lib/flutter_flow/nav/nav.dart` — Added route registration + import
 
 ### Decisions Made During Implementation
-
+- Used static terms of service text as fallback (no dedicated CMS page API exists yet; structure supports API plugin)
+- Content uses plain text with `AppTextStyles.body1` at 1.7 line height for readability
+- Async loading pattern supports replacement with CMS API call
 
 ### Known Limitations
+- Terms of service text is static; needs CMS endpoint integration for dynamic content
+- No rich text/HTML rendering (plain text only)
 
 
 

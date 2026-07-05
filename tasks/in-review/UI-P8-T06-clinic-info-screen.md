@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN PROGRESS |
+| Status | IN REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -119,15 +119,33 @@ Build the He Clinic Info screen — accessed from Profile Tab's About section. A
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Created `lib/features/profile/clinic_info_screen.dart` with V2 design system
+- Hero image section: clinic branding, 220px, full width
+- About section: clinic description with icon header
+- Mission/Vision section: icon + text cards in `AppCard`
+- Branches section: `BranchCard` list with static branch data (pluggable API)
+- Contact section: phone, email, WhatsApp rows + WhatsApp button
+- `AppSkeleton` shimmer during initial data load
+- `AppErrorState` with retry on fetch failure
+- Dark mode support throughout
+- Zero `FFButtonWidget` or `FlutterFlowTheme` references
+- All colors from `AppColors`, typography from `AppTextStyles`, spacing from `AppSpacing`
+- Registered route `/clinicInfoScreen` in `nav.dart`
 
 ### Files Changed
-
+- `lib/features/profile/clinic_info_screen.dart` — Created (341 lines)
+- `lib/flutter_flow/nav/nav.dart` — Added route registration + import
+- `lib/core/widgets/app_skeleton.dart` — Added `circle()`, `text()`, parameterized `card()` helpers
 
 ### Decisions Made During Implementation
-
+- Used static clinic data as fallback (no dedicated CMS page API exists yet; structure supports API plugin)
+- Branches use `BranchCard` component with static data
+- Hero image uses branded placeholder (no CMS image endpoint yet)
 
 ### Known Limitations
+- Clinic data is static; needs CMS endpoint integration for dynamic content
+- Branch data hardcoded; should be replaced with API call in future
+- Social media links not configured (placeholder structure ready)
 
 
 

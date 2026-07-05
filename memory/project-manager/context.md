@@ -13,9 +13,9 @@ Epic: UI Migration — Phase 8 (Profile Tab & Settings) — IN PROGRESS (tasks c
 | UI-P8-T03 | Change Password Screen | DONE |
 | UI-P8-T04 | Biometric Settings | DONE |
 | UI-P8-T05 | Notification Preferences | DONE |
-| UI-P8-T06 | He Clinic Info | IN PROGRESS |
-| UI-P8-T07 | Privacy Policy | IN PROGRESS |
-| UI-P8-T08 | Terms of Service | IN PROGRESS |
+| UI-P8-T06 | He Clinic Info | IN REVIEW |
+| UI-P8-T07 | Privacy Policy | IN REVIEW |
+| UI-P8-T08 | Terms of Service | IN REVIEW |
 
 ## Phase 7 — COMPLETE
 | Task ID | Name | Status |

@@ -12,12 +12,14 @@ class AppSkeleton extends StatelessWidget {
   });
 
   factory AppSkeleton.listItem() = _SkeletonListItem;
-  factory AppSkeleton.card() = _SkeletonCard;
+  factory AppSkeleton.card({double? height, BorderRadiusGeometry? borderRadius}) = _SkeletonCard;
   factory AppSkeleton.articleCard() = _SkeletonArticleCard;
   factory AppSkeleton.videoGrid() = _SkeletonVideoGrid;
   factory AppSkeleton.appointmentCard() = _SkeletonAppointmentCard;
   factory AppSkeleton.doctorHorizontal() = _SkeletonDoctorHorizontal;
   factory AppSkeleton.slider() = _SkeletonSlider;
+  factory AppSkeleton.circle({required double size}) = _SkeletonCircle;
+  factory AppSkeleton.text({required double width}) = _SkeletonText;
 
   final Widget child;
 
@@ -146,45 +148,52 @@ class _SkeletonListItem extends AppSkeleton {
 }
 
 class _SkeletonCard extends AppSkeleton {
-  _SkeletonCard()
+  _SkeletonCard({double? height, BorderRadiusGeometry? borderRadius})
       : super._(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const _ShimmerBox(
-                width: double.infinity,
-                height: 120,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(AppRadius.radiusLG),
+          child: height != null
+              ? _ShimmerBox(
+                  width: double.infinity,
+                  height: height,
+                  borderRadius: borderRadius ??
+                      const BorderRadius.all(Radius.circular(AppRadius.radiusLG)),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const _ShimmerBox(
+                      width: double.infinity,
+                      height: 120,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(AppRadius.radiusLG),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.space12),
+                    const _ShimmerBox(
+                      width: double.infinity,
+                      height: 14,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(AppRadius.radiusSM),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                    const _ShimmerBox(
+                      width: 200,
+                      height: 14,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(AppRadius.radiusSM),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                    const _ShimmerBox(
+                      width: 120,
+                      height: 14,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(AppRadius.radiusSM),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: AppSpacing.space12),
-              const _ShimmerBox(
-                width: double.infinity,
-                height: 14,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.radiusSM),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.space8),
-              const _ShimmerBox(
-                width: 200,
-                height: 14,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.radiusSM),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.space8),
-              const _ShimmerBox(
-                width: 120,
-                height: 14,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.radiusSM),
-                ),
-              ),
-            ],
-          ),
         );
 }
 
@@ -385,6 +394,26 @@ class _SkeletonSlider extends AppSkeleton {
             height: 180,
             borderRadius: BorderRadius.all(
               Radius.circular(AppRadius.radiusLG),
+            ),
+          ),
+        );
+}
+
+class _SkeletonCircle extends AppSkeleton {
+  _SkeletonCircle({required double size})
+      : super._(
+          child: _ShimmerCircle(size: size),
+        );
+}
+
+class _SkeletonText extends AppSkeleton {
+  _SkeletonText({required double width})
+      : super._(
+          child: _ShimmerBox(
+            width: width,
+            height: 14,
+            borderRadius: const BorderRadius.all(
+              Radius.circular(AppRadius.radiusSM),
             ),
           ),
         );
