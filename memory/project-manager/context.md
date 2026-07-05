@@ -9,7 +9,7 @@ Process 3 — Mobile App: Data Layer Refactor (Flutter)
 P3-T01 — Global API Error Interceptor (DONE)
 P3-T02 — Pagination Helper (DONE)
 P3-T03 — modified_since Strategy (DONE)
-P3-T04 — HTTP 429 Exponential Backoff (IN-REVIEW)
+P3-T04 — HTTP 429 Exponential Backoff (DONE)
 P3-T05 — P3-T06 in BACKLOG
 
 ## Blocked Tasks
