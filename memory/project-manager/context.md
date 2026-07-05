@@ -9,7 +9,7 @@ Process 7 — Admin Panel: Patient and Appointment Management (Laravel)
 **Process 7 — Admin Panel (NEW):**
 P7-T01 — Patient List — Server-Side Pagination, Search (DONE)
 P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (DONE)
-P7-T03 — Patient Document Upload — PDF to Firebase Storage (IN-REVIEW)
+P7-T03 — Patient Document Upload — PDF to Firebase Storage (DONE)
 P7-T04 — Appointment Calendar View — Admin Panel (BACKLOG)
 P7-T05 — Create Walk-In Appointment — Admin Panel (BACKLOG)
 P7-T06 — Appointment Detail View — Admin Panel (BACKLOG)
