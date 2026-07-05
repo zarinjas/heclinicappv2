@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P7-T06 — Appointment Detail View — Admin Panel (PASSED — 9/9 criteria)
+P8-T01 — Notification Composer — Admin Panel (PASSED — 8/8 criteria)
 
 ## Verification History
+- P8-T01 (2026-07-05): PASSED — 8/8 criteria. NotificationController@compose shows Blade form with title (max 255, char counter), body textarea (max 2000, char counter), image_url (optional URL). @send validates all fields, saves NotificationLog with type=manual, status=draft, target=all, channels=['push','email','in_app']. Redirect with success flash. Routes in auth+role middleware. Sidebar nav link with bell icon. Migration adds image_url column. php -l passes all 4 files.
 - P7-T06 (2026-07-05): PASSED — 9/9 criteria. AdminAppointmentController@show($id) finds appointment by primary key, then by plato_appointment_id, then falls back to Plato proxy; abort(404) if not found. show.blade.php follows branches/show.blade.php pattern with grouped sections: Patient Info (Name, NRIC, Phone, Profile link), Appointment Details (Date, Time, Status badge, monospace Plato ID), Assignment (Doctor, Branch, Calendar Color ID), Notes (or "No notes" placeholder), Local Record timestamps (Created/Updated/Notification Sent). Index view replaced disabled button with active link to show route. Routes updated to include 'show'. php -l passes all 4 modified files.
 
 ## Verification History

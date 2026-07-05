@@ -151,11 +151,20 @@ Created the admin panel notification composer — a Blade form page where staff 
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+- [x] {Criterion 1} — PASS — Compose route returns view with title input, body textarea, image_url input fields
+- [x] {Criterion 2} — PASS — send() validates and creates NotificationLog with status='draft', type='manual'
+- [x] {Criterion 3} — PASS — `required` validation rules + @error directives in Blade for both title and body
+- [x] {Criterion 4} — PASS — `url` validation rule + @error('image_url') in Blade template
+- [x] {Criterion 5} — PASS — redirect with `->with('success', ...)` flash message; layout renders session('success') in green banner
+- [x] {Criterion 6} — PASS — Notifications nav link added to admin.blade.php sidebar with bell SVG icon
+- [x] {Criterion 7} — PASS — Routes wrapped in `auth` + `role` middleware group; Laravel handles redirect to login
+- [x] {Criterion 8} — PASS — Migration adds `image_url` varchar(500) nullable after `body` column
 
 ### Failure Details
+N/A — All criteria PASSED.
 
 ---
 
