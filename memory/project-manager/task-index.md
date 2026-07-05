@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -108,6 +108,21 @@ Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 | UI-P1-T16 | vitals-chart | Epic UI — Phase 1 | Step 16 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T17 | document-item | Epic UI — Phase 1 | Step 17 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T18 | offline-banner | Epic UI — Phase 1 | Step 18 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P2-T01 | splash-screen | Epic UI — Phase 2 | Step 2.1 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T02 | onboarding-screen | Epic UI — Phase 2 | Step 2.2 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T03 | welcome-screen | Epic UI — Phase 2 | Step 2.3 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T04 | login-screen | Epic UI — Phase 2 | Step 2.4 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T05 | register-step1-screen | Epic UI — Phase 2 | Step 2.5 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T06 | register-step2-screen | Epic UI — Phase 2 | Step 2.6 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T07 | forgot-email-screen | Epic UI — Phase 2 | Step 2.7 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T08 | forgot-otp-screen | Epic UI — Phase 2 | Step 2.8 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T09 | forgot-newpassword-screen | Epic UI — Phase 2 | Step 2.9 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T10 | first-change-password-screen | Epic UI — Phase 2 | Step 2.10 | Flutter | flutter-developer | BACKLOG | |
+
+**Phase 2 Dependency Order:**
+- All 10 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:

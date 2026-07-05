@@ -1,0 +1,163 @@
+# Login Screen — UI Migration
+
+## Header
+
+| Field | Value |
+|-------|-------|
+| Task ID | UI-P2-T04 |
+| Slug | login-screen |
+| Process | Epic UI — Phase 2 (Auth Screens) |
+| Process Step | Step 2.4 |
+| Type | Flutter |
+| Assigned To | flutter-developer |
+| Assigned Date | |
+| Status | BACKLOG |
+| Parallel | YES |
+| Depends On | UI-P0 (all), UI-P1 (all) |
+| Blocked Reason | N/A |
+
+---
+
+## Description
+
+Migrate the existing login screen from `auth_page/login*/` to a new V2 design-compliant login screen at `lib/features/auth/login_screen.dart`. Add biometric auto-prompt on load (existing `local_auth` logic preserved). Replace `FFButtonWidget` with `AppButton`. Replace styled `TextField` with `AppInput`.
+
+---
+
+## Context
+
+> Documents and sections the developer must read before starting.
+
+- `docs/ui-migration-plan.md` — Phase 2 Auth Screens, Step 2.4
+- `docs/ui-design-system.md` — §2 AppColors, §3 AppTextStyles, §8 AppButton, §9 AppInput, §4 AppSpacing
+- `docs/ui-epic.md` — Compliance rules
+- `docs/v2-ux-spec.md` — §4 Auth Flow, §6 design image
+- `docs/design-system-v2.png` — Visual target
+
+---
+
+## Scope
+
+> Exact deliverables for this task. Be specific.
+
+### In Scope
+- Create `lib/features/auth/login_screen.dart`
+- Email/Phone input using `AppInput`
+- Password input using `AppInput` with toggle visibility
+- Login button using `AppButton` primary variant
+- Forgot Password link → navigate to forgot step 1
+- Register link → navigate to register step 1
+- Biometric auto-prompt on load (preserve existing `local_auth` logic)
+- Form validation (email format, password not empty)
+- All design token usage
+- Dark mode support
+- Skeleton: N/A
+- Empty: N/A
+- Error: AppErrorState for auth failure (wrong credentials)
+
+### Out of Scope
+- Forgot password flow (UI-P2-T07/T08/T09)
+- Register flow (UI-P2-T05/T06)
+- Auth service/API logic changes (preserve existing)
+- Deleting old `auth_page/login*/` (Phase 13)
+
+---
+
+## Technical Spec
+
+> Key implementation details.
+
+### Files to Create or Modify
+- `lib/features/auth/login_screen.dart` — New login screen
+
+### API Endpoints
+- Existing login API calls (preserved from current auth_page)
+
+### Data / Schema
+- Login form state: identifier (email/phone), password
+
+### UI Components (Flutter tasks only)
+- AppInput: Email/Phone field, Password field with toggle
+- AppButton: Primary variant for Login
+- Loading: Show loading indicator on AppButton during API call
+- Empty: N/A
+- Error: AppErrorState for invalid credentials error
+
+### Constraints
+- Must use `AppInput` for all text fields (no `TextField` with inline styling)
+- Must use `AppButton` for Login (no `FFButtonWidget`)
+- Must preserve existing `local_auth` biometric logic
+- Must preserve existing API call logic
+- All colors from `AppColors`, all text from `AppTextStyles`
+
+---
+
+## Acceptance Criteria
+
+> Testable, binary (PASS/FAIL) criteria.
+
+- [ ] Login form: email/phone input + password input using AppInput
+- [ ] Password toggle visibility works
+- [ ] Login button (AppButton primary) triggers auth API call
+- [ ] Form validation: empty email shows error, empty password shows error
+- [ ] Biometric prompt appears on screen load (if enabled and available)
+- [ ] Forgot Password link navigates to forgot email screen
+- [ ] Register link navigates to register step 1 screen
+- [ ] Invalid credentials show AppErrorState with retry
+- [ ] All widgets use design system components (no FFButtonWidget, no raw TextField)
+- [ ] Dark mode renders correctly
+
+---
+
+## Implementation Notes
+
+> Filled in by the Developer after implementation.
+
+### What Was Done
+
+
+### Files Changed
+- 
+
+### Decisions Made During Implementation
+
+
+### Known Limitations
+
+
+---
+
+## QA Notes
+
+> Filled in by QA after verification.
+
+### Result: PASSED / FAILED
+
+### Criteria Results
+- [ ] Email/phone + password inputs using AppInput — PASS / FAIL
+- [ ] Password toggle works — PASS / FAIL
+- [ ] Login button triggers API — PASS / FAIL
+- [ ] Form validation works — PASS / FAIL
+- [ ] Biometric prompt appears — PASS / FAIL
+- [ ] Forgot Password link navigates — PASS / FAIL
+- [ ] Register link navigates — PASS / FAIL
+- [ ] Error state on invalid credentials — PASS / FAIL
+- [ ] Design system components used — PASS / FAIL
+- [ ] Dark mode — PASS / FAIL
+
+### Failure Details
+
+
+---
+
+## Reviewer Notes
+
+> Filled in by Reviewer after QA passes.
+
+### Decision: APPROVED / REJECTED
+
+### Alignment Check
+- ui-design-system.md alignment: YES / NO
+- v2-ux-spec.md alignment: YES / NO
+
+### Rejection Reason

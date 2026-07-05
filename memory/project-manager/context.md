@@ -1,42 +1,33 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 1 — 15/18 DONE)
+Last Updated: 2026-07-05 (UI Epic Phase 2 — Auth Screens, 10 tasks created in BACKLOG)
 
 ## Current Process
-Epic: UI Migration — Phase 1: Feature Components (18 tasks in BACKLOG)
+Epic: UI Migration — Phase 2: Auth Screens (10 tasks in BACKLOG)
 
 ## Active Tasks
-**Epic UI Migration — Phase 1 (10 of 18 complete):**
-UI-P1-T01 — AppointmentCard (DONE)
-UI-P1-T02 — DoctorCard (DONE)
-UI-P1-T03 — ArticleCard (DONE)
-UI-P1-T04 — VideoCard (DONE)
-UI-P1-T05 — LoyaltyCard (DONE)
-UI-P1-T06 — HealthRecordCard (BACKLOG)
-UI-P1-T04 — VideoCard (BACKLOG)
-UI-P1-T05 — LoyaltyCard (BACKLOG)
-UI-P1-T06 — HealthRecordCard (DONE)
-UI-P1-T07 — HeroSlider (DONE)
-UI-P1-T08 — QuickActionGrid (DONE)
-UI-P1-T09 — StepIndicator (DONE)
-UI-P1-T10 — OtpInputRow (DONE)
-UI-P1-T11 — SectionHeader (DONE)
-UI-P1-T12 — NotificationItem (DONE)
-UI-P1-T13 — TransactionItem (DONE)
-UI-P1-T14 — BranchCard (DONE)
-UI-P1-T15 — TimeSlotChip (DONE)
-UI-P1-T16 — VitalsChart (DONE)
-UI-P1-T17 — DocumentItem (DONE)
-UI-P1-T18 — OfflineBanner (DONE)
+**Epic UI Migration — Phase 2 (0 of 10 complete):**
+UI-P2-T01 — Splash Screen (BACKLOG)
+UI-P2-T02 — Onboarding Screen (BACKLOG)
+UI-P2-T03 — Welcome Screen (BACKLOG)
+UI-P2-T04 — Login Screen (BACKLOG)
+UI-P2-T05 — Register Step 1 (BACKLOG)
+UI-P2-T06 — Register Step 2 (BACKLOG)
+UI-P2-T07 — Forgot Email (BACKLOG)
+UI-P2-T08 — Forgot OTP (BACKLOG)
+UI-P2-T09 — Forgot New Password (BACKLOG)
+UI-P2-T10 — First Change Password (BACKLOG)
 
-## Phase 1 Notes
-- All 18 tasks are parallel (no dependencies between them) once Phase 0 is complete
+## Phase 2 Notes
+- All 10 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
 - All tasks are Flutter type, assigned to flutter-developer
-- Each task references: docs/ui-design-system.md, docs/ui-migration-plan.md, docs/design-system-v2.png
-- Phase 1 must complete before Phases 2-10 screen migrations begin
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
+- Phases 2-10 can all proceed in parallel
+- Each auth screen preserves existing business logic and API calls, replacing only UI
 
-## Phase 0 Dependency Order:
-T01 → T02 → T03 → T04 → T05-T16 (parallel once T04 done)
+## Completed Phases
+- Phase 0 — Design System Foundation: ALL DONE (UI-P0-T01 through UI-P0-T16)
+- Phase 1 — Feature Components: ALL DONE (UI-P1-T01 through UI-P1-T18)
 
 **Process 8 — Notifications Module (completed):**
 P8-T01 through P8-T08 — ALL DONE
