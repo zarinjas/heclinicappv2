@@ -107,15 +107,18 @@ Migrate the existing welcome/landing page from `auth_page/` entry to a new V2 de
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/auth/welcome_screen.dart` with He Clinic logo, tagline, and Login/Register buttons using design system components. Full dark mode support.
 
 ### Files Changed
-- 
+- `lib/features/auth/welcome_screen.dart` — New file, 88 lines
 
 ### Decisions Made During Implementation
-
+- Login button → /login, Register button → /registerStep1
+- AppButton.primary for Login, AppButton.secondary for Register
+- All styling via AppColors/AppTextStyles/AppSpacing
 
 ### Known Limitations
+- Routes not yet registered in GoRouter (Phase 12)
 
 
 ---

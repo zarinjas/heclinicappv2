@@ -116,15 +116,20 @@ Migrate the existing register step 1 from `auth_page/register*/` to a new V2 des
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/auth/register_step1_screen.dart` with personal info form (name, email, phone, DOB, gender), StepIndicator component, form validation, and design system components.
 
 ### Files Changed
-- 
+- `lib/features/auth/register_step1_screen.dart` — New file, 267 lines
 
 ### Decisions Made During Implementation
-
+- StepIndicator at 0 of 2 (currentStep=0)
+- DOB uses date picker dialog triggered by GestureDetector
+- Gender selection via ChoiceChip (Male/Female)
+- Next button validates before navigating to /registerStep2
+- Login link at bottom → /login
 
 ### Known Limitations
+- Routes not yet registered in GoRouter (Phase 12)
 
 
 ---

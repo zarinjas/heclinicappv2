@@ -114,15 +114,19 @@ Migrate the existing login screen from `auth_page/login*/` to a new V2 design-co
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/auth/login_screen.dart` with email/password form, biometric auto-prompt using local_auth, form validation, error/empty states, and design system components. Preserves local_auth logic.
 
 ### Files Changed
-- 
+- `lib/features/auth/login_screen.dart` — New file, 262 lines
 
 ### Decisions Made During Implementation
-
+- Biometric prompt via LocalAuthentication API on screen load
+- Form validation on email (non-empty) and password (non-empty)
+- Error state as full-page with try-again button
+- Forgot password → /forgotEmail, Register link → /registerStep1
 
 ### Known Limitations
+- Routes not yet registered in GoRouter (Phase 12)
 
 
 ---

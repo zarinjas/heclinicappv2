@@ -108,15 +108,19 @@ Migrate the existing onboarding screen from `on_boarding_new/` to a new V2 desig
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/auth/onboarding_screen.dart` with 3-slide PageView, animated dot indicator, Skip/Next/GetStarted buttons using AppButton. All styling via design tokens.
 
 ### Files Changed
-- 
+- `lib/features/auth/onboarding_screen.dart` — New file, 167 lines
 
 ### Decisions Made During Implementation
-
+- Used Material Icons for slide illustrations (medical_services, calendar_month, folder_open)
+- Dot indicator uses AnimatedContainer for smooth transitions
+- Skip navigates to /welcome, Get Started navigates to /welcome
+- Routes not yet registered in GoRouter (Phase 12)
 
 ### Known Limitations
+- Routes /welcome not yet created — navigation will need route registration in Phase 12
 
 
 ---
