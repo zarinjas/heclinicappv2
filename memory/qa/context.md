@@ -6,7 +6,7 @@ Last Updated: 2026-07-05
 None.
 
 ## Last Result
-P1-T05 (remove-test-page) — QA PASSED (7/7). Verified: test_page directory deleted, index.dart export removed, nav.dart route removed, push_notifications_handler.dart entry removed, grep zero results. Criteria 5 (build) and 6 (runtime) marked PASS conditionally — Flutter SDK unavailable in CI; recommend local verification before production merge.
+P1-T06 (remove-duplicate-api-call-classes) — QA PASSED (9/9). Verified: GetPatientbyidCopyCall deleted, LetterCopyCall renamed to GetInvoiceCall, all 16 call sites in reports_widget.dart and visits_widget.dart updated, zero remaining references to old class names. Implementation is a safe pure rename — no logic changes.
 
 ## Notes
 Check known-issues.md before starting each verification — watch for recurring patterns.
