@@ -163,7 +163,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 9 tasks created)
 | UI-P8-T06 | clinic-info-screen | Epic UI — Phase 8 | Step 8.6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P8-T07 | privacy-policy-screen | Epic UI — Phase 8 | Step 8.7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P8-T08 | terms-of-service-screen | Epic UI — Phase 8 | Step 8.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P9-T01 | my-points-screen | Epic UI — Phase 9 | Step 9.1 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P9-T01 | my-points-screen | Epic UI — Phase 9 | Step 9.1 | Flutter | flutter-developer | IN-REVIEW | — |
 | UI-P9-T02 | redeem-points-sheet | Epic UI — Phase 9 | Step 9.2 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P9-T03 | redemption-code-modal | Epic UI — Phase 9 | Step 9.3 | Flutter | flutter-developer | BACKLOG | — |
 

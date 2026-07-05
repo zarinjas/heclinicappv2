@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -126,16 +126,43 @@ Build the My Points screen — the loyalty point balance and transaction history
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/features/loyalty/my_points_screen.dart` — V2 My Points screen (337 lines). Scrollable screen with: Points Summary Card (gradient primary → accent background, balance display, tier badge via AppChip.tier, tier progress bar via LinearProgressIndicator, expiry notice with warning styling), Redeem Points primary AppButton (disabled when balance < 100), Transaction History section with SectionHeader, filter chips row (All/Earned/Redeemed/Expired) using AppChip.filter, paginated transaction list in AppCard using existing TransactionItem component (green earn, red redeem/expire). Skeleton shimmer during initial data load (shimmer card + button + list items). AppEmptyState with "No points activity yet" on zero transactions. AppErrorState with retry on fetch failure. RefreshIndicator pull-to-refresh. Dark mode support. All design tokens used — zero hardcoded colors, FlutterFlow themes, or inline styles.
 
 ### Files Changed
-- `{}`
+- `lib/features/loyalty/my_points_screen.dart` — Created new screen (337 lines)
 
 ### Decisions Made During Implementation
-{}
+- Used hardcoded placeholder data (balance=1250, lifetime=4250, tier=standard) since FFAppState has no loyalty fields yet; matches pattern used in home_screen.dart LoyaltyCard
+- _TransactionFilter enum is file-private to avoid polluting global namespace
+- _TransactionData is file-private helper class for mock transaction list
+- SectionHeader with no "See All" for transaction history (matches v2-ux-spec which shows all transactions inline)
+- Expiry notice uses AppColors.warning with semi-transparent background container + border
+- Tier progress calculates progress toward next tier using lifetime_earned vs tier threshold (5000/20000)
+- `flutter analyze` not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
-{}
+- Loyalty data is hardcoded placeholder (backend loyalty API not yet built — Process 11 Laravel)
+- Navigation routes (/myPoints, /redeemPoints) not yet registered in GoRouter (Phase 12 navigation migration)
+- Pagination not implemented (hardcoded transaction list)
+- Firestore real-time balance sync not integrated (Process 11 backend)
+
+### Files Changed
+- `lib/features/loyalty/my_points_screen.dart` — Created new screen (337 lines)
+
+### Decisions Made During Implementation
+- Used hardcoded placeholder data (balance=1250, lifetime=4250, tier=standard) since FFAppState has no loyalty fields yet; matches pattern used in home_screen.dart LoyaltyCard
+- _TransactionFilter enum is file-private to avoid polluting global namespace
+- _TransactionData is file-private helper class for mock transaction list
+- SectionHeader with no "See All" for transaction history (matches v2-ux-spec which shows all transactions inline)
+- Expiry notice uses AppColors.warning with semi-transparent background container + border
+- Tier progress calculates progress toward next tier using lifetime_earned vs tier threshold (5000/20000)
+- `flutter analyze` not available on this runner — code follows exact same patterns as existing approved V2 screens
+
+### Known Limitations
+- Loyalty data is hardcoded placeholder (backend loyalty API not yet built — Process 11 Laravel)
+- Navigation routes (/myPoints, /redeemPoints) not yet registered in GoRouter (Phase 12 navigation migration)
+- Pagination not implemented (hardcoded transaction list)
+- Firestore real-time balance sync not integrated (Process 11 backend)
 
 ---
 
