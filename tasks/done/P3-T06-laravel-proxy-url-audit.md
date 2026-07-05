@@ -70,5 +70,14 @@ QA=PASSED (7/7)
 
 ## Reviewer Notes
 
+### Decision: APPROVED
+
+### Alignment Check
+- v2-decisions.md alignment: YES — Process 1 Steps 1-2 (token moved to Laravel proxy, all calls rerouted). Process 3 Step 6 (replace hardcoded base URL with proxy URL). All confirmed in this audit.
+- v2-ux-spec.md alignment: N/A — This is a backend/security task, no UI changes.
+
+### Reviewer Decision
+APPROVED. The audit confirms: no hardcoded tokens or URLs in `lib/`; all Plato calls route through `EnvConfig.platomBaseUrl` (Laravel proxy); EnvConfig default is correct; Laravel proxy controller with wildcard route handles all paths; CODEBASE.md updated. v2-decisions.md already documented the proxy decision. This is the final Process 3 task — all P3 tasks complete.
+
 ## Status
-IN-REVIEW
+DONE
