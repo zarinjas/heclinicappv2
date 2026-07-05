@@ -17,7 +17,7 @@ Laravel Project Setup with Auth and Roles
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -109,16 +109,47 @@ Set up Laravel authentication and role system for the Admin Panel. Install Larav
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Installed and configured Laravel authentication and role system for the Admin Panel:
+- Created migration to add `role` (enum: super_admin, branch_admin, staff) and `branch_id` (nullable FK) to users table
+- Created RoleMiddleware with support for multiple roles per route; registered as `role` alias in bootstrap/app.php
+- Created Admin AuthController with login/logout using session-based authentication
+- Created Admin DashboardController with dashboard view showing user role and placeholder stats
+- Created Blade views: auth/login.blade.php (login form with He Clinic branding), layouts/admin.blade.php (sidebar layout with dark navigation), admin/dashboard.blade.php (stats cards + welcome message)
+- Created UserSeeder with Super Admin (from .env ADMIN_EMAIL/ADMIN_PASSWORD) and sample Staff user
+- Updated User model with role constants (ROLE_SUPER_ADMIN, ROLE_BRANCH_ADMIN, ROLE_STAFF), helper methods (isSuperAdmin(), isBranchAdmin(), isStaff(), hasRole()), and branch relationship
+- Updated DatabaseSeeder to call UserSeeder
+- Added admin web routes: /admin/login (GET/POST), /admin/logout (POST), /admin/dashboard (GET, protected by auth + role middleware)
+- Added ADMIN_EMAIL and ADMIN_PASSWORD to .env.example
+- Sidebar includes placeholder links for Branches, Doctors, and Calendar Setup (marked "Soon")
 
 ### Files Changed
-- {To be filled}
+- `laravel/database/migrations/2026_07_05_000000_add_role_and_branch_to_users_table.php` — new migration
+- `laravel/app/Http/Middleware/RoleMiddleware.php` — new middleware
+- `laravel/app/Http/Controllers/Admin/AuthController.php` — new auth controller
+- `laravel/app/Http/Controllers/Admin/DashboardController.php` — new dashboard controller
+- `laravel/resources/views/admin/auth/login.blade.php` — new login view
+- `laravel/resources/views/layouts/admin.blade.php` — new admin layout
+- `laravel/resources/views/admin/dashboard.blade.php` — new dashboard view
+- `laravel/database/seeders/UserSeeder.php` — new seeder
+- `laravel/app/Models/User.php` — added role constants, helper methods, branch relationship
+- `laravel/database/seeders/DatabaseSeeder.php` — updated to call UserSeeder
+- `laravel/routes/web.php` — added admin routes
+- `laravel/bootstrap/app.php` — registered role middleware alias
+- `laravel/.env.example` — added ADMIN_EMAIL, ADMIN_PASSWORD
 
 ### Decisions Made During Implementation
-{To be filled}
+- Did NOT install Laravel Breeze/Jetstream to avoid pulling in Tailwind/Inertia/complexity. Built minimal auth with manual Blade views for maximum control and lighter dependency footprint.
+- Used session-based auth for web panel (consistent with Laravel defaults) while Sanctum handles API auth — no conflict.
+- RoleMiddleware accepts variable roles: `role:super_admin` or `role:super_admin,branch_admin` — allows flexible route protection.
+- Sidebar placeholder links use "Soon" badge pattern — will be replaced with active links when P2-T03 (Branches), P2-T04 (Doctors), and P2-T06 (Calendar Setup) are implemented.
+- Admin password default in seeder uses `env('ADMIN_PASSWORD', 'password')` — must be changed in production .env.
 
 ### Known Limitations
-{To be filled}
+- No password reset flow for admin panel (not in scope for this task)
+- No user management CRUD UI (staff user creation is via seeder only)
+- Branch FK on users table is nullable until branches table exists (P2-T02)
+- Branch model referenced in User::branch() relationship — will resolve when P2-T02 creates the Branch model
+- Login page uses Tailwind CSS classes from Vite — requires `npm run build` to compile assets
 
 ---
 
