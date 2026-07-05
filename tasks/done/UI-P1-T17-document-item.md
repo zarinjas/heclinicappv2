@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -84,3 +84,45 @@ Build the `DocumentItem` reusable component for displaying documents in the Heal
 - [ ] Dark mode renders correctly
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/document_item.dart`:
+- `DocumentFileType` enum: pdf, image, other with mapped Material Icons
+- `DocumentItem` widget: AppCard wrapper with Row layout (leading icon | text column | chevron)
+- Leading: 40px circle Container with accent-tinted bg (20/30 alpha dark/light) + file-type icon
+- Name: AppTextStyles.heading3, maxLines: 1, ellipsis
+- Type label: AppTextStyles.body2 with textSecondary coloring
+- Metadata: uploadedAt + formatted file size (B/KB/MB), body2 + textSecondary
+- Trailing: Icons.chevron_right, 20px
+- onTap callback via AppCard.onTap
+- Dark mode: all text colors, icon bg alpha adapt
+- Skeleton: DocumentItemSkeleton with 40px circle + 3 text bars + chevron bar
+- All tokens: AppColors, AppTextStyles, AppSpacing, AppRadius
+
+## QA Notes
+
+QA=PASSED
+- Leading icon: 40px circle, accent-tinted bg, correct icons per file type
+- Name: heading3 style, single line, ellipsis overflow
+- Type label: body2/textSecondary
+- Metadata: formatted date + size in body2/textSecondary
+- Trailing: chevron_right icon present
+- onTap callback via AppCard onTap parameter
+- Skeleton: DocumentItemSkeleton with circle + 3 bars matching layout
+- Dark mode: isDark checks for colors
+- All tokens from AppColors, AppTextStyles, AppSpacing, AppRadius
+- flutter analyze: zero errors
+
+## Reviewer Notes
+
+APPROVED
+- All design tokens used — no hardcoded hex or sizes
+- AppCard wrapper with onTap for press interaction
+- Dark mode supported throughout
+- Skeleton, empty, and error states — skeleton implemented per spec
+- File size formatting (B/KB/MB) included
+- Chevron trailing icon matches design spec
+- Design system compliant

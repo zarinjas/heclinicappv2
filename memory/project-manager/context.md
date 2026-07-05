@@ -26,7 +26,7 @@ UI-P1-T13 — TransactionItem (DONE)
 UI-P1-T14 — BranchCard (DONE)
 UI-P1-T15 — TimeSlotChip (DONE)
 UI-P1-T16 — VitalsChart (DONE)
-UI-P1-T17 — DocumentItem (IN-PROGRESS)
+UI-P1-T17 — DocumentItem (DONE)
 UI-P1-T18 — OfflineBanner (BACKLOG)
 
 ## Phase 1 Notes
