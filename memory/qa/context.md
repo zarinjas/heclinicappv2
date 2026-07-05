@@ -1,11 +1,12 @@
 # QA — Context
 
-Last Updated: 2026-07-05 (P10-T06 verified)
+Last Updated: 2026-07-05 (P10-T08 verified)
 
 ## Last Verified Task
-P10-T06 — Firestore Security Rules Audit and Tighten (PASSED — 9/9 criteria)
+P10-T08 — Flutter Version Upgrade Assessment (PASSED — 8/8 criteria)
 
 ## Verification History
+- P10-T08 (2026-07-05): PASSED — 8/8 criteria. BUILD GATE: zero Flutter compile errors. Assessment-only task: no code modified. Target version Flutter 3.35.x/Dart 3.9.x documented. 7 breaking changes assessed for project impact. 17 dependencies audited for compatibility. Android 6-step and iOS 4-step upgrade plans complete. Risk: MEDIUM. Rollback: 7-step git-based, <5 min.
 - P10-T06 (2026-07-05): PASSED — 9/9 criteria. BUILD GATE: zero Flutter compile errors. Logic verification: all collections require isAuthenticated(), unauthenticated reads denied globally. Public collections (articles/videos/branch/info) allow authenticated read only. users/{userId} enforces request.auth.uid == userId for read+write. historynotif enforces request.auth.uid == resource.data.id_patient for read. fcm enforces id_patient match for read+create. biometric/patients require authenticated read with all writes disabled. otps fully locked (read+write: if false). Firebase Admin SDK bypasses all rules by design. No Dart code changes required — rules syntax valid.
 - P9-T02 — Service Packages CMS — Admin Panel + Mobile (PASSED — 7/7 criteria)
 - P9-T01 (2026-07-05): PASSED — 5/5 Laravel criteria. BUILD GATE: zero PHP parse errors (all 44 files). Admin CRUD fully functional: index with thumbnail preview + filter chips (All/Active/Inactive), create with file upload (storage/sliders/), edit with image replace + old image cleanup, delete with image cleanup. Public API GET /api/v2/cms/sliders returns active sliders ordered by sort_order ASC. CMS sidebar menu with collapsible submenu and active state. 3 Flutter criteria (home screen integration, empty state, error state) DEFERRED — needs flutter-developer dispatch for front-end half of Both-type task.
