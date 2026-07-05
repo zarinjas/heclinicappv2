@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell) |
 | Blocked Reason | N/A |
@@ -102,16 +102,29 @@ Implement the "Our Doctors" horizontal scroll section on the home screen using t
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Replaced `DoctorListWidget` import with direct `DoctorCard` + `DoctorDetailSheet` usage
+- Added `_doctorsLoaded`, `_doctorsError`, `_doctorsResponse` state variables
+- Added `_loadDoctors()` method using `GetDoctorsCall.call(visible: true)`
+- Added `_loadDoctors()` to `_loadInitialData()` parallel loading
+- Rewrote `_buildDoctorsSection()` with 3 states: skeleton loading, error with retry, data
+- Skeleton uses `DoctorCardSkeleton` horizontal variant (4 placeholder cards)
+- Error state uses `AppErrorState` with retry callback
+- Empty state returns `SizedBox.shrink()` to hide section
+- Data state renders horizontal `ListView.builder` with `DoctorCard` components
+- Tap opens `DoctorDetailSheet.show()` with doctor name/specialty
+- "See All" navigates to `AllDoctorWidget.routeName`
 
 ### Files Changed
-
+- `lib/features/home/home_screen.dart` — Replaced _buildDoctorsSection(), added _loadDoctors() + state vars
 
 ### Decisions Made During Implementation
-
+- Used `DoctorCardSkeleton` (from doctor_card.dart) instead of `AppSkeleton.doctorHorizontal()` since it's the companion skeleton for `DoctorCard`
+- Used `DoctorDetailSheet` (existing component) for doctor tap — Phase 10 detail sheet not yet available
+- Kept `DoctorCardVariant.horizontal` for home screen compact layout
 
 ### Known Limitations
-
+- Doctor photo URL and branch info not yet extracted from API response — only name/specialty shown
+- DoctorDetailSheet uses old FlutterFlow theming — will be replaced in Phase 10
 
 ---
 

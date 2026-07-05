@@ -25,7 +25,7 @@ import '/core/widgets/app_skeleton.dart';
 import '/core/widgets/app_empty_state.dart';
 import '/core/widgets/app_error_state.dart';
 import '/core/widgets/app_chip.dart';
-import '/components/doctor_list_widget.dart';
+import '/components/doctor_detail_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,12 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _upcomingError = false;
   bool _articlesError = false;
   bool _videosError = false;
+  bool _doctorsLoaded = false;
+  bool _doctorsError = false;
 
   dynamic _profileResponse;
   dynamic _slidersResponse;
   dynamic _upcomingApptResponse;
   dynamic _articlesResponse;
   dynamic _videosResponse;
+  dynamic _doctorsResponse;
 
   @override
   void initState() {
@@ -72,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadUpcomingAppointment(),
       _loadArticles(),
       _loadVideos(),
+      _loadDoctors(),
     ]);
     if (mounted) setState(() {});
   }
@@ -262,6 +266,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() {
         _videosLoaded = true;
         _videosError = true;
+      });
+    }
+  }
+
+  Future<void> _loadDoctors() async {
+    try {
+      _doctorsResponse = await GetDoctorsCall.call(visible: true);
+      if (mounted) {
+        setState(() {
+          _doctorsLoaded = true;
+          _doctorsError = !(_doctorsResponse?.succeeded ?? false);
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() {
+        _doctorsLoaded = true;
+        _doctorsError = true;
       });
     }
   }
@@ -566,6 +587,76 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDoctorsSection() {
+    if (!_doctorsLoaded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.space16, 0, AppSpacing.space16, AppSpacing.space16,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(
+              title: 'Our Doctors',
+              onSeeAll: () =>
+                  context.pushNamed(AllDoctorWidget.routeName),
+            ),
+            const SizedBox(height: AppSpacing.space12),
+            SizedBox(
+              height: 220,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 4,
+                itemBuilder: (_, i) => SizedBox(
+                  width: 160,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        right: AppSpacing.space12),
+                    child: const DoctorCardSkeleton(
+                        variant: DoctorCardVariant.horizontal),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_doctorsError || !_doctorsResponse!.succeeded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.space16, 0, AppSpacing.space16, AppSpacing.space16,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(
+              title: 'Our Doctors',
+              onSeeAll: () =>
+                  context.pushNamed(AllDoctorWidget.routeName),
+            ),
+            const SizedBox(height: AppSpacing.space12),
+            AppErrorState(
+              title: 'Failed to load doctors',
+              subtitle: 'Pull down to refresh',
+              onRetry: _loadDoctors,
+            ),
+          ],
+        ),
+      );
+    }
+
+    final names = GetDoctorsCall.name(
+          _doctorsResponse!.jsonBody,
+        )?.toList() ??
+        [];
+    final specialties = GetDoctorsCall.specialty(
+          _doctorsResponse!.jsonBody,
+        )?.toList() ??
+        [];
+
+    if (names.isEmpty) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.space16, 0, AppSpacing.space16, AppSpacing.space16,
@@ -575,13 +666,39 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           SectionHeader(
             title: 'Our Doctors',
-            onSeeAll: () => context.pushNamed(AllDoctorWidget.routeName),
+            onSeeAll: () =>
+                context.pushNamed(AllDoctorWidget.routeName),
           ),
           const SizedBox(height: AppSpacing.space12),
-          DoctorListWidget(
-            layout: DoctorListLayout.horizontal,
-            maxItems: 4,
-            showSeeAll: false,
+          SizedBox(
+            height: 220,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: names.length,
+              itemBuilder: (_, i) {
+                return SizedBox(
+                  width: 160,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        right: AppSpacing.space12),
+                    child: DoctorCard(
+                      name: names[i],
+                      specialty: specialties.length > i
+                          ? specialties[i]
+                          : '',
+                      variant: DoctorCardVariant.horizontal,
+                      onTap: () => DoctorDetailSheet.show(
+                        context,
+                        doctorName: names[i],
+                        specialty: specialties.length > i
+                            ? specialties[i]
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -678,11 +795,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: AppSpacing.space12),
           if (titles.isEmpty)
-            const AppEmptyState(
-              icon: Icons.article_outlined,
-              title: 'No articles yet',
-              subtitle: 'Check back later for health tips',
-            )
+            const SizedBox.shrink()
           else
             SizedBox(
               height: 210,
@@ -801,11 +914,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: AppSpacing.space12),
           if (titles.isEmpty)
-            const AppEmptyState(
-              icon: Icons.videocam_outlined,
-              title: 'No videos yet',
-              subtitle: 'Check back later for health videos',
-            )
+            const SizedBox.shrink()
           else
             GridView.builder(
               shrinkWrap: true,
