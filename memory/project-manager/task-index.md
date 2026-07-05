@@ -41,6 +41,11 @@ Last Updated: 2026-07-05
 | P5-T07 | admin-appointment-creation | 5 | Step 7 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P5-T08 | appointment-confirmation-notification | 5 | Step 8 | Both | flutter-developer | DONE | 2026-07-05 |
 | P5-T09 | appointments-tab-display | 5 | Step 9 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P6-T01 | health-tab-scaffold | 6 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| P6-T02 | records-tab-notes-letters-mc | 6 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| P6-T03 | vitals-tab-graphing | 6 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| P6-T04 | documents-tab-pdfs | 6 | Step 4 | Flutter + Laravel | flutter-developer | BACKLOG | — |
+| P6-T05 | health-tab-pagination-modified-since | 6 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
@@ -53,6 +58,12 @@ Last Updated: 2026-07-05
   - P5-T07 (admin appointment creation) — depends on P5-T06
   - P5-T08 (confirmation notification) — depends on P5-T07
   - P5-T09 (appointments tab) — depends on P5-T08
+- Process 6 tasks have the following dependency chain:
+  - P6-T01 (health tab scaffold) — foundation for all Process 6 tasks (no dependencies)
+  - P6-T02 (records tab) — depends on P6-T01 (needs scaffold with tabs)
+  - P6-T03 (vitals tab) — depends on P6-T02 (needs tab infrastructure)
+  - P6-T04 (documents tab) — depends on P6-T03 (needs tab infrastructure)
+  - P6-T05 (pagination + modified_since) — depends on P6-T04 (needs all endpoints implemented)
 - Process 4 tasks have the following dependency chain:
   - P4-T01 (design system) — foundation for all subsequent UI tasks (no dependencies)
   - P4-T02 (nav 5 tabs) — depends on P4-T01 (needs design system for nav colors)

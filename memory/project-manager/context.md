@@ -3,28 +3,21 @@
 Last Updated: 2026-07-05
 
 ## Current Process
-Process 2 — Laravel Admin Panel Scaffold (started to unblock P5-T03)
+Process 6 — Health Tab (Flutter)
 
 ## Active Tasks
-**Process 2 — Laravel Admin Panel Scaffold:**
-P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
-P2-T02 — MySQL Schema (DONE)
-P2-T03 — Branch Management CRUD (DONE)
-P2-T04 — Doctor Management CRUD (DONE)
-P2-T05 — Plato API Proxy Layer (DONE)
-P2-T06 — Calendar Setup UI (DONE)
+**Process 6 — Health Tab:**
+P6-T01 — Health Tab Scaffold with 3 Inner Tabs (BACKLOG)
+P6-T02 — Records Tab — Notes, Letters, MC, Filter Chips (BACKLOG)
+P6-T03 — Vitals Tab — Health Trends Graphs (BACKLOG)
+P6-T04 — Documents Tab — Admin-Uploaded PDFs (BACKLOG)
+P6-T05 — Pagination and Modified Since for Health Tab (BACKLOG)
 
-**Process 5 — Booking Flow (resumed after Process 2 completion):**
-P5-T03 — Doctor Selection Screen (DONE)
-P5-T04 — Date and Time Slot Selection (DONE)
-P5-T05 — Booking Confirmation Screen (DONE)
-P5-T06 — WhatsApp Redirect After Booking (DONE)
-P5-T07 — Admin Appointment Creation and Confirmation (DONE)
-P5-T08 — Appointment Confirmation Notification (DONE)
-P5-T09 — Appointments Tab Display (DONE)
+**Process 5 — Booking Flow (completed):**
+P5-T01 through P5-T09 — ALL DONE
 
 ## Blocked Tasks
-(None — Process 2 completed, P5-T03 unblocked)
+(None)
 
 ## Open Decisions (from v2-decisions.md — Still Pending)
 - Design mockup approval from client pending — blocks Process 4 UI Overhaul
@@ -34,11 +27,13 @@ P5-T09 — Appointments Tab Display (DONE)
 
 ## Completed Processes
 - Process 1 — Security and Foundation: ALL DONE (P1-T01 through P1-T10)
+- Process 2 — Laravel Admin Panel Scaffold: ALL DONE (P2-T01 through P2-T06)
 - Process 3 — Mobile App: Data Layer Refactor: ALL DONE (P3-T01 through P3-T06)
 - Process 4 — Mobile App: UI/UX Overhaul: ALL DONE (P4-T01 through P4-T06)
+- Process 5 — Booking Flow: ALL DONE (P5-T01 through P5-T09)
 
 ## Next Task to Create
-After all Process 5 tasks are DONE, create Process 6 tasks (Health Tab).
+After all Process 6 tasks are DONE, create Process 7 tasks (Admin Panel: Patient and Appointment Management).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
@@ -47,7 +42,7 @@ After all Process 5 tasks are DONE, create Process 6 tasks (Health Tab).
 - VPS bot server: `/var/www/heclinic-bot/` (PM2)
 
 ## Notes
-Process 5 tasks have a linear dependency chain:
-P5-T01 (verify prerequisites) → P5-T02 (branch) → P5-T03 (doctor) → P5-T04 (date/time) → P5-T05 (confirmation) → P5-T06 (WhatsApp) → P5-T07 (admin appointment) → P5-T08 (notifications) → P5-T09 (appointments tab).
-P5-T01 verifies the Laravel proxy is ready for POST /appointment/slots calls.
-P5-T07 and P5-T08 require the Admin Panel Laravel setup to be functional.
+Process 6 tasks have a linear dependency chain:
+P6-T01 (scaffold) → P6-T02 (records) → P6-T03 (vitals) → P6-T04 (documents) → P6-T05 (pagination).
+
+All Health tab data is sourced from Plato via the Laravel proxy. The existing ReportsWidget at `lib/front_page/reports/reports_widget.dart` is the target for all P6 changes. The Health tab is already registered at nav index 2 in `lib/main.dart:231` with `'health': ReportsWidget(id: null)`.
