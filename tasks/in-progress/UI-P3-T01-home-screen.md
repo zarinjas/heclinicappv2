@@ -10,8 +10,8 @@
 | Process Step | Step 3.1 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | N/A (Phase 0, Phase 1 DONE) |
 | Blocked Reason | N/A |
