@@ -39,4 +39,5 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           VPS_BOT_URL: ${{ secrets.VPS_BOT_URL }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           TRIGGER_ACTION: ${{ github.event.inputs.action }}
