@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (IN-REVIEW)
+P4-T04 — Home Screen Redesign (IN-REVIEW)
 
 ## Recent Work
-- P4-T03 — Dynamic Doctor List: Created DoctorCardWidget, DoctorDetailSheet, DoctorListWidget; refactored AllDoctorWidget from 3434 lines (17 hardcoded doctors) to 85 lines using dynamic components (IN-REVIEW)
+- P4-T04 — Home Screen Redesign: Rewrote HomepageNewWidget from ~2700 to ~1287 lines with V2 design system. Implemented: hero slider with auto-scroll, 2x2 quick actions grid, upcoming appointment card, doctor horizontal list (via P4-T03 widget), WordPress articles, video grid. All sections with skeleton/empty/error states. (IN-REVIEW)
+- P4-T03 — Dynamic Doctor List: Created DoctorCardWidget, DoctorDetailSheet, DoctorListWidget; refactored AllDoctorWidget from 3434 lines (17 hardcoded doctors) to 85 lines using dynamic components (DONE)
 - P4-T02 — Bottom Nav 5 Tabs: Updated main.dart NavBarPage + nav.dart routes (DONE)
 - P3-T06 — Laravel Proxy URL Audit (DONE)
 - P3-T05 — Rate Limit Monitor (DONE)
@@ -15,13 +16,14 @@ P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (IN-REVIE
 - P3-T02 — Pagination Helper (DONE)
 - P3-T01 — Global API Error Interceptor (DONE)
 
-## Implementation Notes (P4-T03)
-- Created `lib/components/doctor_card_widget.dart` — reusable card with compact/full layouts
-- Created `lib/components/doctor_detail_sheet.dart` — bottom sheet with V2 design tokens
-- Created `lib/components/doctor_list_widget.dart` — fetches from GET /facility, handles loading/error/empty states
-- Doctor photos use initials fallback (Plato doesn't provide photo URLs yet)
-- `is_visible_in_app` filtering prepared for CMS (Process 9)
-- Book Appointment button pops back; actual booking wiring is Process 5
+## Implementation Notes (P4-T04)
+- Completely rewrote `homepage_new_widget.dart` with V2 layout per v2-ux-spec.md Section 4
+- Hero slider uses PageView + Timer.periodic (auto-scroll 4s) instead of carousel_slider
+- Articles switched from Firestore to WordPress API (GetArticlesCall) per CMS roadmap
+- Doctor section delegates to P4-T03 DoctorListWidget
+- Loyalty widget hidden (stub — no data source yet for Process 10)
+- All sections handle loading (skeleton), empty (hide or empty state message), and error (retry) states
+- Used V2 theme from app_theme.dart alongside existing FlutterFlowTheme
 
 ## Implementation Notes (P4-T01)
 - Created `lib/theme/app_theme.dart` with AppColors, AppSpacing, AppRadius, AppShadows, light ThemeData, dark ThemeData

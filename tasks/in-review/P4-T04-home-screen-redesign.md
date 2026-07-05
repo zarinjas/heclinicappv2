@@ -139,16 +139,37 @@ Full layout scroll order (v2-ux-spec.md lines 307-378):
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Completely rewrote `homepage_new_widget.dart` (from ~2700 to ~1287 lines) with V2 design system layout
+- Updated `homepage_new_model.dart` to track new async loading states (slidersResponse, upcomingApptResponse, articlesResponse)
+- **App bar**: He Clinic logo (left), notification bell with unread badge (right) — simplified, removed unused menu drawer button
+- **Greeting**: Dynamic "Good morning/afternoon/evening, {Name}" based on time of day — V2 heading-md primary color
+- **Hero Slider**: Dynamic from `SlidersCall` API, auto-scrolls every 4s via Timer.periodic with PageView, dot indicators via smooth_page_indicator, skeleton loader while loading, error state with Try Again
+- **Quick Actions**: 2x2 grid of cards (Book Appointment, My Records, Health, Packages) — each with teal icon + label, V2 card styling (lg radius, low shadow, surface bg), navigating to respective routes
+- **Loyalty Points Widget**: Stub — returns `SizedBox.shrink()` since no loyalty data source exists yet (Process 10)
+- **Upcoming Appointment Card**: Data from `GetAppointmentUpcomingCall`, shows title + start date + calendar icon, skeleton loader, empty state with "Book Now" CTA, error state with retry
+- **Our Doctors Section**: Uses `DoctorListWidget` from P4-T03 (horizontal scroll, showSeeAll enabled, max 4 items)
+- **Health Tips Section**: Article cards from WordPress API (`GetArticlesCall`) with 2 horizontal scroll cards, skeleton loaders matching content layout, error state
+- **Videos Section**: 2-column grid (max 4) from Firestore `queryVideosRecord()`, play icon overlay, title overlay, skeleton grid loaders, hides section if 0 videos
 
 ### Files Changed
-
+- `lib/front_page/homepage_new/homepage_new_widget.dart` — Complete rewrite
+- `lib/front_page/homepage_new/homepage_new_model.dart` — Updated with new response fields
 
 ### Decisions Made During Implementation
-
+- Used `PageView` + `Timer.periodic` for hero slider auto-scroll (simpler than carousel_slider, fewer dependencies)
+- Article data source switched from Firestore `ArticlesRecord` to WordPress `GetArticlesCall` per v2-ux-spec.md (CMS-ready for Process 9)
+- Loyalty widget hidden entirely (returns `SizedBox.shrink()`) since loyalty account system not yet built (Process 10)
+- Doctor section delegates entirely to P4-T03's `DoctorListWidget` — no duplication
+- All sections independently handle loading/skeleton, empty, and error states
+- Used V2 `AppColors`, `AppSpacing`, `AppRadius`, `AppShadows` from `app_theme.dart` alongside existing `FlutterFlowTheme` for backward compatibility
+- Simplified app bar — removed drawer/menu icon, kept logo + notification bell per v2-ux-spec.md
 
 ### Known Limitations
-
+- Loyalty Points Widget is a stub (hidden) — no loyalty account data endpoint exists yet
+- Hero slider images still use hardcoded `https://hemedicalapps.com/` prefix (same as existing code)
+- WordPress articles strip HTML tags for excerpt display — rich content rendering deferred to ArticleDetailPage
+- Video thumbnails rely on Firestore `thumbnail` field — other video metadata (TikTok oEmbed) deferred to Process 9
+- Appointment card shows title and date only — additional details (doctor name, branch, status) not available in `GetAppointmentUpcomingCall` response fields
 
 ---
 
