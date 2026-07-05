@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\PatientDocumentService;
 use App\Services\PlatoProxyService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -85,6 +87,36 @@ class PatientController extends Controller
             $vitalsCount = null;
         }
 
-        return view('admin.patients.show', compact('patient', 'vitalsCount'));
+        $documents = app(PatientDocumentService::class)->list($id);
+
+        return view('admin.patients.show', compact('patient', 'vitalsCount', 'documents'));
+    }
+
+    public function uploadDocument(Request $request, string $id): RedirectResponse
+    {
+        $request->validate([
+            'document' => ['required', 'file', 'mimetypes:application/pdf', 'max:10240'],
+            'title' => ['nullable', 'string', 'max:255'],
+        ], [
+            'document.mimetypes' => 'Only PDF files are allowed.',
+            'document.max' => 'The document must not be larger than 10MB.',
+        ]);
+
+        $service = app(PatientDocumentService::class);
+        $service->upload($id, $request->file('document'), $request->input('title'), $request->user()->id);
+
+        return redirect()
+            ->route('admin.patients.show', $id)
+            ->with('success', 'Document uploaded successfully.');
+    }
+
+    public function deleteDocument(Request $request, string $id, string $filename): RedirectResponse
+    {
+        $service = app(PatientDocumentService::class);
+        $service->delete($id, $filename);
+
+        return redirect()
+            ->route('admin.patients.show', $id)
+            ->with('success', 'Document deleted successfully.');
     }
 }

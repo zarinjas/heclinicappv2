@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P7-T02 |
 | Blocked Reason | N/A |
@@ -133,15 +133,30 @@ class PatientDocumentService
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Created `database/migrations/2026_07_05_000011_create_patient_documents_table.php` — MySQL table for document metadata (`patient_plato_uid`, `filename`, `original_name`, `title`, `mime_type`, `size_bytes`, `uploaded_by` FK, timestamps; unique index on `patient_plato_uid` + `filename`)
+- Created `app/Services/PatientDocumentService.php` — handles upload/delete/list/serve using Laravel Storage (public disk) and DB facade. Files stored at `patients/{uid}/documents/{uuid}.pdf`
+- Modified `app/Http/Controllers/Admin/PatientController.php` — added `uploadDocument()` (validates PDF only, max 10MB, optional title), `deleteDocument()` (removes file + DB record), updated `show()` to pass `$documents` list to view
+- Modified `resources/views/admin/patients/show.blade.php` — added Documents section below patient info card: upload form (file input accept=.pdf, title input, Upload button), document list table (title, filename, size in KB, upload date, Download/Delete actions), empty state, delete confirmation via `confirm()`
+- Modified `routes/web.php` — added `POST /admin/patients/{patient}/documents` and `DELETE /admin/patients/{patient}/documents/{filename}` under auth+role middleware
+- Used fallback strategy (local storage) because `kreait/laravel-firebase` is not installed
 
 ### Files Changed
-
+- `database/migrations/2026_07_05_000011_create_patient_documents_table.php` (new)
+- `app/Services/PatientDocumentService.php` (new)
+- `app/Http/Controllers/Admin/PatientController.php` (modified)
+- `resources/views/admin/patients/show.blade.php` (modified)
+- `routes/web.php` (modified)
 
 ### Decisions Made During Implementation
-
+- Used Laravel Storage public disk (local) instead of Firebase Storage because kreait/laravel-firebase SDK is not available in composer.json
+- Uploaded PDFs renamed to UUID for uniqueness and security
+- Used DB facade directly in service for simplicity (no Eloquent model needed for this scope)
+- Document route naming convention: `admin.patients.documents.upload` and `admin.patients.documents.delete`
 
 ### Known Limitations
+- Storage symlink (`php artisan storage:link`) must be created for download links to work
+- No Firebase Storage integration (fallback only) — mobile app's existing `GetPatientDocumentsCall` fetches from Firebase Storage, so admin-uploaded documents won't appear in mobile app until Firebase upload is implemented
+- Migration needs to be run (`php artisan migrate`) to create the `patient_documents` table
 
 
 ---

@@ -136,5 +136,99 @@
                 </p>
             </div>
         </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-[#0F1B3D] mb-4">Documents</h3>
+
+                <form action="{{ route('admin.patients.documents.upload', request()->route('patient')) }}" method="POST" enctype="multipart/form-data" class="mb-6">
+                    @csrf
+                    <div class="flex flex-col sm:flex-row items-start gap-3">
+                        <div class="flex-1 w-full">
+                            <input
+                                type="file"
+                                name="document"
+                                accept=".pdf"
+                                required
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7]/10 file:text-[#00C9A7] hover:file:bg-[#00C9A7]/20 file:transition-colors"
+                            >
+                            @error('document')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <input
+                            type="text"
+                            name="title"
+                            placeholder="Title (optional)"
+                            class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none w-full sm:w-48"
+                        >
+                        @error('title')
+                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#0F1B3D] rounded-lg hover:bg-[#1e2d52] transition-colors whitespace-nowrap">
+                            Upload
+                        </button>
+                    </div>
+                </form>
+
+                @if (count($documents) > 0)
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Title</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Filename</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Size</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Uploaded</th>
+                                    <th class="text-right px-4 py-3 font-medium text-gray-500">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($documents as $doc)
+                                    <tr class="border-b border-gray-50">
+                                        <td class="px-4 py-3 text-[#0F1B3D]">{{ $doc->title ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-gray-500 max-w-[200px] truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ $doc->size_kb }} KB</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ \Carbon\Carbon::parse($doc->created_at)->format('d M Y, H:i') }}</td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="{{ $doc->url }}"
+                                                   target="_blank"
+                                                   class="p-1.5 text-gray-400 hover:text-[#0F1B3D] transition-colors"
+                                                   title="Download">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                    </svg>
+                                                </a>
+                                                <form action="{{ route('admin.patients.documents.delete', ['patient' => request()->route('patient'), 'filename' => $doc->filename]) }}"
+                                                      method="POST"
+                                                      onsubmit="return confirm('Delete this document?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                                                            title="Delete">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-8">
+                        <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-sm text-gray-400">No documents uploaded yet</p>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 @endsection

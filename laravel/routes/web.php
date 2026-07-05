@@ -23,6 +23,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::resource('branches', BranchController::class);
         Route::resource('doctors', DoctorController::class);
         Route::resource('patients', PatientController::class)->only(['index', 'show']);
+        Route::post('patients/{patient}/documents', [PatientController::class, 'uploadDocument'])
+            ->name('patients.documents.upload');
+        Route::delete('patients/{patient}/documents/{filename}', [PatientController::class, 'deleteDocument'])
+            ->name('patients.documents.delete');
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
     });

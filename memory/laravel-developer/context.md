@@ -3,14 +3,22 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (IN-REVIEW)
+P7-T03 — Patient Document Upload — PDF to Firebase Storage (IN-REVIEW)
+
+## Implementation Summary — P7-T03
+- `database/migrations/2026_07_05_000011_create_patient_documents_table.php`: patient_documents table with patient_plato_uid, filename, original_name, title, mime_type, size_bytes, uploaded_by FK, unique on (patient_plato_uid, filename)
+- `app/Services/PatientDocumentService.php`: upload/delete/list/serve for patient PDFs using Laravel Storage public disk at `patients/{uid}/documents/{uuid}.pdf`
+- `app/Http/Controllers/Admin/PatientController.php`: added uploadDocument() (validates PDF only, max 10MB), deleteDocument(), show() now passes $documents
+- `resources/views/admin/patients/show.blade.php`: Documents section with upload form, document list table (title/filename/size/date, download/delete actions), empty state
+- `routes/web.php`: POST /admin/patients/{patient}/documents and DELETE /admin/patients/{patient}/documents/{filename}
+- Fallback to local storage because kreait/laravel-firebase not installed
+
+## Last Completed Task
+P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (DONE)
 
 ## Implementation Summary — P7-T02
 - `app/Http/Controllers/Admin/PatientController.php`: enhanced `show()` method — added `Request` parameter for `?sync=1` support (cache-busting via `_nocache` query param), vitals count from `/patient/{id}/graphing` endpoint, passes `$vitalsCount` to view
 - `resources/views/admin/patients/show.blade.php`: full rewrite with grouped sections (Personal Info, Contact, Medical, Vitals), "Re-sync from Plato" button, vitals count badge with green dot, None/Unavailable placeholders, footer with Patient ID
-
-## Last Completed Task
-P7-T01 — Patient List — Server-Side Pagination, Search (DONE)
 
 ## Implementation Summary — P7-T01
 - `app/Http/Controllers/Admin/PatientController.php`: new controller with index() querying Plato /patient endpoint via PlatoProxyService with search params (name, NRIC, phone) and current_page pagination. Uses LengthAwarePaginator for Blade pagination links. Includes show() for patient detail view.
