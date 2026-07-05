@@ -1,11 +1,11 @@
 {
-  "pending": true,
+  "pending": false,
   "task_id": "P1-T04",
   "task_title": "Fix GetAppointmentDetailsCall: Replace Hardcoded Appointment ID with Dynamic Parameter",
   "completed_by": "flutter-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
   "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": null,
-  "approved": null
+  "approved_at": "2026-07-05T00:00:00Z",
+  "approved": true
 }
