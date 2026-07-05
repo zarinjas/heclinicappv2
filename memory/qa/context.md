@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P5-T03 — Doctor Selection Screen (PASSED — 10/10 criteria, re-verified after Process 2 completion)
+P5-T04 — Date and Time Slot Selection (PASSED — 12/12 criteria)
 
 ## Verification History
+- P5-T04 (2026-07-05): PASSED — 12/12 criteria. Step indicator, month selector future-only, calendar grid, slot chips on day tap, POST /appointment/slots parameters correct, slot chip interaction (outlined/filled), skeleton loader, Continue button disabled state, navigation to confirmation, empty state, back navigation preserves data.
 - P5-T03 (2026-07-05): PASSED — 10/10 criteria (re-verified). Previously FAILED (8/10 due to missing branch/is_visible_in_app filtering). Now all 10 pass: branch filtering via new Laravel GET /api/v2/config/doctors endpoint (resolves Plato facility_id → MySQL branch_id), is_visible_in_app filtering via visible=true param + base where('is_visible_in_app', true). New files: laravel/app/Http/Controllers/Api/DoctorConfigController.php, route GET /api/v2/config/doctors. New Flutter call: GetDoctorsCall in api_calls.dart.
 - P2-T06 (2026-07-05): PASSED — 9/9 criteria.
 - P2-T05 (2026-07-05): PASSED — 10/10 criteria.
