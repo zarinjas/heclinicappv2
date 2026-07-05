@@ -1,11 +1,12 @@
 # Reviewer — Context
 
-Last Updated: 2026-07-05
+Last Updated: 2026-07-05 (P9-T02 reviewed)
 
 ## Last Reviewed Task
-P9-T01 — Sliders CMS — Admin Panel + Mobile (APPROVED, moved to DONE)
+P9-T02 — Service Packages CMS — Admin Panel + Mobile (APPROVED, moved to DONE)
 
 ## Review History
+- P9-T02 (2026-07-05): APPROVED — v2-decisions Process 9 Step 2 "Service Packages — upload image, name, description (replaces 4 static images in app)" fully met. Admin CRUD with image upload/replace/cleanup, public API returning active packages by sort_order ASC. Flutter widget rewritten from 4 hardcoded AssetImage calls to dynamic CachedNetworkImage from Laravel CMS API. Skeleton (SkeletonCard+SkeletonTextBlock), empty state (inventory icon), error state (error icon+retry) all implemented. Design tokens: AppColors, AppSpacing, AppRadius, AppShadows used throughout. AppCard class not in codebase — native Card widget with design tokens as fallback. No scope creep. 7/7 QA criteria PASS.
 - P9-T01 (2026-07-05): APPROVED — v2-decisions Process 9 Step 1 "Sliders — upload image, set order, active/inactive toggle" fully met. Migration (cms_sliders), admin CRUD with image upload/replace/cleanup, public API returning active sliders by sort_order ASC, CMS sidebar. 5/5 Laravel QA criteria PASS. 3 Flutter criteria deferred (front-end needs separate developer pass). No spec deviations. Blade views follow existing admin patterns consistently.
 - P8-T08 (2026-07-05): APPROVED — v2-decisions Process 8 Step 8 "Notification history log in Admin Panel with delivery status" fully met. Paginated table (20/page) with all 7 columns, search, type/status/date filters, clickable rows to detail view. Sidebar expanded with collapsible Compose/History sub-items. Follows existing Blade patterns. No spec deviations. All 8 QA criteria PASS.
 - P8-T07 (2026-07-05): APPROVED — v2-decisions Process 8 Step 7 "Automated triggers: appointment confirmed (Push+Email+In-App, immediate), appointment reminder (Push+In-App, 24h and 1h before), new document uploaded (Push+In-App, immediate)" fully met. Trigger 1 already wired by P8-T04/T05/T06. Trigger 2: SendAppointmentReminders command with 24h/1h window queries and timestamp-based idempotency, scheduled everyMinute(). Trigger 3: PatientController::uploadDocument() hooks into upload flow with filename in body. All 3 log to notifications_log with correct types. No spec deviations. All 9 QA criteria PASS.
