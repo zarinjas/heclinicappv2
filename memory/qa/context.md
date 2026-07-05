@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P5-T04 — Date and Time Slot Selection (PASSED — 12/12 criteria)
+P5-T05 — Booking Confirmation Screen (PASSED — 7/7 criteria)
 
 ## Verification History
+- P5-T05 (2026-07-05): PASSED — 7/7 criteria. Step indicator (4 steps, step 4 highlighted), summary card (Branch/Doctor/Date/Time/Patient), patient data from FFAppState (name, nationalman), disclaimer banner (teal, correct text), WhatsApp button (tappable, chat icon, accent styling), back navigation (context.pop(), data preserved via singleton), V2 design system compliance (colors, spacing, card styling).
 - P5-T04 (2026-07-05): PASSED — 12/12 criteria. Step indicator, month selector future-only, calendar grid, slot chips on day tap, POST /appointment/slots parameters correct, slot chip interaction (outlined/filled), skeleton loader, Continue button disabled state, navigation to confirmation, empty state, back navigation preserves data.
 - P5-T03 (2026-07-05): PASSED — 10/10 criteria (re-verified). Previously FAILED (8/10 due to missing branch/is_visible_in_app filtering). Now all 10 pass: branch filtering via new Laravel GET /api/v2/config/doctors endpoint (resolves Plato facility_id → MySQL branch_id), is_visible_in_app filtering via visible=true param + base where('is_visible_in_app', true). New files: laravel/app/Http/Controllers/Api/DoctorConfigController.php, route GET /api/v2/config/doctors. New Flutter call: GetDoctorsCall in api_calls.dart.
 - P2-T06 (2026-07-05): PASSED — 9/9 criteria.
@@ -24,8 +25,9 @@ P5-T04 — Date and Time Slot Selection (PASSED — 12/12 criteria)
 - P3-T06 through P3-T01: All PASSED.
 
 ## Key Files to Monitor
-- `laravel/app/Http/Controllers/Api/DoctorConfigController.php` — NEW: returns doctors from MySQL with branch_id/is_visible_in_app filtering
+- `lib/pages/booking/confirmation_screen.dart` — NEW: BookingConfirmationScreenWidget, summary card + WhatsApp button
+- `lib/flutter_flow/nav/nav.dart` — Added /bookingConfirmation route
+- `lib/pages/booking/booking_flow_model.dart` — Shared booking state (used by confirmation screen)
+- `laravel/app/Http/Controllers/Api/DoctorConfigController.php` — Returns doctors from MySQL with branch_id/is_visible_in_app filtering
 - `laravel/routes/api.php` — Added GET /api/v2/config/doctors route
 - `lib/backend/api_requests/api_calls.dart` — Added GetDoctorsCall class
-- `lib/pages/booking/doctor_selection_screen.dart` — Updated to use GetDoctorsCall with branch/visible params
-- `laravel/app/Services/PlatoProxyService.php` — Full proxy service

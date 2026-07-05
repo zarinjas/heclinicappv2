@@ -91,13 +91,13 @@ Create the booking confirmation screen for the Booking Flow (Step 4 of 4). This 
 
 ## Acceptance Criteria
 
-- [ ] Step indicator shows 4 steps with step 4 active/highlighted, all prior steps checked/completed
-- [ ] Summary card displays all 5 fields: Branch, Doctor, Date, Time, Patient (Name + NRIC)
-- [ ] Patient name and NRIC are pulled from FFAppState (not hardcoded)
-- [ ] Info disclaimer banner is visible with correct message text and teal styling
-- [ ] "Book via WhatsApp" button is tappable and shows WhatsApp icon
-- [ ] Back button returns to previous screen with data preserved
-- [ ] Screen renders correctly with V2 design system (colors, fonts, spacing, card styling)
+- [x] Step indicator shows 4 steps with step 4 active/highlighted, all prior steps checked/completed
+- [x] Summary card displays all 5 fields: Branch, Doctor, Date, Time, Patient (Name + NRIC)
+- [x] Patient name and NRIC are pulled from FFAppState (not hardcoded)
+- [x] Info disclaimer banner is visible with correct message text and teal styling
+- [x] "Book via WhatsApp" button is tappable and shows WhatsApp icon
+- [x] Back button returns to previous screen with data preserved
+- [x] Screen renders correctly with V2 design system (colors, fonts, spacing, card styling)
 
 ---
 
@@ -151,19 +151,19 @@ Implementation details:
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Step indicator step 4 — PASS / FAIL
-- [ ] Summary card 5 fields — PASS / FAIL
-- [ ] Patient data from FFAppState — PASS / FAIL
-- [ ] Disclaimer banner — PASS / FAIL
-- [ ] WhatsApp button — PASS / FAIL
-- [ ] Back navigation — PASS / FAIL
-- [ ] Design system compliance — PASS / FAIL
+- [x] Step indicator step 4 — PASS: All 4 steps visible, step 4 text highlighted (white w600), others dimmed (white60 w400). All circles filled accent with check icons for completed status.
+- [x] Summary card 5 fields — PASS: Branch, Doctor, Date, Time, Patient (Name + NRIC) all present in card with dividers between rows.
+- [x] Patient data from FFAppState — PASS: `FFAppState().name` (line 119) and `FFAppState().nationalman` (line 120-121), no hardcoded values.
+- [x] Disclaimer banner — PASS: Teal (12% opacity bg, 30% opacity border), info_outline icon, correct message text "Your preferred slot is not confirmed until our team responds via WhatsApp." (line 325).
+- [x] WhatsApp button — PASS: ElevatedButton.icon with onPressed handler (line 358), chat icon (line 359), "Book via WhatsApp" text (line 361), accent teal (line 368), 52px height (line 355), 24px border radius (line 371). Tappable with SnackBar feedback.
+- [x] Back navigation — PASS: `context.pop()` on back arrow (line 130), data preserved via BookingFlowModel singleton.
+- [x] Design system compliance — PASS: V2 bg-light #F8F9FC, primary #0F1B3D, accent #00C9A7, text-secondary #6B7280, surface white, 16px card radius, 24px button radius, low shadow, consistent with branch/doctor/date-time screens.
 
 ### Failure Details
-{If FAILED}
+None — all criteria PASSED.
 
 ---
 
