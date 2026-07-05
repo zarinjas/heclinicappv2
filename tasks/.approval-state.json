@@ -1,10 +1,20 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P3-T06", "title": "Doctors Section"},
-    {"task_id": "UI-P3-T07", "title": "Health Articles Section"},
-    {"task_id": "UI-P3-T08", "title": "Health Videos Section"}
+    {"task_id": "UI-P4-T01", "title": "Booking Branch Selection Screen", "status": "DONE"},
+    {"task_id": "UI-P4-T02", "title": "Booking Doctor Selection Screen", "status": "DONE"},
+    {"task_id": "UI-P4-T03", "title": "Booking Date & Time Selection Screen", "status": "DONE"},
+    {"task_id": "UI-P4-T04", "title": "Booking Confirmation & WhatsApp Screen", "status": "DONE"},
+    {"task_id": "UI-P4-T05", "title": "My Bookings / Appointments List Screen", "status": "DONE"}
   ],
+  "batch_summary": "Phase 4 — Booking Flow Screens: All 5 tasks completed.\n"
+    "UI-P4-T01 (Branch): StepIndicator + BranchCard list + skeleton/empty/error states + Continue button.\n"
+    "UI-P4-T02 (Doctor): No Preference card + DoctorCard list with isSelected + skeleton/empty/error states.\n"
+    "UI-P4-T03 (Date/Time): table_calendar + TimeSlotChip grid + month navigation + skeleton/empty/error states.\n"
+    "UI-P4-T04 (Confirm): Summary AppCard + disclaimer banner + WhatsApp deep link + Book Another button.\n"
+    "UI-P4-T05 (My Bookings): Paginated AppointmentCard list + skeleton/empty/error states + scroll-to-load-more.\n"
+    "All tasks: V2 design system compliant (no hardcoded colors/fonts/sizes, dark mode, all states covered).\n"
+    "1 task remaining in Phase 4 backlog: UI-P4-T06 (Appointment Detail Screen).",
   "created_at": "2026-07-05T23:10:00Z",
-  "approved_at": "2026-07-05T18:02:07Z"
+  "updated_at": "2026-07-05T23:45:00Z"
 }
