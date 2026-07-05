@@ -60,8 +60,17 @@ flutter-developer
 ## Assigned Date
 2026-07-04
 
+## Reviewer Notes
+**Decision: APPROVED.**
+
+Alignment verified against:
+- **v2-decisions.md**: Matches Process 1 Step 4 mandate. Dynamic parameter routing correct. HIGH priority appointment detail blocker resolved.
+- **v2-ux-spec.md**: Supports "Tap card → Appointment Detail screen" UX. Fallback to `/appointment` is safe.
+- **api-guidelines.md**: Matches Plato API contract `GET /{db}/appointment/{id}`. URL uses Laravel proxy via `EnvConfig.platomBaseUrl` (consistent with P1-T02 routing).
+- No deviation from spec. Implementation is minimal and scope-contained.
+
 ## Status
-IN-REVIEW
+DONE
 
 ## Implementation Notes
 - **api_calls.dart (line 1445–1490):** Added `appointmentId` String parameter to `GetAppointmentDetailsCall.call()`. URL now uses `'${EnvConfig.platomBaseUrl}/appointment/$appointmentId'` dynamically. Falls back to `/appointment` if `appointmentId` is null/empty.
