@@ -17,7 +17,7 @@ Branch Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T01 |
 | Blocked Reason | N/A |
@@ -162,11 +162,11 @@ N/A — All 9 criteria PASSED.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 2 "Mobile: Branch selection screen" implemented. Uses GET /facility via Plato proxy (GetproviderCall) per task scope, which is the currently available data source. The abstract /api/v2/config/branches reference in v2-decisions assumes Admin Panel availability — will be reconciled when Process 2 (Laravel Admin) delivers that endpoint.
+- v2-ux-spec.md alignment: YES — "SCREEN: Booking Flow — Step 1: Select Branch" (line 492) fully implemented: app bar with Book Appointment + back arrow, 4-step indicator (step 1 active), vertical scrollable branch list, cards with photo/name/address/hours, accent border highlight (#00C9A7) on selection, Next button disabled until selection. Design system colors, typography, spacing, border radius (16px), and shadow (low) applied per v2-ux-spec Section 1.
 
 ### Rejection Reason
-{If REJECTED}
+N/A
