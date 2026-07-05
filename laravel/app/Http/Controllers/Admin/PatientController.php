@@ -56,10 +56,16 @@ class PatientController extends Controller
         return view('admin.patients.index', compact('patients'));
     }
 
-    public function show(string $id): View
+    public function show(Request $request, string $id): View
     {
         $plato = app(PlatoProxyService::class);
-        $response = $plato->proxy('GET', "patient/{$id}");
+
+        $query = [];
+        if ($request->has('sync')) {
+            $query['_nocache'] = time();
+        }
+
+        $response = $plato->proxy('GET', "patient/{$id}", $query);
 
         $patient = [];
 
@@ -71,6 +77,14 @@ class PatientController extends Controller
             abort(404, 'Patient not found in Plato.');
         }
 
-        return view('admin.patients.show', compact('patient'));
+        $vitalsCount = null;
+        try {
+            $graphingResponse = $plato->proxy('GET', "patient/{$id}/graphing");
+            $vitalsCount = count($graphingResponse['data'] ?? []);
+        } catch (\Exception $e) {
+            $vitalsCount = null;
+        }
+
+        return view('admin.patients.show', compact('patient', 'vitalsCount'));
     }
 }

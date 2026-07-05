@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P7-T01 |
 | Blocked Reason | N/A |
@@ -141,16 +141,20 @@ Patient fields from Plato:
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Enhanced the existing `PatientController@show()` method to fetch vitals summary from Plato graphing endpoint and accept `?sync=1` query parameter to bypass proxy cache for manual re-sync. Rewrote `show.blade.php` with grouped sections (Personal Info, Contact, Medical, Vitals), Re-sync from Plato button, and definition-list styling matching the branches/show.blade.php pattern.
 
 ### Files Changed
-
+- `laravel/app/Http/Controllers/Admin/PatientController.php` — added `Request` parameter to `show()`, vitals count from `/patient/{id}/graphing`, sync cache-busting via `_nocache` query param
+- `laravel/resources/views/admin/patients/show.blade.php` — full rewrite with grouped sections, Re-sync button, vitals count badge, None/Unavailable placeholders, footer with Patient ID
 
 ### Decisions Made During Implementation
-
+- Re-sync via GET with `?sync=1` (NOT POST) — simpler implementation, same result. The controller adds a `_nocache=timestamp` query param to bypass PlatoProxyService cache.
+- Vitals count displayed as "N records available" with green dot, "Unavailable" (italic) on fetch failure per task spec.
+- Allergies handled as string or array — implode if array.
 
 ### Known Limitations
-
+- Vitals graphing endpoint uses `try/catch` — HTTP 404 or 5xx from Plato will silently show "Unavailable". This is per task spec (graphing is optional).
+- No edit ability for patient data (Plato is source of truth) — per scope constraints.
 
 ---
 

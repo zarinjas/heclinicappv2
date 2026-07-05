@@ -47,7 +47,7 @@ Last Updated: 2026-07-05
 | P6-T04 | documents-tab-pdfs | 6 | Step 4 | Flutter + Laravel | flutter-developer | DONE | 2026-07-05 |
 | P6-T05 | health-tab-pagination-modified-since | 6 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P7-T01 | patient-list | 7 | Step 1 | Laravel | laravel-developer | DONE | 2026-07-05 |
-| P7-T02 | patient-profile-view | 7 | Step 2 | Laravel | laravel-developer | IN-PROGRESS | — |
+| P7-T02 | patient-profile-view | 7 | Step 2 | Laravel | laravel-developer | IN-REVIEW | — |
 | P7-T03 | patient-document-upload | 7 | Step 3 | Laravel | laravel-developer | BACKLOG | — |
 | P7-T04 | appointment-calendar-view | 7 | Step 4 | Laravel | laravel-developer | BACKLOG | — |
 | P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | BACKLOG | — |

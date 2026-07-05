@@ -3,17 +3,20 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T01 — Patient List — Server-Side Pagination, Search (IN-REVIEW)
+P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (IN-REVIEW)
 
-## Implementation Summary — P7-T01
-- `app/Http/Controllers/Admin/PatientController.php`: new controller with index() querying Plato /patient endpoint via PlatoProxyService with search params (name, NRIC, phone) and current_page pagination. Uses LengthAwarePaginator for Blade pagination links. Includes show() stub for patient detail view.
-- `resources/views/admin/patients/index.blade.php`: Blade view with search form (3 text inputs), data table (Name, NRIC, Given ID, Phone, View action), empty state, pagination links.
-- `resources/views/admin/patients/show.blade.php`: stub detail view with back link and patient info definition list.
-- `routes/web.php`: added PatientController import and Route::resource('patients')->only(['index', 'show']) under auth+role middleware.
-- `resources/views/layouts/admin.blade.php`: added Patients sidebar nav link with people SVG icon between Doctors and Calendar Setup.
+## Implementation Summary — P7-T02
+- `app/Http/Controllers/Admin/PatientController.php`: enhanced `show()` method — added `Request` parameter for `?sync=1` support (cache-busting via `_nocache` query param), vitals count from `/patient/{id}/graphing` endpoint, passes `$vitalsCount` to view
+- `resources/views/admin/patients/show.blade.php`: full rewrite with grouped sections (Personal Info, Contact, Medical, Vitals), "Re-sync from Plato" button, vitals count badge with green dot, None/Unavailable placeholders, footer with Patient ID
 
 ## Last Completed Task
-P5-T07 — Admin Appointment Creation and Confirmation (DONE)
+P7-T01 — Patient List — Server-Side Pagination, Search (DONE)
+
+## Implementation Summary — P7-T01
+- `app/Http/Controllers/Admin/PatientController.php`: new controller with index() querying Plato /patient endpoint via PlatoProxyService with search params (name, NRIC, phone) and current_page pagination. Uses LengthAwarePaginator for Blade pagination links. Includes show() for patient detail view.
+- `resources/views/admin/patients/index.blade.php`: Blade view with search form (3 text inputs), data table (Name, NRIC, Given ID, Phone, View action), empty state, pagination links.
+- `routes/web.php`: added PatientController import and Route::resource('patients')->only(['index', 'show']) under auth+role middleware.
+- `resources/views/layouts/admin.blade.php`: added Patients sidebar nav link with people SVG icon between Doctors and Calendar Setup.
 
 ## Implementation Summary — P5-T07
 - `database/migrations/2026_07_05_000010_create_appointments_table.php`: appointments table
