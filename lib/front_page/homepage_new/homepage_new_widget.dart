@@ -1480,7 +1480,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
                                                                   () async {
                                                                 context
                                                                     .pushNamed(
-                                                                  SelectDateResheceduleWidget
+                                                                  SelectDateWidget
                                                                       .routeName,
                                                                   queryParameters:
                                                                       {
@@ -1489,6 +1489,12 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
                                                                       'test',
                                                                       ParamType
                                                                           .String,
+                                                                    ),
+                                                                    'isReschedule':
+                                                                        serializeParam(
+                                                                      true,
+                                                                      ParamType
+                                                                          .bool,
                                                                     ),
                                                                   }.withoutNulls,
                                                                 );

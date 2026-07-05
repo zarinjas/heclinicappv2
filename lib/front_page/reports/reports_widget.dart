@@ -311,9 +311,9 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                                                         FFButtonWidget(
                                                                       onPressed:
                                                                           () async {
-                                                                        context
+                                                                         context
                                                                             .pushNamed(
-                                                                          BookingPagecasseWidget
+                                                                          BookingPageWidget
                                                                               .routeName,
                                                                           queryParameters:
                                                                               {
@@ -882,7 +882,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                                             false;
                                                     if (confirmDialogResponse) {
                                                       context.pushNamed(
-                                                        BookingPagecasseWidget
+                                                        BookingPageWidget
                                                             .routeName,
                                                         queryParameters: {
                                                           'cas': serializeParam(

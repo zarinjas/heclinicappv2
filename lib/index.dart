@@ -34,10 +34,6 @@ export '/front_page/branch_location_new_copy/branch_location_new_copy_widget.dar
 export '/front_page/notification_page/notification_page_widget.dart'
     show NotificationPageWidget;
 export '/booking_page/visits/visits_widget.dart' show VisitsWidget;
-export '/booking_page/select_datecase/select_datecase_widget.dart'
-    show SelectDatecaseWidget;
-export '/booking_page/booking_pagecasse/booking_pagecasse_widget.dart'
-    show BookingPagecasseWidget;
 export '/front_page/biometric_setup_page/biometric_setup_page_widget.dart'
     show BiometricSetupPageWidget;
 export '/front_page/forgot_password/forgot_password_widget.dart'
@@ -46,5 +42,3 @@ export '/front_page/forgot_password/forgot_password_widget.dart'
 export '/on_boarding_new/on_boarding_new_widget.dart' show OnBoardingNewWidget;
 export '/info_page/hemed_info_copy/hemed_info_copy_widget.dart'
     show HemedInfoCopyWidget;
-export '/booking_page/select_date_reshecedule/select_date_reshecedule_widget.dart'
-    show SelectDateResheceduleWidget;

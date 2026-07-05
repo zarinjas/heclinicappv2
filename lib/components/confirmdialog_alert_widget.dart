@@ -222,7 +222,7 @@ class _ConfirmdialogAlertWidgetState extends State<ConfirmdialogAlertWidget> {
                             child: FFButtonWidget(
                               onPressed: () async {
                                 context.pushNamed(
-                                  BookingPagecasseWidget.routeName,
+                                  BookingPageWidget.routeName,
                                   queryParameters: {
                                     'cas': serializeParam(
                                       'Labs',

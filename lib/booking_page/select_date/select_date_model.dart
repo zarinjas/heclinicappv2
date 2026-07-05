@@ -11,11 +11,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class SelectDateModel extends FlutterFlowModel<SelectDateWidget> {
-  ///  State fields for stateful widgets in this page.
-
-  // State field(s) for Calendar widget.
   DateTimeRange? calendarSelectedDay;
   DateTime? datePicked;
+
+  FocusNode? reasonFocusNode;
+  TextEditingController? reasonTextController;
+  String? Function(BuildContext, String?)? reasonTextControllerValidator;
 
   @override
   void initState(BuildContext context) {
@@ -26,5 +27,8 @@ class SelectDateModel extends FlutterFlowModel<SelectDateWidget> {
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    reasonFocusNode?.dispose();
+    reasonTextController?.dispose();
+  }
 }

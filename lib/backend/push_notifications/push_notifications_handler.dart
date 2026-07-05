@@ -130,10 +130,15 @@ final parametersBuilderMap =
         },
       ),
   'LoginPage': ParameterData.none(),
-  'bookingPage': ParameterData.none(),
+  'bookingPage': (data) async => ParameterData(
+        allParams: {
+          'cas': getParameter<String>(data, 'cas'),
+        },
+      ),
   'SelectDate': (data) async => ParameterData(
         allParams: {
           'branch': getParameter<String>(data, 'branch'),
+          'namecase': getParameter<String>(data, 'namecase'),
         },
       ),
   'MyBookingPage': ParameterData.none(),
@@ -164,27 +169,11 @@ final parametersBuilderMap =
   'branchLocationNewCopy': ParameterData.none(),
   'notificationPage': ParameterData.none(),
   'Visits': ParameterData.none(),
-  'SelectDatecase': (data) async => ParameterData(
-        allParams: {
-          'branch': getParameter<String>(data, 'branch'),
-          'namecase': getParameter<String>(data, 'namecase'),
-        },
-      ),
-  'bookingPagecasse': (data) async => ParameterData(
-        allParams: {
-          'cas': getParameter<String>(data, 'cas'),
-        },
-      ),
   'BiometricSetupPage': ParameterData.none(),
   'ForgotPassword': ParameterData.none(),
   'Profile': ParameterData.none(),
   'onBoardingNew': ParameterData.none(),
   'hemedInfoCopy': ParameterData.none(),
-  'SelectDateReshecedule': (data) async => ParameterData(
-        allParams: {
-          'branch': getParameter<String>(data, 'branch'),
-        },
-      ),
 };
 
 Map<String, dynamic> getInitialParameterData(Map<String, dynamic> data) {

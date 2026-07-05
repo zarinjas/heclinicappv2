@@ -130,7 +130,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: BookingPageWidget.routePath,
           builder: (context, params) => params.isEmpty
               ? NavBarPage(initialPage: 'bookingPage')
-              : BookingPageWidget(),
+              : BookingPageWidget(
+                  cas: params.getParam(
+                    'cas',
+                    ParamType.String,
+                  ),
+                ),
         ),
         FFRoute(
           name: SelectDateWidget.routeName,
@@ -140,6 +145,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'branch',
               ParamType.String,
             ),
+            namecase: params.getParam(
+              'namecase',
+              ParamType.String,
+            ),
+            isReschedule: params.getParam(
+              'isReschedule',
+              ParamType.bool,
+            ) == true,
           ),
         ),
         FFRoute(
@@ -254,30 +267,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => VisitsWidget(),
         ),
         FFRoute(
-          name: SelectDatecaseWidget.routeName,
-          path: SelectDatecaseWidget.routePath,
-          builder: (context, params) => SelectDatecaseWidget(
-            branch: params.getParam(
-              'branch',
-              ParamType.String,
-            ),
-            namecase: params.getParam(
-              'namecase',
-              ParamType.String,
-            ),
-          ),
-        ),
-        FFRoute(
-          name: BookingPagecasseWidget.routeName,
-          path: BookingPagecasseWidget.routePath,
-          builder: (context, params) => BookingPagecasseWidget(
-            cas: params.getParam(
-              'cas',
-              ParamType.String,
-            ),
-          ),
-        ),
-        FFRoute(
           name: BiometricSetupPageWidget.routeName,
           path: BiometricSetupPageWidget.routePath,
           builder: (context, params) => BiometricSetupPageWidget(),
@@ -303,16 +292,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: HemedInfoCopyWidget.routeName,
           path: HemedInfoCopyWidget.routePath,
           builder: (context, params) => HemedInfoCopyWidget(),
-        ),
-        FFRoute(
-          name: SelectDateResheceduleWidget.routeName,
-          path: SelectDateResheceduleWidget.routePath,
-          builder: (context, params) => SelectDateResheceduleWidget(
-            branch: params.getParam(
-              'branch',
-              ParamType.String,
-            ),
-          ),
         )
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

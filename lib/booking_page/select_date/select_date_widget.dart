@@ -15,9 +15,13 @@ class SelectDateWidget extends StatefulWidget {
   const SelectDateWidget({
     super.key,
     required this.branch,
+    this.namecase,
+    this.isReschedule = false,
   });
 
   final String? branch;
+  final String? namecase;
+  final bool isReschedule;
 
   static String routeName = 'SelectDate';
   static String routePath = '/selectDate';
@@ -36,6 +40,11 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
     super.initState();
     _model = createModel(context, () => SelectDateModel());
 
+    if (widget.isReschedule) {
+      _model.reasonTextController ??= TextEditingController();
+      _model.reasonFocusNode ??= FocusNode();
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
@@ -44,6 +53,25 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
     _model.dispose();
 
     super.dispose();
+  }
+
+  String get appBarTitle =>
+      widget.isReschedule ? 'Reschedule Appointment' : 'Select Appointment Date';
+
+  String get reasonLabel =>
+      widget.namecase ?? 'Book Appointments';
+
+  String buildWhatsAppUrl(dynamic profileJson) {
+    if (widget.isReschedule) {
+      return 'https://api.whatsapp.com/send/?phone=60136254528&text=Hello%2C+I+would+like+to+Reschedule+my+appointment.%0A%0AName%3A+${FFAppState().name}%0AIC+Number%3A+${valueOrDefault<String>(MedicalAppsApiGroup.profileCall.nric(profileJson), 'Not Set')}%0APhone%3A+${MedicalAppsApiGroup.profileCall.nohp(profileJson)}%0APreferred%20New%20Date%3A${dateTimeFormat("d/M/y", _model.calendarSelectedDay?.start)}%0APreferred%20New%20Time%3A${FFAppState().timepick}%0A%0AReason%20for%20reschedule%3A%20%5B${_model.reasonTextController.text}%5D%0A%0AThank%20you%21&type=phone_number&app_absent=0';
+    }
+
+    final emailOrPhone = MedicalAppsApiGroup.profileCall.email(profileJson) != null &&
+            MedicalAppsApiGroup.profileCall.email(profileJson) != ''
+        ? MedicalAppsApiGroup.profileCall.email(profileJson)
+        : MedicalAppsApiGroup.profileCall.nohp(profileJson);
+
+    return 'https://wa.me/60136254528?text=Hello%2C%20I%20would%20like%20to%20make%20a%20booking.%0A%0AName%3A%20${FFAppState().name}%0AReason%20:%3A%20$reasonLabel%0AIC%20Number%20:%20${MedicalAppsApiGroup.profileCall.nric(profileJson)}%0AID%20Patient%20:%20${FFAppState().givenid}%0ADate%3A%20${dateTimeFormat("d/M/y", _model.calendarSelectedDay?.start)}%0ATime%3A%20${FFAppState().timepick}%0ABranch%20Name%3A%20${widget!.branch}%0AEmail%20or%20Phone%3A%20$emailOrPhone%0A%0AThank%20you!';
   }
 
   @override
@@ -56,7 +84,6 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
         accept: 'application/json',
       ),
       builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
           return Scaffold(
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -67,7 +94,7 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
             ),
           );
         }
-        final selectDateProfileResponse = snapshot.data!;
+        final profileResponse = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -97,7 +124,7 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
                   ),
                 ),
                 title: Text(
-                  'Select Appointment Date',
+                  appBarTitle,
                   style: FlutterFlowTheme.of(context).headlineMedium.override(
                         fontFamily:
                             FlutterFlowTheme.of(context).headlineMediumFamily,
@@ -298,20 +325,89 @@ class _SelectDateWidgetState extends State<SelectDateWidget> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
+                      if (widget.isReschedule)
+                        Container(
+                          width: MediaQuery.sizeOf(context).width * 0.9,
+                          child: TextFormField(
+                            controller: _model.reasonTextController,
+                            focusNode: _model.reasonFocusNode,
+                            autofocus: false,
+                            enabled: true,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              labelText: 'Reason for reschedule',
+                              labelStyle: FlutterFlowTheme.of(context)
+                                  .labelMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .labelMediumFamily,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts: !FlutterFlowTheme.of(context)
+                                        .labelMediumIsCustom,
+                                  ),
+                              hintText: 'Reason for reschedule',
+                              hintStyle: FlutterFlowTheme.of(context)
+                                  .labelMedium
+                                  .override(
+                                    fontFamily: FlutterFlowTheme.of(context)
+                                        .labelMediumFamily,
+                                    letterSpacing: 0.0,
+                                    useGoogleFonts: !FlutterFlowTheme.of(context)
+                                        .labelMediumIsCustom,
+                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: FlutterFlowTheme.of(context).error,
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: FlutterFlowTheme.of(context).error,
+                                  width: 1.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor: FlutterFlowTheme.of(context)
+                                  .secondaryBackground,
+                            ),
+                            style: FlutterFlowTheme.of(context)
+                                .bodyMedium
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .bodyMediumFamily,
+                                  letterSpacing: 0.0,
+                                  useGoogleFonts: !FlutterFlowTheme.of(context)
+                                      .bodyMediumIsCustom,
+                                ),
+                            maxLines: null,
+                            minLines: 3,
+                            cursorColor: FlutterFlowTheme.of(context).primaryText,
+                            enableInteractiveSelection: true,
+                            validator: _model.reasonTextControllerValidator
+                                .asValidator(context),
+                          ),
+                        ),
                       FFButtonWidget(
                         onPressed: () async {
-                          await launchURL(
-                              'https://wa.me/60136254528?text=Hello%2C%20I%20would%20like%20to%20make%20a%20booking.%0A%0AName%3A%20${FFAppState().name}%0AReason%20:%20Book Appointments%0AIC%20Number%20:%20${MedicalAppsApiGroup.profileCall.nric(
-                            selectDateProfileResponse.jsonBody,
-                          )}%0AID%20Patient%20:%20${FFAppState().givenid}%0ADate%3A%20${dateTimeFormat("d/M/y", _model.calendarSelectedDay?.start)}%0ATime%3A%20${FFAppState().timepick}%0ABranch%20Name%3A%20${widget!.branch}%0AEmail%20or%20Phone%3A%20${MedicalAppsApiGroup.profileCall.email(
-                                    selectDateProfileResponse.jsonBody,
-                                  ) != null && MedicalAppsApiGroup.profileCall.email(
-                                    selectDateProfileResponse.jsonBody,
-                                  ) != '' ? MedicalAppsApiGroup.profileCall.email(
-                                  selectDateProfileResponse.jsonBody,
-                                ) : MedicalAppsApiGroup.profileCall.nohp(
-                                  selectDateProfileResponse.jsonBody,
-                                )}%0A%0AThank%20you!');
+                          await launchURL(buildWhatsAppUrl(profileResponse.jsonBody));
                         },
                         text: 'Select this date',
                         options: FFButtonOptions(

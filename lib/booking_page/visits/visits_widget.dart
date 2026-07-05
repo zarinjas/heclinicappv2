@@ -216,7 +216,7 @@ class _VisitsWidgetState extends State<VisitsWidget> {
                                             child: FFButtonWidget(
                                               onPressed: () async {
                                                 context.pushNamed(
-                                                  BookingPagecasseWidget
+                                                  BookingPageWidget
                                                       .routeName,
                                                   queryParameters: {
                                                     'cas': serializeParam(

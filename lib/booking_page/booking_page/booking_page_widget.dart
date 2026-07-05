@@ -12,7 +12,12 @@ import 'booking_page_model.dart';
 export 'booking_page_model.dart';
 
 class BookingPageWidget extends StatefulWidget {
-  const BookingPageWidget({super.key});
+  const BookingPageWidget({
+    super.key,
+    this.cas,
+  });
+
+  final String? cas;
 
   static String routeName = 'bookingPage';
   static String routePath = '/bookingPage';
@@ -58,6 +63,41 @@ class _BookingPageWidgetState extends State<BookingPageWidget>
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        appBar: widget.cas != null
+            ? AppBar(
+                backgroundColor: FlutterFlowTheme.of(context).primary,
+                automaticallyImplyLeading: false,
+                leading: InkWell(
+                  splashColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () async {
+                    context.safePop();
+                  },
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: FlutterFlowTheme.of(context).secondaryBackground,
+                    size: 24.0,
+                  ),
+                ),
+                title: Text(
+                  'Book Appointment',
+                  style: FlutterFlowTheme.of(context).headlineMedium.override(
+                        fontFamily:
+                            FlutterFlowTheme.of(context).headlineMediumFamily,
+                        color: Colors.white,
+                        fontSize: 22.0,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !FlutterFlowTheme.of(context)
+                            .headlineMediumIsCustom,
+                      ),
+                ),
+                actions: [],
+                centerTitle: false,
+                elevation: 2.0,
+              )
+            : null,
         body: SafeArea(
           top: true,
           child: Padding(
@@ -278,6 +318,11 @@ class _BookingPageWidgetState extends State<BookingPageWidget>
                                                       'branch': serializeParam(
                                                         listViewBranchRecord
                                                             .branchName,
+                                                        ParamType.String,
+                                                      ),
+                                                      'namecase':
+                                                          serializeParam(
+                                                        widget.cas,
                                                         ParamType.String,
                                                       ),
                                                     }.withoutNulls,
