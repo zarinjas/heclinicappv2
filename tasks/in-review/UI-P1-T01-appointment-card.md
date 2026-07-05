@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A (Phase 0 components built) |
 | Blocked Reason | N/A |
@@ -108,8 +108,23 @@ Build the `AppointmentCard` reusable component used across the Appointments tab,
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
+### What Was Done
+Built the `AppointmentCard` component per the design system spec. Includes doctor avatar (56px circle), name/specialty, branch with location icon, date/time row, status chip using `AppChip`, and upcoming "X days to go" badge.
+
+### Files Changed
+- `lib/core/widgets/appointment_card.dart` — new file (created)
+
+### Decisions Made During Implementation
+- Used `AppCard` pressable wrapper for tap animation (built-in press scale)
+- Used `AppChip` with `StatusChipVariant` enum for status rendering (no custom chip styling)
+- Skeleton variant uses static placeholder boxes (matches existing `app_skeleton.dart` conventions)
+- Badge positioned with `Positioned` + `Stack` for top-right overlay
+- `AppointmentCardSkeleton` kept as separate widget for clarity (not inheriting from `AppSkeleton` base class)
+- Placeholder person icon used when doctor photo URL is null or fails to load
+
+### Known Limitations
+- Doctor photo uses `Image.network` — no caching strategy applied (standard Flutter behavior)
+- Skeleton does not animate with shimmer; uses static placeholder boxes (shimmer animation could be added later via `flutter_animate`)
 
 ---
 
