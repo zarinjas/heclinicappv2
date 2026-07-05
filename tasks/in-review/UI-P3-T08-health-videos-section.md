@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell) |
 | Blocked Reason | N/A |
@@ -101,16 +101,18 @@ Implement the health videos section on the home screen using the `VideoCard` com
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Changed empty state from `AppEmptyState` widget to `SizedBox.shrink()` to hide section when 0 published videos exist
+- Section already had skeleton loading (AppSkeleton.videoGrid), error state, 2-column GridView with VideoCard, See All, and TikTok url_launcher
 
 ### Files Changed
-
+- `lib/features/home/home_screen.dart` — Replaced AppEmptyState with SizedBox.shrink() in _buildVideosSection()
 
 ### Decisions Made During Implementation
-
+- Task already had full implementation from Phase 3 batch 1 (T01-T05); only missing empty-state hide behavior
+- Kept all existing VideoCard usage, API calls (GetCmsVideosCall), navigation intact
 
 ### Known Limitations
-
+(None)
 
 ---
 
