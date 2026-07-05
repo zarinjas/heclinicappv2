@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05 (Phase 0 COMPLETE — all 16/16 tasks reviewed)
 
 ## Last Reviewed Tasks
-- UI-P0-T16 — AppNavBar (APPROVED, moved to DONE)
-  - ui-design-system.md §12 alignment: PASS
+- UI-P1-T11 — SectionHeader (APPROVED, moved to DONE)
+  - ui-design-system.md §3, §8 alignment: PASS
   - All design tokens used. No hardcoded colors/sizes.
-  - Phase 0 now COMPLETE (16/16 tasks DONE)
+  - Dark mode supported. Simple text row — AppButton/AppInput/AppCard/skeleton n/a.
 
 ## Review History
 - P9-T02 (2026-07-05): APPROVED — v2-decisions Process 9 Step 2 "Service Packages — upload image, name, description (replaces 4 static images in app)" fully met. Admin CRUD with image upload/replace/cleanup, public API returning active packages by sort_order ASC. Flutter widget rewritten from 4 hardcoded AssetImage calls to dynamic CachedNetworkImage from Laravel CMS API. Skeleton (SkeletonCard+SkeletonTextBlock), empty state (inventory icon), error state (error icon+retry) all implemented. Design tokens: AppColors, AppSpacing, AppRadius, AppShadows used throughout. AppCard class not in codebase — native Card widget with design tokens as fallback. No scope creep. 7/7 QA criteria PASS.
