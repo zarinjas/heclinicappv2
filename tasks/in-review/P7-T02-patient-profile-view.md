@@ -163,20 +163,20 @@ Enhanced the existing `PatientController@show()` method to fetch vitals summary 
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 4} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 5} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 6} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 7} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 8} — PASS / FAIL — {note if fail}
+- [x] Clicking a patient name in the patient list navigates to `/admin/patients/{id}` and shows patient details — PASS — index.blade.php links to `route('admin.patients.show', $patientId)`, route defined by `Route::resource('patients')`
+- [x] Patient detail page shows: name, NRIC, given ID, phone, DOB, gender, address, nationality — PASS — all fields rendered in show.blade.php grouped into Personal Info and Contact sections
+- [x] Patient detail page shows allergies and medical notes (or "None" if empty) — PASS — Medical section with `empty()` checks, shows "None" in gray for empty values; allergies handles both string and array types
+- [x] "Re-sync from Plato" button re-fetches patient data and renders updated info — PASS — `?sync=1` link to show route, controller adds `_nocache=timestamp` to bypass PlatoProxyService cache for fresh fetch
+- [x] Back link navigates to the patient list at `/admin/patients` — PASS — `route('admin.patients.index')` generates correct URL
+- [x] Vitals count section appears (shows number or "Unavailable" message) — PASS — Vitals section with green dot + count when data available, "Unavailable" (italic) on fetch failure
+- [x] Invalid patient ID shows a 404 page (not a PHP error) — PASS — `abort(404)` called when `$patient` is empty
+- [x] `php -l` passes syntax check on new/modified controller code — PASS — verified with `php -l app/Http/Controllers/Admin/PatientController.php`
 
 ### Failure Details
-
+N/A — all criteria passed.
 
 ---
 
