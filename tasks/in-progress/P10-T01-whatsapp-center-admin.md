@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | P2-T03 (Branch CRUD — needs branch WhatsApp numbers) |
 | Blocked Reason | N/A |
