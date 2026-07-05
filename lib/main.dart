@@ -228,7 +228,7 @@ class _NavBarPageState extends State<NavBarPage> {
     final tabs = {
       'HomepageNew': HomepageNewWidget(),
       'myBookingPage': MyBookingPageWidget(),
-      'health': ReportsWidget(),
+      'health': ReportsWidget(id: null),
       'notificationPage': NotificationPageWidget(),
       'Profile': ProfileWidget(),
     };

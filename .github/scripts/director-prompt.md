@@ -78,17 +78,25 @@ If task is in tasks/backlog/:
 If task is in tasks/in-progress/ and assigned to flutter-developer:
   - Act as Flutter Developer. Read task file, docs/CODEBASE.md, docs/v2-ux-spec.md, docs/v2-decisions.md
   - Implement ONLY what the task specifies — no scope creep. Write actual Dart code using the Edit tool.
+  - **BEFORE moving to in-review/**: run `flutter analyze 2>&1 | grep -E "^\s*error\s*•"` — MUST return zero output (zero compile errors).
+    - If ANY compile error exists, FIX IT before proceeding. Common errors:
+      * Missing import for newly-used classes
+      * Missing required constructor parameters at call sites (search all usages when you change a constructor)
+      * Type mismatches
+    - Re-run `flutter analyze` after each fix until zero errors.
   - Fill Implementation Notes. Move file to tasks/in-review/. Update memory/flutter-developer/context.md.
   - Commit and push to main. Then go back and check Node 3.
 If task is in tasks/in-progress/ and assigned to laravel-developer:
   - Act as Laravel Developer. Read task file, docs/v2-decisions.md, docs/api-guidelines.md.
   - Write actual PHP code using the Edit tool. Fill Implementation Notes.
+  - **BEFORE moving to in-review/**: run `cd laravel && php artisan config:clear && php -l app/**/*.php` — MUST pass syntax check.
   - Move file to tasks/in-review/. Update memory/laravel-developer/context.md.
   - Commit and push to main. Then go back and check Node 3.
 
 ### Node 3 — QA VERIFY (IN-REVIEW QA)
 If task is in tasks/in-review/ and QA Notes section is empty:
   - Act as QA. Read task file acceptance criteria. Verify each criterion (PASS/FAIL).
+  - **MANDATORY BUILD GATE**: For Flutter tasks, run `flutter analyze 2>&1 | grep -E "^\s*error\s*•"`. If any critical error exists, this is an automatic QA FAILURE (do not proceed to other criteria — the build is broken).
   - Fill QA Notes. If ALL PASS: mark QA=PASSED. DO NOT move file (stays for Reviewer).
   - If ANY FAIL due to missing dependency from another process (e.g., needs Laravel Admin Panel):
     → Move task to tasks/blocked/ with "Blocked Reason" documented
