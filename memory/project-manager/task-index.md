@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 4 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 5 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -132,6 +132,16 @@ Last Updated: 2026-07-05 (UI Epic Phase 4 tasks created)
 | UI-P4-T04 | booking-confirm-screen | Epic UI — Phase 4 | Step 4.4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P4-T05 | my-bookings-screen | Epic UI — Phase 4 | Step 4.5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P4-T06 | appointment-detail-screen | Epic UI — Phase 4 | Step 4.6 | Flutter | flutter-developer | DONE | 2026-07-06 |
+| UI-P5-T01 | appointments-screen | Epic UI — Phase 5 | Step 5.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P5-T02 | upcoming-tab | Epic UI — Phase 5 | Step 5.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P5-T03 | past-tab | Epic UI — Phase 5 | Step 5.3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P5-T04 | appointment-detail-screen | Epic UI — Phase 5 | Step 5.4 | Flutter | flutter-developer | BACKLOG | — |
+
+**Phase 5 Dependency Order:**
+- All 4 tasks are parallel (no dependencies between them)
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
+- UI-P5-T02 (Upcoming tab) and UI-P5-T03 (Past tab) are inner tabs within UI-P5-T01 (shell); build in coordination
 
 **Phase 4 Dependency Order:**
 - All 6 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
