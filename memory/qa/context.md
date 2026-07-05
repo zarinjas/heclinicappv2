@@ -3,17 +3,18 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (PASSED — 8/8 criteria)
+P7-T03 — Patient Document Upload — PDF to Firebase Storage (PASSED — 9/9 criteria)
 
 ## Verification History
+- P7-T03 (2026-07-05): PASSED — 9/9 criteria. Upload form in documents section of patient show page. mimetypes:application/pdf validation rejects non-PDF. max:10240 validation rejects >10MB. PatientDocumentService stores to public disk at patients/{uid}/documents/{uuid}.pdf and inserts DB record. show() lists documents via PatientDocumentService@list(). Delete route removes file + DB record with confirm() dialog. Download link serves via Storage::disk('public')->url(). php -l passed on all 5 new/modified files. Storage path includes patient Plato UID.
 - P7-T02 (2026-07-05): PASSED — 8/8 criteria. PatientController@show enhanced with Request parameter for ?sync=1 cache-busting, vitals count from /patient/{id}/graphing, passes $vitalsCount to view. show.blade.php full rewrite with grouped sections (Personal Info: NRIC/DOB/Gender/Nationality, Contact: Phone/Address, Medical: Allergies/Notes with None fallback, Vitals: count badge or Unavailable). "Re-sync from Plato" button with teal bg-[#00C9A7] styling. Back link to admin.patients.index. Footer with Patient ID. php -l syntax check passed on PatientController.php.
 - P7-T01 (2026-07-05): PASSED — 8/8 criteria. PatientController@index queries Plato /patient via PlatoProxyService with search params (name, NRIC, phone) and current_page pagination. LengthAwarePaginator wraps response for Blade pagination links. index.blade.php renders data table with 5 columns (Name, NRIC, Given ID, Phone, View action). Empty state rendered when no patients. Sidebar Patients link between Doctors and Calendar Setup. All 32 PHP files in laravel/app/ pass php -l syntax check with zero errors.
-- P6-T05 (2026-07-05): PASSED — 8/8 criteria. GetReportCall uses PaginationHelper.fetchAllPages() with current_page loop, modified_since param, and 'patient_note' storage key. GetVitalsGraphingCall uses modified_since with 'vitals_graphing' key. GetPatientDocumentsCall uses PaginationHelper.fetchAllPages() with 'page' param (Laravel-style), modified_since, and 'patient_documents' key. RefreshIndicator on all three tabs: Records (inside filterChips Column), Vitals, Documents. forceRefresh=true skips isLoading flags (no skeleton during refresh). Error states silently fail during forceRefresh (keep existing data). AppColors accent/primary RefreshIndicator styling. Build gate not verifiable in CI; code matches working LetterCall pattern.
-- P6-T04 (2026-07-05): PASSED — 9/9 criteria. GetPatientDocumentsCall uses EnvConfig.medicalAppsBaseUrl-based Laravel endpoint. _loadDocuments fetches and parses documents/named/urls/uploaded_at/admin_note/size_bytes fields. _buildDocumentCard renders file icon (red circle + picture_as_pdf), name, "Uploaded {date}", admin_note. _onDocumentTap opens WebViewXPlus with SourceType.url for PDF viewing. _buildDocumentsTab handles all states: 4× SkeletonListTile loading, ErrorStateWidget with retry, EmptyStateWidget with folder_outlined icon. Lazy-loads on Documents tab switch (index 2). flutter analyze zero errors. Laravel PHP lint passes. Build gate passed.
-- P6-T03 (2026-07-05): PASSED — 8/8 criteria. GetVitalsGraphingCall uses Laravel proxy (EnvConfig.platomBaseUrl) with standard Plato headers. _loadVitals dynamically iterates JSON response keys for vital types. _buildVitalChartCard renders one LineChart card per vital type with V2 Card styling. _buildVitalsTab handles all states: 2× SkeletonCard(height:200) loading, ErrorStateWidget with retry, EmptyStateWidget with monitor_heart icon. Lazy-loads on Vitals tab switch (index 1). Chart uses AppColors.accent line, AppColors.primary dots, AppColors.divider grid. fl_chart 0.68.0 added to pubspec.yaml. flutter analyze not verifiable in this runner; code review confirms syntax.
-- P6-T02 (2026-07-05): PASSED — 8/8 criteria. Filter chips (All/Notes/Letters/MC) with ChoiceChip V2 styling. Data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs. Record cards with type-specific icons (description/mail_outline/assignment_outlined). Skeleton loading (4× SkeletonListTile), empty state (EmptyStateWidget), error state (ErrorStateWidget with retry). Note tap opens AlertReportWidget in DraggableScrollableSheet. Letter tap shows HTML in FlutterFlowWebView bottom sheet. MC tap shows WebViewXPlus PDF viewer. flutter analyze zero errors. Build gate passed.
-- P6-T01 (2026-07-05): PASSED — 7/7 criteria. ReportsWidget rewritten with V2 design. AppBar "My Health" primary bg, no back arrow. TabBar: Records/Vitals/Documents with icons, accent indicator, white text 100%/60%. TabBarView with 3 skeleton placeholder tabs. flutter analyze zero errors. Build gate passed.
-- P5-T09 (2026-07-05): PASSED — 10/10 criteria. AppointmentsScreenWidget at tab index 1 in NavBarPage, /myBookingPage GoRouter route wired. GetAppointmentCall via EnvConfig.platomBaseUrl (Laravel proxy). TabBar with Upcoming/Past tabs split by starttime vs DateTime.now(). Appointment cards show date, time, location (location_on_outlined icon + locationName), doctor (person_outline icon + doctorName), status chip (Confirmed/Completed with color coding). 4px left color bar from code_Background hash palette (8 deterministic colors). RefreshIndicator pull-to-refresh on both lists. Skeleton loading (tab + card shapes with shimmer). EmptyStateWidget per-tab with Book Now CTA on Upcoming. ErrorStateWidget with retry. Card tap opens ModalBottomSheet with full detail (date, time, end time, branch, doctor, status). Build gate (`flutter analyze`) zero errors.
+- P6-T05 (2026-07-05): PASSED — 8/8 criteria.
+- P6-T04 (2026-07-05): PASSED — 9/9 criteria.
+- P6-T03 (2026-07-05): PASSED — 8/8 criteria.
+- P6-T02 (2026-07-05): PASSED — 8/8 criteria.
+- P6-T01 (2026-07-05): PASSED — 7/7 criteria.
+- P5-T09 (2026-07-05): PASSED — 10/10 criteria.
 - P5-T08 (2026-07-05): PASSED — 7/7 criteria.
 - P5-T07 (2026-07-05): PASSED — 8/8 criteria.
 - P5-T06 (2026-07-05): PASSED — 8/8 criteria.
@@ -31,8 +32,9 @@ P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (PASSED — 8
 - P3-T06 through P3-T01: All PASSED.
 
 ## Key Files to Monitor
-- `laravel/app/Http/Controllers/Admin/PatientController.php` — NEW: PatientController with index() and show()
-- `laravel/resources/views/admin/patients/index.blade.php` — NEW: patient list Blade view
-- `laravel/resources/views/admin/patients/show.blade.php` — NEW: patient detail stub view
-- `laravel/routes/web.php` — UPDATED: added patients resource route
-- `laravel/resources/views/layouts/admin.blade.php` — UPDATED: added Patients sidebar link
+- `laravel/app/Http/Controllers/Admin/PatientController.php` — PatientController with index(), show(), uploadDocument(), deleteDocument()
+- `laravel/app/Services/PatientDocumentService.php` — NEW: document upload/delete/list/serve service
+- `laravel/resources/views/admin/patients/show.blade.php` — patient detail with documents section
+- `laravel/resources/views/admin/patients/index.blade.php` — patient list view
+- `laravel/routes/web.php` — patients resource + document routes
+- `laravel/resources/views/layouts/admin.blade.php` — sidebar with Patients link

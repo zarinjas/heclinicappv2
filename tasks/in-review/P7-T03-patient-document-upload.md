@@ -166,20 +166,21 @@ class PatientDocumentService
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 4} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 5} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 6} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 7} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 8} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 9} — PASS / FAIL — {note if fail}
+- [x] Document upload form appears on the patient profile page — PASS — Documents section with file input (accept=.pdf), title input, Upload button rendered below patient info card
+- [x] Uploading a PDF file works and stores the document — PASS — uploadDocument() validates, PatientDocumentService stores to public disk + DB record
+- [x] The document appears in the document list on the profile page after upload — PASS — show() calls PatientDocumentService@list(), passes $documents to view
+- [x] Non-PDF files are rejected with a validation error message — PASS — mimetypes:application/pdf validation, @error('document') displays "Only PDF files are allowed."
+- [x] Files over 10MB are rejected with a validation error message — PASS — max:10240 validation, @error('document') displays size limit message
+- [x] Delete button removes the document and it disappears from the list — PASS — DELETE route calls service@delete(), removes file + DB record, confirm() dialog, redirect back refreshes list
+- [x] Download link on each document works and serves the file — PASS — Storage::disk('public')->url() generates download URLs from storage/app/public/
+- [x] `php -l` passes syntax check on all new/modified PHP files — PASS — all 5 new/modified files pass with zero errors
+- [x] Storage path includes the patient's Plato UID (e.g., `patients/{uuid}/documents/`) — PASS — PatientDocumentService uses `patients/{uid}/documents/{uuid}.pdf`
 
 ### Failure Details
+None — all 9 criteria PASSED.
 
 
 ---
