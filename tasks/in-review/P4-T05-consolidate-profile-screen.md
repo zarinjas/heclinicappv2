@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P4-T01, P4-T02 |
 | Blocked Reason | N/A |
@@ -153,15 +153,27 @@ Per v2-ux-spec.md section 5 Confirmation Modal:
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+- Rewrote `profile_widget.dart` with full V2 layout: avatar+initials header, My Details section, Settings section (Biometric Login, Notification Preferences, Change Password), About section (He Clinic Info, Privacy Policy, Terms of Service), and Log Out destructive button
+- Used FFAppState for user data (name, userEmail, nationalman)
+- Avatar fetched from profile API with cached_network_image and initials fallback
+- Log Out uses V2 confirmation modal (warning icon, Cancel ghost + Log Out destructive)
+- Uses AppColors, AppSpacing, AppRadius, AppShadows from app_theme.dart
+- Cleaned up profile_model.dart imports to match new widget
 
 ### Files Changed
-
+- `lib/front_page/profile/profile_widget.dart` — Rewritten with V2 layout
+- `lib/front_page/profile/profile_model.dart` — Cleaned up imports
 
 ### Decisions Made During Implementation
-
+- Avatar URL fetched asynchronously from profile API since FFAppState has no avatar field; uses initials fallback on error/empty
+- ProfileEditPage navigation simplified — only passes idplato param (other data from FFAppState)
+- Biometric Login row shows ON/OFF status based on FFAppState().fingerprint / FFAppState().faceid
+- ProfileCopy directory already removed from codebase (no references found in lib/ or nav.dart)
+- No `/profileCopy` route exists in nav.dart — already cleaned up
 
 ### Known Limitations
+- Privacy Policy and Terms of Service both point to the same URL (`https://hemedicalapps.com/term.html`) — separate pages can be created in Process 9 (CMS)
+- He Clinic Info navigates to HemedInfoWidget (not HemedInfoCopy) — Copy page still exists but is separate cleanup
 
 
 ---
