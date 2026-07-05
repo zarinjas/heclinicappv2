@@ -191,22 +191,22 @@ Created walk-in appointment creation form in the Laravel Admin Panel. Staff can 
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 4} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 5} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 6} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 7} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 8} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 9} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 10} — PASS / FAIL — {note if fail}
+- [x] Criterion 1 — PASS — Route `GET /admin/appointments/create` registered in web.php, AdminAppointmentController@create renders the form view
+- [x] Criterion 2 — PASS — Form includes all required fields: patient_name, patient_nric, patient_phone, branch_id dropdown, doctor_id dropdown, appointment_date, appointment_time, notes
+- [x] Criterion 3 — PASS — Doctor dropdown uses client-side JS filtering: all doctors rendered with data-branch attribute, filtered on branch select change
+- [x] Criterion 4 — PASS — store() method calls AppointmentService::createAppointment() which proxies to Plato via POST /appointment
+- [x] Criterion 5 — PASS — AppointmentService uses DB::transaction() with Appointment::create() to persist local DB record
+- [x] Criterion 6 — PASS — On success, redirects to admin.appointments.index with 'success' flash message: "Walk-in appointment created successfully."
+- [x] Criterion 7 — PASS — On validation failure, redirects back()->withInput(); form uses old() for all input values, @error for field errors
+- [x] Criterion 8 — PASS — StoreAppointmentRequest includes 'appointment_date' => ['after:today'] rule; HTML5 min attribute set to tomorrow
+- [x] Criterion 9 — PASS — All required fields (patient_name, patient_nric, patient_phone, branch_id, branch_name, doctor_id, doctor_name, appointment_date, appointment_time) have 'required' rules
+- [x] Criterion 10 — PASS — php -l syntax check passes on StoreAppointmentRequest.php, AdminAppointmentController.php, web.php (zero errors)
 
 ### Failure Details
-
+N/A
 
 ---
 
