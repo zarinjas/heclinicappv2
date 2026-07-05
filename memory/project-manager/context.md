@@ -10,7 +10,7 @@ Process 6 — Health Tab (Flutter)
 P6-T01 — Health Tab Scaffold with 3 Inner Tabs (DONE)
 P6-T02 — Records Tab — Notes, Letters, MC, Filter Chips (DONE)
 P6-T03 — Vitals Tab — Health Trends Graphs (DONE)
-P6-T04 — Documents Tab — Admin-Uploaded PDFs (IN-REVIEW)
+P6-T04 — Documents Tab — Admin-Uploaded PDFs (DONE)
 P6-T05 — Pagination and Modified Since for Health Tab (BACKLOG)
 
 **Process 5 — Booking Flow (completed):**

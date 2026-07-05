@@ -11,7 +11,7 @@
 | Type | Flutter + Laravel |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P6-T03 |
 | Blocked Reason | N/A |
@@ -230,11 +230,11 @@ N/A
 
 > Filled by Reviewer after QA passes.
 
-### Decision: {APPROVED / REJECTED}
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: {YES / NO} — {note}
-- v2-ux-spec.md alignment: {YES / NO} — {note}
+- v2-decisions.md alignment: YES — Matches Process 6 Step 4: "Documents tab: admin-uploaded PDFs from Firebase Storage via GET /api/v2/patients/{id}/documents". FirebaseStorageService uses REST API for storage operations. Route is inside auth:sanctum group.
+- v2-ux-spec.md alignment: YES — Matches Documents Tab spec (lines 590-595): PDF document list with file icon, document name, upload date, admin note, tap opens PDF viewer (WebViewX+), sorted newest first, skeleton while loading. Empty/error states match v2-ux-spec component library patterns.
 
 ### Rejection Reason
-{to be filled if rejected}
+N/A

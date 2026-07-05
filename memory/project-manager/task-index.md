@@ -44,7 +44,7 @@ Last Updated: 2026-07-05
 | P6-T01 | health-tab-scaffold | 6 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P6-T02 | records-tab-notes-letters-mc | 6 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P6-T03 | vitals-tab-graphing | 6 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| P6-T04 | documents-tab-pdfs | 6 | Step 4 | Flutter + Laravel | flutter-developer | IN-REVIEW | — |
+| P6-T04 | documents-tab-pdfs | 6 | Step 4 | Flutter + Laravel | flutter-developer | DONE | 2026-07-05 |
 | P6-T05 | health-tab-pagination-modified-since | 6 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
