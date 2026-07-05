@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0 (all), UI-P1 (all) |
 | Blocked Reason | N/A |
@@ -114,15 +114,21 @@ Migrate the existing register step 2 from `auth_page/register*/` to a new V2 des
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created new `lib/features/auth/register_step2_screen.dart` — a V2 design-compliant Register Step 2 screen following the same pattern as step 1. Includes password/confirm password fields with AppInput (isPassword toggle), password strength indicator (4-segment bar), terms & privacy checkbox, AppButton.primary for registration, back button to step 1, and AppErrorState for API failures. Integrates with existing RegisterCall API using FFAppState shared data from step 1.
 
 ### Files Changed
-- 
+- `lib/features/auth/register_step2_screen.dart` — NEW file (274 lines)
 
 ### Decisions Made During Implementation
-
+- Password strength is calculated client-side using length+character variety heuristics (0-4 score)
+- API registration leverages existing `MedicalAppsApiGroup.registerCall` with `FFAppState` data from step 1 (registerEmail, username, phonefield)
+- Terms & Privacy links are styled with accent color but currently don't navigate to separate pages (out of scope)
+- Strength bar auto-updates on password change via `onSubmitted` callback
 
 ### Known Limitations
+- Step 2 relies on FFAppState for data from Step 1; if Step 1 does not store its form data, registration will submit empty fields for name/email/phone
+- Terms & Privacy links are decorative (no deep links to legal pages yet)
+- Route `/registerStep2` may need explicit GoRouter registration if navigation fails
 
 
 ---
