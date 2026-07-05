@@ -3,7 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P7-T05 — Create Walk-In Appointment — Admin Panel (APPROVED — 2026-07-05)
+P7-T06 — Appointment Detail View — Admin Panel (APPROVED — 2026-07-05)
+
+## Review History
+- P7-T06 (2026-07-05): APPROVED — v2-decisions Process 7 Step 6 "Appointment detail view" fully met. AdminAppointmentController@show retrieves appointment with local DB priority (primary key → plato_appointment_id → Plato proxy fallback). show.blade.php follows admin panel patterns from branches/show with grouped definition lists (Patient Info, Appointment Details, Assignment, Notes, Local Record). Status badges match index page color scheme. monospace Plato ID display. Back link, patient profile link when available. Routes web.php updated from ['index','create','store'] to include 'show'. Index view action button enabled with route link. Read-only display per scope — no edit/delete. All 9 QA criteria PASS.
 
 ## Review History
 - P7-T05 (2026-07-05): APPROVED — v2-decisions Process 7 Step 5 "Create appointment for walk-ins — POST /appointment via Plato proxy" fully met. StoreAppointmentRequest validates all required fields with after:today rule. AdminAppointmentController delegates to AppointmentService::createAppointment() which proxies to Plato and persists local DB record in transaction. create.blade.php follows admin panel patterns (card wrapper, teal accent buttons, responsive grid, JS doctor filtering by branch). Routes web.php configured with auth+role middleware. All 10 QA criteria PASS.
