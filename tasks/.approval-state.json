@@ -1,10 +1,12 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "P10-T06", "title": "Firestore Security Rules Audit and Tighten"},
-    {"task_id": "P10-T07", "title": "Remove Unused Firebase Functions Dependencies"},
-    {"task_id": "P10-T08", "title": "Flutter Version Upgrade Assessment"}
+    {"task_id": "UI-P0-T01", "title": "AppColors — Design Tokens"},
+    {"task_id": "UI-P0-T02", "title": "AppTextStyles — Typography Tokens"},
+    {"task_id": "UI-P0-T03", "title": "AppSpacing + AppRadius + AppShadows"},
+    {"task_id": "UI-P0-T04", "title": "AppTheme — Light + Dark ThemeData"},
+    {"task_id": "UI-P0-T05", "title": "AppButton — Reusable Button Component"}
   ],
   "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": "2026-07-05T00:00:00Z"
+  "approved": null
 }
