@@ -46,4 +46,12 @@ MEDIUM — code quality
 1–2 hours
 
 ## Status
-Backlog
+IN-PROGRESS
+
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
+## Implementation Notes
