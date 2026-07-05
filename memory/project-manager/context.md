@@ -15,7 +15,8 @@ P2-T05 — Plato API Proxy Layer (DONE)
 P2-T06 — Calendar Setup UI (DONE)
 
 **Process 5 — Booking Flow (resumed after Process 2 completion):**
-P5-T03 — Doctor Selection Screen (IN-REVIEW — Process 2 completed, branch + is_visible_in_app filters implemented)
+P5-T03 — Doctor Selection Screen (DONE)
+P5-T04 — Date and Time Slot Selection (BACKLOG)
 P5-T04 — Date and Time Slot Selection (BACKLOG)
 P5-T05 — Booking Confirmation Screen (BACKLOG)
 P5-T06 — WhatsApp Redirect After Booking (BACKLOG)

@@ -17,7 +17,7 @@ Doctor Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T02, Process 2 (Laravel Admin Panel) |
 | Blocked Reason | |
@@ -165,11 +165,11 @@ All 10/10 acceptance criteria PASS. Both previously failing criteria (branch fil
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 3: "Doctor selection screen — active doctors (is_visible_in_app = true) for selected branch, No Preference option always shown at top." Implementation uses new GetDoctorsCall (Laravel /api/v2/config/doctors) filtering by branch_id + visible=true. No Preference card always first. All API calls through Laravel proxy. Direct-to-main workflow followed.
+- v2-ux-spec.md alignment: YES — SCREEN: Booking Flow — Step 2: Select Doctor. Step indicator (step 2 active), No Preference card (groups icon, label, subtitle), doctor cards (64px circle avatar, name, specialty), accent border on selection, Next button disabled until selection. All spec items matched.
 
 ### Rejection Reason
-{If REJECTED}
+N/A — APPROVED.
