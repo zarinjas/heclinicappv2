@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (APPROVED — 2026-07-05)
+P4-T04 — Home Screen Redesign (APPROVED — 2026-07-05)
 
 ## Review History
+- P4-T04 (2026-07-05): APPROVED — v2-decisions Process 4 Step 4 + v2-ux-spec Section 4 fully aligned. Hero slider (4s auto-scroll + dots), 2x2 quick actions, upcoming appointment card, doctor horizontal list (P4-T03), WordPress articles, video grid. All sections handle skeleton/empty/error. EnvConfig used, no hardcoded tokens.
 - P4-T03 (2026-07-05): APPROVED — v2-decisions Process 4 Step 3 + v2-ux-spec cards/bottom-sheet/doctor-detail all aligned
 - P4-T02 (2026-07-05): APPROVED — Full alignment with v2-decisions.md Process 4 Step 2 and v2-ux-spec.md Section 3
 - P4-T01 (2026-07-05): APPROVED — Full alignment with v2-decisions.md Process 4 Step 1 and v2-ux-spec.md Section 1
