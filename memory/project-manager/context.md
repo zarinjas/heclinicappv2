@@ -7,7 +7,7 @@ Epic: UI Migration — Phase 1: Feature Components (18 tasks in BACKLOG)
 
 ## Active Tasks
 **Epic UI Migration — Phase 1 (0 of 18 complete):**
-UI-P1-T01 — AppointmentCard (IN-REVIEW)
+UI-P1-T01 — AppointmentCard (DONE)
 UI-P1-T02 — DoctorCard (BACKLOG)
 UI-P1-T03 — ArticleCard (BACKLOG)
 UI-P1-T04 — VideoCard (BACKLOG)

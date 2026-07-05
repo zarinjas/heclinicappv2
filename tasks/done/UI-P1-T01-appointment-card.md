@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A (Phase 0 components built) |
 | Blocked Reason | N/A |
@@ -148,5 +148,16 @@ Built the `AppointmentCard` component per the design system spec. Includes docto
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes.
-> Leave blank until Reviewer picks up the task.
+### Decision: APPROVED
+
+### Alignment Check
+- v2-decisions.md alignment: YES — Component follows design system approach specified in Process 4
+- v2-ux-spec.md alignment: YES — Appointment card layout matches screen specs
+- ui-design-system.md alignment: YES — §10 Appointment Card spec fully matched (doctor avatar 56px, name heading3, specialty body2, branch with location icon, date/time + status chip row, upcoming badge)
+
+### Design Compliance
+- No hardcoded colors: PASS — All values from AppColors tokens
+- No hardcoded sizing/spacing: PASS — All from AppSpacing, AppRadius constants
+- Shared components used: PASS — AppCard (wrapper), AppChip (status)
+- Dark mode supported: PASS — isDark checks with correct dark tokens
+- Skeleton loader defined: PASS — AppointmentCardSkeleton widget
