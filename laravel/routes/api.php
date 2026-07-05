@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
 use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
 use App\Http\Controllers\Api\DoctorConfigController;
@@ -30,6 +31,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/v2/patients/{id}/documents', [PatientDocumentController::class, 'index'])
         ->name('patients.documents');
 });
+
+Route::get('/v2/cms/articles', [ApiCmsArticleController::class, 'index'])
+    ->name('cms.articles');
+Route::get('/v2/cms/articles/{slug}', [ApiCmsArticleController::class, 'show'])
+    ->name('cms.articles.show');
 
 Route::get('/v2/cms/sliders', [ApiCmsSliderController::class, 'index'])
     ->name('cms.sliders');

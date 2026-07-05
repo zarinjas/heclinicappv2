@@ -1088,6 +1088,159 @@ class GetPatientbyidCall {
 }
 
 
+class GetCmsArticlesCall {
+  static Future<ApiCallResponse> call({
+    int limit = 10,
+    int page = 1,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetCmsArticles',
+      apiUrl: '${EnvConfig.laravelBaseUrl}/v2/cms/articles?limit=$limit&page=$page',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<int>? id(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<int>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? title(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].title''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? slug(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].slug''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? excerpt(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].excerpt''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? featuredImage(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].featured_image''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? category(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].category''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? authorName(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].author_name''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? publishedAt(dynamic response) => (getJsonField(
+        response,
+        r'''$.data[:].published_at''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static int? total(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.total''',
+      ));
+  static int? currentPage(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.current_page''',
+      ));
+  static int? lastPage(dynamic response) => castToType<int>(getJsonField(
+        response,
+        r'''$.last_page''',
+      ));
+}
+
+class GetCmsArticleDetailCall {
+  static Future<ApiCallResponse> call(String slug) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetCmsArticleDetail',
+      apiUrl: '${EnvConfig.laravelBaseUrl}/v2/cms/articles/$slug',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? title(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.title''',
+      ));
+  static String? body(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.body''',
+      ));
+  static String? excerpt(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.excerpt''',
+      ));
+  static String? featuredImage(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.featured_image''',
+      ));
+  static String? category(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.category''',
+      ));
+  static String? authorName(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.author_name''',
+      ));
+  static String? publishedAt(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.published_at''',
+      ));
+}
+
 class GetArticlesCall {
   static Future<ApiCallResponse> call() async {
     return ApiManager.instance.makeApiCall(

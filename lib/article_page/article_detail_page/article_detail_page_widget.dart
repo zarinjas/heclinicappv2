@@ -1,7 +1,12 @@
+import '/backend/api_requests/api_calls.dart';
 import '/components/reference_modal_widget.dart';
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/theme/app_theme.dart';
 import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +22,11 @@ class ArticleDetailPageWidget extends StatefulWidget {
     this.title,
     this.content,
     this.imageUrl,
-    required this.referenceLabel,
-    required this.referenceUrl,
+    this.referenceLabel,
+    this.referenceUrl,
+    this.articleSlug,
+    this.authorName,
+    this.publishedAt,
   });
 
   final String? title;
@@ -26,6 +34,9 @@ class ArticleDetailPageWidget extends StatefulWidget {
   final String? imageUrl;
   final String? referenceLabel;
   final String? referenceUrl;
+  final String? articleSlug;
+  final String? authorName;
+  final String? publishedAt;
 
   static String routeName = 'ArticleDetailPage';
   static String routePath = '/articleDetailPage';
@@ -40,18 +51,70 @@ class _ArticleDetailPageWidgetState extends State<ArticleDetailPageWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _isLoading = false;
+  bool _hasError = false;
+  String _title = '';
+  String _body = '';
+  String _imageUrl = '';
+  String _authorName = '';
+  String _publishedAt = '';
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => ArticleDetailPageModel());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    if (widget.articleSlug != null && widget.articleSlug!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadArticleFromCms());
+    } else {
+      _title = widget.title ?? '';
+      _body = widget.content ?? '';
+      _imageUrl = widget.imageUrl ?? '';
+      _authorName = widget.authorName ?? '';
+      _publishedAt = widget.publishedAt ?? '';
+    }
+  }
+
+  Future<void> _loadArticleFromCms() async {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    try {
+      final response = await GetCmsArticleDetailCall.call(widget.articleSlug!);
+      if (mounted) {
+        if (response.succeeded) {
+          final json = response.jsonBody;
+          setState(() {
+            _title = GetCmsArticleDetailCall.title(json) ?? widget.title ?? '';
+            _body = GetCmsArticleDetailCall.body(json) ?? widget.content ?? '';
+            _imageUrl = GetCmsArticleDetailCall.featuredImage(json) ?? widget.imageUrl ?? '';
+            _authorName = GetCmsArticleDetailCall.authorName(json) ?? widget.authorName ?? '';
+            _publishedAt = GetCmsArticleDetailCall.publishedAt(json) ?? widget.publishedAt ?? '';
+            _isLoading = false;
+            _hasError = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _hasError = true;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
     _model.dispose();
-
     super.dispose();
   }
 
@@ -64,53 +127,53 @@ class _ArticleDetailPageWidgetState extends State<ArticleDetailPageWidget> {
       },
       child: Scaffold(
         key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await showModalBottomSheet(
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              enableDrag: false,
-              context: context,
-              builder: (context) {
-                return WebViewAware(
-                  child: GestureDetector(
-                    onTap: () {
-                      FocusScope.of(context).unfocus();
-                      FocusManager.instance.primaryFocus?.unfocus();
+        backgroundColor: AppColors.bgLight,
+        floatingActionButton: (widget.referenceLabel != null && widget.referenceUrl != null)
+            ? FloatingActionButton(
+                onPressed: () async {
+                  await showModalBottomSheet(
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    enableDrag: false,
+                    context: context,
+                    builder: (context) {
+                      return WebViewAware(
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          },
+                          child: Padding(
+                            padding: MediaQuery.viewInsetsOf(context),
+                            child: ReferenceModalWidget(
+                              referenceLabel: widget.referenceLabel!,
+                              referenceUrl: widget.referenceUrl!,
+                            ),
+                          ),
+                        ),
+                      );
                     },
-                    child: Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: ReferenceModalWidget(
-                        referenceLabel: widget!.referenceLabel!,
-                        referenceUrl: widget!.referenceUrl!,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ).then((value) => safeSetState(() {}));
-          },
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-          elevation: 8.0,
-          child: Icon(
-            Icons.info_outline,
-            color: FlutterFlowTheme.of(context).info,
-            size: 34.0,
-          ),
-        ),
+                  ).then((value) => safeSetState(() {}));
+                },
+                backgroundColor: AppColors.primary,
+                elevation: 8.0,
+                child: Icon(
+                  Icons.info_outline,
+                  color: Colors.white,
+                  size: 34.0,
+                ),
+              )
+            : null,
         appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
+          backgroundColor: AppColors.primary,
           automaticallyImplyLeading: true,
           title: Text(
-            'He Med Articles',
-            style: FlutterFlowTheme.of(context).titleMedium.override(
-                  fontFamily: FlutterFlowTheme.of(context).titleMediumFamily,
-                  color: FlutterFlowTheme.of(context).secondaryBackground,
-                  letterSpacing: 0.0,
-                  useGoogleFonts:
-                      !FlutterFlowTheme.of(context).titleMediumIsCustom,
-                ),
+            'Health Articles',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
           actions: [],
           centerTitle: true,
@@ -118,149 +181,163 @@ class _ArticleDetailPageWidgetState extends State<ArticleDetailPageWidget> {
         ),
         body: SafeArea(
           top: true,
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(16.0, 0.0, 16.0, 0.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Align(
-                    alignment: AlignmentDirectional(0.0, 0.0),
-                    child: Container(
-                      decoration: BoxDecoration(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                              widget!.imageUrl!,
-                              width: double.infinity,
-                              height: 400.0,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Text(
-                            valueOrDefault<String>(
-                              widget!.title,
-                              'title',
-                            ),
-                            style: FlutterFlowTheme.of(context)
-                                .headlineSmall
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .headlineSmallFamily,
-                                  letterSpacing: 0.0,
-                                  useGoogleFonts: !FlutterFlowTheme.of(context)
-                                      .headlineSmallIsCustom,
-                                ),
-                          ),
-                          Align(
-                            alignment: AlignmentDirectional(0.0, 0.0),
-                            child: Container(
-                              width: double.infinity,
-                              height: 45.0,
-                              decoration: BoxDecoration(),
-                              alignment: AlignmentDirectional(-1.0, 0.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    valueOrDefault<String>(
-                                      widget!.referenceLabel,
-                                      'citation',
-                                    ),
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primaryText,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w300,
-                                          useGoogleFonts:
-                                              !FlutterFlowTheme.of(context)
-                                                  .bodyMediumIsCustom,
-                                        ),
-                                  ),
-                                  InkWell(
-                                    splashColor: Colors.transparent,
-                                    focusColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    highlightColor: Colors.transparent,
-                                    onTap: () async {
-                                      await launchURL(widget!.referenceUrl!);
-                                    },
-                                    child: Text(
-                                      'Source',
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium
-                                          .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyMediumFamily,
-                                            color: Color(0xFF1F78B8),
-                                            letterSpacing: 0.0,
-                                            fontStyle: FontStyle.italic,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            useGoogleFonts:
-                                                !FlutterFlowTheme.of(context)
-                                                    .bodyMediumIsCustom,
-                                          ),
-                                    ),
-                                  ),
-                                ].divide(SizedBox(height: 3.0)),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                0.0, 10.0, 0.0, 0.0),
-                            child: RichText(
-                              textScaler: MediaQuery.of(context).textScaler,
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: widget!.content!,
-                                    style: FlutterFlowTheme.of(context)
-                                        .bodyMedium
-                                        .override(
-                                          fontFamily:
-                                              FlutterFlowTheme.of(context)
-                                                  .bodyMediumFamily,
-                                          letterSpacing: 0.0,
-                                          useGoogleFonts:
-                                              !FlutterFlowTheme.of(context)
-                                                  .bodyMediumIsCustom,
-                                        ),
-                                  )
-                                ],
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily,
-                                      letterSpacing: 0.0,
-                                      useGoogleFonts:
-                                          !FlutterFlowTheme.of(context)
-                                              .bodyMediumIsCustom,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ].divide(SizedBox(height: 15.0)),
-                      ),
-                    ),
-                  ),
-                ].addToStart(SizedBox(height: 20.0)),
+          child: _buildBody(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SkeletonCard(height: 240.0),
+            const SizedBox(height: 16.0),
+            const SkeletonTextBlock(lineCount: 2),
+            const SizedBox(height: 24.0),
+            const SkeletonTextBlock(lineCount: 5),
+            const SizedBox(height: 24.0),
+            const SkeletonTextBlock(lineCount: 3),
+          ],
+        ),
+      );
+    }
+
+    if (_hasError) {
+      return Center(
+        child: ErrorStateWidget(
+          onRetry: () {
+            if (widget.articleSlug != null && widget.articleSlug!.isNotEmpty) {
+              _loadArticleFromCms();
+            }
+          },
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_imageUrl.isNotEmpty)
+            Container(
+              width: double.infinity,
+              height: 240.0,
+              color: AppColors.divider,
+              child: Image.network(
+                _imageUrl,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.article_outlined,
+                  size: 64.0,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _title.isNotEmpty ? _title : (widget.title ?? 'Article'),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    height: 1.3,
+                  ),
+                ),
+                if (_authorName.isNotEmpty || _publishedAt.isNotEmpty) ...[
+                  const SizedBox(height: 8.0),
+                  Row(
+                    children: [
+                      if (_authorName.isNotEmpty)
+                        Text(
+                          _authorName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      if (_authorName.isNotEmpty && _publishedAt.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: Text('·',
+                              style: TextStyle(color: AppColors.textSecondary)),
+                        ),
+                      if (_publishedAt.isNotEmpty)
+                        Text(
+                          _publishedAt,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+                if (widget.referenceLabel != null &&
+                    widget.referenceLabel!.isNotEmpty &&
+                    widget.referenceUrl != null &&
+                    widget.referenceUrl!.isNotEmpty) ...[
+                  const SizedBox(height: 12.0),
+                  Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.referenceLabel!,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w300,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        GestureDetector(
+                          onTap: () async {
+                            await launchURL(widget.referenceUrl!);
+                          },
+                          child: Text(
+                            'Source',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.accent,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20.0),
+                Text(
+                  _body.isNotEmpty ? _body : (widget.content ?? ''),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.textPrimary,
+                    height: 1.7,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

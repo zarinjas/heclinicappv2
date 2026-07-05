@@ -231,7 +231,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
 
   Future<void> _loadArticles() async {
     try {
-      _model.articlesResponse = await GetArticlesCall.call();
+      _model.articlesResponse = await GetCmsArticlesCall.call(limit: 4);
       if (mounted) {
         setState(() {
           _articlesLoaded = true;
@@ -770,10 +770,12 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
       return _buildSectionError('Health Tips', _loadArticles);
     }
 
-    final titles = GetArticlesCall.title(_model.articlesResponse?.jsonBody ?? '') ?? [];
-    final excerpts = GetArticlesCall.excerpt(_model.articlesResponse?.jsonBody ?? '') ?? [];
-    final images = GetArticlesCall.featuredmedia(_model.articlesResponse?.jsonBody ?? '') ?? [];
-    final displayCount = titles.length > 4 ? 4 : titles.length;
+    final titles = GetCmsArticlesCall.title(_model.articlesResponse?.jsonBody ?? '') ?? [];
+    final excerpts = GetCmsArticlesCall.excerpt(_model.articlesResponse?.jsonBody ?? '') ?? [];
+    final images = GetCmsArticlesCall.featuredImage(_model.articlesResponse?.jsonBody ?? '') ?? [];
+    final slugs = GetCmsArticlesCall.slug(_model.articlesResponse?.jsonBody ?? '') ?? [];
+    final categories = GetCmsArticlesCall.category(_model.articlesResponse?.jsonBody ?? '') ?? [];
+    final displayCount = titles.length;
 
     if (displayCount == 0) {
       return const SizedBox.shrink();
@@ -801,6 +803,8 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
                 title: titles[index],
                 excerpt: index < excerpts.length ? _stripHtml(excerpts[index]) : '',
                 imageUrl: index < images.length ? images[index] : '',
+                slug: index < slugs.length ? slugs[index] : '',
+                category: index < categories.length ? categories[index] : null,
               ),
             ),
           ),
@@ -813,6 +817,8 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
     required String title,
     required String excerpt,
     required String imageUrl,
+    required String slug,
+    String? category,
   }) {
     return GestureDetector(
       onTap: () {
@@ -821,6 +827,8 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
           queryParameters: {
             'title': serializeParam(title, ParamType.String),
             'content': serializeParam(excerpt, ParamType.String),
+            'imageUrl': serializeParam(imageUrl, ParamType.String),
+            'articleSlug': serializeParam(slug, ParamType.String),
           }.withoutNulls,
         );
       },
