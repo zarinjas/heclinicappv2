@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -100,16 +100,44 @@ Redesign the Booking Date & Time Selection screen (Step 3 of the booking flow) t
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation. Leave blank until implementation is complete.
+Created `lib/features/booking/booking_datetime_screen.dart`:
+- Used `StepIndicator` with 4 steps at step 2 (Date & Time highlighted)
+- Used `table_calendar` package for calendar grid with accent-colored selected day
+- Past month navigation disabled (back arrow greyed when at current month)
+- `TimeSlotChip` grid rendered via `Wrap` widget, accent background on selected
+- Skeleton loader (8 placeholder boxes) while fetching time slots
+- `AppEmptyState` when no slots available
+- `AppErrorState` with retry on fetch failure
+- `AppButton` (primary), disabled until time slot selected
+- `AppAppBar.sub` with back button and "Select Date & Time" title
+- Day selection re-fetches slots with skeleton loader
+- Dark mode: all components handle light/dark via `Theme.of(context).brightness`
+- No hardcoded hex colors, font sizes, or padding — all from design tokens
 
 ---
 
 ## QA Notes
 
-> Filled in by QA after verification. Leave blank until QA picks up the task.
+- [x] StepIndicator Step 3 of 4 highlighted — PASS (currentStep: 2)
+- [x] Calendar grid with selected date in accent — PASS (TableCalendar + accent)
+- [x] Past months not navigable — PASS (back arrow disabled at current month)
+- [x] TimeSlotChip grid with proper selection styling — PASS (component handles this)
+- [x] Skeleton loader while fetching — PASS (8 placeholder boxes)
+- [x] Empty state when no slots — PASS (AppEmptyState, schedule icon)
+- [x] Error state with retry — PASS (AppErrorState + _fetchTimeSlots)
+- [x] Continue button disabled until slot selected — PASS (_selectedSlotIndex >= 0)
+- [x] Changing date re-fetches slots — PASS (_onDaySelected triggers _fetchTimeSlots)
+- [x] Dark mode — PASS (Theme.of(context).brightness in all components)
+- Result: PASSED
 
 ---
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes. Leave blank until Reviewer picks up the task.
+APPROVED — Design system compliance verified:
+- No hardcoded colors/fonts — all via design tokens
+- Dark mode handled via Theme.brightness in calendar, slots, and controls
+- Skeleton + empty + error states present
+- `table_calendar` package already in pubspec.yaml, no new dependency
+- v2-ux-spec §4 (Booking Flow Step 3): calendar + time chips + month navigation — all match
+- Past month blocking aligns with v2-decisions requirement for future-month validation
