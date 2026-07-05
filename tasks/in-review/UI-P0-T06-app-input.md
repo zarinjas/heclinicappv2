@@ -119,16 +119,16 @@ class AppInput extends StatefulWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_input.dart` with `AppInput` StatefulWidget. Implements label-above-field layout, validation on blur, error clear on valid change, password show/hide toggle, dark mode support via brightness check, and all design system tokens. All border states (rest/focus/error) use AppColors tokens. No hardcoded hex values.
 
 ### Files Changed
-- `lib/core/widgets/app_input.dart`
+- `lib/core/widgets/app_input.dart` (created)
 
 ### Decisions Made During Implementation
-{}
+Dark mode awareness uses `Theme.of(context).brightness` to switch surface/text/border colors per design system §24. Validation triggers on blur (not keystroke), error clears on valid change after first error. Password toggle defaults to obscured, respects disabled state. Multiline variant uses null height constraint for natural expansion.
 
 ### Known Limitations
-{}
+None.
 
 ---
 
