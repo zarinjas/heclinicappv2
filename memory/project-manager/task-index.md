@@ -14,6 +14,12 @@ Last Updated: 2026-07-05
 | P1-T08 | remove-duplicate-profile-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T09 | remove-duplicate-booking-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T10 | remove-hardcoded-doctor-modals | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P2-T01 | laravel-auth-role-setup | 2 | Step 1 | Laravel | laravel-developer | BACKLOG | |
+| P2-T02 | mysql-schema | 2 | Step 2 | Laravel | laravel-developer | BACKLOG | |
+| P2-T03 | branch-management-crud | 2 | Step 3 | Laravel | laravel-developer | BACKLOG | |
+| P2-T04 | doctor-management-crud | 2 | Step 4 | Laravel | laravel-developer | BACKLOG | |
+| P2-T05 | plato-api-proxy-layer | 2 | Step 5 | Laravel | laravel-developer | BACKLOG | |
+| P2-T06 | calendar-setup-systemsetup | 2 | Step 6 | Laravel | laravel-developer | BACKLOG | |
 | P3-T01 | global-api-error-interceptor | 3 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T02 | pagination-helper | 3 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T03 | modified-since-strategy | 3 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
@@ -28,7 +34,7 @@ Last Updated: 2026-07-05
 | P4-T06 | global-states | 4 | Step 6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P5-T01 | verify-booking-flow-prerequisites | 5 | Step 1 | Both | laravel-developer | DONE | 2026-07-05 |
 | P5-T02 | branch-selection-screen | 5 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| P5-T03 | doctor-selection-screen | 5 | Step 3 | Flutter | flutter-developer | IN-PROGRESS | |
+| P5-T03 | doctor-selection-screen | 5 | Step 3 | Flutter | flutter-developer | BLOCKED | |
 | P5-T04 | date-time-slot-selection | 5 | Step 4 | Flutter | flutter-developer | BACKLOG | |
 | P5-T05 | booking-confirmation-screen | 5 | Step 5 | Flutter | flutter-developer | BACKLOG | |
 | P5-T06 | whatsapp-redirect-after-booking | 5 | Step 6 | Flutter | flutter-developer | BACKLOG | |
