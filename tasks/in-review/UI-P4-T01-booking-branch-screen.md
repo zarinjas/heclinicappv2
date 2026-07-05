@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -97,7 +97,18 @@ Redesign the Booking Branch Selection screen (Step 1 of the booking flow) to use
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation. Leave blank until implementation is complete.
+Created `lib/features/booking/booking_branch_screen.dart`:
+- Used `StepIndicator` with 4 steps (Branch, Doctor, Date & Time, Confirm) at step 0
+- Used `BranchCard` vertical list with accent border on selected branch
+- Used `BranchCardSkeleton` (5 items) during loading state
+- Used `AppEmptyState` with location icon when API returns zero branches
+- Used `AppErrorState` with retry button on API failure
+- Used `AppButton` (primary variant), disabled until a branch is selected
+- Used `AppAppBar.sub` with back button and "Select Branch" title
+- API call: `GET ${EnvConfig.laravelBaseUrl}/v2/config/branches` with Bearer token auth
+- Dark mode: all components handle light/dark via `Theme.of(context).brightness`
+- No hardcoded hex colors, font sizes, or padding — all from design tokens
+- `flutter analyze` could not be run (Flutter SDK unavailable in CI), but all imports and component APIs verified against source
 
 ---
 
