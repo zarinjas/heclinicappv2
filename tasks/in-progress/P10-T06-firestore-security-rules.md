@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | N/A (Firestore rules are independent) |
 | Blocked Reason | N/A |
