@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 4 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -126,6 +126,17 @@ Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
 | UI-P3-T06 | doctors-section | Epic UI — Phase 3 | Step 3.6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P3-T07 | health-articles-section | Epic UI — Phase 3 | Step 3.7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P3-T08 | health-videos-section | Epic UI — Phase 3 | Step 3.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P4-T01 | booking-branch-screen | Epic UI — Phase 4 | Step 4.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T02 | booking-doctor-screen | Epic UI — Phase 4 | Step 4.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T03 | booking-datetime-screen | Epic UI — Phase 4 | Step 4.3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T04 | booking-confirm-screen | Epic UI — Phase 4 | Step 4.4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T05 | my-bookings-screen | Epic UI — Phase 4 | Step 4.5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T06 | appointment-detail-screen | Epic UI — Phase 4 | Step 4.6 | Flutter | flutter-developer | BACKLOG | — |
+
+**Phase 4 Dependency Order:**
+- All 6 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
 
 **Phase 3 Dependency Order:**
 - All 8 tasks are parallel (no dependencies between them) once UI-P3-T01 (shell) provides integration slots
