@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use Illuminate\Support\Facades\Route;
@@ -20,5 +21,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::resource('branches', BranchController::class);
         Route::resource('doctors', DoctorController::class);
+        Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
+        Route::resource('calendars', CalendarSetupController::class);
     });
 });

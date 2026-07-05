@@ -17,7 +17,7 @@ Calendar Setup UI — Map Doctors to Plato Calendar Color IDs
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P2-T04 |
 | Blocked Reason | N/A |
@@ -120,16 +120,42 @@ Build the Calendar Setup module in the Admin Panel. Fetch Plato calendar data fr
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+- Created `PlatoSystemSetupService` — fetches and parses calendar entries from `GET /systemsetup` via `PlatoProxyService`
+- Created `CalendarSetupController` with full resource CRUD + sync endpoint (POST /admin/calendars/sync)
+- Created Form Requests: `StorePlatoCalendarRequest`, `UpdatePlatoCalendarRequest`
+- Created 4 Blade views: index (with sync card, search/filter, table, unmapped doctor warning, empty state), create (map doctor to calendar), edit, show
+- Added migration to make `doctor_id` nullable on `plato_calendars` table (required for unlinked synced calendars)
+- Added routes: `Route::resource('calendars', CalendarSetupController::class)` + explicit `POST calendars/sync` before resource
+- Updated admin sidebar: replaced disabled "Calendar Setup (Soon)" placeholder with active navigation link
+- Sync stores parsed calendar entries in `plato_calendars` with `doctor_id = null`, then admin maps to doctors via create form
+- Last sync timestamp stored in `settings` table via `Setting` model
+- Unmapped doctor warning shown on index when active doctors have no calendar mapping
+- Duplicate prevention: sync upserts by `plato_calendar_color_id` + `doctor_id IS NULL`
 
 ### Files Changed
-- {To be filled}
+- `laravel/app/Services/PlatoSystemSetupService.php` — NEW
+- `laravel/app/Http/Controllers/Admin/CalendarSetupController.php` — NEW
+- `laravel/app/Http/Requests/StorePlatoCalendarRequest.php` — NEW
+- `laravel/app/Http/Requests/UpdatePlatoCalendarRequest.php` — NEW
+- `laravel/database/migrations/2026_07_05_000007_make_doctor_id_nullable_on_plato_calendars.php` — NEW
+- `laravel/resources/views/admin/calendars/index.blade.php` — NEW
+- `laravel/resources/views/admin/calendars/create.blade.php` — NEW
+- `laravel/resources/views/admin/calendars/edit.blade.php` — NEW
+- `laravel/resources/views/admin/calendars/show.blade.php` — NEW
+- `laravel/routes/web.php` — MODIFIED (added CalendarSetupController import and routes)
+- `laravel/resources/views/layouts/admin.blade.php` — MODIFIED (Calendar Setup sidebar link)
 
 ### Decisions Made During Implementation
-{To be filled}
+- Made `doctor_id` nullable on `plato_calendars` table via migration — required because sync from Plato creates entries not yet mapped to any doctor
+- Sync stores calendars with `doctor_id = null`; admin uses "Map Calendar" form to link to a doctor
+- Duplicate prevention: checks by `plato_calendar_color_id` + `doctor_id IS NULL` for synced entries
+- Calendars that no longer exist in Plato are set to `is_active = false` (not deleted)
+- Sync results are flashed to session for display in the "Available Plato Calendars" panel on index page
 
 ### Known Limitations
-{To be filled}
+- Calendar sync depends on `PlatoProxyService` which requires valid `PLATO_API_TOKEN` in .env — if not configured, sync will fail with 401
+- The systemsetup endpoint response format may vary; the parser handles `data.calendar`, `data.calendars` arrays and recursively searches for calendar entries
+- No auto-mapping by doctor name match — admin must manually map each calendar to the correct doctor
 
 ---
 

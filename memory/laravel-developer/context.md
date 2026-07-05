@@ -3,10 +3,20 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T05 — Plato API Proxy Layer (IN-REVIEW)
+P2-T06 — Calendar Setup UI (IN-REVIEW)
 
 ## Last Completed Task
-P2-T04 — Doctor Management CRUD (DONE)
+P2-T05 — Plato API Proxy Layer (DONE)
+
+## Implementation Summary — P2-T06
+- `app/Services/PlatoSystemSetupService.php`: fetches `GET /systemsetup` from Plato via `PlatoProxyService`, recursively parses response for calendar entries (looking for `calendar`, `calendars`, or nested arrays), extracts `color` (as `plato_calendar_color_id`) and `name` fields
+- `app/Http/Controllers/Admin/CalendarSetupController.php`: full CRUD resource controller + `sync()` action. Index with search (by name/color ID/doctor), doctor filter, active status filter, sort, pagination. Unmapped doctor warning. Sync upserts calendars with `doctor_id = null`, deactivates stale entries. Last sync timestamp via `Setting` model
+- `app/Http/Requests/StorePlatoCalendarRequest.php`: validates doctor_id (exists), plato_calendar_color_id (required, max 50), name (nullable), is_active (boolean)
+- `app/Http/Requests/UpdatePlatoCalendarRequest.php`: same rules with `sometimes`
+- `database/migrations/2026_07_05_000007_make_doctor_id_nullable_on_plato_calendars.php`: makes `doctor_id` nullable on `plato_calendars` table — required for unlinked synced calendar entries
+- Blade views: index (sync card with last timestamp, Available Plato Calendars panel from session, search/filter/sort table, unmapped doctor amber warning, empty state with sync CTA), create (doctor dropdown, color ID input, name input, active toggle), edit (doctor dropdown with "Unmapped" option, color ID, name, active toggle), show (detail with doctor name, branch, visibility, timestamps)
+- Updated `routes/web.php`: added `CalendarSetupController` import, `POST calendars/sync` route (before resource to avoid route conflict), `Route::resource('calendars')`
+- Updated `layouts/admin.blade.php`: replaced disabled "Calendar Setup (Soon)" span with active route link using `routeIs('admin.calendars.*')` pattern
 
 ## Implementation Summary — P2-T05
 - `config/plato.php`: centralized Plato proxy config (base_url, api_token, timeout, cache TTLs, log_requests, proxy_rate_limit)
