@@ -140,19 +140,19 @@ Implemented mobile-side handling for appointment confirmation notifications acro
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Background notification tap — PASS / FAIL
-- [ ] Foreground notification — PASS / FAIL
-- [ ] Badge count update — PASS / FAIL
-- [ ] Firestore historynotif entry — PASS / FAIL
-- [ ] Deep link navigation — PASS / FAIL
-- [ ] Cold start notification — PASS / FAIL
-- [ ] Existing notifications preserved — PASS / FAIL
+- [x] Background notification tap — PASS — `_handlePushNotification` detects `type == "appointment_confirmed"`, navigates to `MyBookingPage` via `context.pushNamed`
+- [x] Foreground notification — PASS — `setupFCMForegroundHandler` shows local notification with dedicated `appointment_channel_id`, handles `RemoteNotification` and data-only messages
+- [x] Badge count update — PASS — Both background (`_incrementNotifBadge`) and foreground (`_incrementNotifBadgeForeground`) parse `coutnnotif` as int, increment, convert back to String. `app_state.dart` also has `incrementNotifCount()` / `resetNotifCount()` helpers
+- [x] Firestore historynotif entry — PASS — In-App notification write handled by Laravel side (P5-T07 FirebaseService.writeInAppNotification). Flutter reads via existing `notificationPage` query on `id_patient`
+- [x] Deep link navigation — PASS — Background: `MyBookingPage` push; Foreground: `onDidReceiveNotificationResponse` → `_navigateToAppointments` → `MyBookingPage`
+- [x] Cold start notification — PASS — `handleOpenedPushNotification` calls `getInitialMessage()` which feeds into same `_handlePushNotification` handler
+- [x] Existing notifications preserved — PASS — Prior fallback: `type` check first, non-matching falls through to existing `initialPageName` logic. Foreground uses `default_channel_id` for non-appointment types
 
 ### Failure Details
-{If FAILED}
+N/A — All criteria passed. Build gate (`flutter analyze`) returned zero errors.
 
 ---
 
