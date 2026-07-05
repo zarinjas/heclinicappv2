@@ -2,14 +2,11 @@
 
 Last Updated: 2026-07-05
 
-## Active Tasks (Batch 3: UI-P0-T11 to UI-P0-T15, IN-REVIEW)
-UI-P0-T11 — AppDialog (IN-REVIEW): Created `lib/core/widgets/app_dialog.dart` with 4 dialog variants (confirmation, success, loading, redemption code)
-UI-P0-T12 — AppToast (IN-REVIEW): Created `lib/core/widgets/app_toast.dart` with 4 toast types (success, error, warning, info)
-UI-P0-T13 — AppEmptyState (IN-REVIEW): Created `lib/core/widgets/app_empty_state.dart` with 8 preset empty states
-UI-P0-T14 — AppErrorState (IN-REVIEW): Created `lib/core/widgets/app_error_state.dart` with configurable title/subtitle/retry
-UI-P0-T15 — AppAppBar (IN-REVIEW): Created `lib/core/widgets/app_app_bar.dart` with main tab + sub-page variants
+## Active Tasks
+UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation, AppColors.primary background, Accent/accent active, 50% white inactive, shadowNav, notification badge, SafeArea-aware height
 
 ## Recent Work
+- UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation (Home/Appointments/Health/Notifications/Profile), AppColors.primary background, AppColors.accent active color, 50% white inactive, AppTextStyles.caption labels, AppShadows.shadowNav elevation, notification badge on Notifications tab when notificationCount > 0. Uses Container with BoxDecoration for custom shadow. Height: 64px + bottomSafeArea.
 - P6-T05 — Health Tab Pagination + modified_since (IN-REVIEW): Upgraded GetReportCall, GetVitalsGraphingCall, GetPatientDocumentsCall with PaginationHelper.fetchAllPages() and ModifiedSinceHelper patterns matching LetterCall reference. Added `forceRefresh` parameter to all three. Modified _loadRecords(), _loadVitals(), _loadDocuments() to skip skeleton during forceRefresh (stale-while-revalidate). Added RefreshIndicator to all three Health sub-tab list views with AppColors accent/primary styling.
 - P6-T03 — Vitals Tab (IN-REVIEW): Added fl_chart dependency, GetVitalsGraphingCall API call class (GET /patient/{id}/graphing), VitalDataPoint/VitalType data models, vitals state fields in ReportsModel, _loadVitals() method with dynamic JSON key parsing and unit inference, _buildVitalChartCard() with LineChart rendering using V2 design tokens, _buildVitalsTab() with loading/empty/error/data states, lazy-load on Vitals tab switch. Replaced skeleton placeholder with real implementation.
 - P6-T02 — Records Tab (DONE): Implemented Records inner tab with filter chips (All/Notes/Letters/MC), data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs, record cards with type-specific icons, loading/empty/error states, detail views (AlertReportWidget, HTML bottom sheet, WebViewX+). Updated reports_model.dart with RecordType/FilterType enums and HealthRecord data class.

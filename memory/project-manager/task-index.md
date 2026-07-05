@@ -89,7 +89,7 @@ Last Updated: 2026-07-05 (Process 10 tasks added)
 | UI-P0-T13 | app-empty-state | Epic UI — Phase 0 | Step 13 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T14 | app-error-state | Epic UI — Phase 0 | Step 14 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T15 | app-app-bar | Epic UI — Phase 0 | Step 15 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | IN-REVIEW | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:

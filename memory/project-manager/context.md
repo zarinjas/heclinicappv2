@@ -22,7 +22,7 @@ UI-P0-T12 — AppToast (DONE)
 UI-P0-T13 — AppEmptyState (DONE)
 UI-P0-T14 — AppErrorState (DONE)
 UI-P0-T15 — AppAppBar (DONE)
-UI-P0-T16 — AppNavBar (BACKLOG, depends on T04)
+UI-P0-T16 — AppNavBar (IN-REVIEW, depends on T04)
 
 ## Phase 0 Dependency Order:
 T01 → T02 → T03 → T04 → T05-T16 (parallel once T04 done)

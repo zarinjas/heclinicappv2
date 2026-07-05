@@ -10,8 +10,8 @@
 | Process Step | Step 16 of 16 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -130,13 +130,15 @@ class AppNavBar extends StatelessWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `AppNavBar` StatelessWidget in `lib/core/widgets/app_nav_bar.dart`. Implements 5-tab bottom navigation (Home, Appointments, Health, Notifications, Profile) with AppColors.primary background, AppColors.accent active color, 50% white inactive, AppTextStyles.caption labels, AppShadows.shadowNav elevation, and notification badge on index 3 when notificationCount > 0. Uses SafeArea-aware height (64px + bottom padding). No hardcoded hex colors or styles.
 
 ### Files Changed
 - `lib/core/widgets/app_nav_bar.dart`
 
 ### Decisions Made During Implementation
-{}
+- Used Container with BoxDecoration for shadowNav instead of wrapping BottomNavigationBar directly, since BottomNavigationBar's elevation doesn't accept custom BoxShadow lists.
+- Used a private _NavTab class for clean icon mapping.
+- Badge widget uses AppColors.error for the notification dot.
 
 ### Known Limitations
 {}
