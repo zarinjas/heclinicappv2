@@ -17,7 +17,8 @@ Doctor Management Module — CRUD with Visibility Toggle and Plato Facility Link
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
+| Done Date | 2026-07-05 |
 | Parallel | NO |
 | Depends On | P2-T03 |
 | Blocked Reason | N/A |
@@ -182,10 +183,11 @@ N/A
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Covers CRUD + photo upload + bio + visibility toggle (is_visible_in_app default OFF) + Plato facility link as specified in Process 2 Step 4. All in-scope items implemented.
+- v2-ux-spec.md alignment: N/A — Admin panel CRUD, not mobile app UX. Doctor visibility toggle supports P5-T03 booking flow requirement.
 
 ### Rejection Reason
-{If REJECTED}
+N/A
