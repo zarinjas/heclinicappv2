@@ -6,9 +6,14 @@ Last Updated: 2026-07-05 (UI Epic Phase 5 — 4 tasks created in backlog)
 Epic: UI Migration — Phase 5 (Appointments Tab)
 
 ## Active Tasks
-(None — Phase 5 tasks ready in backlog)
+| Task ID | Name | Status |
+|---------|------|--------|
+| UI-P5-T01 | Appointments Tab Shell | IN-PROGRESS |
+| UI-P5-T02 | Upcoming Tab | IN-PROGRESS |
+| UI-P5-T03 | Past Tab | IN-PROGRESS |
+| UI-P5-T04 | Appointment Detail (shared) | IN-PROGRESS |
 
-## Phase 5 — PENDING
+## Phase 5 — IN-PROGRESS
 - 4 tasks created: UI-P5-T01 through UI-P5-T04
 - All tasks are parallel (no dependencies between them)
 - All tasks are Flutter type, assigned to flutter-developer

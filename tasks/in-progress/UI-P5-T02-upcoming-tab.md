@@ -1,17 +1,17 @@
-# Past Appointments Inner Tab
+# Upcoming Appointments Inner Tab
 
 ## Header
 
 | Field | Value |
 |-------|-------|
-| Task ID | UI-P5-T03 |
-| Slug | past-tab |
+| Task ID | UI-P5-T02 |
+| Slug | upcoming-tab |
 | Process | Epic: UI Migration — Phase 5 |
-| Process Step | Step 5.3 |
+| Process Step | Step 5.2 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -20,7 +20,7 @@
 
 ## Description
 
-Implement the Past appointments inner tab content within the Appointments Tab shell. Displays a paginated vertical list of `AppointmentCard` components for completed/cancelled/expired appointments from API. Each card shows the appropriate `AppChip` status chip. Build skeleton, empty, and error states.
+Implement the Upcoming appointments inner tab content within the Appointments Tab shell. Displays a paginated vertical list of `AppointmentCard` components (confirmed/pending appointments from API). Each card shows an "X days to go" badge in the top-right corner. Build skeleton, empty, and error states.
 
 ---
 
@@ -37,18 +37,19 @@ Implement the Past appointments inner tab content within the Appointments Tab sh
 ## Scope
 
 ### In Scope
-- Build Past tab content widget within `lib/features/appointments/appointments_screen.dart`
-- Vertical `ListView` of `AppointmentCard` components for past (completed/cancelled/no-show) appointments from API
-- `AppChip` status chip on each card (Completed, Cancelled, No-Show per appointment status)
-- Skeleton loader (`AppSkeleton`) while fetching past appointment list
-- `AppEmptyState` with calendar illustration and appropriate message when 0 past appointments
+- Build Upcoming tab content widget within `lib/features/appointments/appointments_screen.dart`
+- Vertical `ListView` of `AppointmentCard` components for upcoming (confirmed/pending) appointments from API
+- "X days to go" badge on top-right corner of each card (counts days until appointment date)
+- `AppChip` status chip on each card (Confirmed/Pending per appointment status)
+- Skeleton loader (`AppSkeleton`) while fetching appointment list
+- `AppEmptyState` with calendar illustration and "Book Now" CTA when 0 upcoming appointments
 - `AppErrorState` with retry on API failure
 - Paginated list with scroll-to-load-more support
 - Support dark mode
 - Replace all `FFButtonWidget`, `FlutterFlowTheme`, and inline styles with design tokens
 
 ### Out of Scope
-- Upcoming tab content (separate task UI-P5-T02)
+- Past tab content (separate task UI-P5-T03)
 - Tab switcher shell and navigation (implemented in UI-P5-T01)
 - Appointment Detail navigation (navigate to screen from UI-P5-T04)
 - Cancel/reschedule appointment logic (keep existing business logic)
@@ -58,22 +59,22 @@ Implement the Past appointments inner tab content within the Appointments Tab sh
 ## Technical Spec
 
 ### Files to Create or Modify
-- `lib/features/appointments/appointments_screen.dart` — Add Past tab content widget (inner tab within shell)
-- `lib/core/widgets/appointment_card.dart` — May need past-appointment visual variant (muted/slightly dimmed)
+- `lib/features/appointments/appointments_screen.dart` — Add Upcoming tab content widget (inner tab within shell)
+- `lib/core/widgets/appointment_card.dart` — May need "X days to go" badge variant
 
 ### API Endpoints
 - N/A — Reuse existing appointment listing endpoints from booking flow
-- Filter: completed, cancelled, and no-show appointments with past dates
+- Filter: only confirmed and pending appointments with future dates
 
 ### Data / Schema
 - Existing appointment data models (preserve existing business logic)
 - Appointment fields: id, doctor_name, branch_name, appointment_date, appointment_time, status
 
 ### UI Components
-- `AppointmentCard` (from Phase 1) — with status chip variant, past-appointment styling
-- `AppChip` — status chip (Completed=neutral/grey, Cancelled=red, No-Show=red)
+- `AppointmentCard` (from Phase 1) — with status chip variant, "X days to go" badge
+- `AppChip` — status chip (Confirmed=green, Pending=amber)
 - `AppSkeleton` — shimmer card list preset for loading
-- `AppEmptyState` — calendar illustration + "No past appointments" message
+- `AppEmptyState` — calendar illustration + "Book Now" CTA
 - `AppErrorState` — error icon + message + "Try Again" button
 - `AppTextStyles.bodyLarge` / `bodyMedium` — for date/text content
 
@@ -86,11 +87,11 @@ Implement the Past appointments inner tab content within the Appointments Tab sh
 
 ## Acceptance Criteria
 
-- [ ] Past tab renders a vertical list of `AppointmentCard` components for completed/cancelled/no-show appointments
-- [ ] `AppChip` status chips render with correct colors per status (Completed=grey, Cancelled=red, No-Show=red)
-- [ ] Past appointment cards have slightly muted/dimmed visual treatment compared to upcoming
+- [ ] Upcoming tab renders a vertical list of `AppointmentCard` components for confirmed/pending future appointments
+- [ ] "X days to go" badge displays correctly on top-right corner of each card (counts days from today to appointment date)
+- [ ] `AppChip` status chips render with correct colors per status (Confirmed=green, Pending=amber)
 - [ ] Skeleton loader (shimmer card preset) displays while fetching data
-- [ ] Empty state renders `AppEmptyState` with appropriate illustration and "No past appointments" message
+- [ ] Empty state renders `AppEmptyState` with calendar illustration and "Book Now" CTA
 - [ ] Error state renders `AppErrorState` with retry button on API failure
 - [ ] Pagination works — scrolling to bottom triggers load more if more pages exist
 - [ ] Dark mode renders correctly across all states
