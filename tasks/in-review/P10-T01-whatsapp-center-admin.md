@@ -112,16 +112,24 @@ Build a WhatsApp Center in the Admin Panel that allows Super Admin / Staff to se
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Built WhatsApp Center admin feature: controller, Blade views, routes, and sidebar nav link. Admin can compose WhatsApp messages, select a branch (with pre-configured WhatsApp number), choose single or bulk send mode, and send messages via Plato proxy. Results are displayed after sending with per-recipient status.
 
 ### Files Changed
-{To be filled}
+- `laravel/app/Http/Controllers/Admin/WhatsAppController.php` — NEW: index, fetchPatients (JSON), send actions
+- `laravel/resources/views/admin/whatsapp/index.blade.php` — NEW: compose form with single/bulk modes, result display
+- `laravel/routes/web.php` — MODIFIED: added WhatsApp routes + import
+- `laravel/resources/views/layouts/admin.blade.php` — MODIFIED: added WhatsApp nav link
 
 ### Decisions Made During Implementation
-{To be filled}
+- Combined compose and result into a single `index.blade.php` view (separate `send.blade.php` was unnecessary since results display below the form)
+- Used AJAX `fetchPatients()` endpoint to load patients from Plato on-demand instead of server-side (avoids slow page loads)
+- Bulk send iterates patients client-side via checkboxes; patient data fetched from Plato via proxy
+- Branch selector filters to only branches with non-null non-empty `whatsapp_number`
 
 ### Known Limitations
-{To be filled}
+- Patient data fetching is limited to first page of Plato API (pagination not implemented for patient search)
+- No rate-limiting on bulk sends — large patient lists may hit Plato rate limits
+- No message template/scheduling — out of scope for this task
 
 ---
 

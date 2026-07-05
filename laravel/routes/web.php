@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -45,6 +46,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('notifications.index');
         Route::get('notifications/{notification}', [NotificationController::class, 'show'])
             ->name('notifications.show');
+
+        Route::get('whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.index');
+        Route::post('whatsapp/send', [WhatsAppController::class, 'send'])->name('whatsapp.send');
+        Route::post('whatsapp/fetch-patients', [WhatsAppController::class, 'fetchPatients'])->name('whatsapp.fetch-patients');
 
         Route::prefix('cms')->name('cms.')->group(function (): void {
             Route::resource('sliders', CmsSliderController::class);
