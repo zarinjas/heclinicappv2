@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | UI-P0-T01, UI-P0-T02, UI-P0-T03 |
 | Blocked Reason | N/A |
@@ -107,16 +107,19 @@ Create `lib/core/theme/app_theme.dart` that wires AppColors, AppTextStyles, AppS
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/theme/app_theme.dart` with `AppTheme.lightTheme` and `AppTheme.darkTheme` getters. Wired all AppColors, AppTextStyles, AppRadius, and AppShadows tokens into complete ThemeData configurations including ColorScheme, TextTheme, AppBarTheme, BottomNavigationBarTheme, CardTheme, ChipTheme, ElevatedButtonTheme, and InputDecorationTheme.
 
 ### Files Changed
-- `lib/core/theme/app_theme.dart`
+- `lib/core/theme/app_theme.dart` — created with light + dark ThemeData
 
 ### Decisions Made During Implementation
-{}
+- Used `useMaterial3: true` for modern Flutter design
+- Dark text colors applied via `.copyWith(color: ...)` on AppTextStyles base styles
+- `scrolledUnderElevation: 0` for AppBarTheme to match design spec
+- Used `Colors.white70` (light) and `Colors.white54` (dark) for unselected nav items matching opacity spec
 
 ### Known Limitations
-{}
+None
 
 ---
 
