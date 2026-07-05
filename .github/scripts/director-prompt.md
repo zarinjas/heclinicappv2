@@ -7,7 +7,7 @@ Follow the rules in ai-workflow/director.md exactly.
 ## REPOSITORY STRUCTURE
 - lib/ — Flutter mobile app (Dart)
 - laravel/ — Laravel Admin Panel (PHP)
-- docs/ — Project documentation (CODEBASE.md, v2-decisions.md, v2-ux-spec.md, api-guidelines.md)
+- docs/ — Project documentation (CODEBASE.md, v2-decisions.md, v2-ux-spec.md, api-guidelines.md, ui-design-system.md, ui-migration-plan.md, ui-epic.md)
 - ai-workflow/ — Agent rules
 - memory/ — Agent state files
 - tasks/ — Task files (backlog/, in-progress/, in-review/, done/, blocked/)
@@ -50,19 +50,29 @@ When ALL current process tasks are in tasks/done/ and no tasks remain in backlog
    - Process 8 — Notifications Module (Laravel + Firebase)
    - Process 9 — CMS Module (Laravel + Flutter)
    - Process 10 — Polish and Remaining Features (Mixed)
-4. Skip any process whose tasks are ALL already in tasks/done/
-5. For the next process, create ONE task file per step listed in v2-decisions.md:
-   - Filename: tasks/backlog/P{N}-T{NN}-{slug}.md (e.g., P3-T01-global-error-interceptor.md)
+   - Epic: UI Migration — Full redesign (Flutter only) ← runs after all Processes done
+4. Skip any process/epic whose tasks are ALL already in tasks/done/
+5. If the NEXT item is a regular Process, create ONE task file per step listed in v2-decisions.md:
+   - Filename: tasks/backlog/P{N}-T{NN}-{slug}.md
    - Use ai-workflow/task-template.md format
    - Fill ALL sections: Header, Description, Context, Scope, Technical Spec, Acceptance Criteria
    - Type: Flutter or Laravel (based on what the task changes)
    - Assigned To: flutter-developer or laravel-developer
    - Reference specific docs sections, file paths, and code from the existing codebase
    - Write 3-8 specific testable acceptance criteria per task
-6. Update memory/project-manager/task-index.md with ALL new tasks
-7. Update memory/project-manager/context.md — set "Current Process" to the new one
-8. Commit: git add -A && git commit -m "ai: create Process {N} tasks" && git push origin main
-9. Then proceed to Phase 3 with the first task from the new process
+6. If the NEXT item is the UI Migration Epic:
+   - Read docs/ui-epic.md — this is the authoritative Epic definition
+   - Read docs/ui-migration-plan.md for the full screen inventory
+   - Read docs/ui-design-system.md for all design tokens and component specs
+   - Create tasks for Epic Phase 0 first (all 16 tasks: UI-P0-T01 to UI-P0-T16)
+   - Filename: tasks/backlog/UI-P{phase}-T{NN}-{slug}.md (e.g., UI-P0-T01-app-colors.md)
+   - After Phase 0 tasks are all DONE, create Phase 1 tasks (UI-P1-T01 to UI-P1-T18)
+   - After Phase 1 tasks are all DONE, create Phase 2 tasks, then 3, etc.
+   - Each task references: docs/ui-design-system.md, docs/ui-migration-plan.md, docs/design-system-v2.png
+7. Update memory/project-manager/task-index.md with ALL new tasks
+8. Update memory/project-manager/context.md — set "Current Process/Epic" to the new one
+9. Commit: git add -A && git commit -m "ai: create Process {N} / Epic UI tasks" && git push origin main
+10. Then proceed to Phase 3 with the first task from the new process/epic
 
 ## PHASE 3 — Process Task Through Full Lifecycle (LOOP)
 Process the selected task through EVERY applicable stage in a single run. Do NOT stop after one stage — loop through all stages until DONE.
@@ -77,6 +87,24 @@ If task is in tasks/backlog/:
 ### Node 2 — IMPLEMENT (IN-PROGRESS → IN-REVIEW)
 If task is in tasks/in-progress/ and assigned to flutter-developer:
   - Act as Flutter Developer. Read task file, docs/CODEBASE.md, docs/v2-ux-spec.md, docs/v2-decisions.md
+  - **IF this is a UI task (any task with ID starting with UI-P or any task involving screens/components/widgets):**
+    - ALSO read: docs/ui-design-system.md (design tokens), docs/ui-migration-plan.md (migration plan), docs/design-system-v2.png (visual target)
+    - These three documents are the PERMANENT SOURCE OF TRUTH for all UI implementation
+    - **Existing component audit** — before building anything:
+      * Read the existing implementation if it exists
+      * Compare it against docs/ui-design-system.md spec (colors, typography, spacing, structure)
+      * If FULLY COMPLIANT: reuse it, note compliance in Implementation Notes
+      * If NON-COMPLIANT: rebuild to spec — do NOT patch or force compatibility
+      * Preserve business logic. Replace UI only.
+    - **Design system compliance** — all UI code MUST:
+      * Use AppColors.X (never hardcoded hex like `Color(0xFF...)`)
+      * Use AppTextStyles.X (never hardcoded `TextStyle(fontSize: ...)`)
+      * Use AppSpacing.X constants (never hardcoded padding values)
+      * Use AppRadius.X constants (never hardcoded `BorderRadius.circular(...)`)
+      * Use AppShadows.X (never hardcoded `BoxShadow(...)`)
+      * Use AppButton/AppInput/AppCard/AppChip instead of one-off widgets
+      * Support both light and dark mode (test `ThemeMode.dark`)
+      * Include skeleton loader, empty state, and error state on every list/content screen
   - Implement ONLY what the task specifies — no scope creep. Write actual Dart code using the Edit tool.
   - **BEFORE moving to in-review/**: run `flutter analyze 2>&1 | grep -E "^\s*error\s*•"` — MUST return zero output (zero compile errors).
     - If ANY compile error exists, FIX IT before proceeding. Common errors:
@@ -110,6 +138,13 @@ If task is in tasks/in-review/ and QA Notes section is empty:
 ### Node 4 — REVIEWER (IN-REVIEW → DONE)
 If task is in tasks/in-review/ and QA Notes show PASSED:
   - Act as Reviewer. Check alignment with v2-decisions.md and v2-ux-spec.md.
+  - **IF this is a UI task (ID starts with UI-P or involves screens/widgets):**
+    - ALSO check alignment with docs/ui-design-system.md
+    - Verify: no hardcoded colors/sizes/spacing outside token constants
+    - Verify: AppButton/AppInput/AppCard used (not one-off styled widgets)
+    - Verify: dark mode supported
+    - Verify: skeleton + empty + error states implemented
+    - Any non-compliance with ui-design-system.md = REJECTED (not just warned)
   - If APPROVED: set status=DONE, move to tasks/done/
   - If REJECTED: move back to tasks/in-progress/ with reason
   - Update memory/reviewer/context.md. Commit and push to main. Then go back and check Node 5.
