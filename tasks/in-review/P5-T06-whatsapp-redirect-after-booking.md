@@ -119,16 +119,33 @@ Note: WhatsApp deep link uses international format without +, spaces, or dashes.
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+- Added `selectedBranchWhatsApp` field to `BookingFlowModel` to store per-branch WhatsApp number
+- Added `phone` field to `BranchItem` and wired it through branch selection flow
+- Added `telephone` JSON field extractor to `GetproviderCall` API class
+- Created `lib/utils/whatsapp_helper.dart` with `buildPreFilledMessage()`, `buildDeepLink()`, and `getWhatsAppInstallUrl()` utilities
+- Replaced stub `_onBookViaWhatsApp` in confirmation screen with real WhatsApp deep-link implementation
+- Added error handling: shows dialog when WhatsApp is not installed with "Install WhatsApp" option
+- Pre-filled message follows exact format from v2-ux-spec.md (line 557-569)
+- WhatsApp number is dynamic per branch (not hardcoded)
 
 ### Files Changed
-- {To be filled}
+- `lib/pages/booking/booking_flow_model.dart` — added `_selectedBranchWhatsApp` field + parameter to `selectBranch()`
+- `lib/pages/booking/branch_selection_screen.dart` — added `phone` to `BranchItem`, extract from API, pass to model
+- `lib/utils/whatsapp_helper.dart` — new file: WhatsApp deep-link construction utilities
+- `lib/backend/api_requests/api_calls.dart` — added `telephone` static getter to `GetproviderCall`
+- `lib/pages/booking/confirmation_screen.dart` — replaced stub with full WhatsApp redirect implementation
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used `url_launcher` (already present in pubspec.yaml) for launching WhatsApp deep links
+- Phone number is extracted from Plato API `$[:].telephone` field; if not present, branch phone will be empty and user sees snackbar
+- WhatsApp deep link uses `LaunchMode.externalApplication` to open in WhatsApp app directly
+- `canLaunchUrl()` is used to detect WhatsApp availability before attempting launch
+- Error dialog includes "Install WhatsApp" button that opens the appropriate app store
 
 ### Known Limitations
-{To be filled}
+- WhatsApp number depends on Plato API returning a `telephone` field; if the API does not include this field, branch phone will be empty
+- `WhatsAppHelper.isWhatsAppAvailable` is a stub that always returns true (actual detection uses `canLaunchUrl`)
+- On web platform, WhatsApp deep linking may not work as expected
 
 ---
 

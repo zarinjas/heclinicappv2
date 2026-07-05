@@ -47,6 +47,7 @@ class _BranchSelectionScreenWidgetState
         final ids = GetproviderCall.id(response.jsonBody) ?? [];
         final names = GetproviderCall.name(response.jsonBody) ?? [];
         final nrics = GetproviderCall.nric(response.jsonBody) ?? [];
+        final telephones = GetproviderCall.telephone(response.jsonBody) ?? [];
 
         final branches = <BranchItem>[];
         for (int i = 0; i < ids.length; i++) {
@@ -56,6 +57,7 @@ class _BranchSelectionScreenWidgetState
             address: i < nrics.length ? nrics[i] : '',
             image: '',
             hours: '',
+            phone: i < telephones.length ? telephones[i] : '',
           ));
         }
 
@@ -94,6 +96,7 @@ class _BranchSelectionScreenWidgetState
       image: branch.image,
       address: branch.address,
       hours: branch.hours,
+      whatsApp: branch.phone,
     );
   }
 
@@ -558,6 +561,7 @@ class BranchItem {
   final String address;
   final String image;
   final String hours;
+  final String phone;
 
   BranchItem({
     required this.id,
@@ -565,5 +569,6 @@ class BranchItem {
     required this.address,
     required this.image,
     required this.hours,
+    this.phone = '',
   });
 }

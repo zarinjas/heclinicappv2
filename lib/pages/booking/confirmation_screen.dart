@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '/app_state.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
+import '/utils/whatsapp_helper.dart';
 import 'booking_flow_model.dart';
 
 class BookingConfirmationScreenWidget extends StatelessWidget {
@@ -41,13 +43,92 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
         : 'No Preference';
   }
 
-  void _onBookViaWhatsApp(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'WhatsApp booking will be available in the next update.',
+  Future<void> _onBookViaWhatsApp(BuildContext context) async {
+    final bookingModel = BookingFlowModel();
+    final appState = FFAppState();
+
+    final whatsAppNumber = bookingModel.selectedBranchWhatsApp;
+    if (whatsAppNumber.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('WhatsApp number not available for this branch.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    final doctorDisplay = _getDoctorDisplay(bookingModel);
+    final formattedDate = bookingModel.selectedDate != null
+        ? _formatDate(bookingModel.selectedDate!)
+        : 'Not selected';
+    final formattedTime = bookingModel.selectedTime.isNotEmpty
+        ? _formatTime(bookingModel.selectedTime)
+        : 'Not selected';
+    final patientName = appState.name.isNotEmpty ? appState.name : '—';
+    final patientNric = appState.nationalman.isNotEmpty
+        ? appState.nationalman
+        : '—';
+
+    final message = WhatsAppHelper.buildPreFilledMessage(
+      branchName: bookingModel.selectedBranchName,
+      patientName: patientName,
+      patientNric: patientNric,
+      doctorName: doctorDisplay,
+      date: formattedDate,
+      time: formattedTime,
+    );
+
+    final deepLink = WhatsAppHelper.buildDeepLink(
+      phoneNumber: whatsAppNumber,
+      message: message,
+    );
+
+    final uri = Uri.parse(deepLink);
+
+    try {
+      final canLaunch = await canLaunchUrl(uri);
+      if (!canLaunch && context.mounted) {
+        _showWhatsAppNotInstalledDialog(context);
+        return;
+      }
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      if (context.mounted) {
+        _showWhatsAppNotInstalledDialog(context);
+      }
+    }
+  }
+
+  void _showWhatsAppNotInstalledDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('WhatsApp Not Found'),
+        content: const Text(
+          'WhatsApp is not installed. Please install WhatsApp to complete your booking.',
         ),
-        duration: Duration(seconds: 2),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              final installUrl = WhatsAppHelper.getWhatsAppInstallUrl();
+              try {
+                await launchUrl(
+                  Uri.parse(installUrl),
+                  mode: LaunchMode.externalApplication,
+                );
+              } catch (_) {}
+            },
+            child: const Text('Install WhatsApp'),
+          ),
+        ],
       ),
     );
   }

@@ -818,6 +818,15 @@ class GetproviderCall {
           .map((x) => castToType<String>(x))
           .withoutNulls
           .toList();
+  static List<String>? telephone(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].telephone''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
 }
 
 class DeletePatientForAdminOnlyCall {
