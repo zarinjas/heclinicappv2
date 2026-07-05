@@ -1,0 +1,82 @@
+# QuickActionGrid Component
+
+## Header
+
+| Field | Value |
+|-------|-------|
+| Task ID | UI-P1-T08 |
+| Slug | quick-action-grid |
+| Process | Epic UI — Phase 1: Feature Components |
+| Process Step | Step 8 |
+| Type | Flutter |
+| Assigned To | flutter-developer |
+| Assigned Date | 2026-07-05 |
+| Status | BACKLOG |
+| Parallel | YES |
+| Depends On | N/A |
+| Blocked Reason | N/A |
+
+---
+
+## Description
+
+Build the `QuickActionGrid` reusable component for the Home screen 2×2 quick actions section. Displays 4 quick action cards (Book Appointment, Find Branch, etc.) in a grid with icons, labels, and tap navigation.
+
+---
+
+## Context
+
+- `docs/ui-design-system.md` — §7 (Icons — Quick action card icons)
+- `docs/ui-migration-plan.md` — Phase 1, §1.8 (QuickActionGrid), Phase 3 (Home — Quick Actions section)
+- `docs/ui-epic.md` — Phase 1 compliance rules
+- `docs/design-system-v2.png` — visual target
+- `docs/v2-ux-spec.md` — Home screen quick actions
+
+---
+
+## Scope
+
+### In Scope
+- `lib/core/widgets/quick_action_grid.dart` — new file
+- 2×2 `GridView` of quick action cards
+- Each card: 28px filled Material icon in accent color, label in `body2` style
+- Cards styled with `AppCard` base (surface bg, `shadowLow`, `radiusLG`)
+- Configurable actions list (icon, label, onTap) passed as constructor param
+- Skeleton loader: 4 shimmer card rects in 2×2 grid
+
+### Out of Scope
+- Action routing logic (onTap callbacks defined by parent screen)
+- Dynamic action configuration (static set defined by parent)
+- CMS-driven action management
+
+---
+
+## Technical Spec
+
+### Files to Create or Modify
+- `lib/core/widgets/quick_action_grid.dart` — new file
+
+### Design Spec
+- Cards: `AppRadius.lg`, `AppShadows.low`, surface background
+- Icons: 28px, filled, `AppColors.accent`
+- Labels: `AppTextStyles.body2`, `AppColors.primary`
+- Grid: 2 columns, equal spacing using `AppSpacing`
+
+### Constraints
+- Design tokens only
+- Dark mode support
+- Skeleton loader defined
+
+---
+
+## Acceptance Criteria
+
+- [ ] Grid renders as 2×2 layout with equal-sized cards
+- [ ] Each card displays a 28px filled Material icon in accent color centered above label
+- [ ] Labels render in body2 style
+- [ ] Cards use surface background, shadowLow, radiusLG from design tokens
+- [ ] Each card fires its individual onTap callback on press
+- [ ] Skeleton loader renders 4 shimmer card rects in 2×2 grid layout
+- [ ] Dark mode renders correctly
+- [ ] No hardcoded design tokens
+- [ ] `flutter analyze` returns zero errors

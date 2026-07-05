@@ -1,28 +1,36 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (Epic UI Migration — Phase 0 COMPLETE)
+Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created — 18 BACKLOG tasks)
 
 ## Current Process
-Epic: UI Migration — Phase 0: Design System Foundation (COMPLETE — all 16 tasks DONE)
+Epic: UI Migration — Phase 1: Feature Components (18 tasks in BACKLOG)
 
 ## Active Tasks
-**Epic UI Migration — Phase 0 (BATCH 3: T11-T15 IN-PROGRESS, 12 of 16 complete):**
-UI-P0-T01 — AppColors (DONE)
-UI-P0-T02 — AppTextStyles (DONE)
-UI-P0-T03 — AppSpacing + AppRadius + AppShadows (DONE)
-UI-P0-T04 — AppTheme (DONE)
-UI-P0-T05 — AppButton (DONE)
-UI-P0-T06 — AppInput (DONE)
-UI-P0-T07 — AppCard (DONE)
-UI-P0-T08 — AppChip (DONE)
-UI-P0-T09 — AppSkeleton (DONE)
-UI-P0-T10 — AppBottomSheet (DONE)
-UI-P0-T11 — AppDialog (DONE)
-UI-P0-T12 — AppToast (DONE)
-UI-P0-T13 — AppEmptyState (DONE)
-UI-P0-T14 — AppErrorState (DONE)
-UI-P0-T15 — AppAppBar (DONE)
-UI-P0-T16 — AppNavBar (DONE)
+**Epic UI Migration — Phase 1 (0 of 18 complete):**
+UI-P1-T01 — AppointmentCard (BACKLOG)
+UI-P1-T02 — DoctorCard (BACKLOG)
+UI-P1-T03 — ArticleCard (BACKLOG)
+UI-P1-T04 — VideoCard (BACKLOG)
+UI-P1-T05 — LoyaltyCard (BACKLOG)
+UI-P1-T06 — HealthRecordCard (BACKLOG)
+UI-P1-T07 — HeroSlider (BACKLOG)
+UI-P1-T08 — QuickActionGrid (BACKLOG)
+UI-P1-T09 — StepIndicator (BACKLOG)
+UI-P1-T10 — OtpInputRow (BACKLOG)
+UI-P1-T11 — SectionHeader (BACKLOG)
+UI-P1-T12 — NotificationItem (BACKLOG)
+UI-P1-T13 — TransactionItem (BACKLOG)
+UI-P1-T14 — BranchCard (BACKLOG)
+UI-P1-T15 — TimeSlotChip (BACKLOG)
+UI-P1-T16 — VitalsChart (BACKLOG)
+UI-P1-T17 — DocumentItem (BACKLOG)
+UI-P1-T18 — OfflineBanner (BACKLOG)
+
+## Phase 1 Notes
+- All 18 tasks are parallel (no dependencies between them) once Phase 0 is complete
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-design-system.md, docs/ui-migration-plan.md, docs/design-system-v2.png
+- Phase 1 must complete before Phases 2-10 screen migrations begin
 
 ## Phase 0 Dependency Order:
 T01 → T02 → T03 → T04 → T05-T16 (parallel once T04 done)

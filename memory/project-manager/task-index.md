@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (Process 10 tasks added)
+Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -90,6 +90,24 @@ Last Updated: 2026-07-05 (Process 10 tasks added)
 | UI-P0-T14 | app-error-state | Epic UI — Phase 0 | Step 14 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T15 | app-app-bar | Epic UI — Phase 0 | Step 15 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P1-T01 | appointment-card | Epic UI — Phase 1 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T02 | doctor-card | Epic UI — Phase 1 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T03 | article-card | Epic UI — Phase 1 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T04 | video-card | Epic UI — Phase 1 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T05 | loyalty-card | Epic UI — Phase 1 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T06 | health-record-card | Epic UI — Phase 1 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T07 | hero-slider | Epic UI — Phase 1 | Step 7 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T08 | quick-action-grid | Epic UI — Phase 1 | Step 8 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T09 | step-indicator | Epic UI — Phase 1 | Step 9 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T10 | otp-input-row | Epic UI — Phase 1 | Step 10 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T11 | section-header | Epic UI — Phase 1 | Step 11 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T12 | notification-item | Epic UI — Phase 1 | Step 12 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T13 | transaction-item | Epic UI — Phase 1 | Step 13 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T14 | branch-card | Epic UI — Phase 1 | Step 14 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T15 | time-slot-chip | Epic UI — Phase 1 | Step 15 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T16 | vitals-chart | Epic UI — Phase 1 | Step 16 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T17 | document-item | Epic UI — Phase 1 | Step 17 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T18 | offline-banner | Epic UI — Phase 1 | Step 18 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
