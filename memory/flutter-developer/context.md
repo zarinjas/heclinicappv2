@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Tasks
-UI-P2-T06 — Register Step 2 (IN-REVIEW)
+UI-P2-T07 — Forgot Email (BACKLOG)
 
 ## Recent Work
-- UI-P2-T06 — Register Step 2 (IN-REVIEW): Created `lib/features/auth/register_step2_screen.dart` with password/confirm password fields (AppInput isPassword), 4-segment strength indicator, terms/privacy checkbox, AppButton.primary for registration using existing RegisterCall API, back button to step 1, AppErrorState for failures. Dark mode support with all design tokens.
+- UI-P2-T06 — Register Step 2 (DONE): Created `lib/features/auth/register_step2_screen.dart` with password/confirm password fields (AppInput isPassword), 4-segment strength indicator, terms/privacy checkbox, AppButton.primary for registration using existing RegisterCall API, back button to step 1, AppErrorState for failures. Dark mode support with all design tokens.
 - UI-P1-T11 — SectionHeader (DONE): Created `lib/core/widgets/section_header.dart` — StatelessWidget with title + optional "See All" link. Uses AppTextStyles.heading2 with AppColors.primary (light) / AppColors.textPrimaryDark (dark) for title, AppTextStyles.label with AppColors.accent for "See All", AppSpacing.space16 horizontal padding, hidden when onSeeAll is null.
 - UI-P1-T10 — OtpInputRow (DONE): Created `lib/core/widgets/otp_input_row.dart` with per-digit animation, pasting support, keyboard dismissal.
 - UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation (Home/Appointments/Health/Notifications/Profile), AppColors.primary background, AppColors.accent active color, 50% white inactive, AppTextStyles.caption labels, AppShadows.shadowNav elevation, notification badge on Notifications tab when notificationCount > 0. Uses Container with BoxDecoration for custom shadow. Height: 64px + bottomSafeArea.
