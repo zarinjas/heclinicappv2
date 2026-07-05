@@ -90,5 +90,14 @@ Verified 2026-07-05:
 
 QA Result: PASSED (8/8)
 
+## Reviewer Notes
+Reviewed 2026-07-05:
+
+- **v2-decisions.md alignment**: Confirmed — Process 1 Step 3 (Track B code cleanup). 17 duplicative modal components consolidated into single reusable widget. No scope creep. Aligns with Process 4 goal of dynamic doctor list.
+- **v2-ux-spec.md alignment**: Confirmed — Section 4 Doctor Detail bottom sheet layout matches: handle bar, centered photo, name/specialty/branch, About heading, bio, Book Appointment button with spec colors.
+- **Code quality**: Clean imports, zero orphaned references, follows existing FlutterFlow patterns.
+
+Decision: APPROVED
+
 ## Status
-IN-REVIEW
+DONE
