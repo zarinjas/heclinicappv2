@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -88,3 +88,23 @@ Build the `OtpInputRow` reusable component for OTP code entry. Used in Forgot Pa
 - [ ] Dark mode renders boxes with correct surface/dark bg colors
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/otp_input_row.dart`:
+- `OtpInputRow` StatefulWidget: configurable `length` (default 6), `onCompleted`, `onChanged`, `hasError` flag
+- 6 OTP boxes: 48×52px, 12px border radius (AppRadius.radiusMD), surface background, evenly spaced via spaceEvenly
+- Each box is a `TextField` with `TextInputType.number`, `maxLength: 1`, `FilteringTextInputFormatter.digitsOnly`
+- Auto-advance: on digit input, focus moves to next box; when all 6 filled, calls `onCompleted`
+- Backspace: `KeyboardListener` detects backspace on empty box, clears previous box and moves focus
+- Paste: on input length > 1, parses digits and fills all boxes simultaneously
+- Error state: `hasError=true` renders error-colored borders on all boxes
+- Dark mode: surfaceDark background, textPrimaryDark text
+- All tokens: AppColors, AppRadius, AppSpacing, AppTextStyles. No hardcoded values.
+- `flutter analyze` passed with zero errors
+
+---
+
+## QA Notes
