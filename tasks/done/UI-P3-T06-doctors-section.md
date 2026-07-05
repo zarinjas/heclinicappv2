@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell) |
 | Blocked Reason | N/A |
@@ -133,12 +133,20 @@ Implement the "Our Doctors" horizontal scroll section on the home screen using t
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+- [x] Doctors section displays a horizontal scrollable list of `DoctorCard` components
+- [x] Only doctors with `is_visible_in_app = true` are shown — GetDoctorsCall.call(visible: true)
+- [x] `AppSkeleton` shimmer (3-4 placeholder cards) is displayed while loading — DoctorCardSkeleton x4
+- [x] Section is hidden when 0 visible doctors exist — SizedBox.shrink() guard
+- [x] "See All" tap navigates to All Doctors list screen — AllDoctorWidget.routeName
+- [x] Tapping a doctor card opens DoctorDetailBottomSheet — DoctorDetailSheet.show()
+- [x] No hardcoded doctor modal components are referenced from the home screen — removed DoctorListWidget
+- [x] `flutter analyze` passes with zero errors
 
 ### Failure Details
-
+(None)
 
 ---
 
@@ -147,9 +155,13 @@ Implement the "Our Doctors" horizontal scroll section on the home screen using t
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
-### Rejection Reason
-
+- Design system compliance: DoctorCard uses AppColors/AppTextStyles/AppSpacing/AppRadius internally ✓
+- No hardcoded hex colors or sizes outside token constants ✓
+- DoctorCard (Phase 1) used instead of old DoctorCardWidget ✓
+- SectionHeader, AppErrorState used (design system components) ✓
+- Dark mode: DoctorCard handles internally ✓
+- Skeleton + error states implemented; empty state hides section ✓
+- flutter analyze: zero errors ✓
