@@ -121,16 +121,25 @@ Plato `/queue/status` response (from api-guidelines.md):
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created Queue Tracker screen in Flutter. New screen displays queue number (hero card with gradient), estimated wait time, current serving number, and status. Includes skeleton loader, empty state (no active queue), error state with retry, and pull-to-refresh. Entry point added to Appointments screen app bar as an icon button. API call uses `GET /queue/status` via Laravel proxy (Plato).
 
 ### Files Changed
-{To be filled}
+- `lib/backend/api_requests/api_calls.dart` — ADDED: `GetQueueStatusCall` class with call() and response field extractors
+- `lib/pages/queue/queue_tracker_screen.dart` — NEW: full screen with skeleton/empty/error/data states
+- `lib/pages/appointments/appointments_screen.dart` — MODIFIED: added Queue Tracker icon button in app bar actions
+- `lib/index.dart` — MODIFIED: added QueueTrackerScreenWidget export
+- `lib/flutter_flow/nav/nav.dart` — MODIFIED: added FFRoute for `/queue-tracker`
 
 ### Decisions Made During Implementation
-{To be filled}
+- Queue hero card uses gradient: accent when currently serving, primary when waiting
+- Entry point is an icon button in Appointments screen app bar (minimal disruption to existing UI)
+- API call uses `EnvConfig.platomBaseUrl` which routes through Laravel proxy
+- Pull-to-refresh uses standard `RefreshIndicator` with `AlwaysScrollableScrollPhysics`
 
 ### Known Limitations
-{To be filled}
+- No real-time updates — polling via pull-to-refresh only
+- No push notification for queue status changes
+- Queue check-in/registration is handled by Plato, not this screen
 
 ---
 

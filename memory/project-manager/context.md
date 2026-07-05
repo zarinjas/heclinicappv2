@@ -8,7 +8,7 @@ Process 10 — Polish and Remaining Features (ACTIVE)
 ## Active Tasks
 **Process 10 — Polish and Remaining Features (NEW):**
 P10-T01 — WhatsApp Center — Admin Panel (DONE)
-P10-T02 — Queue Tracker — Mobile App (IN-PROGRESS)
+P10-T02 — Queue Tracker — Mobile App (IN-REVIEW)
 P10-T03 — Payment History — Mobile App (BACKLOG)
 P10-T04 — Analytics Dashboard — Admin Panel (BACKLOG)
 P10-T05 — Role and Permission Audit (BACKLOG)

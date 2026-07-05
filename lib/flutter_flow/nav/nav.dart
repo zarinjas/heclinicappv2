@@ -168,6 +168,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : const AppointmentsScreenWidget(),
         ),
         FFRoute(
+          name: QueueTrackerScreenWidget.routeName,
+          path: QueueTrackerScreenWidget.routePath,
+          builder: (context, params) => const QueueTrackerScreenWidget(),
+        ),
+        FFRoute(
           name: RegisterPageWidget.routeName,
           path: RegisterPageWidget.routePath,
           builder: (context, params) => RegisterPageWidget(),

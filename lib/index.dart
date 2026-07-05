@@ -50,3 +50,5 @@ export '/pages/booking/confirmation_screen.dart'
     show BookingConfirmationScreenWidget;
 export '/pages/appointments/appointments_screen.dart'
     show AppointmentsScreenWidget;
+export '/pages/queue/queue_tracker_screen.dart'
+    show QueueTrackerScreenWidget;

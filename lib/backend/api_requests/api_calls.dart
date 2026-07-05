@@ -35,6 +35,7 @@ class MedicalAppsApiGroup {
   static GetMedicalCertificateCall getMedicalCertificateCall =
       GetMedicalCertificateCall();
   static ForgotchangeCall forgotchangeCall = ForgotchangeCall();
+  static GetQueueStatusCall getQueueStatusCall = GetQueueStatusCall();
 }
 
 class RegisterCall {
@@ -2311,6 +2312,35 @@ class GetPatientDocumentsCall {
           .map((x) => castToType<int>(x))
           .withoutNulls
           .toList();
+}
+
+class GetQueueStatusCall {
+  Future<ApiCallResponse> call() async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetQueueStatus',
+      apiUrl: '${EnvConfig.platomBaseUrl}/queue/status',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  String? queueNumber(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.queue_number'''));
+  String? patientName(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.patient_name'''));
+  String? status(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.status'''));
+  String? estimatedWait(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.estimated_wait'''));
+  String? currentServing(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.current_serving'''));
 }
 
 class ApiPagingParams {
