@@ -139,7 +139,6 @@ final parametersBuilderMap =
   'MyBookingPage': ParameterData.none(),
   'RegisterPage': ParameterData.none(),
   'onBoarding': ParameterData.none(),
-  'RegisterPageCopy': ParameterData.none(),
   'SplashScreen': ParameterData.none(),
   'allDoctor': ParameterData.none(),
   'servicePackage': ParameterData.none(),

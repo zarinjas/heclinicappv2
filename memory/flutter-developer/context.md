@@ -6,7 +6,7 @@ Last Updated: 2026-07-05
 None.
 
 ## Last Completed Task
-P1-T06 (remove-duplicate-api-call-classes) — IN-REVIEW. Deleted `GetPatientbyidCopyCall` class from api_calls.dart (duplicate of GetPatientbyidCall). Renamed `LetterCopyCall` → `GetInvoiceCall` in api_calls.dart. Updated 12 call sites in reports_widget.dart and 4 in visits_widget.dart. Verified zero remaining references to old class names.
+P1-T07 (remove-duplicate-auth-pages) — IN-REVIEW. Confirmed RegisterPageWidget is the active route (not RegisterPageCopy). Removed RegisterPageCopyWidget route from nav.dart, export from index.dart, and entry from push_notifications_handler.dart. Deleted register_page_copy/ directory. Verified zero remaining references across lib/.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)

@@ -162,11 +162,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: OnBoardingWidget.routePath,
           builder: (context, params) => OnBoardingWidget(),
         ),
-        FFRoute(
-          name: RegisterPageCopyWidget.routeName,
-          path: RegisterPageCopyWidget.routePath,
-          builder: (context, params) => RegisterPageCopyWidget(),
-        ),
+
         FFRoute(
           name: SplashScreenWidget.routeName,
           path: SplashScreenWidget.routePath,
