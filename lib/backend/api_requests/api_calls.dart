@@ -364,18 +364,14 @@ class SlidersCall {
 }
 
 class ServicesPackagesCall {
-  Future<ApiCallResponse> call({
-    String? authorization = '',
-  }) async {
-    final baseUrl = MedicalAppsApiGroup.getBaseUrl();
+  Future<ApiCallResponse> call() async {
+    final baseUrl = EnvConfig.laravelBaseUrl;
 
     return ApiManager.instance.makeApiCall(
-      callName: 'ServicesPackages',
-      apiUrl: '${baseUrl}/servicepackages',
+      callName: 'CmsServicePackages',
+      apiUrl: '${baseUrl}/v2/cms/service-packages',
       callType: ApiCallType.GET,
-      headers: {
-        'Authorization': '${authorization}',
-      },
+      headers: {},
       params: {},
       returnBody: true,
       encodeBodyUtf8: false,
@@ -385,6 +381,52 @@ class ServicesPackagesCall {
       alwaysAllowBody: false,
     );
   }
+
+  List<int>? id(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<int>(x))
+          .withoutNulls
+          .toList();
+  List<String>? name(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].name''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  List<String>? description(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].description''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  List<String>? image(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].image''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  List<int>? sortOrder(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].sort_order''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<int>(x))
+          .withoutNulls
+          .toList();
 }
 
 class CreateAppointmentCall {

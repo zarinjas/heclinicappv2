@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
+use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
@@ -32,3 +33,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
 Route::get('/v2/cms/sliders', [ApiCmsSliderController::class, 'index'])
     ->name('cms.sliders');
+
+Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, 'index'])
+    ->name('cms.service-packages');

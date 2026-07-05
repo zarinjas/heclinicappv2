@@ -11,6 +11,11 @@ class EnvConfig {
     defaultValue: 'https://heclinic.cyberoket.cloud/api/v2/plato',
   );
 
+  static const String laravelBaseUrl = String.fromEnvironment(
+    'LARAVEL_API_URL',
+    defaultValue: 'https://heclinic.cyberoket.cloud/api',
+  );
+
   static const String wordpressBaseUrl = String.fromEnvironment(
     'WORDPRESS_URL',
     defaultValue: 'https://hemedicalclinic.com/wp-json/wp/v2',

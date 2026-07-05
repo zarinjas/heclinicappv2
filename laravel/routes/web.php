@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsSliderController;
+use App\Http\Controllers\Admin\CmsServicePackageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
@@ -45,6 +46,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::prefix('cms')->name('cms.')->group(function (): void {
             Route::resource('sliders', CmsSliderController::class);
+            Route::resource('service-packages', CmsServicePackageController::class);
         });
     });
 });

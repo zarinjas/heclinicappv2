@@ -128,15 +128,45 @@ CREATE TABLE cms_service_packages (
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+- Created `cms_service_packages` MySQL migration with fields: id, name, description, image, is_active, sort_order, timestamps
+- Created `CmsServicePackage` model with fillable, casts, and `imageUrlAttribute` accessor
+- Created `StoreCmsServicePackageRequest` form request with validation rules
+- Created `Admin/CmsServicePackageController` with full CRUD (index, create, store, edit, update, destroy) using public storage disk
+- Created `Api/CmsServicePackageController` returning active packages ordered by sort_order
+- Created Admin Blade views: index (filter tabs, table with preview/name/description/status/actions, pagination, empty state) and form (name, description, image upload, sort_order, active toggle)
+- Added web routes: `admin/cms/service-packages` resource under auth middleware
+- Added public API route: `GET /api/v2/cms/service-packages`
+- Added `laravelBaseUrl` to EnvConfig (`https://heclinic.cyberoket.cloud/api`)
+- Updated `ServicesPackagesCall` to target Laravel API endpoint with full response parsers (id, name, description, image, sort_order)
+- Rewrote `service_package_widget.dart` with dynamic API loading, CachedNetworkImage, skeleton loader, empty state, error state with retry
+- Updated `service_package_model.dart` with state management (isLoading, hasError, errorMessage, packages list, loadPackages method)
 
 ### Files Changed
-
+- `laravel/database/migrations/2026_07_05_000016_create_cms_service_packages_table.php` — new
+- `laravel/app/Models/CmsServicePackage.php` — new
+- `laravel/app/Http/Requests/StoreCmsServicePackageRequest.php` — new
+- `laravel/app/Http/Controllers/Admin/CmsServicePackageController.php` — new
+- `laravel/app/Http/Controllers/Api/CmsServicePackageController.php` — new
+- `laravel/resources/views/admin/cms/service-packages/index.blade.php` — new
+- `laravel/resources/views/admin/cms/service-packages/form.blade.php` — new
+- `laravel/routes/web.php` — added service-packages resource route
+- `laravel/routes/api.php` — added public API route
+- `lib/env_config.dart` — added laravelBaseUrl
+- `lib/backend/api_requests/api_calls.dart` — updated ServicesPackagesCall
+- `lib/service_package/service_package/service_package_widget.dart` — rewritten
+- `lib/service_package/service_package/service_package_model.dart` — rewritten
 
 ### Decisions Made During Implementation
-
+- Used local storage (`Storage::disk('public')`) for images (same pattern as CMS Sliders) rather than Firebase Storage — simpler and consistent with existing CMS infrastructure
+- Used existing `SkeletonCard` and `SkeletonTextBlock` from `components/skeleton_loaders.dart` for loading states
+- Used `AppColors`, `AppSpacing`, `AppShadows`, `AppRadius` from `theme/app_theme.dart` design system tokens
+- Public API route has no authentication (consistent with CMS Sliders API pattern)
+- Removed hardcoded local asset images; all package data now fetched from Laravel CMS API
 
 ### Known Limitations
+- No pricing or validity period on packages (out of scope)
+- No booking integration from package card (out of scope)
+- No package detail sub-page (out of scope)
 
 
 ---
