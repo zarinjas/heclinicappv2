@@ -149,15 +149,101 @@ final class NotificationService
         return $result;
     }
 
-    private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): void
+    public function sendAppointmentReminder(Appointment $appointment, string $reminderType): void
+    {
+        $hours = $reminderType === '24h' ? 24 : 1;
+        $title = sprintf('Appointment Reminder — %dh', $hours);
+        $body = sprintf(
+            'Your appointment with %s at %s on %s %s is in %d hours.',
+            $appointment->doctor_name ?: 'our doctor',
+            $appointment->branch_name ?: 'our clinic',
+            $appointment->appointment_date->format('d M Y'),
+            $appointment->appointment_time,
+            $hours,
+        );
+
+        $channels = ['push', 'in_app'];
+
+        if (in_array('push', $channels, true)) {
+            $this->sendPush($title, $body, [
+                'parameter_data' => json_encode([
+                    'appointment_id' => $appointment->id,
+                    'plato_appointment_id' => $appointment->plato_appointment_id,
+                ]),
+                'initial_page_name' => 'Appointments',
+                'target_audience' => 'All',
+            ]);
+        }
+
+        if (in_array('in_app', $channels, true)) {
+            $this->writeInAppNotify($title, $body, 'appointments', 'appointment_reminder', $appointment->patient_plato_id ?? null);
+        }
+
+        $timestampColumn = $reminderType === '24h' ? 'reminded_24h_at' : 'reminded_1h_at';
+        $appointment->update([$timestampColumn => now()]);
+
+        NotificationLog::create([
+            'type' => 'appointment_reminder',
+            'title' => $title,
+            'body' => $body,
+            'target_type' => 'appointment',
+            'target_ids' => [(string) $appointment->id],
+            'channels' => $channels,
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+    }
+
+    public function sendDocumentUploadedNotification(string $patientPlatoId, string $filename, ?string $patientName = null): void
+    {
+        $title = 'New Document Available';
+        $body = $patientName
+            ? sprintf('A new document "%s" has been uploaded for %s.', $filename, $patientName)
+            : sprintf('A new document "%s" has been uploaded to your records.', $filename);
+
+        $channels = ['push', 'in_app'];
+
+        if (in_array('push', $channels, true)) {
+            $this->sendPush($title, $body, [
+                'parameter_data' => json_encode([
+                    'filename' => $filename,
+                    'patient_plato_id' => $patientPlatoId,
+                ]),
+                'initial_page_name' => 'Health',
+                'target_audience' => 'All',
+            ]);
+        }
+
+        if (in_array('in_app', $channels, true)) {
+            $this->writeInAppNotify($title, $body, 'health/documents', 'document_uploaded', $patientPlatoId);
+        }
+
+        NotificationLog::create([
+            'type' => 'document_uploaded',
+            'title' => $title,
+            'body' => $body,
+            'target_type' => 'patient',
+            'target_ids' => [$patientPlatoId],
+            'channels' => $channels,
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+    }
+
+    private function writeInAppNotify(string $title, string $body, string $deepLink, string $type, ?string $idPatient): void
     {
         $this->firebase->writeInAppNotification([
             'title' => $title,
             'body' => $body,
             'type' => $type,
             'deep_link' => $deepLink,
-            'id_patient' => $appointment->patient_plato_id ?? null,
+            'id_patient' => $idPatient,
         ]);
+    }
+
+    private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): void
+    {
+        $this->writeInAppNotify($title, $body, $deepLink, $type, $appointment->patient_plato_id ?? null);
     }
 
     private function sendEmail(string $title, string $body, ?string $recipientEmail, ?Appointment $appointment = null): void

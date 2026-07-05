@@ -24,6 +24,8 @@ class Appointment extends Model
         'status',
         'plato_response',
         'notified_at',
+        'reminded_24h_at',
+        'reminded_1h_at',
     ];
 
     protected function casts(): array
@@ -32,6 +34,8 @@ class Appointment extends Model
             'appointment_date' => 'date',
             'plato_response' => 'array',
             'notified_at' => 'datetime',
+            'reminded_24h_at' => 'datetime',
+            'reminded_1h_at' => 'datetime',
         ];
     }
 

@@ -1,9 +1,19 @@
 # Laravel Developer — Context
 
-Last Updated: 2026-07-05 (P8-T06 implemented)
+Last Updated: 2026-07-05 (P8-T07 implemented)
 
 ## Active Task
-P8-T06 — In-App Notifications — Deep Link Support (IN-REVIEW)
+P8-T07 — Automated Notification Triggers (IN-REVIEW)
+
+## Implementation Summary — P8-T07
+- `laravel/database/migrations/2026_07_05_000014_add_reminder_tracking_to_appointments.php`: adds `reminded_24h_at` and `reminded_1h_at` nullable timestamps to appointments table
+- `laravel/app/Models/Appointment.php`: added `reminded_24h_at`, `reminded_1h_at` to fillable and casts (datetime)
+- `laravel/app/Services/NotificationService.php`: added `sendAppointmentReminder()` (Push+In-App reminder, updates timestamp, logs to notifications_log), `sendDocumentUploadedNotification()` (Push+In-App for document uploads, deep link `health/documents`), private `writeInAppNotify()` helper refactored from `sendInApp()` to avoid code duplication
+- `laravel/app/Console/Commands/SendAppointmentReminders.php`: new Artisan command queries appointments for 24h reminders (tomorrow's date, null reminded_24h_at) and 1h reminders (today's date, time within next 60min, null reminded_1h_at), calls sendAppointmentReminder for each, idempotent via nullable timestamp guards
+- `laravel/routes/console.php`: schedules `app:send-appointment-reminders` everyMinute()
+- `laravel/app/Http/Controllers/Admin/PatientController.php`: `uploadDocument()` triggers `sendDocumentUploadedNotification()` with patient Plato ID and original filename after successful upload
+- Trigger 1 (appointment confirmed) already fully implemented by prior P8-T04/P8-T05/P8-T06 work — no new code needed
+- PHP syntax: all 7 files pass lint
 
 ## Implementation Summary — P8-T06
 - `laravel/app/Services/FirebaseService.php`: added `id_patient` field to `writeInAppNotification()` payload, sourced from `$data` array. All other fields (`title`, `body`, `read: false` (boolean), `deep_link`, `type`) were already present.

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use App\Services\PatientDocumentService;
 use App\Services\PlatoProxyService;
 use Illuminate\Contracts\View\View;
@@ -104,6 +105,16 @@ class PatientController extends Controller
 
         $service = app(PatientDocumentService::class);
         $service->upload($id, $request->file('document'), $request->input('title'), $request->user()->id);
+
+        try {
+            $filename = $request->file('document')->getClientOriginalName();
+            app(NotificationService::class)->sendDocumentUploadedNotification($id, $filename);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::channel('plato')->warning('Document upload notification failed', [
+                'patient_plato_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return redirect()
             ->route('admin.patients.show', $id)

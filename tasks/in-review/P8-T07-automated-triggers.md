@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T04, P8-T05, P8-T06 |
 | Blocked Reason | N/A |
@@ -162,11 +162,41 @@ class SendAppointmentReminders extends Command
 
 ### What Was Done
 
+**Trigger 1 — Appointment Confirmed:** Already fully implemented by prior tasks (P8-T04 FCM, P8-T05 Email, P8-T06 Deep Links). `AppointmentService::createAppointment()` calls `NotificationService::sendAppointmentConfirmation()` which dispatches Push+Email+In-App with proper email resolution and deep links. No new code required for this trigger.
+
+**Trigger 2 — Appointment Reminder:**
+- Created `database/migrations/2026_07_05_000014_add_reminder_tracking_to_appointments.php` — adds `reminded_24h_at` and `reminded_1h_at` nullable timestamps to appointments table
+- Updated `app/Models/Appointment.php` — added `reminded_24h_at` and `reminded_1h_at` to `$fillable` and `$casts` (datetime)
+- Added `sendAppointmentReminder()` to `app/Services/NotificationService.php` — dispatches Push+In-App (no email per spec), updates reminder timestamp, logs to notifications_log
+- Created `app/Console/Commands/SendAppointmentReminders.php` — queries appointments due for 24h and 1h reminders (those with null timestamp and correct date/time window), calls sendAppointmentReminder, idempotent (won't re-notify)
+- Updated `routes/console.php` — registers `app:send-appointment-reminders` to run everyMinute() via Laravel scheduler
+
+**Trigger 3 — New Document Uploaded:**
+- Added `sendDocumentUploadedNotification()` to `app/Services/NotificationService.php` — dispatches Push+In-App with deep link `health/documents`, logs to notifications_log with type `document_uploaded`
+- Updated `app/Http/Controllers/Admin/PatientController.php` — `uploadDocument()` now calls `sendDocumentUploadedNotification()` with the patient Plato ID and original filename after successful upload
+- Refactored `sendInApp()` to use new private `writeInAppNotify()` helper for cleaner in-app notification writes
+
 ### Files Changed
+
+- `laravel/database/migrations/2026_07_05_000014_add_reminder_tracking_to_appointments.php` — NEW
+- `laravel/app/Models/Appointment.php` — UPDATED (fillable + casts for reminder timestamps)
+- `laravel/app/Services/NotificationService.php` — UPDATED (added sendAppointmentReminder, sendDocumentUploadedNotification, writeInAppNotify helper)
+- `laravel/app/Console/Commands/SendAppointmentReminders.php` — NEW
+- `laravel/routes/console.php` — UPDATED (added scheduler entry)
+- `laravel/app/Http/Controllers/Admin/PatientController.php` — UPDATED (triggers document notification after upload)
 
 ### Decisions Made During Implementation
 
+- In-App notification write refactored into `writeInAppNotify()` helper to avoid duplicating FirebaseService call pattern across appointment and document flows
+- Reminder notification is Push+In-App only (no email) per v2-decisions.md spec
+- Scheduler runs everyMinute() — command is idempotent via nullable timestamp guards
+- Document notification includes original client filename in body; patient name lookup deferred (optional per spec)
+
 ### Known Limitations
+
+- Patient name not included in document notification body (optional, requires extra Plato API call to resolve)
+- Reminder timing (24h/1h) is fixed, not configurable
+- No queue/batch optimization — reminders send synchronously in scheduler loop
 
 ---
 
