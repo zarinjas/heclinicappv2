@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 5 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 6 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -136,6 +136,18 @@ Last Updated: 2026-07-05 (UI Epic Phase 5 tasks created)
 | UI-P5-T02 | upcoming-tab | Epic UI — Phase 5 | Step 5.2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P5-T03 | past-tab | Epic UI — Phase 5 | Step 5.3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P5-T04 | appointment-detail-screen | Epic UI — Phase 5 | Step 5.4 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P6-T01 | health-tab-shell | Epic UI — Phase 6 | Step 6.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P6-T02 | records-tab | Epic UI — Phase 6 | Step 6.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P6-T03 | vitals-tab | Epic UI — Phase 6 | Step 6.3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P6-T04 | documents-tab | Epic UI — Phase 6 | Step 6.4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P6-T05 | record-detail-viewer | Epic UI — Phase 6 | Step 6.5 | Flutter | flutter-developer | BACKLOG | — |
+
+**Phase 6 Dependency Order:**
+- UI-P6-T01 (Health Tab shell) — no dependencies, foundation for inner tabs
+- UI-P6-T02 (Records tab), UI-P6-T03 (Vitals tab), UI-P6-T04 (Documents tab) — depend on UI-P6-T01 (shell)
+- UI-P6-T05 (Record Detail) — depends on UI-P6-T01; navigated from UI-P6-T02
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
 
 **Phase 5 Dependency Order:**
 - All 4 tasks are parallel (no dependencies between them)
