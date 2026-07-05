@@ -16,8 +16,8 @@ Date and Time Slot Selection
 | Process Step | Step 4 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P5-T03 |
 | Blocked Reason | N/A |
