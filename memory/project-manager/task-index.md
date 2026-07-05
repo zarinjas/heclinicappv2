@@ -108,7 +108,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
 | UI-P1-T16 | vitals-chart | Epic UI — Phase 1 | Step 16 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T17 | document-item | Epic UI — Phase 1 | Step 17 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T18 | offline-banner | Epic UI — Phase 1 | Step 18 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P2-T01 | splash-screen | Epic UI — Phase 2 | Step 2.1 | Flutter | flutter-developer | IN-PROGRESS | |
+| UI-P2-T01 | splash-screen | Epic UI — Phase 2 | Step 2.1 | Flutter | flutter-developer | IN-REVIEW | |
 | UI-P2-T02 | onboarding-screen | Epic UI — Phase 2 | Step 2.2 | Flutter | flutter-developer | IN-PROGRESS | |
 | UI-P2-T03 | welcome-screen | Epic UI — Phase 2 | Step 2.3 | Flutter | flutter-developer | IN-PROGRESS | |
 | UI-P2-T04 | login-screen | Epic UI — Phase 2 | Step 2.4 | Flutter | flutter-developer | IN-PROGRESS | |

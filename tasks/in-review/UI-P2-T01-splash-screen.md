@@ -97,15 +97,18 @@ Migrate the existing splash screen from `front_page/splash_page/` to a new V2 de
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/auth/splash_screen.dart` with flutter_animate fade-in + scale animation on He Clinic logo, tagline text, and subtitle. Background uses AppColors.primary. Auto-navigates to /mainPage after 2.5s delay.
 
 ### Files Changed
-- 
+- `lib/features/auth/splash_screen.dart` — New file, 92 lines
 
 ### Decisions Made During Implementation
-
+- Navigate to `/mainPage` using GoRouter context.go() — matches existing main route
+- Logo fade-in uses flutter_animate with scale effect for polished entrance
+- Text elements fade in with staggered delay for visual hierarchy
 
 ### Known Limitations
+- Route not yet registered in GoRouter config (Phase 12 Navigation Migration)
 
 
 ---
