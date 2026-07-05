@@ -104,7 +104,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 | UI-P1-T12 | notification-item | Epic UI — Phase 1 | Step 12 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T13 | transaction-item | Epic UI — Phase 1 | Step 13 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T14 | branch-card | Epic UI — Phase 1 | Step 14 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P1-T15 | time-slot-chip | Epic UI — Phase 1 | Step 15 | Flutter | flutter-developer | IN-REVIEW | — |
+| UI-P1-T15 | time-slot-chip | Epic UI — Phase 1 | Step 15 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P1-T16 | vitals-chart | Epic UI — Phase 1 | Step 16 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T17 | document-item | Epic UI — Phase 1 | Step 17 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T18 | offline-banner | Epic UI — Phase 1 | Step 18 | Flutter | flutter-developer | BACKLOG | — |
