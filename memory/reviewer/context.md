@@ -1,12 +1,12 @@
 # Reviewer — Context
 
-Last Updated: 2026-07-04
+Last Updated: 2026-07-05
 
 ## Active Review
 None.
 
 ## Last Decision
-P1-T04 (fix-hardcoded-appointment-id) — APPROVED. Dynamic `appointmentId` param replaces hardcoded ID. Matches v2-decisions.md Process 1 Step 4, v2-ux-spec.md appointment detail screen, api-guidelines.md `/{db}/appointment/{id}` endpoint. Routes through Laravel proxy (EnvConfig.platomBaseUrl). Mock server updated.
+P1-T05 (remove-test-page) — APPROVED. Matches v2-decisions.md Process 1 Step 5. Clean removal: directory deleted, export/route/handler cleaned up, zero grep matches. No deviations.
 
 ## Notes
 Always cross-check against v2-decisions.md locked decisions table before approving.
