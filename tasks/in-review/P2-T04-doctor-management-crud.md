@@ -159,22 +159,22 @@ Created full Doctor Management CRUD module in Laravel Admin Panel. Implemented D
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Index page loads — PASS / FAIL
-- [ ] Create form with photo — PASS / FAIL
-- [ ] Edit form with photo — PASS / FAIL
-- [ ] Visibility toggle default OFF — PASS / FAIL
-- [ ] Photo upload works — PASS / FAIL
-- [ ] Delete cascades — PASS / FAIL
-- [ ] Branch dropdown — PASS / FAIL
-- [ ] Plato facility ID — PASS / FAIL
-- [ ] Sidebar navigation — PASS / FAIL
-- [ ] Flash messages — PASS / FAIL
+- [x] Index page loads — PASS — Table with name/avatar, specialty, branch, visibility badges (eye/eye-off), active/inactive badges, pagination, search/filter
+- [x] Create form with photo — PASS — All fields present, photo upload to storage/app/public/doctors/, is_visible_in_app defaults to 0 (OFF)
+- [x] Edit form with photo — PASS — All fields pre-filled via old(), current photo preview shown, photo replacement deletes old file
+- [x] Visibility toggle default OFF — PASS — Hidden input value=0 pattern, checkbox unchecked by default on create form
+- [x] Photo upload works — PASS — store() to public disk, delete on replace/remove, Storage::disk('public')->url() on views
+- [x] Delete cascades — PASS — cascadeOnDelete FK on doctors.id → plato_calendars.doctor_id, photo file cleaned up, confirm() dialog with cascade warning
+- [x] Branch dropdown — PASS — Populated from active branches (is_active=true), required field on create/edit
+- [x] Plato facility ID — PASS — Text input with unique validation, stored via validated() data
+- [x] Sidebar navigation — PASS — Active route link with highlight, replaces "Soon" placeholder
+- [x] Flash messages — PASS — success messages on create/update/delete via session('success') rendered in admin layout
 
 ### Failure Details
-{If FAILED}
+N/A
 
 ---
 

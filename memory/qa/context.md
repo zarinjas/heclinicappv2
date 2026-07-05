@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P2-T03 — Branch Management CRUD (PASSED — 9/9 criteria)
+P2-T04 — Doctor Management CRUD (PASSED — 10/10 criteria)
 
 ## Verification History
-- P2-T03 (2026-07-05): PASSED — 9/9 criteria. BranchController full CRUD resource, Store/UpdateBranchRequest validation (name required, WhatsApp +60 regex, unique Plato facility ID), Blade views: index (paginated table with search/sort/status badges), create/edit forms with all fields and error display, show detail view, sidebar updated with active route linking, flash success messages on all operations, delete confirmation via JS confirm with cascadeOnDelete on doctors.branch_id migration, BranchSeeder with 3 sample Malaysian branches, DatabaseSeeder updated.
+- P2-T04 (2026-07-05): PASSED — 10/10 criteria. DoctorController full CRUD resource with photo upload, Store/UpdateDoctorRequest validation (name required, branch required, photo 2MB image, bio 500 chars, unique Plato facility ID), Blade views: index (table with avatar/name/specialty/branch/visibility eye-badge/active-inactive badge/pagination/search+branch+visibility filters), create/edit forms with photo file input+branch dropdown+bio char counter+is_visible_in_app toggle default OFF+is_active toggle, show detail with calendar count, sidebar updated from "Soon" placeholder to active Doctors link, flash success messages, delete confirmation with cascade warning, DoctorSeeder with 3 sample doctors (2 visible, 1 hidden), DatabaseSeeder updated.
+- P2-T03 (2026-07-05): PASSED — 9/9 criteria.
 - P2-T02 (2026-07-05): PASSED — 8/8 criteria.
 - P5-T02 (2026-07-05): PASSED — 9/9 criteria.
 - P5-T01 (2026-07-05): PASSED — 6/6 criteria.
@@ -19,13 +20,10 @@ P2-T03 — Branch Management CRUD (PASSED — 9/9 criteria)
 - P3-T06 through P3-T01: All PASSED.
 
 ## Key Files to Monitor
-- `laravel/app/Http/Controllers/Admin/BranchController.php` — Full CRUD resource controller
-- `laravel/app/Http/Requests/StoreBranchRequest.php` — Create validation
-- `laravel/app/Http/Requests/UpdateBranchRequest.php` — Update validation
-- `laravel/resources/views/admin/branches/` — All 4 Blade views
-- `laravel/resources/views/layouts/admin.blade.php` — Sidebar updated
+- `laravel/app/Http/Controllers/Admin/DoctorController.php` — Full CRUD resource controller with photo upload
+- `laravel/app/Http/Requests/StoreDoctorRequest.php` — Create validation
+- `laravel/app/Http/Requests/UpdateDoctorRequest.php` — Update validation
+- `laravel/resources/views/admin/doctors/` — All 4 Blade views
+- `laravel/resources/views/layouts/admin.blade.php` — Sidebar updated with Doctors nav
 - `laravel/routes/web.php` — Resource route added
-- `laravel/database/seeders/BranchSeeder.php` — Sample data
-- `lib/pages/booking/doctor_selection_screen.dart` — Doctor selection screen (NEW)
-- `lib/pages/booking/branch_selection_screen.dart` — Branch selection screen
-- `lib/pages/booking/booking_flow_model.dart` — Shared booking flow state
+- `laravel/database/seeders/DoctorSeeder.php` — Sample data
