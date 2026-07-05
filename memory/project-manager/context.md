@@ -1,33 +1,33 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 2 — Auth Screens, 10 tasks created in BACKLOG)
+Last Updated: 2026-07-05 (UI Epic Phase 3 — Home Screen, 8 tasks created in BACKLOG)
 
 ## Current Process
-Epic: UI Migration — Phase 3 (pending — awaiting approval of Phase 2 batch)
+Epic: UI Migration — Phase 3 (Home Screen redesign)
 
 ## Active Tasks
-(None — Phase 2 batch complete, waiting approval)
-UI-P2-T01 — Splash Screen (DONE)
-UI-P2-T02 — Onboarding Screen (DONE)
-UI-P2-T03 — Welcome Screen (DONE)
-UI-P2-T04 — Login Screen (DONE)
-UI-P2-T05 — Register Step 1 (DONE)
-UI-P2-T06 — Register Step 2 (DONE)
-UI-P2-T07 — Forgot Email (DONE)
-UI-P2-T08 — Forgot OTP (DONE)
-UI-P2-T09 — Forgot New Password (DONE)
-UI-P2-T10 — First Change Password (DONE)
+(None — Phase 3 tasks created in backlog, ready for assignment)
+UI-P3-T01 — Home Screen (BACKLOG)
+UI-P3-T02 — Hero Slider Section (BACKLOG)
+UI-P3-T03 — Quick Actions Section (BACKLOG)
+UI-P3-T04 — Upcoming Appointment Section (BACKLOG)
+UI-P3-T05 — Loyalty Section (BACKLOG)
+UI-P3-T06 — Doctors Section (BACKLOG)
+UI-P3-T07 — Health Articles Section (BACKLOG)
+UI-P3-T08 — Health Videos Section (BACKLOG)
 
-## Phase 2 Notes
-- All 10 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
+## Phase 3 Notes
+- All 8 tasks are parallel once UI-P3-T01 (shell) provides integration slots
 - All tasks are Flutter type, assigned to flutter-developer
 - Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
-- Phases 2-10 can all proceed in parallel
-- Each auth screen preserves existing business logic and API calls, replacing only UI
+- Home screen is the central hub — hosts greeting, slider, actions, appointment, loyalty, doctors, articles, videos
+- Replace all FlutterFlow styling with V2 design system
+- Business logic, API calls, and state management preserved
 
 ## Completed Phases
 - Phase 0 — Design System Foundation: ALL DONE (UI-P0-T01 through UI-P0-T16)
 - Phase 1 — Feature Components: ALL DONE (UI-P1-T01 through UI-P1-T18)
+- Phase 2 — Auth Screens: ALL DONE (UI-P2-T01 through UI-P2-T10)
 
 **Process 8 — Notifications Module (completed):**
 P8-T01 through P8-T08 — ALL DONE
@@ -55,11 +55,12 @@ P5-T01 through P5-T09 — ALL DONE
 - Process 5 — Booking Flow: ALL DONE (P5-T01 through P5-T09)
 - Process 6 — Health Tab: ALL DONE (P6-T01 through P6-T05)
 - Process 7 — Admin Panel: Patient and Appointment Mgmt: ALL DONE (P7-T01 through P7-T06)
-
 - Process 8 — Notifications Module: ALL DONE (P8-T01 through P8-T08)
+- Process 9 — CMS Module: ALL DONE (P9-T01 through P9-T06)
+- Process 10 — Polish and Remaining Features: ALL DONE (P10-T01 through P10-T08)
 
 ## Next Task to Create
-After all Process 9 tasks are DONE, create Process 10 tasks (Polish and Remaining Features).
+After Phase 3 tasks are DONE, create Phase 4 tasks (Booking Flow Screens).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
@@ -68,7 +69,5 @@ After all Process 9 tasks are DONE, create Process 10 tasks (Polish and Remainin
 - VPS bot server: `/var/www/heclinic-bot/` (PM2)
 
 ## Notes
-Process 6 tasks have a linear dependency chain:
-P6-T01 (scaffold) → P6-T02 (records) → P6-T03 (vitals) → P6-T04 (documents) → P6-T05 (pagination).
-
-All Health tab data is sourced from Plato via the Laravel proxy. The existing ReportsWidget at `lib/front_page/reports/reports_widget.dart` is the target for all P6 changes. The Health tab is already registered at nav index 2 in `lib/main.dart:231` with `'health': ReportsWidget(id: null)`.
+Phase 3 follows Phase 2 auth screens. Home screen redesign is the central hub of the app.
+Phases 2-10 can proceed in parallel once Phase 0 and Phase 1 are complete.

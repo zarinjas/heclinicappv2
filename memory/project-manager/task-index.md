@@ -118,6 +118,19 @@ Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
 | UI-P2-T08 | forgot-otp-screen | Epic UI — Phase 2 | Step 2.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P2-T09 | forgot-newpassword-screen | Epic UI — Phase 2 | Step 2.9 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P2-T10 | first-change-password-screen | Epic UI — Phase 2 | Step 2.10 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P3-T01 | home-screen | Epic UI — Phase 3 | Step 3.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T02 | hero-slider-section | Epic UI — Phase 3 | Step 3.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T03 | quick-actions-section | Epic UI — Phase 3 | Step 3.3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T04 | upcoming-appointment-section | Epic UI — Phase 3 | Step 3.4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T05 | loyalty-section | Epic UI — Phase 3 | Step 3.5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T06 | doctors-section | Epic UI — Phase 3 | Step 3.6 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T07 | health-articles-section | Epic UI — Phase 3 | Step 3.7 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P3-T08 | health-videos-section | Epic UI — Phase 3 | Step 3.8 | Flutter | flutter-developer | BACKLOG | — |
+
+**Phase 3 Dependency Order:**
+- All 8 tasks are parallel (no dependencies between them) once UI-P3-T01 (shell) provides integration slots
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
 
 **Phase 2 Dependency Order:**
 - All 10 tasks are parallel (no dependencies between them) once Phase 0 and Phase 1 are complete
