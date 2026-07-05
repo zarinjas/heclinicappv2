@@ -17,7 +17,7 @@ Appointments Tab Display
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T08 |
 | Blocked Reason | N/A |
@@ -126,16 +126,27 @@ Ensure confirmed appointments appear in the Appointments tab (the 2nd tab in the
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created `lib/pages/appointments/appointments_screen.dart` — a complete appointments list screen with Upcoming/Past tab switching. The screen fetches all appointments via `GetAppointmentCall` (Laravel proxy), splits them by date relative to now, and renders styled appointment cards. Each card shows: date, time, branch/location name, doctor name, status chip (Confirmed/Completed), and a 4px left color bar derived from the appointment code. Added pull-to-refresh, skeleton loading animation, empty states per tab (with "Book Now" CTA on Upcoming), and error state with retry. Added `title`, `doctorCode`, `locationCode` response parsers to `GetAppointmentCall` for full appointment data access. Wired `AppointmentsScreenWidget` into `NavBarPage` (5-tab bottom nav) and GoRouter (`/myBookingPage`) to replace the old `MyBookingPageWidget`.
 
 ### Files Changed
-- {To be filled}
+- `lib/pages/appointments/appointments_screen.dart` — NEW: full appointments list screen with tabs, cards, states
+- `lib/backend/api_requests/api_calls.dart` — UPDATED: added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`
+- `lib/main.dart` — UPDATED: NavBarPage tabs map uses `AppointmentsScreenWidget` instead of `MyBookingPageWidget`
+- `lib/flutter_flow/nav/nav.dart` — UPDATED: `/myBookingPage` route now uses `AppointmentsScreenWidget`
+- `lib/index.dart` — UPDATED: exports `AppointmentsScreenWidget`
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used `GetAppointmentCall` (no date filter) to fetch ALL appointments, then client-side split into upcoming/past based on `starttime` vs `DateTime.now()`. This avoids calling two separate endpoints.
+- Doctor and location codes are resolved to names using `GetAppointmentCodeCall` which provides `Background.codes` (doctor) and `Top.codes` (location) mappings. Doctor codes/names are persisted to `FFAppState.Listcode`/`ListDoctorName` for reuse; location codes/names are stored locally since they're not in FFAppState.
+- Left color bar uses a deterministic hash of the `code_Background` field against a palette of 8 colors. Full Plato calendar color mapping would require Laravel `plato_calendars` table data which is server-side.
+- Status chip shows "Confirmed" for upcoming and "Completed" for past appointments. The Plato API does not expose an explicit appointment status enum.
+- Empty state appears per-tab: Upcoming tab shows "Book Now" CTA navigating to `/branchSelectionScreen`.
+- TabBar indicator uses solid accent background fill instead of underline for cleaner V2 look.
 
 ### Known Limitations
-{To be filled}
+- Appointment color bar uses hashed palette, not actual Plato calendar colors (which require Laravel `plato_calendars` sync data).
+- No reschedule or cancel actions on appointment cards (out of scope per Process 10).
+- No appointment detail screen on card tap (can be added when detail screen is built in Process 10).
 
 ---
 

@@ -48,3 +48,5 @@ export '/pages/booking/doctor_selection_screen.dart'
     show DoctorSelectionScreenWidget;
 export '/pages/booking/confirmation_screen.dart'
     show BookingConfirmationScreenWidget;
+export '/pages/appointments/appointments_screen.dart'
+    show AppointmentsScreenWidget;

@@ -22,6 +22,7 @@ import '/pages/booking/branch_selection_screen.dart';
 import '/pages/booking/doctor_selection_screen.dart';
 import '/pages/booking/date_time_slot_screen.dart';
 import '/pages/booking/confirmation_screen.dart';
+import '/pages/appointments/appointments_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -160,11 +161,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
-          name: MyBookingPageWidget.routeName,
-          path: MyBookingPageWidget.routePath,
+          name: AppointmentsScreenWidget.routeName,
+          path: AppointmentsScreenWidget.routePath,
           builder: (context, params) => params.isEmpty
               ? NavBarPage(initialPage: 'myBookingPage')
-              : MyBookingPageWidget(),
+              : const AppointmentsScreenWidget(),
         ),
         FFRoute(
           name: RegisterPageWidget.routeName,

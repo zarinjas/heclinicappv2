@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P5-T08 — Appointment Confirmation Notification (IN-REVIEW)
+P5-T09 — Appointments Tab Display (IN-REVIEW)
 
 ## Recent Work
-- P5-T08 — Appointment Confirmation Notification (IN-REVIEW): Updated `push_notifications_handler.dart` to detect `type: "appointment_confirmed"` in FCM payload, navigate to MyBookingPage, increment `coutnnotif`. Rewrote `setup_f_c_m_foreground_handler.dart` for appointment notification handling in foreground with dedicated channel, badge increment, and tap-to-navigate. Added `incrementNotifCount()` and `resetNotifCount()` to `app_state.dart`. Handles cold start, background, and foreground notification scenarios.
+- P5-T09 — Appointments Tab Display (IN-REVIEW): Created `lib/pages/appointments/appointments_screen.dart` with Upcoming/Past tabs, appointment cards with 4px color bar, status chips, skeleton loading, pull-to-refresh, empty/error states. Added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`. Wired `AppointmentsScreenWidget` into NavBarPage and GoRouter replacing `MyBookingPageWidget`.
+- P5-T08 — Appointment Confirmation Notification (DONE): Updated `push_notifications_handler.dart` to detect `type: "appointment_confirmed"` in FCM payload, navigate to MyBookingPage, increment `coutnnotif`. Rewrote `setup_f_c_m_foreground_handler.dart` for appointment notification handling in foreground with dedicated channel, badge increment, and tap-to-navigate. Added `incrementNotifCount()` and `resetNotifCount()` to `app_state.dart`. Handles cold start, background, and foreground notification scenarios.
 - P5-T06 — WhatsApp Redirect After Booking (IN-REVIEW): Created `lib/utils/whatsapp_helper.dart` with `buildPreFilledMessage()`, `buildDeepLink()`, and `getWhatsAppInstallUrl()` utilities. Added `selectedBranchWhatsApp` to `BookingFlowModel`, `phone` field to `BranchItem`, `telephone` extractor to `GetproviderCall`. Replaced stub `_onBookViaWhatsApp` with real WhatsApp deep-link redirect using `url_launcher`. Error dialog when WhatsApp not installed.
 - P5-T05 — Booking Confirmation Screen (DONE): Created BookingConfirmationScreenWidget (StatelessWidget) with summary card (Branch/Doctor/Date/Time/Patient), step indicator, teal info disclaimer banner, "Book via WhatsApp" primary button. Patient data from FFAppState (name, nationalman).
 - P5-T03 — Doctor Selection Screen (DONE): Re-implemented with new GetDoctorsCall (Laravel `/api/v2/config/doctors`) for branch_id + visible=true filtering.

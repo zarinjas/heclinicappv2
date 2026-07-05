@@ -1477,6 +1477,33 @@ class GetAppointmentCall {
           .map((x) => castToType<String>(x))
           .withoutNulls
           .toList();
+  static List<String>? title(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].title''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? doctorCode(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].code_Background''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? locationCode(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].code_Top''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
 }
 
 class GetAppointmentUpcomingCall {
