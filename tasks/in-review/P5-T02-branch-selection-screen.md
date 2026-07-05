@@ -140,21 +140,21 @@ Created BranchSelectionScreen with step indicator, API-driven branch list from G
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Step indicator renders correctly — PASS / FAIL
-- [ ] Branch list loads from API — PASS / FAIL
-- [ ] Branch card content renders — PASS / FAIL
-- [ ] Selection highlight works — PASS / FAIL
-- [ ] Next button disabled until selection — PASS / FAIL
-- [ ] Navigation to next screen — PASS / FAIL
-- [ ] Loading state renders — PASS / FAIL
-- [ ] Empty state renders — PASS / FAIL
-- [ ] Error state renders — PASS / FAIL
+- [x] Step indicator renders correctly — PASS — 4 steps (Branch, Doctor, Date & Time, Confirm) with step 1 highlighted in accent green circle + white bold text, remaining steps in white/white60
+- [x] Branch list loads from API — PASS — Uses GetproviderCall.call() for GET /facility via Laravel proxy, no hardcoded data
+- [x] Branch card content renders — PASS — Cards show image placeholder, name, address, and hours fields; conditional rendering for each field
+- [x] Selection highlight works — PASS — Selected card gets 2px accent border (#00C9A7) + check_circle icon; deselected cards have 1px grey border
+- [x] Next button disabled until selection — PASS — onPressed set to null when _selectedBranchId is null; button shows grey bg/disabled text; becomes green with white text when branch selected
+- [x] Navigation to next screen — PASS — context.push('/doctorSelectionScreen') called on Next press with selected branch stored in BookingFlowModel singleton
+- [x] Loading state renders — PASS — 4 skeleton cards with grey rectangles (image placeholder + name/address text bars) in matching card layout (12px radius, 120px height)
+- [x] Empty state renders — PASS — location_off icon (64px, grey), "No branches available" heading (18px, primary), subtitle with helpful message (14px, secondary)
+- [x] Error state renders — PASS — error_outline icon (48px, red), "Something went wrong" heading (16px, primary), error message (14px, secondary), "Try Again" text button that retries API call
 
 ### Failure Details
-{If FAILED}
+N/A — All 9 criteria PASSED.
 
 ---
 
