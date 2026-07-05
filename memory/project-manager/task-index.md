@@ -77,7 +77,7 @@ Last Updated: 2026-07-05 (Process 10 tasks added)
 | UI-P0-T01 | app-colors | Epic UI — Phase 0 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T02 | app-text-styles | Epic UI — Phase 0 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T03 | app-spacing-radius-shadows | Epic UI — Phase 0 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P0-T04 | app-theme | Epic UI — Phase 0 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T04 | app-theme | Epic UI — Phase 0 | Step 4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T05 | app-button | Epic UI — Phase 0 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P0-T06 | app-input | Epic UI — Phase 0 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P0-T07 | app-card | Epic UI — Phase 0 | Step 7 | Flutter | flutter-developer | BACKLOG | — |
