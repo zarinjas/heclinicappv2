@@ -184,23 +184,20 @@ Created the PatientController with `index()` and `show()` methods, fetching data
 
 ## QA Notes
 
-> Filled in by QA after verification.
-> Leave blank until QA picks up the task.
-
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 4} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 5} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 6} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 7} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 8} — PASS / FAIL — {note if fail}
+- [x] GET /admin/patients renders Blade view with patient table — PASS — PatientController@index returns view('admin.patients.index'), index.blade.php renders data table from Plato response data
+- [x] Pagination 20/page with clickable links — PASS — LengthAwarePaginator with 20 per page, $patients->links() in Blade view
+- [x] Search by name filters list — PASS — search_name input passes to Plato query param 'name'
+- [x] Search by NRIC filters list — PASS — search_nric input passes to Plato query param 'nric'
+- [x] Search by phone filters list — PASS — search_phone input passes to Plato query param 'phone'
+- [x] Sidebar "Patients" link between Doctors and Calendar Setup — PASS — nav link added in admin.blade.php with routeIs('admin.patients.*') active state
+- [x] Empty state message when no patients match — PASS — count($patients) === 0 block with SVG and "No patients found" message
+- [x] php -l passes syntax check — PASS — All 32 PHP files in laravel/app/ pass syntax check with zero errors
 
 ### Failure Details
-
+N/A — all criteria passed.
 
 ---
 
