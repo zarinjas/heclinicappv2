@@ -14,6 +14,7 @@ class Branch extends Model
         'whatsapp_number',
         'image',
         'operating_hours',
+        'google_maps_link',
         'plato_facility_id',
         'is_active',
     ];

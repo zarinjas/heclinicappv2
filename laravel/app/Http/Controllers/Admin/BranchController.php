@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateBranchRequest;
 use App\Models\Branch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class BranchController extends Controller
@@ -43,7 +44,15 @@ class BranchController extends Controller
 
     public function store(StoreBranchRequest $request): RedirectResponse
     {
-        Branch::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('branches', 'public');
+        }
+
+        $data['is_active'] = $request->boolean('is_active');
+
+        Branch::create($data);
 
         return redirect()
             ->route('admin.branches.index')
@@ -62,7 +71,20 @@ class BranchController extends Controller
 
     public function update(UpdateBranchRequest $request, Branch $branch): RedirectResponse
     {
-        $branch->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            if ($branch->image && Storage::disk('public')->exists($branch->image)) {
+                Storage::disk('public')->delete($branch->image);
+            }
+            $data['image'] = $request->file('image')->store('branches', 'public');
+        } else {
+            unset($data['image']);
+        }
+
+        $data['is_active'] = $request->boolean('is_active');
+
+        $branch->update($data);
 
         return redirect()
             ->route('admin.branches.index')
@@ -71,6 +93,10 @@ class BranchController extends Controller
 
     public function destroy(Branch $branch): RedirectResponse
     {
+        if ($branch->image && Storage::disk('public')->exists($branch->image)) {
+            Storage::disk('public')->delete($branch->image);
+        }
+
         $branch->delete();
 
         return redirect()

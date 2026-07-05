@@ -5,7 +5,7 @@
 @section('subtitle', 'Register a new clinic branch')
 
 @section('content')
-    <form method="POST" action="{{ route('admin.branches.store') }}" class="max-w-2xl">
+    <form method="POST" action="{{ route('admin.branches.store') }}" enctype="multipart/form-data" class="max-w-2xl">
         @csrf
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -73,51 +73,64 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                        <label for="plato_facility_id" class="block text-sm font-medium text-[#0F1B3D] mb-1">Plato Facility ID</label>
-                        <input
-                            type="text"
-                            name="plato_facility_id"
-                            id="plato_facility_id"
-                            value="{{ old('plato_facility_id') }}"
-                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('plato_facility_id') border-red-300 @enderror"
-                            placeholder="Plato GET /facility ID"
-                        >
-                        <p class="mt-1 text-xs text-gray-400">Maps this branch to a Plato facility record. Must be unique per branch.</p>
-                        @error('plato_facility_id')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <div>
+                    <label for="google_maps_link" class="block text-sm font-medium text-[#0F1B3D] mb-1">Google Maps Link</label>
+                    <input
+                        type="url"
+                        name="google_maps_link"
+                        id="google_maps_link"
+                        value="{{ old('google_maps_link') }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('google_maps_link') border-red-300 @enderror"
+                        placeholder="https://maps.google.com/?q=..."
+                    >
+                    <p class="mt-1 text-xs text-gray-400">URL to Google Maps location. Used for "Get Directions" in the mobile app.</p>
+                    @error('google_maps_link')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                    <div>
-                        <label for="image" class="block text-sm font-medium text-[#0F1B3D] mb-1">Image URL</label>
-                        <input
-                            type="text"
-                            name="image"
-                            id="image"
-                            value="{{ old('image') }}"
-                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('image') border-red-300 @enderror"
-                            placeholder="https://..."
-                        >
-                        <p class="mt-1 text-xs text-gray-400">URL to branch photo. File upload to be added in future update.</p>
-                        @error('image')
-                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <div>
+                    <label for="image" class="block text-sm font-medium text-[#0F1B3D] mb-1">Branch Photo</label>
+                    <input
+                        type="file"
+                        name="image"
+                        id="image"
+                        accept="image/jpeg,image/png,image/webp"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('image') border-red-300 @enderror"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Max 5MB. JPEG, PNG, or WebP. Used as branch photo in the mobile app.</p>
+                    @error('image')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label for="operating_hours" class="block text-sm font-medium text-[#0F1B3D] mb-1">Operating Hours</label>
-                    <input
-                        type="text"
+                    <textarea
                         name="operating_hours"
                         id="operating_hours"
-                        value="{{ old('operating_hours') }}"
+                        rows="4"
                         class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('operating_hours') border-red-300 @enderror"
-                        placeholder="Mon-Fri: 8:00 AM - 5:00 PM, Sat: 8:00 AM - 1:00 PM"
-                    >
+                        placeholder="Mon-Fri: 8:00 AM - 5:00 PM&#10;Sat: 8:00 AM - 1:00 PM&#10;Sun &amp; Public Holidays: Closed"
+                    >{{ old('operating_hours') }}</textarea>
+                    <p class="mt-1 text-xs text-gray-400">Enter operating hours as plain text or comma-separated values.</p>
                     @error('operating_hours')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="plato_facility_id" class="block text-sm font-medium text-[#0F1B3D] mb-1">Plato Facility ID</label>
+                    <input
+                        type="text"
+                        name="plato_facility_id"
+                        id="plato_facility_id"
+                        value="{{ old('plato_facility_id') }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('plato_facility_id') border-red-300 @enderror"
+                        placeholder="Plato GET /facility ID"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Maps this branch to a Plato facility record. Must be unique per branch.</p>
+                    @error('plato_facility_id')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
 use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
 use App\Http\Controllers\Api\CmsVideoController as ApiCmsVideoController;
+use App\Http\Controllers\Api\BranchConfigController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
@@ -46,3 +47,6 @@ Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, '
 
 Route::get('/v2/cms/videos', [ApiCmsVideoController::class, 'index'])
     ->name('cms.videos');
+
+Route::get('/v2/config/branches', [BranchConfigController::class, 'index'])
+    ->name('config.branches');

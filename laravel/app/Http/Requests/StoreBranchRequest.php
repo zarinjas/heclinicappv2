@@ -18,8 +18,9 @@ class StoreBranchRequest extends FormRequest
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:50'],
             'whatsapp_number' => ['nullable', 'string', 'max:50', 'regex:/^\+60/'],
-            'image' => ['nullable', 'string', 'max:255'],
-            'operating_hours' => ['nullable', 'string', 'max:500'],
+            'image' => ['nullable'],
+            'operating_hours' => ['nullable'],
+            'google_maps_link' => ['nullable', 'url', 'max:500'],
             'plato_facility_id' => ['nullable', 'string', 'max:100', 'unique:branches,plato_facility_id'],
             'is_active' => ['boolean'],
         ];
