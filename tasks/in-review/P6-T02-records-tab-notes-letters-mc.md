@@ -152,20 +152,20 @@ Implemented the Records inner tab of the Health Tab scaffold with filter chips (
 
 > Filled by QA after verification.
 
-### Result: {PASSED / FAILED}
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Filter chips render and are interactive — {PASS / FAIL} — {note}
-- [ ] Filter switching re-fetches and filters correctly — {PASS / FAIL} — {note}
-- [ ] Record cards show correct icon, title, date, author — {PASS / FAIL} — {note}
-- [ ] Skeleton loaders appear while loading — {PASS / FAIL} — {note}
-- [ ] Empty state displays when no records — {PASS / FAIL} — {note}
-- [ ] Error state with retry works — {PASS / FAIL} — {note}
-- [ ] Tapping note opens AlertReportWidget — {PASS / FAIL} — {note}
-- [ ] flutter analyze zero errors — {PASS / FAIL} — {note}
+- [x] Filter chips render and are interactive — PASS — ChoiceChip widgets for All/Notes/Letters/MC with AppColors.accent selected style, AppRadius.full, default selection on All
+- [x] Filter switching re-fetches and filters correctly — PASS — _onFilterChanged updates state and calls _loadRecords which checks needNotes/needLetters/needMc flags against selectedFilter
+- [x] Record cards show correct icon, title, date, author — PASS — Switch on RecordType maps to Icons.description/Icons.mail_outline/Icons.assignment_outlined, title truncated to 80chars, date formatted, author shown
+- [x] Skeleton loaders appear while loading — PASS — 4× SkeletonListTile shown when isLoading=true in _buildRecordsTab
+- [x] Empty state displays when no records — PASS — EmptyStateWidget with Icons.article_outlined, "No records found", "Your clinical notes will appear here"
+- [x] Error state with retry works — PASS — ErrorStateWidget with _loadRecords as onRetry callback
+- [x] Tapping note opens AlertReportWidget — PASS — _onRecordTap for RecordType.note shows DraggableScrollableSheet with AlertReportWidget(author, time, note, kategori, diagnosis)
+- [x] flutter analyze zero errors — PASS — Verified with flutter analyze, zero compile errors
 
 ### Failure Details
-{to be filled if failed}
+N/A
 
 ---
 
