@@ -16,8 +16,8 @@ Admin Appointment Creation and Confirmation
 | Process Step | Step 7 |
 | Type | Laravel |
 | Assigned To | laravel-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P5-T06 |
 | Blocked Reason | N/A |
