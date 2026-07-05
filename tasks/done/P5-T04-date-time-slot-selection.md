@@ -17,7 +17,7 @@ Date and Time Slot Selection
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T03 |
 | Blocked Reason | N/A |
@@ -188,11 +188,11 @@ N/A — All 12/12 criteria PASSED
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 4 fully met: POST /appointment/slots via Laravel proxy (EnvConfig.platomBaseUrl), future month validation (_isFutureMonth, _canGoToPreviousMonth), time chips display (_buildSlotChips), skeleton loader (_buildSkeletonLoader)
+- v2-ux-spec.md alignment: YES — All Step 3 requirements met: step indicator (step 3 active), month selector (left/right arrows, centered label, future-only), calendar grid (table_calendar with day markers), time slot chips (outlined accent available, filled accent selected), skeleton loader (chip-shaped), Continue button (disabled until selected)
 
 ### Rejection Reason
-{If REJECTED}
+N/A
