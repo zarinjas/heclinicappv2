@@ -3,7 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P8-T05 — Email Provider Configuration (PASSED — 7/7 criteria)
+P8-T06 — In-App Notifications — Deep Link Support (PASSED — 7/7 criteria)
+
+## Verification History
+- P8-T06 (2026-07-05): PASSED — 7/7 criteria. FirebaseService::writeInAppNotification() writes read:false (boolean), deep_link, type, id_patient fields. Flutter notification center streams historynotif with id_patient filter. Tap handler routes deep_link to MyBookingPage/Reports/HomepageNew. readBool: true written on tap (boolean). Old String "yes"/"no" read values handled via readBool getter with backward compat. type field stored and accessible in Flutter model. id_patient query filter ensures patient-specific isolation. Flutter analyze: zero errors (BUILD GATE PASS).
 
 ## Verification History
 - P8-T05 (2026-07-05): PASSED — 7/7 criteria. .env.example has all 8 MAIL_* vars with SMTP defaults. AppointmentNotification + GeneralNotification classes with toMail()+toArray(). NotificationService::sendEmail() uses Notification::route() with recipientEmail param. resolvePatientEmailForAppointment() queries Plato GET /patient by NRIC/name. Graceful null-email handling with warning log. sendAppointmentConfirmation() creates NotificationLog record. MAIL_MAILER=log configured via config/mail.php log transport. All PHP files syntax-checked: zero errors.

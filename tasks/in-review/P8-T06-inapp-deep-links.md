@@ -175,11 +175,20 @@ Existing handler mappings in `push_notifications_handler.dart` around line 27 (p
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
 
-### Failure Details
+1. `writeInAppNotification()` writes `read: false` (boolean), `deep_link`, `type`, `id_patient` → **PASS** (FirebaseService.php:127-131 — all fields present, `read` is `false` bool, `deep_link` and `type` have defaults, `id_patient` accepted from data array)
+2. In-app notification with `deep_link: "appointments"` appears in Flutter notification center → **PASS** (historynotif stream includes all records matching id_patient; deep_link is a data field, not a filter)
+3. Tapping notification with `deep_link: "appointments"` navigates to Appointments → **PASS** (notification_page_widget.dart:157-158 — `case 'appointments': context.pushNamed('MyBookingPage')`)
+4. Tapping marks notification as read (boolean `true`) → **PASS** (notification_page_widget.dart:149 — `readBool: true` in Firestore update)
+5. Old notifications with `read: "yes"` (string) display as read → **PASS** (readBool getter returns true for String "yes"; read getter returns "yes"; UI shows read when `read != 'no'`)
+6. Notification with `type: "appointment_confirmed"` displays in list → **PASS** (type field stored in record model; list displays all matching patient records regardless of type)
+7. `id_patient` matches intended patient, doesn't appear for others → **PASS** (query filters `id_patient == FFAppState().idplato`)
+
+### Build Gate
+- Flutter analyze: 0 errors (BUILD GATE PASS)
 
 ---
 
