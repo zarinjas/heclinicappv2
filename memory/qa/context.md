@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P2-T04 — Doctor Management CRUD (PASSED — 10/10 criteria)
+P2-T05 — Plato API Proxy Layer (PASSED — 10/10 criteria)
 
 ## Verification History
-- P2-T04 (2026-07-05): PASSED — 10/10 criteria. DoctorController full CRUD resource with photo upload, Store/UpdateDoctorRequest validation (name required, branch required, photo 2MB image, bio 500 chars, unique Plato facility ID), Blade views: index (table with avatar/name/specialty/branch/visibility eye-badge/active-inactive badge/pagination/search+branch+visibility filters), create/edit forms with photo file input+branch dropdown+bio char counter+is_visible_in_app toggle default OFF+is_active toggle, show detail with calendar count, sidebar updated from "Soon" placeholder to active Doctors link, flash success messages, delete confirmation with cascade warning, DoctorSeeder with 3 sample doctors (2 visible, 1 hidden), DatabaseSeeder updated.
+- P2-T05 (2026-07-05): PASSED — 10/10 criteria. PlatoProxyService handles all HTTP methods (GET/POST/PUT/PATCH/DELETE), Bearer token from config('plato.api_token') = env('PLATO_API_TOKEN'), rate-limit headers extracted and forwarded, error normalization to { error, code, message }, 429 with clear message, health endpoint public at GET /api/v2/plato/health, response caching with configurable TTL per endpoint type, IP rate limiting via RateLimiter facade, request/error logging to dedicated plato log channel with daily rotation, config/plato.php with all documented env vars.
+- P2-T04 (2026-07-05): PASSED — 10/10 criteria.
 - P2-T03 (2026-07-05): PASSED — 9/9 criteria.
 - P2-T02 (2026-07-05): PASSED — 8/8 criteria.
 - P5-T02 (2026-07-05): PASSED — 9/9 criteria.
@@ -20,10 +21,9 @@ P2-T04 — Doctor Management CRUD (PASSED — 10/10 criteria)
 - P3-T06 through P3-T01: All PASSED.
 
 ## Key Files to Monitor
-- `laravel/app/Http/Controllers/Admin/DoctorController.php` — Full CRUD resource controller with photo upload
-- `laravel/app/Http/Requests/StoreDoctorRequest.php` — Create validation
-- `laravel/app/Http/Requests/UpdateDoctorRequest.php` — Update validation
-- `laravel/resources/views/admin/doctors/` — All 4 Blade views
-- `laravel/resources/views/layouts/admin.blade.php` — Sidebar updated with Doctors nav
-- `laravel/routes/web.php` — Resource route added
-- `laravel/database/seeders/DoctorSeeder.php` — Sample data
+- `laravel/app/Services/PlatoProxyService.php` — Full proxy service with caching, error normalization, logging
+- `laravel/app/Http/Controllers/Api/PlatoProxyController.php` — Rewritten controller with IP rate limiting
+- `laravel/config/plato.php` — Centralized Plato configuration
+- `laravel/config/logging.php` — Added plato log channel
+- `laravel/.env.example` — Updated with all Plato proxy env vars
+- `laravel/routes/api.php` — Added health endpoint

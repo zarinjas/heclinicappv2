@@ -156,22 +156,22 @@ Enhanced the Plato API proxy layer to be production-grade. Created a dedicated `
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] All HTTP methods forwarded — PASS / FAIL
-- [ ] Bearer token attached — PASS / FAIL
-- [ ] Rate limit headers forwarded — PASS / FAIL
-- [ ] Error normalization — PASS / FAIL
-- [ ] 429 handling — PASS / FAIL
-- [ ] Health endpoint — PASS / FAIL
-- [ ] Caching works — PASS / FAIL
-- [ ] IP rate limiting — PASS / FAIL
-- [ ] Logging — PASS / FAIL
-- [ ] Config file — PASS / FAIL
+- [x] All HTTP methods forwarded — PASS — proxy() handles GET, POST, PUT, PATCH, DELETE via match expression in PlatoProxyService
+- [x] Bearer token attached — PASS — Http::withToken() called on every request; token sourced from config('plato.api_token') = env('PLATO_API_TOKEN')
+- [x] Rate limit headers forwarded — PASS — extractRateLimitHeaders() reads x-ratelimit-limit and x-ratelimit-remaining, controller attaches them to JSON response
+- [x] Error normalization — PASS — buildResponse() normalizes all non-2xx to consistent `{ error: true, code, message }` structure
+- [x] 429 handling — PASS — dedicated 429 case with clear message; IP-based throttling also returns 429
+- [x] Health endpoint — PASS — GET /api/v2/plato/health (public, no auth) returns status, plato_connected, token_configured, base_url
+- [x] Caching works — PASS — GET requests use Cache::get/put with MD5-based keys; TTL varies by endpoint type (facility=300s, slots=60s, default=120s); cache.enabled flag respected
+- [x] IP rate limiting — PASS — proxy() checks RateLimiter::tooManyAttempts per-IP key before forwarding; configurable via PLATO_PROXY_RATE_LIMIT
+- [x] Logging — PASS — logRequest() and logError() write to dedicated `plato` log channel (daily rotation, 30 days, storage/logs/plato-proxy.log)
+- [x] Config file — PASS — config/plato.php exists with all configurable values documented: base_url, api_token, timeout, cache.*, log_requests, proxy_rate_limit
 
 ### Failure Details
-{If FAILED}
+N/A — All criteria passed.
 
 ---
 
