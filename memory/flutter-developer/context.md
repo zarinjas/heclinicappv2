@@ -3,9 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Active Tasks
-(None — UI-P1-T06 complete)
+UI-P1-T11 — SectionHeader (IN-REVIEW)
 
 ## Recent Work
+- UI-P1-T11 — SectionHeader (IN-REVIEW): Created `lib/core/widgets/section_header.dart` — StatelessWidget with title + optional "See All" link. Uses AppTextStyles.heading2 with AppColors.primary (light) / AppColors.textPrimaryDark (dark) for title, AppTextStyles.label with AppColors.accent for "See All", AppSpacing.space16 horizontal padding, hidden when onSeeAll is null.
+- UI-P1-T10 — OtpInputRow (DONE): Created `lib/core/widgets/otp_input_row.dart` with per-digit animation, pasting support, keyboard dismissal.
 - UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation (Home/Appointments/Health/Notifications/Profile), AppColors.primary background, AppColors.accent active color, 50% white inactive, AppTextStyles.caption labels, AppShadows.shadowNav elevation, notification badge on Notifications tab when notificationCount > 0. Uses Container with BoxDecoration for custom shadow. Height: 64px + bottomSafeArea.
 - P6-T05 — Health Tab Pagination + modified_since (IN-REVIEW): Upgraded GetReportCall, GetVitalsGraphingCall, GetPatientDocumentsCall with PaginationHelper.fetchAllPages() and ModifiedSinceHelper patterns matching LetterCall reference. Added `forceRefresh` parameter to all three. Modified _loadRecords(), _loadVitals(), _loadDocuments() to skip skeleton during forceRefresh (stale-while-revalidate). Added RefreshIndicator to all three Health sub-tab list views with AppColors accent/primary styling.
 - P6-T03 — Vitals Tab (IN-REVIEW): Added fl_chart dependency, GetVitalsGraphingCall API call class (GET /patient/{id}/graphing), VitalDataPoint/VitalType data models, vitals state fields in ReportsModel, _loadVitals() method with dynamic JSON key parsing and unit inference, _buildVitalChartCard() with LineChart rendering using V2 design tokens, _buildVitalsTab() with loading/empty/error/data states, lazy-load on Vitals tab switch. Replaced skeleton placeholder with real implementation.
