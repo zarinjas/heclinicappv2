@@ -6,12 +6,12 @@ Last Updated: 2026-07-05 (Epic: UI Migration — Phase 0 started)
 Epic: UI Migration — Phase 0: Design System Foundation (ACTIVE)
 
 ## Active Tasks
-**Epic UI Migration — Phase 0 (16 tasks created — BATCH 1 processing):**
+**Epic UI Migration — Phase 0 (BATCH 1: T01-T05 DONE, 5 of 16 complete):**
 UI-P0-T01 — AppColors (DONE)
-UI-P0-T02 — AppTextStyles (BACKLOG)
-UI-P0-T03 — AppSpacing + AppRadius + AppShadows (BACKLOG)
-UI-P0-T04 — AppTheme (BACKLOG, depends on T01-T03)
-UI-P0-T05 — AppButton (BACKLOG, depends on T04)
+UI-P0-T02 — AppTextStyles (DONE)
+UI-P0-T03 — AppSpacing + AppRadius + AppShadows (DONE)
+UI-P0-T04 — AppTheme (DONE)
+UI-P0-T05 — AppButton (DONE)
 UI-P0-T06 — AppInput (BACKLOG, depends on T04)
 UI-P0-T07 — AppCard (BACKLOG, depends on T04)
 UI-P0-T08 — AppChip (BACKLOG, depends on T04)
