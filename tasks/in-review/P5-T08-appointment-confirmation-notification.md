@@ -17,7 +17,7 @@ Appointment Confirmation Notification
 | Type | Both |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T07 |
 | Blocked Reason | N/A |
@@ -108,16 +108,31 @@ Implement the mobile-side handling for appointment confirmation notifications. A
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Implemented mobile-side handling for appointment confirmation notifications across 3 files:
+
+1. **`push_notifications_handler.dart`**: Updated `_handlePushNotification()` to detect `type == "appointment_confirmed"` in FCM payload and navigate to `MyBookingPage` (appointments tab). Increments `FFAppState().coutnnotif` on reception. Falls through to existing `initialPageName`-based navigation for non-appointment notifications. Handles both cold start (`getInitialMessage`) and background (`onMessageOpenedApp`) scenarios.
+
+2. **`setup_f_c_m_foreground_handler.dart`**: Rewrote foreground handler to detect `appointment_confirmed` type, increment notification badge count, and show local notification with a dedicated `appointment_channel_id` channel. Added `onDidReceiveNotificationResponse` callback on initialization for foreground notification tap handling — navigates to `MyBookingPage`. Deduplicates messages via `_handledForegroundMessageIds`.
+
+3. **`app_state.dart`**: Added `incrementNotifCount()` and `resetNotifCount()` helper methods on `FFAppState` for clean notification count management.
 
 ### Files Changed
-- {To be filled}
+- `lib/backend/push_notifications/push_notifications_handler.dart`
+- `lib/custom_code/actions/setup_f_c_m_foreground_handler.dart`
+- `lib/app_state.dart`
 
 ### Decisions Made During Implementation
-{To be filled}
+- Appointment confirmation notifications use `type: "appointment_confirmed"` as discriminator in FCM data payload
+- Background/killed notifications route to `MyBookingPage` for patient to view newly created appointment
+- Foreground notifications display via `flutter_local_notifications` with dedicated Android channel (`appointment_channel_id`) to distinguish from marketing notifications
+- `coutnnotif` remains a String type (existing pattern) — integer arithmetic done during increment, converted back to String
+- Notification payload from data-only FCM messages (no `RemoteNotification`) is handled through `message.data['title']` and `message.data['body']` fallbacks
+- Deduplication guards prevent double badge increments on rapid notification delivery
 
 ### Known Limitations
-{To be filled}
+- Navigation from foreground notification tap requires `appNavigatorKey.currentContext` to be non-null (app in foreground)
+- Badge count does not persist across app restarts (existing behavior, `coutnnotif` is not persisted)
+- Deep link appointment_id parsing available in payload but not wired to specific appointment detail views (MyBookingPage shows all appointments)
 
 ---
 

@@ -104,6 +104,22 @@ class FFAppState extends ChangeNotifier {
     _coutnnotif = value;
   }
 
+  void incrementNotifCount() {
+    try {
+      final current = int.parse(_coutnnotif);
+      _coutnnotif = (current + 1).toString();
+      notifyListeners();
+    } catch (_) {
+      _coutnnotif = '1';
+      notifyListeners();
+    }
+  }
+
+  void resetNotifCount() {
+    _coutnnotif = '0';
+    notifyListeners();
+  }
+
   List<String> _Listcode = [];
   List<String> get Listcode => _Listcode;
   set Listcode(List<String> value) {

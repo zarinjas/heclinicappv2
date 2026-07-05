@@ -48,7 +48,23 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
 
     safeSetState(() => _loading = true);
     try {
-      final initialPageName = message.data['initialPageName'] as String;
+      final notifType = message.data['type'] as String?;
+      if (notifType == 'appointment_confirmed') {
+        _incrementNotifBadge();
+        final targetPage = message.data['initialPageName'] as String? ??
+            'MyBookingPage';
+        if (mounted) {
+          context.pushNamed(targetPage);
+        } else {
+          appNavigatorKey.currentContext?.pushNamed(targetPage);
+        }
+        return;
+      }
+
+      final initialPageName = message.data['initialPageName'] as String?;
+      if (initialPageName == null) {
+        return;
+      }
       final initialParameterData = getInitialParameterData(message.data);
       final parametersBuilder = parametersBuilderMap[initialPageName];
       if (parametersBuilder != null) {
@@ -71,6 +87,19 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
       print('Error: $e');
     } finally {
       safeSetState(() => _loading = false);
+    }
+  }
+
+  void _incrementNotifBadge() {
+    try {
+      final current = int.parse(FFAppState().coutnnotif);
+      FFAppState().update(() {
+        FFAppState().coutnnotif = (current + 1).toString();
+      });
+    } catch (_) {
+      FFAppState().update(() {
+        FFAppState().coutnnotif = '1';
+      });
     }
   }
 
