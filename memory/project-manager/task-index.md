@@ -90,7 +90,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 1 tasks created)
 | UI-P0-T14 | app-error-state | Epic UI — Phase 0 | Step 14 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T15 | app-app-bar | Epic UI — Phase 0 | Step 15 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T16 | app-nav-bar | Epic UI — Phase 0 | Step 16 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P1-T01 | appointment-card | Epic UI — Phase 1 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P1-T01 | appointment-card | Epic UI — Phase 1 | Step 1 | Flutter | flutter-developer | IN-PROGRESS | — |
 | UI-P1-T02 | doctor-card | Epic UI — Phase 1 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T03 | article-card | Epic UI — Phase 1 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P1-T04 | video-card | Epic UI — Phase 1 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
