@@ -133,16 +133,21 @@ service cloud.firestore {
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Replaced permissive Firestore security rules (all collections allowed unrestricted create + read) with authentication-gated rules. Rules now require `request.auth != null` for all reads, disable all client-side writes (server/Firebase Functions only via admin SDK), and enforce ownership checks on user-scoped collections (`users`, `fcm`, `historynotif`).
 
 ### Files Changed
-{To be filled}
+- `firebase/firestore.rules` — REPLACED: tightened all 10 collection rules with auth guards, ownership checks, and write restrictions
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used `id_patient` field (actual Firestore schema field name) instead of `userId` for `historynotif` and `fcm` ownership checks — matches the actual Dart record schemas
+- `biometric` collection has no UID field — enforced authenticated read with no client writes (server creates via Firebase Functions)
+- `fcm` collection uses field-level `id_patient` check rather than document ID matching (doc IDs are auto-generated, not Firebase UIDs)
+- All client-side `create/update/delete` operations are disabled — writes must go through Firebase Functions (admin SDK bypasses rules)
 
 ### Known Limitations
-{To be filled}
+- `biometric` collection cannot enforce per-user ownership at rule level without a `uid` field in documents — relies on Firebase Functions to scope writes correctly
+- Custom claims (admin roles) are not implemented in Firestore rules — admin writes rely entirely on Firebase Functions server-side enforcement
+- These rules require deployment to Firebase before taking effect (`firebase deploy --only firestore:rules`)
 
 ---
 

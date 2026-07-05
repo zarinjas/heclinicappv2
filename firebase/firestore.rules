@@ -1,74 +1,63 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    match /articles/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    function isOwnerDoc(userId) {
+      return request.auth.uid == userId;
     }
 
-    match /videos/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /articles/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
     }
 
-    match /patients/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /videos/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
     }
 
-    match /otps/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /branch/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
     }
 
-    match /branch/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /info/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
     }
 
-    match /fcm/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && isOwnerDoc(userId);
     }
 
-    match /historynotif/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /fcm/{doc} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.id_patient;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.id_patient;
+      allow update, delete: if false;
     }
 
-    match /biometric/{document} {
-      allow create: if true;
-      allow read: if true;
-      allow write: if false;
-      allow delete: if false;
+    match /historynotif/{doc} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.id_patient;
+      allow create, update, delete: if false;
     }
 
-    match /info/{document} {
-      allow create: if true;
-      allow read: if true;
+    match /biometric/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
+    match /patients/{doc} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
+    match /otps/{doc} {
+      allow read: if false;
       allow write: if false;
-      allow delete: if false;
     }
   }
 }
