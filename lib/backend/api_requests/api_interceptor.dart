@@ -19,6 +19,9 @@ class ApiInterceptor {
   OnClientErrorCallback? onClientError;
 
   bool _isHandling = false;
+  bool _isOffline = false;
+
+  bool get isOffline => _isOffline;
 
   void handleResponse(ApiCallResponse response, ApiCallOptions options) {
     if (_isHandling) return;
@@ -27,6 +30,8 @@ class ApiInterceptor {
       _handleNetworkError(response);
       return;
     }
+
+    _isOffline = false;
 
     final statusCode = response.statusCode;
 
@@ -57,6 +62,7 @@ class ApiInterceptor {
   }
 
   void _handleNetworkError(ApiCallResponse response) {
+    _isOffline = true;
     final message = response.exception.toString();
     debugPrint('ApiInterceptor: Network error — $message');
     onNetworkError?.call('No internet connection — showing last synced data');
