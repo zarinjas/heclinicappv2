@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (Process 9 tasks added)
+Last Updated: 2026-07-05 (Process 10 tasks added)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -66,6 +66,14 @@ Last Updated: 2026-07-05 (Process 9 tasks added)
 | P9-T04 | videos-cms | 9 | Step 4 | Both | laravel-developer | DONE | 2026-07-05 |
 | P9-T05 | doctor-profiles-cms | 9 | Step 5 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P9-T06 | branch-profiles-cms | 9 | Step 6 | Laravel | laravel-developer | DONE | 2026-07-05 |
+| P10-T01 | whatsapp-center-admin | 10 | Step 1 | Both | laravel-developer | BACKLOG | — |
+| P10-T02 | queue-tracker-mobile | 10 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| P10-T03 | payment-history-mobile | 10 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| P10-T04 | analytics-dashboard | 10 | Step 4 | Laravel | laravel-developer | BACKLOG | — |
+| P10-T05 | role-permission-audit | 10 | Step 5 | Laravel | laravel-developer | BACKLOG | — |
+| P10-T06 | firestore-security-rules | 10 | Step 6 | Both | flutter-developer | BACKLOG | — |
+| P10-T07 | remove-unused-firebase-deps | 10 | Step 7 | Both | flutter-developer | BACKLOG | — |
+| P10-T08 | flutter-version-upgrade-assessment | 10 | Step 8 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
@@ -116,6 +124,16 @@ Last Updated: 2026-07-05 (Process 9 tasks added)
   - P9-T04 (videos CMS) — no dependencies (parallel with T01-T03)
   - P9-T05 (doctor profiles CMS) — depends on P2-T04 (doctor CRUD exists; DONE); parallel with T01-T04
   - P9-T06 (branch profiles CMS) — depends on P2-T03 (branch CRUD exists; DONE); parallel with T01-T05
+
+- Process 10 tasks have the following dependency chain:
+  - P10-T01 (WhatsApp Center) — no dependencies (can run in parallel with T02-T04, T06-T08)
+  - P10-T02 (Queue tracker) — depends on P1-T02 (Laravel proxy); parallel with T01, T03-T04, T06-T08
+  - P10-T03 (Payment history) — depends on P1-T02 (Laravel proxy); parallel with T01-T02, T04, T06-T08
+  - P10-T04 (Analytics dashboard) — depends on P7-T01, P8-T08 (needs patient + notification data); parallel with T01-T03, T06-T08
+  - P10-T05 (Role permission audit) — depends on ALL prior admin controllers existing; run AFTER T01, T04
+  - P10-T06 (Firestore security rules) — no dependencies; parallel with any
+  - P10-T07 (Remove unused Firebase deps) — no dependencies; parallel with any; LIGHTWEIGHT
+  - P10-T08 (Flutter version upgrade assessment) — no dependencies; parallel with any
 
 **Note:** Agentic AI Director is now active via GitHub Actions + Telegram approval.
 Bot URL: https://heclinic.cyberoket.cloud/bot/webhook
