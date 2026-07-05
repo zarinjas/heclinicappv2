@@ -76,6 +76,28 @@ final class FirebaseService
 
     public function writePushNotification(array $notificationData): array
     {
+        $userRefs = $notificationData['user_refs'] ?? [];
+        if (is_string($userRefs) && $userRefs !== '') {
+            $userRefs = array_map('trim', explode(',', $userRefs));
+        } elseif (!is_array($userRefs)) {
+            $userRefs = [];
+        }
+
+        $branchIds = $notificationData['branch_ids'] ?? [];
+        if (!is_array($branchIds)) {
+            $branchIds = [];
+        }
+
+        $doctorIds = $notificationData['doctor_ids'] ?? [];
+        if (!is_array($doctorIds)) {
+            $doctorIds = [];
+        }
+
+        $targetDateRange = $notificationData['target_date_range'] ?? null;
+        if ($targetDateRange !== null && !is_array($targetDateRange)) {
+            $targetDateRange = null;
+        }
+
         $payload = [
             'notification_title' => $notificationData['title'] ?? '',
             'notification_text' => $notificationData['body'] ?? '',
@@ -84,7 +106,10 @@ final class FirebaseService
             'parameter_data' => $notificationData['parameter_data'] ?? '',
             'target_audience' => $notificationData['target_audience'] ?? 'All',
             'initial_page_name' => $notificationData['initial_page_name'] ?? 'Appointments',
-            'user_refs' => $notificationData['user_refs'] ?? '',
+            'user_refs' => $userRefs,
+            'branch_ids' => $branchIds,
+            'doctor_ids' => $doctorIds,
+            'target_date_range' => $targetDateRange,
             'batch_index' => 0,
             'num_batches' => 0,
             'status' => '',

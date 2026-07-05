@@ -1,9 +1,17 @@
 # Laravel Developer — Context
 
-Last Updated: 2026-07-05
+Last Updated: 2026-07-05 (P8-T04 implemented)
 
 ## Active Task
-P8-T03 — Channel Selection — Notifications (IN-REVIEW)
+P8-T04 — FCM Push Notification — Cloud Function Upgrade (IN-REVIEW)
+
+## Implementation Summary — P8-T04
+- `laravel/app/Services/FirebaseService.php`: `writePushNotification()` updated to accept `user_refs` as array (with string backward compat), `branch_ids` array, `doctor_ids` array, `target_date_range` map. Normalizes all inputs before write.
+- `laravel/app/Services/NotificationService.php`: `sendPush()` refactored to accept generic `$options` array; added public `sendTargetedPush()` for composer integration; `sendAppointmentConfirmation()` updated to new signature.
+- `firebase/functions/index.js`: `sendPushNotifications()` upgraded with 3 targeting resolvers (`resolveUserRefsByBranchIds`, `resolveUserRefsByDoctorIds`, `resolveUserRefsByDateRange`); `user_refs` supports both array and legacy string formats; graceful fallback when Firestore collections are missing; backward compatible broadcast-all path preserved.
+- Zero PHP syntax errors confirmed across all Laravel files.
+- Targeting resolution priority: branch_ids > doctor_ids > target_date_range > user_refs > broadcast-all.
+- Batching for >500 tokens preserved for all paths.
 
 ## Implementation Summary — P8-T03
 - `laravel/app/Http/Controllers/Admin/NotificationController.php`: added channels validation (required array, min:1, in:push/email/in_app), custom error message "Please select at least one delivery channel.", stores validated channels array instead of hardcoded all-3

@@ -83,7 +83,10 @@ async function sendPushNotifications(snapshot) {
   const parameterData = notificationData.parameter_data || "";
   const targetAudience = notificationData.target_audience || "";
   const initialPageName = notificationData.initial_page_name || "";
-  const userRefsStr = notificationData.user_refs || "";
+  const userRefsData = notificationData.user_refs || [];
+  const branchIds = notificationData.branch_ids || [];
+  const doctorIds = notificationData.doctor_ids || [];
+  const targetDateRange = notificationData.target_date_range || null;
   const batchIndex = notificationData.batch_index || 0;
   const numBatches = notificationData.num_batches || 0;
   const status = notificationData.status || "";
@@ -98,24 +101,42 @@ async function sendPushNotifications(snapshot) {
     return;
   }
 
-  const userRefs = userRefsStr === "" ? [] : userRefsStr.trim().split(",");
   var tokens = new Set();
-  if (userRefsStr) {
+  var userRefs = [];
+
+  if (userRefsData && Array.isArray(userRefsData) && userRefsData.length > 0) {
+    userRefs = userRefsData;
+  } else if (typeof userRefsData === "string" && userRefsData.trim() !== "") {
+    userRefs = userRefsData.trim().split(",").map((r) => r.trim()).filter((r) => r);
+  }
+
+  if (branchIds.length > 0) {
+    userRefs = await resolveUserRefsByBranchIds(branchIds);
+  } else if (doctorIds.length > 0) {
+    userRefs = await resolveUserRefsByDoctorIds(doctorIds);
+  } else if (targetDateRange) {
+    userRefs = await resolveUserRefsByDateRange(targetDateRange);
+  }
+
+  if (userRefs.length > 0) {
     for (var userRef of userRefs) {
-      const userTokens = await firestore
-        .doc(userRef)
-        .collection(kFcmTokensCollection)
-        .get();
-      userTokens.docs.forEach((token) => {
-        if (typeof token.data().fcm_token !== undefined) {
-          tokens.add(token.data().fcm_token);
-        }
-      });
+      var userPath = userRef.startsWith("users/") ? userRef : "users/" + userRef;
+      try {
+        const userTokens = await firestore
+          .doc(userPath)
+          .collection(kFcmTokensCollection)
+          .get();
+        userTokens.docs.forEach((token) => {
+          if (typeof token.data().fcm_token !== undefined) {
+            tokens.add(token.data().fcm_token);
+          }
+        });
+      } catch (e) {
+        console.log(`Skipping user ${userPath}: ${e}`);
+      }
     }
   } else {
     var userTokensQuery = firestore.collectionGroup(kFcmTokensCollection);
-    // Handle batched push notifications by splitting tokens up by document
-    // id.
     if (numBatches > 0) {
       userTokensQuery = userTokensQuery
         .orderBy(admin.firestore.FieldPath.documentId())
@@ -173,6 +194,69 @@ async function sendPushNotifications(snapshot) {
   );
 
   await snapshot.ref.update({ status: "succeeded", num_sent: numSent });
+}
+
+async function resolveUserRefsByBranchIds(branchIds) {
+  if (!branchIds || branchIds.length === 0) {
+    return [];
+  }
+  var refs = [];
+  try {
+    const usersSnapshot = await firestore
+      .collection("users")
+      .where("branch_id", "in", branchIds)
+      .get();
+    usersSnapshot.docs.forEach((doc) => {
+      refs.push(doc.ref.path);
+    });
+    console.log(`Resolved ${refs.length} users from branch_ids: [${branchIds}]`);
+  } catch (e) {
+    console.log(`Error resolving branch_ids: ${e}`);
+  }
+  return refs;
+}
+
+async function resolveUserRefsByDoctorIds(doctorIds) {
+  if (!doctorIds || doctorIds.length === 0) {
+    return [];
+  }
+  var refs = [];
+  try {
+    const usersSnapshot = await firestore
+      .collection("users")
+      .where("doctor_id", "in", doctorIds)
+      .get();
+    usersSnapshot.docs.forEach((doc) => {
+      refs.push(doc.ref.path);
+    });
+    console.log(`Resolved ${refs.length} users from doctor_ids: [${doctorIds}]`);
+  } catch (e) {
+    console.log(`Error resolving doctor_ids: ${e}`);
+  }
+  return refs;
+}
+
+async function resolveUserRefsByDateRange(dateRange) {
+  if (!dateRange || !dateRange.from || !dateRange.to) {
+    return [];
+  }
+  var refs = new Set();
+  try {
+    const appointmentsSnapshot = await firestore
+      .collectionGroup("appointments")
+      .where("appointment_date", ">=", dateRange.from)
+      .where("appointment_date", "<=", dateRange.to)
+      .get();
+    appointmentsSnapshot.docs.forEach((doc) => {
+      refs.add(doc.ref.parent.parent.path);
+    });
+    console.log(
+      `Resolved ${refs.size} users from date_range: ${dateRange.from} to ${dateRange.to}`,
+    );
+  } catch (e) {
+    console.log(`Error resolving date_range: ${e}. Appointments collection may not exist in Firestore.`);
+  }
+  return Array.from(refs);
 }
 
 function getUserFcmTokensCollection(userDocPath) {

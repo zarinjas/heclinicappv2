@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T02, P8-T03 |
 | Blocked Reason | N/A |
@@ -123,12 +123,32 @@ else:
 > Filled in by the Developer after implementation.
 
 ### What Was Done
+1. **FirebaseService::writePushNotification()** — Updated to accept `user_refs` as array (with string backward compat), `branch_ids` array, `doctor_ids` array, and `target_date_range` map. All targeting fields are stored in the Firestore `ff_push_notifications` document.
+2. **NotificationService::sendPush()** — Refactored to accept a generic `$options` array instead of `Appointment` parameter. Added public `sendTargetedPush()` method for notification composer integration. `sendAppointmentConfirmation()` updated to use new signature.
+3. **Cloud Function (index.js)** — `sendPushNotifications()` upgraded with three new targeting resolvers:
+   - `resolveUserRefsByBranchIds()` — queries `users` collection by `branch_id` field
+   - `resolveUserRefsByDoctorIds()` — queries `users` collection by `doctor_id` field
+   - `resolveUserRefsByDateRange()` — queries `appointments` collection group by date range
+   - `user_refs` now supports both Firestore array format and legacy comma-separated string
+   - Each resolver gracefully handles empty results or missing collections
 
 ### Files Changed
+- `laravel/app/Services/FirebaseService.php` — `writePushNotification()` method
+- `laravel/app/Services/NotificationService.php` — `sendPush()`, new `sendTargetedPush()`, updated `sendAppointmentConfirmation()`
+- `firebase/functions/index.js` — `sendPushNotifications()` + 3 new helper functions
 
 ### Decisions Made During Implementation
+- Targeting resolution priority in Cloud Function: `branch_ids` > `doctor_ids` > `target_date_range` > `user_refs` (explicit array or string) > broadcast-all fallback
+- Cloud Function targeting resolvers query Firestore directly. If `branch_id`/`doctor_id` fields don't exist in Firestore users (stored in MySQL), resolvers return empty and fall through to user_refs or broadcast. Laravel side should pre-resolve user_refs for guaranteed delivery.
+- `target_date_range` resolver uses `collectionGroup('appointments')` — this collection may not exist in Firestore yet (appointments are in MySQL). Resolver catches errors gracefully and returns empty.
+- Backward compatibility: `user_refs` as comma-separated string is still supported. When no targeting fields provided, broadcast-all behavior is preserved.
+- Batching for >500 tokens preserved for both targeted and broadcast sends.
 
 ### Known Limitations
+- `branch_ids` and `doctor_ids` Cloud Function resolution depends on `branch_id` and `doctor_id` fields being synced to Firestore `users` collection. Currently these fields exist only in MySQL. Laravel should resolve targeting to `user_refs` before writing to Firestore for guaranteed delivery.
+- `target_date_range` Cloud Function resolution depends on `appointments` subcollection existing in Firestore. Not yet implemented — appointments are in MySQL.
+- `target_audience` field (for device_type filtering) only applied in broadcast-all path, not in user_refs path.
+- No Firestore indexes added yet for the new queries (not needed unless these collections get populated).
 
 ---
 

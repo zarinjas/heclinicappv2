@@ -30,7 +30,14 @@ final class NotificationService
         );
 
         if (in_array('push', $selectedChannels, true)) {
-            $this->sendPush($title, $body, $appointment);
+            $this->sendPush($title, $body, [
+                'parameter_data' => json_encode([
+                    'appointment_id' => $appointment->id,
+                    'plato_appointment_id' => $appointment->plato_appointment_id,
+                ]),
+                'initial_page_name' => 'Appointments',
+                'target_audience' => 'All',
+            ]);
         }
 
         if (in_array('in_app', $selectedChannels, true)) {
@@ -55,25 +62,53 @@ final class NotificationService
         ]);
     }
 
-    private function sendPush(string $title, string $body, Appointment $appointment): void
+    public function sendTargetedPush(string $title, string $body, array $targeting): array
     {
-        $result = $this->firebase->writePushNotification([
+        $pushData = [
             'title' => $title,
             'body' => $body,
-            'parameter_data' => json_encode([
-                'appointment_id' => $appointment->id,
-                'plato_appointment_id' => $appointment->plato_appointment_id,
-            ]),
+            'parameter_data' => $targeting['parameter_data'] ?? '',
+            'initial_page_name' => $targeting['initial_page_name'] ?? 'Appointments',
+            'target_audience' => $targeting['target_audience'] ?? 'All',
+        ];
+
+        if (!empty($targeting['user_refs'])) {
+            $pushData['user_refs'] = $targeting['user_refs'];
+        }
+
+        if (!empty($targeting['branch_ids'])) {
+            $pushData['branch_ids'] = $targeting['branch_ids'];
+        }
+
+        if (!empty($targeting['doctor_ids'])) {
+            $pushData['doctor_ids'] = $targeting['doctor_ids'];
+        }
+
+        if (!empty($targeting['target_date_range'])) {
+            $pushData['target_date_range'] = $targeting['target_date_range'];
+        }
+
+        return $this->sendPush($title, $body, $pushData);
+    }
+
+    private function sendPush(string $title, string $body, array $options): array
+    {
+        $payload = array_merge([
+            'title' => $title,
+            'body' => $body,
             'initial_page_name' => 'Appointments',
             'target_audience' => 'All',
-        ]);
+        ], $options);
 
-        if (! ($result['success'] ?? false)) {
+        $result = $this->firebase->writePushNotification($payload);
+
+        if (!($result['success'] ?? false)) {
             Log::channel('plato')->warning('Push notification failed', [
-                'appointment_id' => $appointment->id,
                 'error' => $result['error'] ?? 'Unknown',
             ]);
         }
+
+        return $result;
     }
 
     private function sendInApp(string $title, string $body, Appointment $appointment): void
