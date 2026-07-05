@@ -40,6 +40,15 @@ Plato API enforces rate limits and returns HTTP 429 (Too Many Requests) when the
 - Debug logging: retry count and delay logged via `debugPrint`
 
 ## QA Notes
+- [x] AC1 (Retry with delays 1s, 2s, 4s, 8s): PASS — `kBaseDelayMs * (1 << (retryCount - 1))` produces exactly 1000, 2000, 4000, 8000ms. `kMaxRetries = 4` → 5 total attempts.
+- [x] AC2 (Future.delayed non-blocking): PASS — `await Future.delayed(Duration(milliseconds: delayMs))` is non-blocking to UI thread.
+- [x] AC3 (All retries fail → toast): PASS — Exhausted retries fall through to `ApiInterceptor.handleResponse()` → `onRateLimited` callback → SnackBar with exact text.
+- [x] AC4 (All API call types covered): PASS — Retry loop wraps entire switch: GET, DELETE (body/no-body), POST, PUT, PATCH, multipart.
+- [x] AC5 (Concurrent calls independent): PASS — `retryCount` is local to each `makeApiCall()` invocation.
+- [x] AC6 (No retry for non-429): PASS — Explicit `statusCode == 429` guard; non-429 codes skip retry block.
+- [x] AC7 (Debug logging): PASS — `debugPrint('ApiManager: HTTP 429 — retry $retryCount/$kMaxRetries in ${delayMs}ms for $callName')`.
+
+**QA Result: PASSED** (7/7)
 
 ## Reviewer Notes
 
