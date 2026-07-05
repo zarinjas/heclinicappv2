@@ -101,3 +101,17 @@ Created `lib/core/widgets/health_record_card.dart`:
 ---
 
 ## QA Notes
+
+| # | Criterion | Result | Notes |
+|---|-----------|--------|-------|
+| 1 | Leading 40px accent-tinted circle icon per type | PASS | `_TypeIcon` widget: Container 40×40 circle, `accent.withOpacity(0.1/0.2)`, accent icon at 20px |
+| 2 | Record title in heading3 | PASS | `AppTextStyles.heading3` used |
+| 3 | Doctor name in body2/textSecondary | PASS | `AppTextStyles.body2.copyWith(color: AppColors.textSecondary)` |
+| 4 | Trailing date in body2/textSecondary | PASS | Same pattern as subtitle |
+| 5 | Tap callback | PASS | `onTap` forwarded to `AppCard` which handles press |
+| 6 | Skeleton: 40px circle + 3 text bars | PASS | `HealthRecordCardSkeleton`: circle(40) + w160/h14 + w120/h12 + w72/h12 |
+| 7 | Dark mode support | PASS | `isDark` check in `_TypeIcon` opacity and `HealthRecordCardSkeleton` surface |
+| 8 | No hardcoded design tokens | PASS | All colors/spacing/radius from AppColors/AppSpacing/AppRadius |
+| 9 | flutter analyze zero errors | PASS | Confirmed zero output from `grep error` |
+
+**QA Result: PASSED** — All 9 criteria verified. No issues found.

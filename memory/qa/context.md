@@ -1,8 +1,9 @@
 # QA — Context
 
-Last Updated: 2026-07-05 (UI-P0-T16 verified)
+Last Updated: 2026-07-05 (UI-P1-T06 verified)
 
 ## Last Verified Tasks
+- UI-P1-T06 — HealthRecordCard (PASSED — 9/9 criteria)
 - UI-P0-T16 — AppNavBar (PASSED — 12/12 criteria)
 
 ## Verification History
