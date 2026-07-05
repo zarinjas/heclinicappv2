@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -66,6 +66,19 @@ Build the `TimeSlotChip` reusable component for time slot selection in the Booki
 - Design tokens only
 - Dark mode: unselected bg adapts to dark surface variant
 - Minimum touch target 44×40px
+
+---
+
+## Implementation Notes
+
+- Created `lib/core/widgets/time_slot_chip.dart`
+- StatefulWidget with AnimationController for press-scale animation (0.97, 150ms)
+- Selected: `AppColors.accent` bg, white text; Unselected: `AppColors.chipFilterDefaultBg` / `surfaceDark` bg, `AppColors.chipFilterDefaultText` text
+- Height: 40px, radius: `AppRadius.radiusSM` (8px), horizontal padding: `AppSpacing.space16`
+- `AnimatedContainer` for smooth color transitions (200ms); `Transform.scale` for press feedback
+- `AppTextStyles.label` for text
+- Dark mode: unselected bg switches to `surfaceDark`
+- `flutter analyze`: zero errors
 
 ---
 
