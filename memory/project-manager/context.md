@@ -8,7 +8,7 @@ Epic: UI Migration — Phase 9 (Loyalty Points Screens) — IN PROGRESS
 ## Active Tasks
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P9-T01 | My Points Screen | IN-REVIEW |
+| UI-P9-T01 | My Points Screen | DONE |
 | UI-P9-T02 | Redeem Points Bottom Sheet | BACKLOG |
 | UI-P9-T03 | Redemption Code Modal | BACKLOG |
 
