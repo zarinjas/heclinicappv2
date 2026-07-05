@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 Process 1 — Security and Foundation
 
 ## Active Tasks
-None.
+- P1-T06 (flutter-developer) — Remove duplicate API call classes from api_calls.dart
 
 ## Blocked Tasks
 None currently.
