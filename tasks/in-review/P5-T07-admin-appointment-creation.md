@@ -112,16 +112,55 @@ Create the Laravel API endpoint that receives confirmed WhatsApp booking data fr
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+- Created `appointments` migration with fields: plato_appointment_id, patient_name, patient_nric, patient_phone, branch_id, branch_name, doctor_id, doctor_name, appointment_date, appointment_time, calendar_color_id, notes, status, plato_response, notified_at
+- Created `Appointment` Eloquent model with branch/doctor relationships and proper attribute casting
+- Created `config/firebase.php` with FIREBASE_PROJECT_ID, FIREBASE_WEB_API_KEY, Firestore and FCM endpoint configs
+- Created `FirebaseService` for writing to Firestore via REST API:
+  - `writeToFirestore()` — generic Firestore document writer with API key auth
+  - `writePushNotification()` — writes to `ff_push_notifications` collection to trigger existing cloud function `sendPushNotificationsTrigger`
+  - `writeInAppNotification()` — writes to `historynotif` collection with deep_link support
+  - Proper Firestore REST API document serialization with typed field values
+- Created `NotificationService` for 3-channel dispatch:
+  - Push: via `FirebaseService.writePushNotification()` triggering existing Cloud Function
+  - Email: via Laravel Mail facade (raw text email)
+  - In-App: via `FirebaseService.writeInAppNotification()` to Firestore `historynotif`
+  - Logs all notification attempts to MySQL `notifications_log` table
+- Created `AppointmentService` with transactional appointment creation:
+  - Creates local MySQL record first
+  - Forwards to Plato API via `POST /appointment` through existing `PlatoProxyService`
+  - Updates record with Plato appointment ID on success
+  - Dispatches 3-channel notification to patient
+  - Rolls back on Plato failure (DB transaction)
+- Created `AppointmentController` with `POST /api/v2/admin/appointments`:
+  - Input validation for all fields
+  - Proper error responses for validation (422), Plato failures (502), and unexpected errors (500)
+  - Returns 201 with appointment details on success
+- Added route behind `auth:sanctum` middleware for 401 enforcement
+- Added Firebase env vars to `.env.example`
 
 ### Files Changed
-- {To be filled}
+- `laravel/database/migrations/2026_07_05_000010_create_appointments_table.php` — new
+- `laravel/app/Models/Appointment.php` — new
+- `laravel/config/firebase.php` — new
+- `laravel/app/Services/FirebaseService.php` — new
+- `laravel/app/Services/NotificationService.php` — new
+- `laravel/app/Services/AppointmentService.php` — new
+- `laravel/app/Http/Controllers/Api/AppointmentController.php` — new
+- `laravel/routes/api.php` — added POST /api/v2/admin/appointments route
+- `laravel/.env.example` — added FIREBASE_* vars
 
 ### Decisions Made During Implementation
-{To be filled}
+- Firestore writes use the REST API directly (via Laravel HTTP client) instead of requiring `kreait/firebase-php` package, since it's not in composer.json. This avoids adding a new dependency.
+- Push notifications leverage the existing Firebase Cloud Function `sendPushNotificationsTrigger` by writing to the `ff_push_notifications` Firestore collection (same trigger as existing admin panel push notification flow).
+- Firebase Web API Key is stored in `.env` and passed as `?key=` query parameter for Firestore REST API authentication.
+- Plato appointment payload uses minimal required fields (name, phone, date, time, color, ic, notes) based on the Plato API documentation for `POST /appointment`.
+- Email notifications use `Mail::raw()` with a simple text body — full HTML email templates deferred to Process 8 (Notifications Module).
+- Notification dispatch failures are logged but do NOT fail the appointment creation — the Plato appointment and MySQL record are already committed.
 
 ### Known Limitations
-{To be filled}
+- Firestore REST API key auth requires the Firebase Web API Key to have Firestore write permissions (Firestore security rules must allow server-side writes or the API key must be restricted).
+- Email notifications currently send to the app admin email (config mail.from.address) as a placeholder — Process 8 will implement proper patient email targeting.
+- No patient device token → push notification mapping is maintained in Laravel; push notifications rely on the `ff_push_notifications` collection trigger which targets all users. Targeted push to specific patients requires Process 8.
 
 ---
 

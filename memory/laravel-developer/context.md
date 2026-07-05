@@ -3,10 +3,21 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T06 — Calendar Setup UI (IN-REVIEW)
+P5-T07 — Admin Appointment Creation and Confirmation (IN-REVIEW)
+
+## Implementation Summary — P5-T07
+- `database/migrations/2026_07_05_000010_create_appointments_table.php`: appointments table with plato_appointment_id, patient_name/NRIC/phone, branch/doctor reference and name denormalization, appointment_date/time, calendar_color_id, notes, status (pending/confirmed/failed), plato_response JSON, notified_at
+- `app/Models/Appointment.php`: Eloquent model with branch/doctor BelongsTo, date/datetime/array casting
+- `config/firebase.php`: FIREBASE_PROJECT_ID, FIREBASE_WEB_API_KEY, Firestore/FCM endpoint URLs, service account path
+- `app/Services/FirebaseService.php`: Firestore REST API client — `writeToFirestore()` with typed document serialization (stringValue, integerValue, booleanValue, arrayValue, mapValue), `writePushNotification()` to `ff_push_notifications` collection (triggers existing Cloud Function sendPushNotificationsTrigger), `writeInAppNotification()` to `historynotif` collection with deep_link support
+- `app/Services/NotificationService.php`: 3-channel dispatch — push via FirebaseService.writePushNotification, email via Mail::raw(), in-app via FirebaseService.writeInAppNotification. Logs to notifications_log table. Graceful failure (errors logged but don't fail the transaction)
+- `app/Services/AppointmentService.php`: transactional appointment creation — creates MySQL record, forwards to Plato via PlatoProxyService::proxy('POST', 'appointment'), updates with plato_appointment_id on success, triggers NotificationService, rolls back on Plato failure
+- `app/Http/Controllers/Api/AppointmentController.php`: POST /api/v2/admin/appointments with Validator-based input validation, 422/502/500 error handling, 201 on success with appointment details
+- `routes/api.php`: added POST /api/v2/admin/appointments behind auth:sanctum middleware
+- `.env.example`: added FIREBASE_PROJECT_ID, FIREBASE_WEB_API_KEY, FIREBASE_SERVICE_ACCOUNT_PATH, FIREBASE_FIRESTORE_URL
 
 ## Last Completed Task
-P2-T05 — Plato API Proxy Layer (DONE)
+P2-T06 — Calendar Setup UI (DONE)
 
 ## Implementation Summary — P2-T06
 - `app/Services/PlatoSystemSetupService.php`: fetches `GET /systemsetup` from Plato via `PlatoProxyService`, recursively parses response for calendar entries (looking for `calendar`, `calendars`, or nested arrays), extracts `color` (as `plato_calendar_color_id`) and `name` fields

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use Illuminate\Http\Request;
@@ -19,4 +20,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])
         ->name('config.doctors');
+
+    Route::post('/v2/admin/appointments', [AppointmentController::class, 'store'])
+        ->name('admin.appointments.store');
 });
