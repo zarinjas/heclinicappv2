@@ -22,16 +22,30 @@ Follow the rules in ai-workflow/director.md exactly.
 If tasks/.approval-state.json has pending=true:
   - Read TRIGGER_ACTION env var
   - If action is "approve": set pending=false, approved_at=now. Commit + push. Proceed to Phase 2.
-  - If action is "reject": move task back to in-progress/. Clear approval state. Commit + push. Exit.
+  - If action is "reject":
+    - If task_id is "BATCH": move ONLY the last FULL pipeline task back to in-progress/. Lightweight tasks stay done.
+    - If task_id is NOT "BATCH": move task back to in-progress/.
+    - Clear approval state. Commit + push. Exit.
   - If action is "run": exit with "Waiting for approval. No action taken."
 
-## PHASE 2 — Scan Tasks
-Find the highest-priority actionable task:
+## PHASE 2 — Scan & Classify Tasks (BATCH)
+
+Collect ALL actionable tasks (up to BATCH_SIZE = 5 per run), sorted by:
 1. Furthest in pipeline (REVIEWER > QA > IN-PROGRESS > BACKLOG)
-2. Earlier process first
+2. Earlier process/epic first
 3. Lower task ID first
 
-If an actionable task is found → go to Phase 3.
+Classify EACH task as LIGHTWEIGHT or FULL:
+
+| Task Type | Classification | Lifecycle |
+|-----------|---------------|-----------|
+| ID contains remove/cleanup/delete/fix/refactor/replace | LIGHTWEIGHT | Implement → flutter analyze → commit → DONE. No QA/Reviewer/Telegram |
+| ID contains create/build/implement/feature/screen/page/component/widget | FULL | Implement → QA → Review → DONE (standard pipeline) |
+| UI-P* tasks (design system, component build) | FULL | Implement → QA → Review → DONE with ui-design-system.md compliance |
+| Laravel tasks (ID in laravel/ scope) | FULL | Implement → QA → Review → DONE with php syntax check |
+| Unknown or mixed — default | FULL | Standard pipeline |
+
+If at least one actionable task is found → go to Phase 3.
 If NO actionable task AND backlog is empty → go to Phase 2B.
 
 ## PHASE 2B — Process Transition (Auto-Create Next Process Tasks)
@@ -74,8 +88,37 @@ When ALL current process tasks are in tasks/done/ and no tasks remain in backlog
 9. Commit: git add -A && git commit -m "ai: create Process {N} / Epic UI tasks" && git push origin main
 10. Then proceed to Phase 3 with the first task from the new process/epic
 
-## PHASE 3 — Process Task Through Full Lifecycle (LOOP)
-Process the selected task through EVERY applicable stage in a single run. Do NOT stop after one stage — loop through all stages until DONE.
+## PHASE 3 — Process Task Batch (LOOP)
+
+Process ALL collected tasks in a single workflow run. Do NOT send Telegram approval until the ENTIRE batch is complete. Max 5 tasks per run.
+
+**Batch Rule:** Process each task through its classified lifecycle. Only the LAST task in the batch triggers the Human Gate (Node 5). All prior tasks move to done/ silently.
+
+### Task Lifecycle Decision Tree
+
+#### LIFECYCLE A — LIGHTWEIGHT (remove/cleanup/fix/replace)
+```
+Node 1 (ASSIGN) → Node 2 (IMPLEMENT) → Node 2.5 (QUICK VERIFY) → SILENT DONE
+```
+- **Node 2.5 (QUICK VERIFY)**: After implementing, run:
+  - Flutter: `flutter analyze 2>&1 | grep -E "^\s*error\s*•"` — MUST be empty
+  - Laravel: `cd laravel && php -l <changed files>` — MUST pass
+  - If PASS: move to tasks/done/ directly. Update memory.
+  - If FAIL: fix and retry (max 3x before escalating)
+- **NO Node 3 (QA), Node 4 (Reviewer), Node 5 (Telegram) for lightweight tasks.**
+- Commit: git add -A && git commit -m "ai: <task_id> — implemented ✓" && git push origin main
+
+#### LIFECYCLE B — FULL (feature/screen/component/UI)  
+```
+Node 1 (ASSIGN) → Node 2 (IMPLEMENT) → Node 3 (QA) → Node 4 (REVIEWER) → Node 5 (TELEGRAM)
+```
+- **Node 5 is triggered ONLY for the LAST task in the batch.** For all prior FULL tasks, Node 4 silently moves to done/ after approval.
+- **A FULL task can fail QA and go back to IN-PROGRESS — continue processing other tasks while that one waits for next run.**
+
+### Batch Resume
+After finishing one task, immediately move to the next task in the collected batch. Do NOT wait. Do NOT call Telegram mid-batch.
+
+(Continue to existing Node 1-5 implementations below — they apply to whichever lifecycle the task uses.)
 
 ### Node 1 — ASSIGN (BACKLOG → IN-PROGRESS)
 If task is in tasks/backlog/:
@@ -149,30 +192,50 @@ If task is in tasks/in-review/ and QA Notes show PASSED:
   - If REJECTED: move back to tasks/in-progress/ with reason
   - Update memory/reviewer/context.md. Commit and push to main. Then go back and check Node 5.
 
-### Node 5 — HUMAN GATE (DONE → Telegram)
-If task just moved to tasks/done/ and approval not yet sent:
-  1. Write tasks/.approval-state.json with pending=true
-  2. Merge main into develop for preview deploy:
+### Node 5 — HUMAN GATE (Batch DONE → Telegram)
+If this is the LAST task in the batch (all collected tasks have been processed):
+  1. Collect ALL tasks that reached DONE in this batch into a summary
+  2. Write tasks/.approval-state.json with pending=true and batch list:
+     {
+       "pending": true,
+       "batch": [
+         {"task_id": "P8-T02", "title": "..."},
+         {"task_id": "P8-T03", "title": "..."}
+       ],
+       "created_at": "<ISO timestamp>",
+       "approved": null
+     }
+  3. Merge main into develop for preview deploy:
      git checkout develop && git merge main --no-edit && git push origin develop && git checkout main
-  3. Commit and push to main
-  4. Call Telegram bot:
+  4. Commit and push to main
+  5. Call Telegram bot with batch summary:
      curl -X POST "$VPS_BOT_URL/bot/request-approval" \
        -H "Content-Type: application/json" \
-       -d '{"task_id":"<ID>","title":"<TITLE>","qa_result":"PASSED","reviewer_decision":"APPROVED"}'
-  5. Exit — bot will trigger next workflow.
+       -d '{"task_id":"BATCH","title":"Batch: <N> tasks completed\n- <TASK1>: <title>\n- <TASK2>: <title>...","qa_result":"PASSED","reviewer_decision":"APPROVED"}'
+  6. Exit — bot will trigger next workflow.
+
+If this is NOT the last task: move to done/ silently and continue to next task in batch.
 
 ### Loop
-After committing at any node, CHECK the same task's new state. If it matches the NEXT node, continue. Keep looping through nodes 1→5 until DONE or no further progress.
+After finishing ANY node:
+- If more tasks remain in the batch: immediately move to the NEXT task in the batch.
+- If batch is complete (all tasks processed): go to Phase 4.
+- If a task is stuck (QA/FAILED 3x, dependency block): move it aside and continue with remaining batch tasks.
 
 ## PHASE 4 — Exit
-- If no actionable task: print why and exit.
-- If DONE + Telegram called: exit.
-- If stuck at intermediate state: exit — next run continues.
+- If no actionable task found: print summary of why and exit.
+- If batch complete + Telegram called for last task: exit.
+- If stuck tasks remain but batch done: exit — next run continues.
 
 ## CRITICAL RULES
 - ALWAYS commit+push to main after each node. Never leave changes uncommitted.
-- NEVER skip QA or Reviewer steps.
+- Process up to BATCH_SIZE=5 tasks per workflow run. Use the collected batch.
+- LIGHTWEIGHT tasks (remove/cleanup/fix/delete): skip QA + Reviewer. Only flutter analyze.
+- FULL tasks (feature/screen/component): full pipeline. QA + Reviewer required.
+- Telegram approval ONLY for the LAST task in the batch — send batch summary.
+- DO NOT call Telegram mid-batch. Batch all completions.
 - DO NOT create branches or PRs. Commit DIRECTLY to main.
 - DO NOT make changes outside task scope.
 - Use EnvConfig for all Flutter URLs. Never hardcode tokens.
+- flutter analyze: ONLY run for Flutter tasks that touch lib/ files. Skip for Laravel-only tasks.
 - If any step fails 3x consecutively: escalate and exit.
