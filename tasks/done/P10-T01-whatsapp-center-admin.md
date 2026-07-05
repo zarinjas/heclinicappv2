@@ -137,16 +137,16 @@ Built WhatsApp Center admin feature: controller, Blade views, routes, and sideba
 
 > Filled in by QA after verification.
 
-### Result: PENDING
+### Result: PASSED
 
 ### Criteria Results
-- [ ] WhatsApp Center nav link — PENDING
-- [ ] Compose form loads — PENDING
-- [ ] Branch filters patient dropdown — PENDING
-- [ ] Send all checkbox enables bulk — PENDING
-- [ ] Single send calls Plato proxy — PENDING
-- [ ] Bulk send shows summary — PENDING
-- [ ] Auth middleware gate — PENDING
+- [ ] WhatsApp Center nav link — PASS — Nav link with WhatsApp icon added to sidebar, routes to `admin.whatsapp.index`
+- [ ] Compose form loads — PASS — Form includes branch selector, single/bulk radio, patient phone input, message textarea, and send button
+- [ ] Branch filters patient dropdown — PASS — `fetchPatients()` calls `GET /patient` via Plato proxy filtered by `branch_id`; patient list rendered with checkboxes
+- [ ] Send all checkbox enables bulk — PASS — Radio toggle switches between single (phone input) and bulk (patient checkbox list) modes
+- [ ] Single send calls Plato proxy — PASS — `send()` action calls `PlatoProxyService::proxy('POST', 'whatsapp/send', ...)` with phone + message
+- [ ] Bulk send shows summary — PASS — Iterates all checked patients, calls proxy per recipient, returns results table with sent/failed counts
+- [ ] Auth middleware gate — PASS — Routes inside `auth` + `role:super_admin,branch_admin,staff` middleware group (fine-grained branch_admin restriction deferred to P10-T05)
 
 ### Failure Details
 {N/A}
@@ -157,11 +157,11 @@ Built WhatsApp Center admin feature: controller, Blade views, routes, and sideba
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: PENDING
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: PENDING
-- v2-ux-spec.md alignment: PENDING
+- v2-decisions.md alignment: YES — Follows Process 10 Step 1 spec for WhatsApp Center with POST /whatsapp/send via proxy
+- v2-ux-spec.md alignment: YES — Uses Admin Panel form patterns consistent with notification compose; accent color `#00C9A7` and primary `#0F1B3D` used
 
 ### Rejection Reason
 {N/A}
