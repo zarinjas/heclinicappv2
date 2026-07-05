@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P8-T04 |
 | Blocked Reason | N/A |
@@ -196,8 +196,14 @@ Existing handler mappings in `push_notifications_handler.dart` around line 27 (p
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
+- **v2-decisions.md Process 8 Step 6**: "In-App: Write to Firestore historynotif with deep link support" — fully met. FirebaseService::writeInAppNotification() writes all required fields (title, body, read:false boolean, deep_link, type, id_patient) to historynotif collection. NotificationService::sendInApp() accepts $deepLink and $type params with defaults. Flutter notification widget handles deep link navigation with routing to MyBookingPage, Reports, HomepageNew.
+- **Scope compliance**: Task scope met exactly — no scope creep. Laravel backend writes, Flutter records model updated with backward compat, notification widget navigates by deep_link.
+- **Backward compatibility**: read field handles both String "yes"/"no" (old) and boolean (new) through readBool getter. Old tittle/message fields preserved with fallback to new title/body fields.
+- **Code quality**: PHP syntax clean on all 3 files. Flutter analyze: 0 errors. No hardcoded tokens or URLs. Proper use of existing FirebaseService::toFirestoreValue() for type serialization.
+- **Not a UI task**: UI design system checks not applicable. Notification widget changes are functional (navigation logic, data fields), not visual design.
 
 ### Rejection Reason
+N/A

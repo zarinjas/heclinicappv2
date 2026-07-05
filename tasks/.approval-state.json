@@ -1,9 +1,9 @@
 {
-  "pending": false,
-  "task_id": "P8-T05",
-  "task_title": "Email Provider Configuration",
+  "pending": true,
+  "task_id": "P8-T06",
+  "task_title": "In-App Notifications — Deep Link Support",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "approved_at": "2026-07-05T00:00:00Z"
+  "created_at": "2026-07-05T00:00:00Z"
 }
