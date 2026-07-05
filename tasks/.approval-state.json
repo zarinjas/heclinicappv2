@@ -1,12 +1,12 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P0-T06", "title": "AppInput — Reusable Input Field"},
-    {"task_id": "UI-P0-T07", "title": "AppCard — Base Card Component"},
-    {"task_id": "UI-P0-T08", "title": "AppChip — Status + Filter Chips"},
-    {"task_id": "UI-P0-T09", "title": "AppSkeleton — Shimmer Skeleton Loaders"},
-    {"task_id": "UI-P0-T10", "title": "AppBottomSheet — Standard Bottom Sheet"}
+    {"task_id": "UI-P0-T11", "title": "AppDialog — Modal Dialog Component (4 Variants)"},
+    {"task_id": "UI-P0-T12", "title": "AppToast — Toast / Snackbar Utility"},
+    {"task_id": "UI-P0-T13", "title": "AppEmptyState — Empty State Component"},
+    {"task_id": "UI-P0-T14", "title": "AppErrorState — Error State Component"},
+    {"task_id": "UI-P0-T15", "title": "AppAppBar — Main Tab + Sub-page App Bar"}
   ],
-  "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": "2026-07-05T16:10:35Z"
+  "created_at": "2026-07-05T16:10:35Z",
+  "approved": null
 }

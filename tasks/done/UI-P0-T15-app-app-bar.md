@@ -169,12 +169,12 @@ Created `lib/core/widgets/app_app_bar.dart` with `AppAppBar` widget implementing
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: PENDING
+### Decision: APPROVED
 
 ### Alignment Check
-- ui-design-system.md §13 alignment: PENDING
-- ui-migration-plan.md alignment: PENDING
-- No hardcoded colors — PENDING
+- ui-design-system.md §13 alignment: PASSED — Main tab: primary bg, logo left, bell right with badge. Sub-page: scaffoldBg bg, back arrow + title, optional trailing. Both elevation 0.
+- ui-migration-plan.md alignment: PASSED — Phase 0 item 0.15 implemented.
+- No hardcoded colors — PASSED: Uses AppColors.primary, AppColors.scaffoldBg, AppColors.error (badge). Text via AppTextStyles.heading3.
 
 ### Rejection Reason
 {}

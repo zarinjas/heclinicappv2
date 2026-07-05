@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -164,13 +164,14 @@ Created `lib/core/widgets/app_dialog.dart` with `AppDialog` widget implementing 
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: PENDING
+### Decision: APPROVED
 
 ### Alignment Check
-- ui-design-system.md §20 alignment: PENDING
-- ui-migration-plan.md alignment: PENDING
-- Dark mode works — PENDING
-- No hardcoded colors — PENDING
+- ui-design-system.md §20 alignment: PASSED — All 4 dialog variants (Confirmation, Success, Loading, Redemption Code) match spec exactly.
+- ui-migration-plan.md alignment: PASSED — Phase 0 item 0.11 implemented.
+- Dark mode works — PASSED: surface/text colors adapt via Theme.brightness check.
+- No hardcoded colors — PASSED: All colors/sizes/spacing use AppColors/AppTextStyles/AppSpacing/AppRadius/AppShadows tokens.
+- AppButton used — PASSED: Confirmation uses AppButton.ghost + AppButton.primary/destructive. Success uses AppButton.primary. Redemption Code uses AppButton.primary.
 
 ### Rejection Reason
 {}
