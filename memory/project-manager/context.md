@@ -11,7 +11,7 @@ P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
 P2-T02 — MySQL Schema (DONE)
 P2-T03 — Branch Management CRUD (DONE)
 P2-T04 — Doctor Management CRUD (DONE)
-P2-T05 — Plato API Proxy Layer (BACKLOG)
+P2-T05 — Plato API Proxy Layer (IN-PROGRESS — assigned 2026-07-05)
 P2-T06 — Calendar Setup UI (BACKLOG)
 
 **Process 5 — Booking Flow (paused, blocked by Process 2):**
