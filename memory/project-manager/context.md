@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 Process 1 — Security and Foundation
 
 ## Active Tasks
-None.
+- P1-T09 (remove-duplicate-booking-pages) — assigned to flutter-developer, started 2026-07-05
 
 ## Blocked Tasks
 None currently.

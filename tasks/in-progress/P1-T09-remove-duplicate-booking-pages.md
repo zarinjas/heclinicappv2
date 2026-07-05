@@ -55,5 +55,11 @@ MEDIUM — code quality
 ## Estimated Effort
 2–3 hours
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
 ## Status
-Backlog
+IN-PROGRESS
