@@ -156,11 +156,20 @@ Follow existing list page patterns from `BranchController@index` or `DoctorContr
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+- [x] Visiting `/admin/notifications` displays a paginated table of notification logs (20 per page) — PASS: `$query->paginate(20)->withQueryString()` in controller, pagination links in view
+- [x] The table shows columns: ID, Type, Title (truncated), Target, Channels, Status, Date — PASS: All 7 columns rendered in thead/tbody with badge styling
+- [x] The search input filters notifications by title or body text — PASS: Controller queries `title LIKE` or `body LIKE` with search term
+- [x] The status dropdown filters by: All, Draft, Pending, Sent, Failed — PASS: Select options match and `$query->where('status', ...)` applied
+- [x] The type dropdown filters by: All, Manual, Appointment Confirmed, Appointment Reminder, Document Uploaded — PASS: Select options match and `$query->where('type', ...)` applied
+- [x] Clicking a table row opens a detail view showing full notification content — PASS: Row onclick navigates to show route; detail view includes title, full body, targeting, channels, timestamps
+- [x] Empty state shows appropriate message when no notifications exist — PASS: Bell icon, "No notifications found." message, "Create First Notification" CTA button
+- [x] The "Notifications" sidebar nav item expands to show "Compose" and "History" sub-items — PASS: Collapsible parent with JS toggle, Compose and History links with active highlighting
 
 ### Failure Details
+(None — all criteria passed)
 
 ---
 
