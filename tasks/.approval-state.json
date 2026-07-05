@@ -1,13 +1,12 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P1-T06", "title": "HealthRecordCard component"},
-    {"task_id": "UI-P1-T07", "title": "HeroSlider component"},
-    {"task_id": "UI-P1-T08", "title": "QuickActionGrid component"},
-    {"task_id": "UI-P1-T09", "title": "StepIndicator component"},
-    {"task_id": "UI-P1-T10", "title": "OtpInputRow component"}
+    {"task_id": "UI-P1-T11", "title": "SectionHeader component"},
+    {"task_id": "UI-P1-T12", "title": "NotificationItem component"},
+    {"task_id": "UI-P1-T13", "title": "TransactionItem component"},
+    {"task_id": "UI-P1-T14", "title": "BranchCard component"},
+    {"task_id": "UI-P1-T15", "title": "TimeSlotChip component"}
   ],
-  "created_at": "2026-07-05T19:30:00Z",
-  "approved_at": "2026-07-05T19:30:00Z",
-  "approved": true
+  "created_at": "2026-07-05T19:35:00Z",
+  "approved": null
 }
