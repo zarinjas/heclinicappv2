@@ -308,10 +308,11 @@ class EnvConfig {
     defaultValue: 'https://hemedicalapps.com/api',
   );
 
-  // Plato Medical Clinic API URL
+  // Plato Medical Clinic API URL — NOW ROUTED THROUGH LARAVEL PROXY
+  // Token is server-side only (in Laravel .env) — never exposed in mobile APK
   static const String platomBaseUrl = String.fromEnvironment(
     'PLATOM_URL',
-    defaultValue: 'https://clinic.platomedical.com/api/hemedclinic',
+    defaultValue: 'https://heclinic.cyberoket.cloud/api/v2/plato',
   );
 
   // WordPress Blog API URL
@@ -525,12 +526,16 @@ Flutter App
      +--[1]--> Medical Apps API  (hemedicalapps.com/api)
      |          Auth: Bearer token (per-user, dari login)
      |
-     +--[2]--> Plato API         (clinic.platomedical.com/api/hemedclinic)
-     |          Auth: Hardcoded token — SECURITY RISK
+     +--[2]--> Laravel Proxy       (heclinic.cyberoket.cloud/api/v2/plato)
+     |          |  Auth: Medical Apps Bearer token (mobile authenticates)
+     |          v
+     |         Plato API           (clinic.platomedical.com/api/hemedclinic)
+     |          Auth: Server-side token in Laravel .env — NEVER in mobile APK
      |
      +--[3]--> WordPress API     (hemedicalclinic.com/wp-json/wp/v2)
                 Auth: Tiada (public read)
 ```
+**Plato token moved to server-side.** Mobile app never sees the Plato API key. All Plato calls are routed through the Laravel proxy controller at `/api/v2/plato/{path}`.
 
 **HTTP Client file:** `lib/backend/api_requests/api_manager.dart`
 - Support: GET, POST, PUT, DELETE, MULTIPART
@@ -572,8 +577,8 @@ Fields: `email`, `tel`, `name`, `nric`, `dob`, `allergies`, `doctor_list`, dan l
 
 ## 11. API — PLATO API
 
-**Base URL:** `EnvConfig.platomBaseUrl` → default `https://clinic.platomedical.com/api/hemedclinic`
-**Auth:** Hardcoded token `1463d1150e7b199effa2793c2d809034` — **CRITICAL SECURITY RISK**
+**Base URL:** `EnvConfig.platomBaseUrl` → default `https://heclinic.cyberoket.cloud/api/v2/plato` (Laravel proxy)
+**Auth:** Server-side token in Laravel `.env` — **RESOLVED: token never exposed to mobile APK**
 **Docs rasmi:** `docs/api-guidelines.md`
 **Group Class:** `PlatomeApiGroup`
 
@@ -866,7 +871,7 @@ GET   /wp-json/wp/v2/posts
 
 | # | Issue | File | Detail |
 |---|-------|------|--------|
-| 1 | **Hardcoded Plato API Token** | `api_calls.dart` line ~586 | Token `1463d1150e7b199effa2793c2d809034` dalam source code. Sesiapa decompile APK boleh akses semua data Plato. Perlu pindah ke server-side. |
+| 1 | ~~**Hardcoded Plato API Token**~~ | ~~`api_calls.dart` line ~586~~ | **RESOLVED.** Token moved to Laravel .env server-side. All Plato calls route through Laravel proxy at `heclinic.cyberoket.cloud/api/v2/plato`. Token never appears in mobile APK. |
 | 2 | **Hardcoded Appointment ID** | `GetAppointmentDetailsCall` | ID `a052e78b3a5547bba54ddbbc83619e93` hardcoded dalam URL. Endpoint tidak berfungsi untuk mana-mana appointment lain. |
 | 3 | **minSdkVersion terlalu tinggi** | `android/app/build.gradle` | `minSdkVersion 35` — majoriti Android devices guna API 23-33. Perlu turunkan ke 23 untuk coverage lebih luas. |
 | 4 | **Tiada pagination** | `api_calls.dart` | Plato limit 20 rekod/request. App tidak implement `current_page`. Data > 20 rekod silent truncate. |
