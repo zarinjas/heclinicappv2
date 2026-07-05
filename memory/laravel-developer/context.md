@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T05 — Create Walk-In Appointment — Admin Panel (IN-REVIEW)
+P7-T06 — Appointment Detail View — Admin Panel (IN-PROGRESS)
 
 ## Implementation Summary — P7-T04
 - `app/Http/Controllers/Admin/AdminAppointmentController.php`: new controller with index() fetching appointments from Plato via proxy (`GET /appointment`), supports filters (date_from, date_to, doctor_id, facility_id, status), uses LengthAwarePaginator with 20/page
