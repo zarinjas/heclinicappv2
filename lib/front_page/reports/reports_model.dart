@@ -15,6 +15,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 
+enum RecordType { note, letter, mc }
+
+enum FilterType { all, notes, letters, mc }
+
+class HealthRecord {
+  final RecordType type;
+  final String title;
+  final String date;
+  final String author;
+  final String? detailData;
+  final String? kategori;
+  final List<String>? diagnosis;
+
+  const HealthRecord({
+    required this.type,
+    required this.title,
+    required this.date,
+    required this.author,
+    this.detailData,
+    this.kategori,
+    this.diagnosis,
+  });
+}
+
 class ReportsModel extends FlutterFlowModel<ReportsWidget> {
   ///  State fields for stateful widgets in this page.
 
@@ -27,6 +51,12 @@ class ReportsModel extends FlutterFlowModel<ReportsWidget> {
 
   Completer<ApiCallResponse>? apiRequestCompleter1;
   Completer<ApiCallResponse>? apiRequestCompleter2;
+
+  // Records tab state
+  FilterType selectedFilter = FilterType.all;
+  List<HealthRecord> recordsList = [];
+  bool isLoading = false;
+  String? errorMessage;
 
   @override
   void initState(BuildContext context) {}

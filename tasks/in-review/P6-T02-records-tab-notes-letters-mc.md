@@ -126,16 +126,25 @@ class HealthRecord {
 > Filled by Developer after implementation.
 
 ### What Was Done
-{to be filled}
+Implemented the Records inner tab of the Health Tab scaffold with filter chips (All, Notes, Letters, MC), dynamic data fetching from GetReportCall, LetterCall, and GetMedicalCertificateCall APIs, record cards with type-specific icons, loading skeleton state, empty state, error state with retry, and detail views (AlertReportWidget for notes, HTML bottom sheet for letters, WebViewX+ for MC).
 
 ### Files Changed
-{to be filled}
+- `lib/front_page/reports/reports_model.dart` — Added RecordType enum, FilterType enum, HealthRecord data class, and state fields (selectedFilter, recordsList, isLoading, errorMessage)
+- `lib/front_page/reports/reports_widget.dart` — Complete implementation of Records tab: _loadRecords(), _buildFilterChips(), _buildRecordCard(), _buildRecordsTab(), _onRecordTap(), _onFilterChanged()
 
 ### Decisions Made During Implementation
-{to be filled}
+- Used ChoiceChip with AppColors.accent selected styling and AppRadius.full (9999px) per UX spec
+- Records combined and sorted by date descending across all data types
+- Note detail shown via existing AlertReportWidget in DraggableScrollableSheet
+- Letter detail shown via FlutterFlowWebView rendering HTML in bottom sheet
+- MC shown via WebViewXPlus rendering PDF URL in full-height bottom sheet
+- MC fetch reuses MedicalAppsApiGroup.getMedicalCertificateCall singleton
+- Tabs 1 (Vitals) and 2 (Documents) remain as placeholder skeleton loaders (to be implemented in P6-T03 and P6-T04)
 
 ### Known Limitations
-{to be filled}
+- Notes list is not paginated (current_page pagination not available on Plato note endpoint)
+- Modified_since strategy deferred to P6-T05
+- MC API returns only single path/tgl (single item), not multiple
 
 ---
 
