@@ -6,6 +6,7 @@ typedef OnUnauthorizedCallback = void Function();
 typedef OnServerErrorCallback = void Function(int statusCode, String callName);
 typedef OnNetworkErrorCallback = void Function(String message);
 typedef OnClientErrorCallback = void Function(int statusCode, String callName, String apiUrl);
+typedef OnRateLimitedCallback = void Function(String callName);
 
 class ApiInterceptor {
   ApiInterceptor._();
@@ -17,6 +18,7 @@ class ApiInterceptor {
   OnServerErrorCallback? onServerError;
   OnNetworkErrorCallback? onNetworkError;
   OnClientErrorCallback? onClientError;
+  OnRateLimitedCallback? onRateLimited;
 
   bool _isHandling = false;
   bool _isOffline = false;
@@ -38,8 +40,8 @@ class ApiInterceptor {
     if (statusCode == 401) {
       _handleUnauthorized();
     } else if (statusCode == 429) {
-      // P3-T04 will handle 429 with exponential backoff
-      // For now, let it pass through to caller
+      debugPrint('ApiInterceptor: Rate limited on ${options.callName}');
+      onRateLimited?.call(options.callName);
     } else if (statusCode >= 500 && statusCode < 600) {
       _handleServerError(statusCode, options.callName);
     } else if (statusCode >= 400) {

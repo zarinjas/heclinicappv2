@@ -29,6 +29,15 @@ Plato API enforces rate limits and returns HTTP 429 (Too Many Requests) when the
 - [ ] Retry counter is logged to console in debug mode for observability.
 
 ## Implementation Notes
+- Added exponential backoff retry loop in `makeApiCall()` (`api_manager.dart:550-632`)
+- Retry constants: `kMaxRetries = 4`, `kBaseDelayMs = 1000` — produces delays 1s, 2s, 4s, 8s via bit shift
+- 429 check happens BEFORE cache store — failed 429 responses are not cached
+- Interceptor `handleResponse` only called once per call (after retries exhausted or on success) — prevents duplicate toast/snackbar spam
+- Added `OnRateLimitedCallback` typedef + `onRateLimited` field to `ApiInterceptor`
+- Registered `onRateLimited` callback in `main.dart` — shows orange SnackBar: "Too many requests, please try again shortly."
+- Retry state (`retryCount`) is local to `makeApiCall` — concurrent calls independently back off
+- Non-429 status codes flow through to existing interceptor handlers without retry
+- Debug logging: retry count and delay logged via `debugPrint`
 
 ## QA Notes
 
@@ -41,4 +50,4 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW

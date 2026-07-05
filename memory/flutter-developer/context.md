@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P3-T03 (modified-since-strategy) — DONE. Created `lib/backend/api_requests/modified_since_helper.dart` with timestamp persistence per endpoint in SharedPreferences. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to inject `modified_since` param with automatic timestamp tracking and `forceRefresh` support.
+P3-T04 (exponential-backoff-429) — IN-REVIEW. Implemented retry loop with exponential backoff (1s, 2s, 4s, 8s) in `makeApiCall()` in `api_manager.dart`. Added `OnRateLimitedCallback` to `ApiInterceptor`, registered toast in `main.dart`.
 
 ## Last Completed Task
 P3-T03 (modified-since-strategy) — DONE.
@@ -16,4 +16,4 @@ P3-T03 (modified-since-strategy) — DONE.
 - Always implement skeleton loaders, empty states, and error states on list/content screens
 
 ## Pending Items
-P3-T02 through P3-T06 in BACKLOG.
+P3-T05 and P3-T06 in BACKLOG.

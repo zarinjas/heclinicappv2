@@ -541,79 +541,94 @@ class ApiManager {
       return _apiCache[callOptions]!;
     }
 
+    const kMaxRetries = 4;
+    const kBaseDelayMs = 1000;
+
     ApiCallResponse result;
-    try {
-      switch (callType) {
-        case ApiCallType.GET:
-          result = await urlRequest(
-            callType,
-            apiUrl,
-            headers,
-            params,
-            returnBody,
-            decodeUtf8,
-            isStreamingApi,
-            client: client,
-          );
-          break;
-        case ApiCallType.DELETE:
-          result = alwaysAllowBody
-              ? await requestWithBody(
-                  callType,
-                  apiUrl,
-                  headers,
-                  params,
-                  body,
-                  bodyType,
-                  returnBody,
-                  encodeBodyUtf8,
-                  decodeUtf8,
-                  alwaysAllowBody,
-                  isStreamingApi,
-                  client: client,
-                )
-              : await urlRequest(
-                  callType,
-                  apiUrl,
-                  headers,
-                  params,
-                  returnBody,
-                  decodeUtf8,
-                  isStreamingApi,
-                  client: client,
-                );
-          break;
-        case ApiCallType.POST:
-        case ApiCallType.PUT:
-        case ApiCallType.PATCH:
-          result = await requestWithBody(
-            callType,
-            apiUrl,
-            headers,
-            params,
-            body,
-            bodyType,
-            returnBody,
-            encodeBodyUtf8,
-            decodeUtf8,
-            alwaysAllowBody,
-            isStreamingApi,
-            client: client,
-          );
-          break;
+    int retryCount = 0;
+
+    while (true) {
+      try {
+        switch (callType) {
+          case ApiCallType.GET:
+            result = await urlRequest(
+              callType,
+              apiUrl,
+              headers,
+              params,
+              returnBody,
+              decodeUtf8,
+              isStreamingApi,
+              client: client,
+            );
+            break;
+          case ApiCallType.DELETE:
+            result = alwaysAllowBody
+                ? await requestWithBody(
+                    callType,
+                    apiUrl,
+                    headers,
+                    params,
+                    body,
+                    bodyType,
+                    returnBody,
+                    encodeBodyUtf8,
+                    decodeUtf8,
+                    alwaysAllowBody,
+                    isStreamingApi,
+                    client: client,
+                  )
+                : await urlRequest(
+                    callType,
+                    apiUrl,
+                    headers,
+                    params,
+                    returnBody,
+                    decodeUtf8,
+                    isStreamingApi,
+                    client: client,
+                  );
+            break;
+          case ApiCallType.POST:
+          case ApiCallType.PUT:
+          case ApiCallType.PATCH:
+            result = await requestWithBody(
+              callType,
+              apiUrl,
+              headers,
+              params,
+              body,
+              bodyType,
+              returnBody,
+              encodeBodyUtf8,
+              decodeUtf8,
+              alwaysAllowBody,
+              isStreamingApi,
+              client: client,
+            );
+            break;
+        }
+
+        if (result.statusCode == 429 && retryCount < kMaxRetries) {
+          retryCount++;
+          final delayMs = kBaseDelayMs * (1 << (retryCount - 1));
+          debugPrint(
+              'ApiManager: HTTP 429 — retry $retryCount/$kMaxRetries in ${delayMs}ms for $callName');
+          await Future.delayed(Duration(milliseconds: delayMs));
+          continue;
+        }
+
+        if (cache) {
+          _apiCache[callOptions] = result;
+        }
+
+        ApiInterceptor.instance.handleResponse(result, callOptions);
+      } catch (e) {
+        result = ApiCallResponse(null, {}, -1, exception: e);
+        ApiInterceptor.instance.handleResponse(result, callOptions);
       }
 
-      // If caching is on, cache the result (if present).
-      if (cache) {
-        _apiCache[callOptions] = result;
-      }
-
-      ApiInterceptor.instance.handleResponse(result, callOptions);
-    } catch (e) {
-      result = ApiCallResponse(null, {}, -1, exception: e);
-      ApiInterceptor.instance.handleResponse(result, callOptions);
+      return result;
     }
-
-    return result;
   }
 }

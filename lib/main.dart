@@ -138,6 +138,18 @@ class _MyAppState extends State<MyApp> {
       }
     };
 
+    interceptor.onRateLimited = (callName) {
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Too many requests, please try again shortly.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 4),
+        ));
+      }
+    };
+
     interceptor.onNetworkError = (message) {
       final context = appNavigatorKey.currentContext;
       if (context != null) {
