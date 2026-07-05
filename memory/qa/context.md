@@ -3,7 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P8-T04 — FCM Push Notification — Cloud Function Upgrade (PASSED — 7/7 criteria)
+P8-T05 — Email Provider Configuration (PASSED — 7/7 criteria)
+
+## Verification History
+- P8-T05 (2026-07-05): PASSED — 7/7 criteria. .env.example has all 8 MAIL_* vars with SMTP defaults. AppointmentNotification + GeneralNotification classes with toMail()+toArray(). NotificationService::sendEmail() uses Notification::route() with recipientEmail param. resolvePatientEmailForAppointment() queries Plato GET /patient by NRIC/name. Graceful null-email handling with warning log. sendAppointmentConfirmation() creates NotificationLog record. MAIL_MAILER=log configured via config/mail.php log transport. All PHP files syntax-checked: zero errors.
 
 ## Verification History
 - P8-T04 (2026-07-05): PASSED — 7/7 criteria. FirebaseService::writePushNotification() accepts user_refs (array+string compat), branch_ids, doctor_ids, target_date_range. NotificationService::sendPush() refactored to generic options array; sendTargetedPush() added. Cloud Function upgraded with 3 resolvers (resolveUserRefsByBranchIds, resolveUserRefsByDoctorIds, resolveUserRefsByDateRange). Targeting priority: branch > doctor > date_range > user_refs > broadcast-all. Batching preserved for >500 tokens. Backward compatible broadcast fallback. Status update to "succeeded"/"failed". Graceful error handling with try/catch. PHP syntax check: 37 files, zero errors.
