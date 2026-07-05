@@ -7,7 +7,7 @@ Process 5 — Booking Flow (Flutter + Laravel)
 
 ## Active Tasks
 P5-T01 — Verify Booking Flow Prerequisites (DONE)
-P5-T02 — Branch Selection Screen (BACKLOG)
+P5-T02 — Branch Selection Screen (IN-PROGRESS)
 P5-T03 — Doctor Selection Screen (BACKLOG)
 P5-T04 — Date and Time Slot Selection (BACKLOG)
 P5-T05 — Booking Confirmation Screen (BACKLOG)
