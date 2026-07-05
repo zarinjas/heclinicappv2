@@ -46,3 +46,5 @@ export '/pages/booking/branch_selection_screen.dart'
     show BranchSelectionScreenWidget;
 export '/pages/booking/doctor_selection_screen.dart'
     show DoctorSelectionScreenWidget;
+export '/pages/booking/confirmation_screen.dart'
+    show BookingConfirmationScreenWidget;

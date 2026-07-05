@@ -17,7 +17,7 @@ Booking Confirmation Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T04 |
 | Blocked Reason | N/A |
@@ -106,16 +106,44 @@ Create the booking confirmation screen for the Booking Flow (Step 4 of 4). This 
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+- Created `lib/pages/booking/confirmation_screen.dart` — BookingConfirmationScreenWidget (StatelessWidget)
+- Registered route `/bookingConfirmation` in `lib/flutter_flow/nav/nav.dart`
+- Added export in `lib/index.dart`
+
+Implementation details:
+- AppBar: dark navy (#0F1B3D) with white back arrow and "Book Appointment" title, matching pattern from branch_selection_screen
+- Step indicator: 4 steps with check icons in accent green circles for completed steps, white text, placed in navy container below app bar
+- Summary card: white surface, 16px border radius, low shadow, 1px #E5E7EB border, 16px internal padding
+  - "Appointment Summary" heading (18px/600)
+  - 5 rows: Branch, Doctor, Date, Time, Patient — each with 72px label column (12px/400, #6B7280) + value (14px/400, #0F1B3D)
+  - 0.5px #E5E7EB dividers between rows
+- Info banner: #00C9A7 at 12% opacity background, 1px 30% opacity border, info icon + disclaimer text (12px/400)
+- Book button: full-width, 52px height, accent teal (#00C9A7), 24px border radius, chat icon + "Book via WhatsApp" text (15px/600), white foreground
+  - onTap: shows SnackBar placeholder message (actual WhatsApp deep link deferred to P5-T06)
+- Patient name from `FFAppState().name`, NRIC from `FFAppState().nationalman`
+- Doctor display: shows "No Preference" when isNoPreference is true
+- Date formatting: "15 Aug 2026" style
+- Time formatting: converts "14:00" to "2:00 PM" display format
+- Back navigation: calls `context.pop()` to preserve previous screen state
 
 ### Files Changed
-- {To be filled}
+- `lib/pages/booking/confirmation_screen.dart` — created (new file)
+- `lib/flutter_flow/nav/nav.dart` — added import and FFRoute registration
+- `lib/index.dart` — added export for BookingConfirmationScreenWidget
 
 ### Decisions Made During Implementation
-{To be filled}
+1. Used `StatelessWidget` (not StatefulWidget) since screen is purely display — all data from singleton BookingFlowModel and FFAppState
+2. Used `Icons.chat` (not Icons.whatsapp) since the Flutter Material Icons set doesn't include a WhatsApp icon; chat bubble is the closest standard icon
+3. Used `FFAppState().nationalman` as NRIC per task specification; V2 may later fetch NRIC from Plato profile API
+4. Book button onTap shows placeholder SnackBar — actual WhatsApp deep link with pre-filled message and url_launcher is P5-T06 scope
+5. Step indicator shows check icons for ALL steps (not just completed ones) since all 4 steps are completed at this point
+6. Format order in summary card follows the UX spec layout
 
 ### Known Limitations
-{To be filled}
+- WhatsApp button does not yet open WhatsApp (P5-T06)
+- NRIC uses `nationalman` field from FFAppState, not the dedicated Plato NRIC field (Plato profile API not yet integrated in V2 booking flow)
+- Screen does not pre-populate patient phone number (not in task scope)
+- Route does not have auth guard (booking flow routes follow existing pattern of no auth required before confirmation)
 
 ---
 
