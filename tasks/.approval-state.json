@@ -1,9 +1,12 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P0-T16", "title": "AppNavBar — 5-Tab Bottom Navigation Bar"}
+    {"task_id": "UI-P1-T01", "title": "AppointmentCard component"},
+    {"task_id": "UI-P1-T02", "title": "DoctorCard component"},
+    {"task_id": "UI-P1-T03", "title": "ArticleCard component"},
+    {"task_id": "UI-P1-T04", "title": "VideoCard component"},
+    {"task_id": "UI-P1-T05", "title": "LoyaltyCard component"}
   ],
-  "created_at": "2026-07-05T16:45:00Z",
-  "approved": true,
-  "approved_at": "2026-07-05T18:00:00Z"
+  "created_at": "2026-07-05T18:15:00Z",
+  "approved": null
 }
