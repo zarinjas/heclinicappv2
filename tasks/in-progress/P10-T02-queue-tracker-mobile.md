@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | P1-T02 (Laravel proxy routes exist), P5-T09 (Appointments tab exists) |
 | Blocked Reason | N/A |
