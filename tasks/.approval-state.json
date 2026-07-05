@@ -1,5 +1,5 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "UI-P0-T01", "title": "AppColors — Design Tokens"},
     {"task_id": "UI-P0-T02", "title": "AppTextStyles — Typography Tokens"},
@@ -8,5 +8,6 @@
     {"task_id": "UI-P0-T05", "title": "AppButton — Reusable Button Component"}
   ],
   "created_at": "2026-07-05T00:00:00Z",
-  "approved": null
+  "approved": true,
+  "approved_at": "2026-07-05T00:00:00Z"
 }
