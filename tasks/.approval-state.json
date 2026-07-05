@@ -1,5 +1,5 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "UI-P1-T06", "title": "HealthRecordCard component"},
     {"task_id": "UI-P1-T07", "title": "HeroSlider component"},
@@ -8,5 +8,6 @@
     {"task_id": "UI-P1-T10", "title": "OtpInputRow component"}
   ],
   "created_at": "2026-07-05T19:30:00Z",
-  "approved": null
+  "approved_at": "2026-07-05T19:30:00Z",
+  "approved": true
 }
