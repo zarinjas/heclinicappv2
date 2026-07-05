@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P2-T03",
-  "task_title": "Branch Management CRUD — CRUD with WhatsApp Number and Plato Facility ID",
+  "pending": true,
+  "task_id": "P2-T04",
+  "task_title": "Doctor Management CRUD — CRUD with Visibility Toggle and Plato Facility Link",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T12:10:00Z",
-  "approved_at": "2026-07-05T12:15:00Z",
-  "approved": true
+  "created_at": "2026-07-05T12:20:00Z",
+  "approved_at": null,
+  "approved": null
 }
