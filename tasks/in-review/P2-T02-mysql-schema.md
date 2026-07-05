@@ -17,7 +17,7 @@ MySQL Schema: Branches, Doctors, Calendars, Settings, Notifications Log
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P2-T01 |
 | Blocked Reason | N/A |
@@ -172,16 +172,31 @@ Create the MySQL database schema for the Admin Panel: branches, doctors, plato_c
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created 6 migrations and 5 Eloquent models for the MySQL schema per v2-decisions.md Process 2 Step 2. All migrations use standard Laravel convention with proper foreign keys, indexes, and data types. Models include fillable arrays, casts, and relationship methods.
 
 ### Files Changed
-- {To be filled}
+- Created: `laravel/database/migrations/2026_07_05_000001_create_branches_table.php`
+- Created: `laravel/database/migrations/2026_07_05_000002_create_doctors_table.php`
+- Created: `laravel/database/migrations/2026_07_05_000003_create_plato_calendars_table.php`
+- Created: `laravel/database/migrations/2026_07_05_000004_create_settings_table.php`
+- Created: `laravel/database/migrations/2026_07_05_000005_create_notifications_log_table.php`
+- Created: `laravel/database/migrations/2026_07_05_000006_add_foreign_key_branch_id_to_users_table.php`
+- Created: `laravel/app/Models/Branch.php`
+- Created: `laravel/app/Models/Doctor.php`
+- Created: `laravel/app/Models/PlatoCalendar.php`
+- Created: `laravel/app/Models/Setting.php`
+- Created: `laravel/app/Models/NotificationLog.php`
+- Modified: `laravel/app/Models/User.php` — added branch() BelongsTo relationship
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used `nullOnDelete()` for nullable FKs (doctors.user_id, users.branch_id) rather than cascade — preserves data integrity when optional references are removed
+- Used `cascadeOnDelete()` for required FKs (doctors.branch_id, plato_calendars.doctor_id) per task spec
+- Added separate migration for users.branch_id FK instead of modifying existing migration — keeps existing migration reproducible
+- Used `$table` attribute for models with non-standard table names (PlatoCalendar → plato_calendars, NotificationLog → notifications_log) rather than overriding $table property in migration
 
 ### Known Limitations
-{To be filled}
+- Migrations cannot be verified in CI (no composer/vendor). They follow the exact same patterns as P2-T01 which was verified and merged to develop.
+- No seeders included — data population is handled in subsequent CRUD tasks (P2-T03, P2-T04)
 
 ---
 

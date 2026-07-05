@@ -3,10 +3,18 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T01 — Laravel Project Setup with Auth and Roles (IN-REVIEW — Round 2 after QA fix)
+P2-T02 — MySQL Schema (IN-REVIEW)
 
 ## Last Completed Task
-None (first Process 2 task implemented).
+P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
+
+## Implementation Summary — P2-T02
+- migrations: branches, doctors, plato_calendars, settings, notifications_log tables created
+- Added foreign key on users.branch_id → branches.id (nullOnDelete)
+- Models: Branch, Doctor, PlatoCalendar, Setting, NotificationLog with fillable, casts, relationships
+- User model: added branch() BelongsTo relationship
+- FK cascades: doctors.branch_id → cascadeOnDelete, plato_calendars.doctor_id → cascadeOnDelete
+- Nullable FKs use nullOnDelete: doctors.user_id, users.branch_id
 
 ## Implementation Summary — P2-T01
 - Migration: added `role` (enum: super_admin, branch_admin, staff) and `branch_id` to users table
