@@ -17,7 +17,7 @@ Doctor Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P5-T02 |
 | Blocked Reason | N/A |
@@ -147,22 +147,22 @@ Create the doctor selection screen for the Booking Flow (Step 2 of 4). The user 
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: FAILED
 
 ### Criteria Results
-- [ ] Step indicator step 2 active — PASS / FAIL
-- [ ] No Preference card at top — PASS / FAIL
-- [ ] Doctor list filtered by branch — PASS / FAIL
-- [ ] is_visible_in_app filter works — PASS / FAIL
-- [ ] Doctor card rendering — PASS / FAIL
-- [ ] Selection highlight — PASS / FAIL
-- [ ] Next button disabled state — PASS / FAIL
-- [ ] Navigation to next screen — PASS / FAIL
-- [ ] Loading state — PASS / FAIL
-- [ ] Empty state — PASS / FAIL
+- [x] Step indicator step 2 active — PASS: 4 steps rendered with step 2 highlighted (accent circle + white text)
+- [x] No Preference card at top — PASS: Groups icon, "No Preference" label, subtitle text; always first in list
+- [ ] Doctor list filtered by branch — FAIL: Branch filtering not implemented. Plato GET /facility API does not return parent facility ID on doctor records. Requires Admin Panel (Process 2) branch-doctor mapping or Plato API augmentation.
+- [ ] is_visible_in_app filter works — FAIL: Not implemented. is_visible_in_app is a MySQL field managed by Admin Panel (Process 2), which has not been built yet. All facility results shown as doctors.
+- [x] Doctor card rendering — PASS: CircleAvatar (64px), initial-letter avatar, name (16px/600), specialty (12px/400)
+- [x] Selection highlight — PASS: 2px solid #00C9A7 border + check_circle icon on selected item
+- [x] Next button disabled state — PASS: Disabled (grey #E5E7EB) when no selection; enabled (accent) after selection
+- [x] Navigation to next screen — PASS: context.push('/dateTimeSlotSelection') triggered on Next; doctor data stored in BookingFlowModel
+- [x] Loading state — PASS: 5 skeleton cards with circle + text bar placeholders during API load
+- [x] Empty state — PASS: person_off icon, "No doctors available for this branch" message displayed when doctor list is empty
 
 ### Failure Details
-{If FAILED}
+Criteria 3 (branch filtering) and 4 (is_visible_in_app) FAIL. Both depend on Process 2 — Admin Panel Scaffold with MySQL doctors table and branch-doctor mapping, which has not been executed yet (currently at position 6 in the fixed process order; Process 5 is being built before Process 2). All other 8 criteria PASS. Implementation correctly documents these limitations.
 
 ---
 
