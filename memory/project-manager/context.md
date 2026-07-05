@@ -6,22 +6,22 @@ Last Updated: 2026-07-05 (Epic: UI Migration — Phase 0 started)
 Epic: UI Migration — Phase 0: Design System Foundation (ACTIVE)
 
 ## Active Tasks
-**Epic UI Migration — Phase 0 (BATCH 1: T01-T05 DONE, 5 of 16 complete):**
+**Epic UI Migration — Phase 0 (BATCH 3: T11-T15 IN-PROGRESS, 12 of 16 complete):**
 UI-P0-T01 — AppColors (DONE)
 UI-P0-T02 — AppTextStyles (DONE)
 UI-P0-T03 — AppSpacing + AppRadius + AppShadows (DONE)
 UI-P0-T04 — AppTheme (DONE)
 UI-P0-T05 — AppButton (DONE)
 UI-P0-T06 — AppInput (DONE)
-UI-P0-T07 — AppCard (BACKLOG, depends on T04)
-UI-P0-T08 — AppChip (BACKLOG, depends on T04)
-UI-P0-T09 — AppSkeleton (BACKLOG, depends on T04)
-UI-P0-T10 — AppBottomSheet (BACKLOG, depends on T04)
-UI-P0-T11 — AppDialog (BACKLOG, depends on T04)
-UI-P0-T12 — AppToast (BACKLOG, depends on T04)
-UI-P0-T13 — AppEmptyState (BACKLOG, depends on T04)
-UI-P0-T14 — AppErrorState (BACKLOG, depends on T04)
-UI-P0-T15 — AppAppBar (BACKLOG, depends on T04)
+UI-P0-T07 — AppCard (DONE)
+UI-P0-T08 — AppChip (DONE)
+UI-P0-T09 — AppSkeleton (DONE)
+UI-P0-T10 — AppBottomSheet (DONE)
+UI-P0-T11 — AppDialog (IN-PROGRESS)
+UI-P0-T12 — AppToast (IN-PROGRESS)
+UI-P0-T13 — AppEmptyState (IN-PROGRESS)
+UI-P0-T14 — AppErrorState (IN-PROGRESS)
+UI-P0-T15 — AppAppBar (IN-PROGRESS)
 UI-P0-T16 — AppNavBar (BACKLOG, depends on T04)
 
 ## Phase 0 Dependency Order:
