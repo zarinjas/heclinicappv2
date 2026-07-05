@@ -3,10 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P5-T09 — Appointments Tab Display (IN-REVIEW)
+P6-T01 — Health Tab Scaffold (IN-REVIEW)
 
 ## Recent Work
-- P5-T09 — Appointments Tab Display (IN-REVIEW): Created `lib/pages/appointments/appointments_screen.dart` with Upcoming/Past tabs, appointment cards with 4px color bar, status chips, skeleton loading, pull-to-refresh, empty/error states. Added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`. Wired `AppointmentsScreenWidget` into NavBarPage and GoRouter replacing `MyBookingPageWidget`.
+- P6-T01 — Health Tab Scaffold (IN-REVIEW): Rewrote `lib/front_page/reports/reports_widget.dart` with V2 design system. Replaced old Visit/MyLabs/MyDocuments tabs with Records/Vitals/Documents using V2 tokens (AppColors, AppSpacing, AppRadius). AppBar: "My Health", no back arrow, primary background. TabBar: accent indicator, white text, Plus Jakarta Sans 14px w600. Tab bodies: 4× SkeletonListTile placeholders.
+- P5-T09 — Appointments Tab Display (DONE): Created `lib/pages/appointments/appointments_screen.dart` with Upcoming/Past tabs, appointment cards with 4px color bar, status chips, skeleton loading, pull-to-refresh, empty/error states. Added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`. Wired `AppointmentsScreenWidget` into NavBarPage and GoRouter replacing `MyBookingPageWidget`.
 - P5-T08 — Appointment Confirmation Notification (DONE): Updated `push_notifications_handler.dart` to detect `type: "appointment_confirmed"` in FCM payload, navigate to MyBookingPage, increment `coutnnotif`. Rewrote `setup_f_c_m_foreground_handler.dart` for appointment notification handling in foreground with dedicated channel, badge increment, and tap-to-navigate. Added `incrementNotifCount()` and `resetNotifCount()` to `app_state.dart`. Handles cold start, background, and foreground notification scenarios.
 - P5-T06 — WhatsApp Redirect After Booking (IN-REVIEW): Created `lib/utils/whatsapp_helper.dart` with `buildPreFilledMessage()`, `buildDeepLink()`, and `getWhatsAppInstallUrl()` utilities. Added `selectedBranchWhatsApp` to `BookingFlowModel`, `phone` field to `BranchItem`, `telephone` extractor to `GetproviderCall`. Replaced stub `_onBookViaWhatsApp` with real WhatsApp deep-link redirect using `url_launcher`. Error dialog when WhatsApp not installed.
 - P5-T05 — Booking Confirmation Screen (DONE): Created BookingConfirmationScreenWidget (StatelessWidget) with summary card (Branch/Doctor/Date/Time/Patient), step indicator, teal info disclaimer banner, "Book via WhatsApp" primary button. Patient data from FFAppState (name, nationalman).

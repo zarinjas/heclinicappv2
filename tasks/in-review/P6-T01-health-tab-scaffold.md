@@ -105,16 +105,20 @@ The existing widget already has a 3-tab structure with a `TabController` (Visit,
 > Filled by Developer after implementation.
 
 ### What Was Done
-{to be filled}
+Rewrote `lib/front_page/reports/reports_widget.dart` with V2 design system. Replaced the 1100-line old implementation (Visit/MyLabs/MyDocuments tabs) with a clean scaffold featuring 3 inner tabs: Records, Vitals, Documents. Each tab has an icon and label. AppBar shows "My Health" in white on primary background with no back arrow. TabBar uses primary background, accent indicator, white text (100% selected, 60% unselected), Plus Jakarta Sans 14px weight 600. Each tab body contains 4× SkeletonListTile placeholders for later Content implementation.
 
 ### Files Changed
-{to be filled}
+- `lib/front_page/reports/reports_widget.dart` — Complete rewrite (1119 → 122 lines). Removed all old data fetching, visit list rendering, labs/radiology logic. Kept class structure (ReportsWidget, routeName, routePath) for backward compatibility with main.dart nav and index.dart exports.
 
 ### Decisions Made During Implementation
-{to be filled}
+- TabBar isScrollable: false (exactly 3 tabs fit without scrolling on all screen sizes)
+- No TabBar onTap callback needed (TabController handles switching)
+- Used `List.generate(3, ...)` for identical placeholder tabs to reduce code duplication
+- Kept ReportsModel intact (TabController + Completer fields still present) so subsequent tasks (P6-T02-P6-T05) can extend without model refactor
 
 ### Known Limitations
-{to be filled}
+- Tab bodies are static skeleton loaders; no actual data fetching or interactive content (deferred to P6-T02/P6-T03/P6-T04)
+- ReportsModel.apiRequestCompleter1/2 fields unused in new build but retained for future tasks
 
 ---
 
