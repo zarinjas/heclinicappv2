@@ -154,7 +154,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   color: AppColors.accent,
                 ),
               )
-            : null,
+            : GestureDetector(
+                onTap: _markAllRead,
+                child: Text(
+                  'Mark all read',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
       ),
       body: StreamBuilder<List<HistorynotifRecord>>(
         stream: _notificationStream,
@@ -189,94 +198,45 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             );
           }
 
-          final hasUnread =
-              notifications.any((n) => !n.readBool);
-
-          return Column(
-            children: [
-              if (hasUnread)
-                _buildMarkAllReadBanner(),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    setState(() {
-                      _initStream();
-                    });
-                  },
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.space8),
-                    itemCount: notifications.length,
-                    separatorBuilder: (_, __) => const Divider(
-                      height: 1,
-                      indent: AppSpacing.space16,
-                      endIndent: AppSpacing.space16,
-                    ),
-                    itemBuilder: (context, index) {
-                      final notif = notifications[index];
-                      return NotificationItem(
-                        key: ValueKey(
-                            'notification_${notif.reference.id}'),
-                        title: notif.title.isNotEmpty
-                            ? notif.title
-                            : notif.tittle,
-                        body: notif.body.isNotEmpty
-                            ? notif.body
-                            : notif.message,
-                        createdAt: notif.createdAt,
-                        isRead: notif.readBool,
-                        type: notif.type,
-                        deepLink: notif.deepLink,
-                        reference: notif.reference,
-                        onTap: () => _handleNotificationTap(notif),
-                        onDismiss: () =>
-                            _handleDismiss(notif),
-                      );
-                    },
+          return RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    _initStream();
+                  });
+                },
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.space8),
+                  itemCount: notifications.length,
+                  separatorBuilder: (_, __) => const Divider(
+                    height: 1,
+                    indent: AppSpacing.space16,
+                    endIndent: AppSpacing.space16,
                   ),
+                  itemBuilder: (context, index) {
+                    final notif = notifications[index];
+                    return NotificationItem(
+                      key: ValueKey(
+                          'notification_${notif.reference.id}'),
+                      title: notif.title.isNotEmpty
+                          ? notif.title
+                          : notif.tittle,
+                      body: notif.body.isNotEmpty
+                          ? notif.body
+                          : notif.message,
+                      createdAt: notif.createdAt,
+                      isRead: notif.readBool,
+                      type: notif.type,
+                      deepLink: notif.deepLink,
+                      reference: notif.reference,
+                      onTap: () => _handleNotificationTap(notif),
+                      onDismiss: () =>
+                          _handleDismiss(notif),
+                    );
+                  },
                 ),
-              ),
-            ],
-          );
+              );
         },
       ),
     );
   }
-
-  Widget _buildMarkAllReadBanner() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space16,
-        vertical: AppSpacing.space10,
-      ),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.accent.withOpacity(0.12)
-            : AppColors.accent.withOpacity(0.08),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'You have unread notifications',
-            style: AppTextStyles.body2.copyWith(
-              color: AppColors.accent,
-            ),
-          ),
-          GestureDetector(
-            onTap: _markingAllRead ? null : _markAllRead,
-            child: Text(
-              'Mark all read',
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.accent,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
