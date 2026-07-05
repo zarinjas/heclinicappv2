@@ -17,7 +17,7 @@ Branch Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T01 |
 | Blocked Reason | N/A |
@@ -114,16 +114,25 @@ Create the branch selection screen for the Booking Flow (Step 1 of 4 in the book
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created BranchSelectionScreen with step indicator, API-driven branch list from GET /facility via existing GetproviderCall, card design with selection highlight, and Next navigation button. Includes loading skeleton, empty state, and error state with retry. Uses V2 design system colors (primary #0F1B3D, accent #00C9A7, bg-light #F8F9FC). BookingFlowModel singleton stores selected branch data for subsequent booking flow screens.
 
 ### Files Changed
-- {To be filled}
+- `lib/pages/booking/branch_selection_screen.dart` — new BranchSelectionScreenWidget with full UI
+- `lib/pages/booking/booking_flow_model.dart` — new shared booking flow state model
+- `lib/flutter_flow/nav/nav.dart` — added route `/branchSelectionScreen`
+- `lib/index.dart` — added export for BranchSelectionScreenWidget
 
 ### Decisions Made During Implementation
-{To be filled}
+- Reused existing GetproviderCall for GET /facility instead of creating a duplicate API call
+- BookingFlowModel follows singleton pattern matching FFAppState pattern in codebase
+- DoctorSelectionScreen route at `/doctorSelectionScreen` referenced for Next navigation (to be implemented in P5-T03)
+- Branch image, address, and operating hours fields mapped to available facility response fields (id, name, nric). Image and hours fields will render when API returns data for those fields
+- No external Provider dependency needed — BookingFlowModel is accessed as singleton throughout the flow
 
 ### Known Limitations
-{To be filled}
+- Doctor selection screen route (`/doctorSelectionScreen`) not yet implemented (P5-T03)
+- Branch photos and operating hours depend on facility API response fields that may not be populated in Plato yet
+- Plus Jakarta Sans font styling inline (not via the theme system which still uses Poppins). Will be fully migrated when Design System is fully applied in future processes
 
 ---
 

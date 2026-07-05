@@ -42,3 +42,5 @@ export '/front_page/forgot_password/forgot_password_widget.dart'
 export '/on_boarding_new/on_boarding_new_widget.dart' show OnBoardingNewWidget;
 export '/info_page/hemed_info_copy/hemed_info_copy_widget.dart'
     show HemedInfoCopyWidget;
+export '/pages/booking/branch_selection_screen.dart'
+    show BranchSelectionScreenWidget;

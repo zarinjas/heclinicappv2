@@ -18,6 +18,7 @@ import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 import '/index.dart';
+import '/pages/booking/branch_selection_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -296,7 +297,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: HemedInfoCopyWidget.routeName,
           path: HemedInfoCopyWidget.routePath,
           builder: (context, params) => HemedInfoCopyWidget(),
-        )
+        ),
+        FFRoute(
+          name: BranchSelectionScreenWidget.routeName,
+          path: BranchSelectionScreenWidget.routePath,
+          builder: (context, params) => const BranchSelectionScreenWidget(),
+        ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
 
