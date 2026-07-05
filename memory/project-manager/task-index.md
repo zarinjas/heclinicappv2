@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05
+Last Updated: 2026-07-05 (Process 8 tasks added)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -52,6 +52,14 @@ Last Updated: 2026-07-05
 | P7-T04 | appointment-calendar-view | 7 | Step 4 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T06 | appointment-detail-view | 7 | Step 6 | Laravel | laravel-developer | DONE | 2026-07-05 |
+| P8-T01 | notification-composer | 8 | Step 1 | Laravel | laravel-developer | BACKLOG | — |
+| P8-T02 | targeting-system | 8 | Step 2 | Laravel | laravel-developer | BACKLOG | — |
+| P8-T03 | channel-selection | 8 | Step 3 | Laravel | laravel-developer | BACKLOG | — |
+| P8-T04 | fcm-push-upgrade | 8 | Step 4 | Both | laravel-developer | BACKLOG | — |
+| P8-T05 | email-provider-config | 8 | Step 5 | Laravel | laravel-developer | BACKLOG | — |
+| P8-T06 | inapp-deep-links | 8 | Step 6 | Both | laravel-developer | BACKLOG | — |
+| P8-T07 | automated-triggers | 8 | Step 7 | Laravel | laravel-developer | BACKLOG | — |
+| P8-T08 | notification-history-log-ui | 8 | Step 8 | Laravel | laravel-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
@@ -84,6 +92,16 @@ Last Updated: 2026-07-05
   - P4-T04 (home screen) — depends on P4-T01, P4-T02, P4-T03 (needs design, nav, and doctor components)
   - P4-T05 (profile) — depends on P4-T01, P4-T02 (needs design and nav)
   - P4-T06 (global states) — depends on P4-T01 (needs design tokens; applied across all screens)
+
+- Process 8 tasks have the following dependency chain:
+  - P8-T01 (notification composer) — foundation for all Process 8 tasks (no dependencies)
+  - P8-T02 (targeting) — depends on P8-T01 (extends composer form)
+  - P8-T03 (channel selection) — depends on P8-T01 (extends composer form)
+  - P8-T04 (FCM push upgrade) — depends on P8-T02, P8-T03 (needs targeting + channel data)
+  - P8-T05 (email provider config) — depends on P8-T03 (needs channel selection)
+  - P8-T06 (in-app deep links) — depends on P8-T04 (needs push infrastructure)
+  - P8-T07 (automated triggers) — depends on P8-T04, P8-T05, P8-T06 (needs all channels)
+  - P8-T08 (notification history log UI) — depends on P8-T01 (needs composer for log entries)
 
 **Note:** Agentic AI Director is now active via GitHub Actions + Telegram approval.
 Bot URL: https://heclinic.cyberoket.cloud/bot/webhook

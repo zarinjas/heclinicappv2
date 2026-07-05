@@ -1,18 +1,20 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05
+Last Updated: 2026-07-05 (Process 8 tasks created)
 
 ## Current Process
-Process 7 — Admin Panel: Patient and Appointment Management (Laravel)
+Process 8 — Notifications Module (Laravel + Firebase)
 
 ## Active Tasks
-**Process 7 — Admin Panel (NEW):**
-P7-T01 — Patient List — Server-Side Pagination, Search (DONE)
-P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (DONE)
-P7-T03 — Patient Document Upload — PDF to Firebase Storage (DONE)
-P7-T04 — Appointment Calendar View — Admin Panel (DONE)
-P7-T05 — Create Walk-In Appointment — Admin Panel (DONE)
-P7-T06 — Appointment Detail View — Admin Panel (DONE)
+**Process 8 — Notifications Module (NEW):**
+P8-T01 — Notification Composer — Admin Panel (BACKLOG)
+P8-T02 — Targeting System (BACKLOG)
+P8-T03 — Channel Selection (BACKLOG)
+P8-T04 — FCM Push Notification — Cloud Function Upgrade (BACKLOG)
+P8-T05 — Email Provider Configuration (BACKLOG)
+P8-T06 — In-App Notifications — Deep Link Support (BACKLOG)
+P8-T07 — Automated Notification Triggers (BACKLOG)
+P8-T08 — Notification History Log — Admin Panel (BACKLOG)
 
 **Process 6 — Health Tab (completed):**
 P6-T01 through P6-T05 — ALL DONE
@@ -35,9 +37,11 @@ P5-T01 through P5-T09 — ALL DONE
 - Process 3 — Mobile App: Data Layer Refactor: ALL DONE (P3-T01 through P3-T06)
 - Process 4 — Mobile App: UI/UX Overhaul: ALL DONE (P4-T01 through P4-T06)
 - Process 5 — Booking Flow: ALL DONE (P5-T01 through P5-T09)
+- Process 6 — Health Tab: ALL DONE (P6-T01 through P6-T05)
+- Process 7 — Admin Panel: Patient and Appointment Mgmt: ALL DONE (P7-T01 through P7-T06)
 
 ## Next Task to Create
-After all Process 7 tasks are DONE, create Process 8 tasks (Notifications Module).
+After all Process 8 tasks are DONE, create Process 9 tasks (CMS Module).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
