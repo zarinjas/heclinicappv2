@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -108,3 +108,19 @@ Created `lib/core/widgets/otp_input_row.dart`:
 ---
 
 ## QA Notes
+
+| # | Criterion | Result | Notes |
+|---|-----------|--------|-------|
+| 1 | 6 boxes 48×52px, 12px radius, evenly spaced | PASS | SizedBox(48,52), borderRadius(AppRadius.radiusMD), spaceEvenly |
+| 2 | Focused=accent, unfilled=inputBorder | PASS | focusedBorder accent, enabledBorder inputBorder |
+| 3 | Digit auto-advances focus | PASS | _onChanged requests next focus when value not empty |
+| 4 | Backspace on empty clears prev + focuses back | PASS | _onKeyEvent handles backspace, clears prev, requests focus |
+| 5 | Pasting 6 digits fills all boxes | PASS | _onPaste parses non-digit chars, distributes to all controllers |
+| 6 | onCompleted fires when all 6 entered | PASS | otp.length == widget.length check |
+| 7 | onChanged fires on every change | PASS | _notifyChanged called from _onChanged and _onKeyEvent |
+| 8 | Error state = all boxes error border | PASS | _borderColor returns error when hasError=true, both errorBorder+focusedErrorBorder set |
+| 9 | Dark mode | PASS | surfaceDark bg, textPrimaryDark text |
+| 10 | No hardcoded tokens | PASS | All AppColors/AppRadius/AppSpacing/AppTextStyles |
+| 11 | flutter analyze zero errors | PASS | Confirmed |
+
+**QA Result: PASSED** — All 11 criteria verified. **Reviewer: APPROVED.** §9 OTP spec compliant. 48×52px boxes, auto-advance, backspace nav, paste support, error state, dark mode. All design tokens used.
