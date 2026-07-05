@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T01 |
 | Blocked Reason | N/A |
@@ -102,16 +102,17 @@ N/A
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/theme/app_text_styles.dart` with all 8 text styles using GoogleFonts.plusJakartaSans(). Used `static final` pattern since GoogleFonts returns non-const TextStyles.
 
 ### Files Changed
-- `lib/core/theme/app_text_styles.dart`
+- `lib/core/theme/app_text_styles.dart` — created with AppTextStyles class
 
 ### Decisions Made During Implementation
-{}
+- Used `static final` instead of `static const` because GoogleFonts.plusJakartaSans() returns TextStyle at runtime
+- Private constructor for non-instantiability
 
 ### Known Limitations
-{}
+None
 
 ---
 
