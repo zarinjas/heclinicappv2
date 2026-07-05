@@ -127,6 +127,14 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'plato' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/plato-proxy.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('PLATO_LOG_DAYS', 30),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

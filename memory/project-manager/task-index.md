@@ -18,7 +18,7 @@ Last Updated: 2026-07-05
 | P2-T02 | mysql-schema | 2 | Step 2 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P2-T03 | branch-management-crud | 2 | Step 3 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P2-T04 | doctor-management-crud | 2 | Step 4 | Laravel | laravel-developer | DONE | 2026-07-05 |
-| P2-T05 | plato-api-proxy-layer | 2 | Step 5 | Laravel | laravel-developer | IN-PROGRESS | |
+| P2-T05 | plato-api-proxy-layer | 2 | Step 5 | Laravel | laravel-developer | IN-REVIEW | |
 | P2-T06 | calendar-setup-systemsetup | 2 | Step 6 | Laravel | laravel-developer | BACKLOG | |
 | P3-T01 | global-api-error-interceptor | 3 | Step 1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T02 | pagination-helper | 3 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |

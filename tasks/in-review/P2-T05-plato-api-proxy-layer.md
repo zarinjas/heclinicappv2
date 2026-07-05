@@ -17,7 +17,7 @@ Plato API Proxy Layer — Robust Proxy with Rate Limiting and Caching
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P2-T02 |
 | Blocked Reason | N/A |
@@ -126,16 +126,29 @@ return [
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Enhanced the Plato API proxy layer to be production-grade. Created a dedicated `PlatoProxyService` encapsulating all proxy logic (HTTP forwarding, caching, error normalization, logging). Rewrote `PlatoProxyController` to use the service via DI with added IP-based rate limiting. Added a health check endpoint at `GET /api/v2/plato/health`. Added dedicated `config/plato.php` with all configurable options. Added `plato` log channel writing to `storage/logs/plato-proxy.log`.
 
 ### Files Changed
-- {To be filled}
+- `laravel/config/plato.php` — new config file for all Plato proxy settings
+- `laravel/app/Services/PlatoProxyService.php` — new service with proxy(), healthCheck(), caching, error normalization, rate-limit header extraction
+- `laravel/app/Http/Controllers/Api/PlatoProxyController.php` — rewritten to use PlatoProxyService + IP rate limiting
+- `laravel/routes/api.php` — added health endpoint (public, outside auth middleware)
+- `laravel/config/logging.php` — added `plato` log channel (daily rotation, 30 days retention)
+- `laravel/.env.example` — added new env vars: PLATO_TIMEOUT, PLATO_CACHE_*, PLATO_LOG_REQUESTS, PLATO_PROXY_RATE_LIMIT
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used Laravel's built-in `RateLimiter` facade instead of a custom middleware for simplicity and native support
+- Cache TTL determined by endpoint type heuristic (path contains "appointment/slots" → 60s, "facility" → 300s, "doctor" → 300s, default → 120s) — matches config values in plato.php
+- Error normalization follows task spec: `{ error: true, code: xxx, message: "..." }` for all non-2xx responses
+- Health endpoint is public (no auth) to allow monitoring tools to check proxy status
+- Proxy logging uses a separate log file (`plato-proxy.log`) with daily rotation to avoid cluttering the main Laravel log
+- Kept backward compatibility with `config/services.plato` (not removed) in case other code references it
 
 ### Known Limitations
-{To be filled}
+- Response caching only applies to GET requests (POST/PUT/DELETE are not cached)
+- Cache invalidation is time-based only — no programmatic cache invalidation on data change
+- IP rate limiting uses Laravel's default cache driver — if using `array` driver in tests, rate limiting is effectively disabled
+- No database logging to `notifications_log` table — uses file-based logging only (can be added later if admin panel monitoring is needed)
 
 ---
 

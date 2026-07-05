@@ -3,7 +3,18 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T04 — Doctor Management CRUD (IN-REVIEW)
+P2-T05 — Plato API Proxy Layer (IN-REVIEW)
+
+## Last Completed Task
+P2-T04 — Doctor Management CRUD (DONE)
+
+## Implementation Summary — P2-T05
+- `config/plato.php`: centralized Plato proxy config (base_url, api_token, timeout, cache TTLs, log_requests, proxy_rate_limit)
+- `app/Services/PlatoProxyService.php`: service class with proxy() supporting all HTTP methods (GET/POST/PUT/PATCH/DELETE), healthCheck() to verify Plato connectivity, response caching for GET endpoints with configurable TTL per endpoint type (facility/doctor=300s, slots=60s, default=120s), error normalization to `{ error, code, message }` format, rate-limit header extraction (x-ratelimit-limit, x-ratelimit-remaining), request/error logging to dedicated plato log channel
+- `app/Http/Controllers/Api/PlatoProxyController.php`: rewritten to inject PlatoProxyService via DI, added IP-based rate limiting using Laravel's RateLimiter facade (configurable via PLATO_PROXY_RATE_LIMIT), forwards rate-limit headers from Plato response to Flutter client, added health() action
+- `routes/api.php`: added `GET /api/v2/plato/health` (public, outside auth middleware) returning `{ status, plato_connected, token_configured, base_url }`
+- `config/logging.php`: added `plato` log channel — daily rotation to `storage/logs/plato-proxy.log`, 30 days retention
+- `.env.example`: added PLATO_TIMEOUT, PLATO_CACHE_*, PLATO_LOG_REQUESTS, PLATO_PROXY_RATE_LIMIT env vars
 
 ## Last Completed Task
 P2-T03 — Branch Management CRUD (DONE)
