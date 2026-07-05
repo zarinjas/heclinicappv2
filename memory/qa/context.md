@@ -6,7 +6,7 @@ Last Updated: 2026-07-05
 None.
 
 ## Last Result
-P1-T06 (remove-duplicate-api-call-classes) — QA PASSED (9/9). Verified: GetPatientbyidCopyCall deleted, LetterCopyCall renamed to GetInvoiceCall, all 16 call sites in reports_widget.dart and visits_widget.dart updated, zero remaining references to old class names. Implementation is a safe pure rename — no logic changes.
+P1-T07 (remove-duplicate-auth-pages) — QA PASSED (6/6). Verified: register_page_copy/ directory deleted, RegisterPageCopyWidget route removed from nav.dart, export removed from index.dart, push_notifications entry removed. Zero remaining references across lib/. Active RegisterPageWidget untouched — registration flow unaffected.
 
 ## Notes
 Check known-issues.md before starting each verification — watch for recurring patterns.
