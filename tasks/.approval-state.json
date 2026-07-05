@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P2-T02",
-  "task_title": "MySQL Schema: Branches, Doctors, Calendars, Settings, Notifications Log",
+  "pending": true,
+  "task_id": "P2-T03",
+  "task_title": "Branch Management CRUD — CRUD with WhatsApp Number and Plato Facility ID",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T09:06:02Z",
-  "approved_at": "2026-07-05T12:00:00Z",
-  "approved": true
+  "created_at": "2026-07-05T12:10:00Z",
+  "approved_at": null,
+  "approved": null
 }
