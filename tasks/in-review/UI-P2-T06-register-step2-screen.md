@@ -137,20 +137,21 @@ Created new `lib/features/auth/register_step2_screen.dart` — a V2 design-compl
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] StepIndicator step 2 active — PASS / FAIL
-- [ ] Password fields use AppInput with toggle — PASS / FAIL
-- [ ] Password validation works — PASS / FAIL
-- [ ] Terms checkbox required — PASS / FAIL
-- [ ] Register button triggers API — PASS / FAIL
-- [ ] Back button preserves data — PASS / FAIL
-- [ ] API error with AppErrorState — PASS / FAIL
-- [ ] No hardcoded styling — PASS / FAIL
-- [ ] Dark mode — PASS / FAIL
+- [x] StepIndicator step 2 active — PASS
+- [x] Password fields use AppInput with toggle — PASS
+- [x] Password validation works — PASS
+- [x] Terms checkbox required — PASS
+- [x] Register button triggers API — PASS
+- [x] Back button preserves data — PASS
+- [x] API error with AppErrorState — PASS
+- [x] No hardcoded styling — PASS
+- [x] Dark mode — PASS
 
 ### Failure Details
+N/A
 
 
 ---
