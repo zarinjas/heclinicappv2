@@ -144,15 +144,15 @@ class SendAppointmentReminders extends Command
 
 > Testable, binary (PASS/FAIL) criteria. QA verifies exactly these.
 
-- [ ] Creating a new appointment via Admin Panel triggers an immediate appointment confirmation notification (Push + Email + In-App)
-- [ ] The appointment confirmation notification includes patient email resolved from Plato data
-- [ ] After uploading a patient document via Admin Panel, a document notification (Push + In-App) is sent to that patient
-- [ ] The document notification includes the document filename in the body
-- [ ] Running `php artisan app:send-appointment-reminders` sends reminders for appointments occurring within the next 24 hours
-- [ ] Running `php artisan app:send-appointment-reminders` sends reminders for appointments occurring within the next 1 hour
-- [ ] Each appointment receives at most one 24h reminder and one 1h reminder (no duplicate sends on repeated runs)
-- [ ] The `app:send-appointment-reminders` command is registered in console routes and runs via scheduler
-- [ ] All automated notifications are logged in the `notifications_log` table with correct `type` (appointment_confirmation, appointment_reminder, document_uploaded)
+- [x] Creating a new appointment via Admin Panel triggers an immediate appointment confirmation notification (Push + Email + In-App)
+- [x] The appointment confirmation notification includes patient email resolved from Plato data
+- [x] After uploading a patient document via Admin Panel, a document notification (Push + In-App) is sent to that patient
+- [x] The document notification includes the document filename in the body
+- [x] Running `php artisan app:send-appointment-reminders` sends reminders for appointments occurring within the next 24 hours
+- [x] Running `php artisan app:send-appointment-reminders` sends reminders for appointments occurring within the next 1 hour
+- [x] Each appointment receives at most one 24h reminder and one 1h reminder (no duplicate sends on repeated runs)
+- [x] The `app:send-appointment-reminders` command is registered in console routes and runs via scheduler
+- [x] All automated notifications are logged in the `notifications_log` table with correct `type` (appointment_confirmation, appointment_reminder, document_uploaded)
 
 ---
 
@@ -204,11 +204,23 @@ class SendAppointmentReminders extends Command
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
 
+1. PASS — AppointmentService::createAppointment() calls sendAppointmentConfirmation() after successful Plato booking (line 67). Method dispatches push (lines 38-47), in-app (lines 49-51), email (lines 53-56). Trigger 1 was already fully wired by P8-T04/P8-T05/P8-T06.
+2. PASS — sendAppointmentConfirmation() calls resolvePatientEmailForAppointment() (line 54) which queries Plato GET /patient by NRIC/name and returns first valid email.
+3. PASS — PatientController::uploadDocument() calls sendDocumentUploadedNotification($id, $filename) after successful storage. Method dispatches push + in-app with deep_link `health/documents`.
+4. PASS — Document notification body is constructed with `$filename` from `getClientOriginalName()` of uploaded file.
+5. PASS — SendAppointmentReminders queries Appointment::whereDate(appointment_date, now()->addDay()->toDateString())->whereNull(reminded_24h_at). Dispatches 24h reminder for each.
+6. PASS — Queries today's appointments with appointment_time within next 60min and null reminded_1h_at. Dispatches 1h reminder for each.
+7. PASS — sendAppointmentReminder() calls $appointment->update([$timestampColumn => now()]) immediately after sending. whereNull guards prevent re-selection on repeated runs.
+8. PASS — routes/console.php: Schedule::command('app:send-appointment-reminders')->everyMinute(). Command signature matches in SendAppointmentReminders.php.
+9. PASS — NotificationLog::create() in sendAppointmentConfirmation (type: appointment_confirmation), sendAppointmentReminder (type: appointment_reminder), sendDocumentUploadedNotification (type: document_uploaded).
+
 ### Failure Details
+
+None — all 9 criteria passed. BUILD GATE: php -l on all laravel/app/**/*.php returned zero parse errors.
 
 ---
 

@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P8-T06 — In-App Notifications — Deep Link Support (PASSED — 7/7 criteria)
+P8-T07 — Automated Notification Triggers (PASSED — 9/9 criteria)
 
 ## Verification History
+- P8-T07 (2026-07-05): PASSED — 9/9 criteria. BUILD GATE: zero PHP parse errors. Trigger 1 (appointment confirmation) already wired by P8-T04/T05/T06 — verified AppointmentService calls sendAppointmentConfirmation with push+email+in-app + email resolution. Trigger 2 (reminders): SendAppointmentReminders command queries 24h and 1h windows with whereNull guards; updates timestamp after send for idempotency; scheduler registered in routes/console.php everyMinute(). Trigger 3 (document upload): PatientController::uploadDocument() calls sendDocumentUploadedNotification with patient Plato ID + original filename; notification logged with type document_uploaded. All 3 triggers create NotificationLog entries with correct type values.
 - P8-T06 (2026-07-05): PASSED — 7/7 criteria. FirebaseService::writeInAppNotification() writes read:false (boolean), deep_link, type, id_patient fields. Flutter notification center streams historynotif with id_patient filter. Tap handler routes deep_link to MyBookingPage/Reports/HomepageNew. readBool: true written on tap (boolean). Old String "yes"/"no" read values handled via readBool getter with backward compat. type field stored and accessible in Flutter model. id_patient query filter ensures patient-specific isolation. Flutter analyze: zero errors (BUILD GATE PASS).
 
 ## Verification History
