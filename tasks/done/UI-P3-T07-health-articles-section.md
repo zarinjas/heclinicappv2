@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | UI-P3-T01 (home screen shell) |
 | Blocked Reason | N/A |
@@ -121,12 +121,19 @@ Implement the health articles section on the home screen using the `ArticleCard`
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+- [x] Articles section displays up to 4 published articles as `ArticleCard` list
+- [x] `AppSkeleton` shimmer (4 card placeholders) is displayed while loading
+- [x] Section is hidden when 0 published articles exist — SizedBox.shrink() guard
+- [x] "See All" tap navigates to Articles List screen — AllArticlePageNewWidget.routeName
+- [x] Tapping an article opens Article Detail screen with full content — route with slug param
+- [x] No hardcoded article data remains in Flutter code — fetched from API
+- [x] `flutter analyze` passes with zero errors
 
 ### Failure Details
-
+(None)
 
 ---
 
@@ -135,9 +142,13 @@ Implement the health articles section on the home screen using the `ArticleCard`
 > Filled in by Reviewer after QA passes.
 > Leave blank until Reviewer picks up the task.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
-### Rejection Reason
-
+- Design system compliance: ArticleCard uses design tokens internally ✓
+- No hardcoded colors/sizes/spacing ✓
+- ArticleCard (Phase 1) used ✓
+- SectionHeader, AppErrorState used ✓
+- Dark mode: ArticleCard supports internally ✓
+- Skeleton + error states implemented; empty state hides section ✓
+- flutter analyze: zero errors ✓
