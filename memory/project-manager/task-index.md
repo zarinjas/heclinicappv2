@@ -141,6 +141,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 6 tasks created)
 | UI-P6-T03 | vitals-tab | Epic UI — Phase 6 | Step 6.3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T04 | documents-tab | Epic UI — Phase 6 | Step 6.4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T05 | record-detail-viewer | Epic UI — Phase 6 | Step 6.5 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P7-T01 | notifications-screen | Epic UI — Phase 7 | Step 7.1 | Flutter | flutter-developer | BACKLOG | — |
 
 **Phase 6 Dependency Order:**
 - UI-P6-T01 (Health Tab shell) — no dependencies, foundation for inner tabs

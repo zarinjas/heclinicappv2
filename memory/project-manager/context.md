@@ -1,12 +1,21 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 6 — ALL DONE)
+Last Updated: 2026-07-05 (UI Epic Phase 7 — Notifications Tab in progress)
 
 ## Current Process
-Epic: UI Migration — Phase 6 (Health Tab) — COMPLETE
+Epic: UI Migration — Phase 7 (Notifications Tab) — IN PROGRESS
 
 ## Active Tasks
-(None — Phase 6 complete)
+| Task ID | Name | Status |
+|---------|------|--------|
+| UI-P7-T01 | Notifications Screen | BACKLOG |
+
+## Phase 7 — IN PROGRESS
+| Task ID | Name | Status |
+|---------|------|--------|
+| UI-P7-T01 | Notifications Screen | BACKLOG |
+
+---
 
 ## Phase 6 — COMPLETE
 | Task ID | Name | Status |
