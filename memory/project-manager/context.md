@@ -6,7 +6,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 4 — batch of 5 tasks DONE, pending app
 Epic: UI Migration — Phase 4 (Booking Flow Screens)
 
 ## Active Tasks
-- UI-P4-T01 (booking-branch-screen) — DONE (2026-07-05)
+- UI-P4-T06 (appointment-detail-screen) — IN-PROGRESS (assigned 2026-07-06)
 
 ## Phase 4 — PENDING
 - 6 tasks created: UI-P4-T01 through UI-P4-T06
@@ -23,7 +23,7 @@ Epic: UI Migration — Phase 4 (Booking Flow Screens)
 | UI-P4-T03 | Booking Date & Time |
 | UI-P4-T04 | Booking Confirmation & WhatsApp |
 | UI-P4-T05 | My Bookings / Appointments List |
-| UI-P4-T06 | Appointment Detail |
+| UI-P4-T06 | Appointment Detail | IN-PROGRESS |
 
 ## Completed Phases
 - Phase 0 — Design System Foundation: ALL DONE (UI-P0-T01 through UI-P0-T16)
