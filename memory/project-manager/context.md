@@ -11,7 +11,7 @@ P7-T01 — Patient List — Server-Side Pagination, Search (DONE)
 P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (DONE)
 P7-T03 — Patient Document Upload — PDF to Firebase Storage (DONE)
 P7-T04 — Appointment Calendar View — Admin Panel (DONE)
-P7-T05 — Create Walk-In Appointment — Admin Panel (IN-REVIEW)
+P7-T05 — Create Walk-In Appointment — Admin Panel (DONE)
 P7-T06 — Appointment Detail View — Admin Panel (BACKLOG)
 
 **Process 6 — Health Tab (completed):**

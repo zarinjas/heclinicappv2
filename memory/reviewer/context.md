@@ -3,7 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P7-T04 — Appointment Calendar View — Admin Panel (APPROVED — 2026-07-05)
+P7-T05 — Create Walk-In Appointment — Admin Panel (APPROVED — 2026-07-05)
+
+## Review History
+- P7-T05 (2026-07-05): APPROVED — v2-decisions Process 7 Step 5 "Create appointment for walk-ins — POST /appointment via Plato proxy" fully met. StoreAppointmentRequest validates all required fields with after:today rule. AdminAppointmentController delegates to AppointmentService::createAppointment() which proxies to Plato and persists local DB record in transaction. create.blade.php follows admin panel patterns (card wrapper, teal accent buttons, responsive grid, JS doctor filtering by branch). Routes web.php configured with auth+role middleware. All 10 QA criteria PASS.
+- P7-T04 (2026-07-05): APPROVED — v2-decisions Process 7 Step 4 "Appointment calendar view — all appointments from GET /appointment" fully met.
 
 ## Review History
 - P7-T04 (2026-07-05): APPROVED — v2-decisions Process 7 Step 4 "Appointment calendar view — all appointments from GET /appointment" fully met. AdminAppointmentController@index fetches from Plato via proxy with filter support (date_from, date_to, doctor_id, facility_id, status). Blade view with data table (Date, Time, Patient Name, NRIC, Doctor, Branch, Status chip), colored status chips, date/dropdown filters, empty state, pagination. Sidebar Appointments link between Patients and Calendar Setup. "New Walk-In Appointment" and View action are disabled placeholders for P7-T05 and P7-T06. All 10 QA criteria PASS.
