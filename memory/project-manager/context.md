@@ -13,9 +13,9 @@ P10-T03 — Payment History — Mobile App (DONE)
 P10-T04 — Analytics Dashboard — Admin Panel (DONE)
 P10-T05 — Role and Permission Audit (DONE)
 
-**Process 10 — Polish and Remaining Features: 5 of 8 tasks DONE**
-Remaining: P10-T06, P10-T07, P10-T08 in BACKLOG
-P10-T06 — Firestore Security Rules Audit and Tighten (IN-REVIEW)
+**Process 10 — Polish and Remaining Features: 6 of 8 tasks DONE**
+Remaining: P10-T07, P10-T08 in BACKLOG
+P10-T06 — Firestore Security Rules Audit and Tighten (DONE)
 P10-T07 — Remove Unused Firebase Functions Dependencies (BACKLOG)
 P10-T08 — Flutter Version Upgrade Assessment (BACKLOG)
 
