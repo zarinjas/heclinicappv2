@@ -1,10 +1,9 @@
 {
-  "pending": false,
-  "task_id": "P8-T08",
-  "task_title": "Notification History Log — Admin Panel",
+  "pending": true,
+  "task_id": "P9-T01",
+  "task_title": "Sliders CMS \u2014 Admin Panel + Mobile",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": "2026-07-05T00:00:00Z"
+  "created_at": "2026-07-05T00:00:00Z"
 }

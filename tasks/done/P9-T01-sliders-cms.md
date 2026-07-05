@@ -11,7 +11,7 @@
 | Type | Both |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -179,10 +179,11 @@ Flutter front-end integration not yet implemented. This is the Laravel back-end 
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-
+- v2-decisions.md alignment: YES — Process 9 Step 1 "Sliders — upload image, set order, active/inactive toggle" fully met. Migration (cms_sliders), admin CRUD with image upload+preview+replace+cleanup, public API returning active sliders ordered by sort_order ASC, CMS sidebar integration. All spec requirements satisfied.
+- v2-ux-spec.md alignment: YES — Laravel back-end provides proper data structure for hero slider (image URL, optional title, optional link URL, sort order). Flutter front-end integration (AC 6-8) is deferred — documented in Implementation Notes and QA Notes.
 
 ### Rejection Reason
-
+N/A

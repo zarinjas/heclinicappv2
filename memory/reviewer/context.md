@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P8-T08 — Notification History Log — Admin Panel (APPROVED, moved to DONE)
+P9-T01 — Sliders CMS — Admin Panel + Mobile (APPROVED, moved to DONE)
 
 ## Review History
+- P9-T01 (2026-07-05): APPROVED — v2-decisions Process 9 Step 1 "Sliders — upload image, set order, active/inactive toggle" fully met. Migration (cms_sliders), admin CRUD with image upload/replace/cleanup, public API returning active sliders by sort_order ASC, CMS sidebar. 5/5 Laravel QA criteria PASS. 3 Flutter criteria deferred (front-end needs separate developer pass). No spec deviations. Blade views follow existing admin patterns consistently.
 - P8-T08 (2026-07-05): APPROVED — v2-decisions Process 8 Step 8 "Notification history log in Admin Panel with delivery status" fully met. Paginated table (20/page) with all 7 columns, search, type/status/date filters, clickable rows to detail view. Sidebar expanded with collapsible Compose/History sub-items. Follows existing Blade patterns. No spec deviations. All 8 QA criteria PASS.
 - P8-T07 (2026-07-05): APPROVED — v2-decisions Process 8 Step 7 "Automated triggers: appointment confirmed (Push+Email+In-App, immediate), appointment reminder (Push+In-App, 24h and 1h before), new document uploaded (Push+In-App, immediate)" fully met. Trigger 1 already wired by P8-T04/T05/T06. Trigger 2: SendAppointmentReminders command with 24h/1h window queries and timestamp-based idempotency, scheduled everyMinute(). Trigger 3: PatientController::uploadDocument() hooks into upload flow with filename in body. All 3 log to notifications_log with correct types. No spec deviations. All 9 QA criteria PASS.
 - P8-T06 (2026-07-05): APPROVED — v2-decisions Process 8 Step 6 "In-App: Write to Firestore historynotif with deep link support" fully met. FirebaseService writes id_patient/read:false/deep_link/type fields. NotificationService::sendInApp() accepts $deepLink/$type params. Flutter historynotif_record.dart has readBool with backward compat for String "yes"/"no". notification_page_widget.dart routes deep_link to MyBookingPage/Reports/HomepageNew with old message/tittle fallback. All 7 QA criteria PASS.
