@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -85,3 +85,23 @@ Build the `HeroSlider` reusable component for the Home screen banner carousel. A
 - [ ] Dark mode renders correctly
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/hero_slider.dart`:
+- `HeroSlide` data class with `imageUrl`, `onTap` callback, optional `textOverlay`
+- `HeroSlider` StatefulWidget: `PageView.builder` with `ClipRRect` (AppRadius.radiusLG, 16px), 180px fixed height
+- Auto-scroll: `Timer.periodic` every 4s, `animateToPage` with 350ms easeInOut; resets on manual page change
+- Dot indicators: centered row, 6px height, active=accent/animated 18px wide pill, inactive=grey with 40% opacity, only shown when slides > 1
+- Empty: returns `SizedBox.shrink()` when `slides.isEmpty`
+- Image loading: `Image.network` with `fit: BoxFit.cover`, loading placeholder surface color, error with broken_image icon
+- Optional text overlay: gradient bottom overlay with white text
+- `HeroSliderSkeleton`: 180px shimmer rect using flutter_animate, dark-mode-aware colors
+- All tokens: AppColors, AppRadius, AppSpacing. No hardcoded hex values
+- `flutter analyze` passed with zero errors
+
+---
+
+## QA Notes
