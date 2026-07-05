@@ -25,6 +25,7 @@ None currently.
 ## Completed Processes
 - Process 1 — Security and Foundation: ALL DONE (P1-T01 through P1-T10)
 - Process 3 — Mobile App: Data Layer Refactor: ALL DONE (P3-T01 through P3-T06)
+- Process 4 — Mobile App: UI/UX Overhaul: ALL DONE (P4-T01 through P4-T06)
 
 ## Next Task to Create
 After all Process 4 tasks are DONE, create Process 5 tasks (Booking Flow).
