@@ -14,7 +14,7 @@ UI-P2-T04 — Login Screen (DONE)
 UI-P2-T05 — Register Step 1 (DONE)
 UI-P2-T06 — Register Step 2 (DONE)
 UI-P2-T07 — Forgot Email (DONE)
-UI-P2-T08 — Forgot OTP (IN-PROGRESS)
+UI-P2-T08 — Forgot OTP (DONE)
 UI-P2-T09 — Forgot New Password (BACKLOG)
 UI-P2-T10 — First Change Password (BACKLOG)
 
