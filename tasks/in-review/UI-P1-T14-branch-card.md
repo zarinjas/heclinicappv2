@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -69,6 +69,18 @@ Build the `BranchCard` reusable component for branch selection in the Booking fl
 - Design tokens only
 - Dark mode support
 - Skeleton loader defined
+
+---
+
+## Implementation Notes
+
+- Created `lib/core/widgets/branch_card.dart`
+- StatelessWidget `BranchCard` with name, address, operatingHours, distance, isSelected, onTap
+- Selected state: 1.5px accent border + accent tinted bg (5% light / 10% dark); Unselected: 1px divider border + surface bg
+- Name: `AppTextStyles.heading3` + titleColor; Address/hours: `AppTextStyles.body2` with location/time icons
+- Distance: shown trailing when non-empty
+- `BranchCardSkeleton`: card-shaped placeholder with 3 colored bars using skeleton palette
+- `flutter analyze`: zero errors
 
 ---
 
