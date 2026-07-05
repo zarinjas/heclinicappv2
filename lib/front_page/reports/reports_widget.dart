@@ -66,10 +66,12 @@ class _ReportsWidgetState extends State<ReportsWidget>
     super.dispose();
   }
 
-  Future<void> _loadRecords() async {
-    _model.isLoading = true;
-    _model.errorMessage = null;
-    safeSetState(() {});
+  Future<void> _loadRecords({bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      _model.isLoading = true;
+      _model.errorMessage = null;
+      safeSetState(() {});
+    }
 
     try {
       final patientId = FFAppState().idplato;
@@ -86,7 +88,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
           _model.selectedFilter == FilterType.mc;
 
       if (needNotes) {
-        final notesResponse = await GetReportCall.call(patientId: patientId);
+        final notesResponse = await GetReportCall.call(patientId: patientId, forceRefresh: forceRefresh);
         if (notesResponse.succeeded) {
           final body = notesResponse.jsonBody;
           final notes = GetReportCall.note(body);
@@ -163,9 +165,11 @@ class _ReportsWidgetState extends State<ReportsWidget>
       _model.isLoading = false;
       safeSetState(() {});
     } catch (e) {
-      _model.errorMessage = 'Failed to load records';
-      _model.isLoading = false;
-      safeSetState(() {});
+      if (!forceRefresh) {
+        _model.errorMessage = 'Failed to load records';
+        _model.isLoading = false;
+        safeSetState(() {});
+      }
     }
   }
 
@@ -183,27 +187,33 @@ class _ReportsWidgetState extends State<ReportsWidget>
     return '';
   }
 
-  Future<void> _loadVitals() async {
-    _model.isLoadingVitals = true;
-    _model.vitalsError = null;
-    safeSetState(() {});
+  Future<void> _loadVitals({bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      _model.isLoadingVitals = true;
+      _model.vitalsError = null;
+      safeSetState(() {});
+    }
 
     try {
       final patientId = FFAppState().idplato;
-      final response = await GetVitalsGraphingCall.call(patientId: patientId);
+      final response = await GetVitalsGraphingCall.call(patientId: patientId, forceRefresh: forceRefresh);
 
       if (!response.succeeded) {
-        _model.vitalsError = 'Failed to load vitals data';
-        _model.isLoadingVitals = false;
-        safeSetState(() {});
+        if (!forceRefresh) {
+          _model.vitalsError = 'Failed to load vitals data';
+          _model.isLoadingVitals = false;
+          safeSetState(() {});
+        }
         return;
       }
 
       final body = response.jsonBody;
       if (body is! Map<String, dynamic> || body.isEmpty) {
-        _model.vitalsData = [];
-        _model.isLoadingVitals = false;
-        safeSetState(() {});
+        if (!forceRefresh) {
+          _model.vitalsData = [];
+          _model.isLoadingVitals = false;
+          safeSetState(() {});
+        }
         return;
       }
 
@@ -253,25 +263,31 @@ class _ReportsWidgetState extends State<ReportsWidget>
       _model.isLoadingVitals = false;
       safeSetState(() {});
     } catch (e) {
-      _model.vitalsError = 'Failed to load vitals data';
-      _model.isLoadingVitals = false;
-      safeSetState(() {});
+      if (!forceRefresh) {
+        _model.vitalsError = 'Failed to load vitals data';
+        _model.isLoadingVitals = false;
+        safeSetState(() {});
+      }
     }
   }
 
-  Future<void> _loadDocuments() async {
-    _model.isLoadingDocuments = true;
-    _model.documentsError = null;
-    safeSetState(() {});
+  Future<void> _loadDocuments({bool forceRefresh = false}) async {
+    if (!forceRefresh) {
+      _model.isLoadingDocuments = true;
+      _model.documentsError = null;
+      safeSetState(() {});
+    }
 
     try {
       final patientId = FFAppState().idplato;
-      final response = await GetPatientDocumentsCall.call(patientId: patientId);
+      final response = await GetPatientDocumentsCall.call(patientId: patientId, forceRefresh: forceRefresh);
 
       if (!response.succeeded) {
-        _model.documentsError = 'Failed to load documents';
-        _model.isLoadingDocuments = false;
-        safeSetState(() {});
+        if (!forceRefresh) {
+          _model.documentsError = 'Failed to load documents';
+          _model.isLoadingDocuments = false;
+          safeSetState(() {});
+        }
         return;
       }
 
@@ -299,9 +315,11 @@ class _ReportsWidgetState extends State<ReportsWidget>
       _model.isLoadingDocuments = false;
       safeSetState(() {});
     } catch (e) {
-      _model.documentsError = 'Failed to load documents';
-      _model.isLoadingDocuments = false;
-      safeSetState(() {});
+      if (!forceRefresh) {
+        _model.documentsError = 'Failed to load documents';
+        _model.isLoadingDocuments = false;
+        safeSetState(() {});
+      }
     }
   }
 
@@ -641,11 +659,16 @@ class _ReportsWidgetState extends State<ReportsWidget>
       children: [
         _buildFilterChips(),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            itemCount: _model.recordsList.length,
-            itemBuilder: (_, index) =>
-                _buildRecordCard(_model.recordsList[index]),
+          child: RefreshIndicator(
+            onRefresh: () => _loadRecords(forceRefresh: true),
+            color: AppColors.accent,
+            backgroundColor: AppColors.primary,
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              itemCount: _model.recordsList.length,
+              itemBuilder: (_, index) =>
+                  _buildRecordCard(_model.recordsList[index]),
+            ),
           ),
         ),
       ],
@@ -812,11 +835,16 @@ class _ReportsWidgetState extends State<ReportsWidget>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: _model.vitalsData.length,
-      itemBuilder: (_, index) =>
-          _buildVitalChartCard(_model.vitalsData[index]),
+    return RefreshIndicator(
+      onRefresh: () => _loadVitals(forceRefresh: true),
+      color: AppColors.accent,
+      backgroundColor: AppColors.primary,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: _model.vitalsData.length,
+        itemBuilder: (_, index) =>
+            _buildVitalChartCard(_model.vitalsData[index]),
+      ),
     );
   }
 
@@ -994,11 +1022,16 @@ class _ReportsWidgetState extends State<ReportsWidget>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: _model.documentsList.length,
-      itemBuilder: (_, index) =>
-          _buildDocumentCard(_model.documentsList[index]),
+    return RefreshIndicator(
+      onRefresh: () => _loadDocuments(forceRefresh: true),
+      color: AppColors.accent,
+      backgroundColor: AppColors.primary,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: _model.documentsList.length,
+        itemBuilder: (_, index) =>
+            _buildDocumentCard(_model.documentsList[index]),
+      ),
     );
   }
 

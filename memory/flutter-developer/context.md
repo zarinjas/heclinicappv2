@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P6-T03 — Vitals Tab — Health Trends Graphs (IN-REVIEW)
+P6-T05 — Pagination and Modified Since for Health Tab (IN-REVIEW)
 
 ## Recent Work
+- P6-T05 — Health Tab Pagination + modified_since (IN-REVIEW): Upgraded GetReportCall, GetVitalsGraphingCall, GetPatientDocumentsCall with PaginationHelper.fetchAllPages() and ModifiedSinceHelper patterns matching LetterCall reference. Added `forceRefresh` parameter to all three. Modified _loadRecords(), _loadVitals(), _loadDocuments() to skip skeleton during forceRefresh (stale-while-revalidate). Added RefreshIndicator to all three Health sub-tab list views with AppColors accent/primary styling.
 - P6-T03 — Vitals Tab (IN-REVIEW): Added fl_chart dependency, GetVitalsGraphingCall API call class (GET /patient/{id}/graphing), VitalDataPoint/VitalType data models, vitals state fields in ReportsModel, _loadVitals() method with dynamic JSON key parsing and unit inference, _buildVitalChartCard() with LineChart rendering using V2 design tokens, _buildVitalsTab() with loading/empty/error/data states, lazy-load on Vitals tab switch. Replaced skeleton placeholder with real implementation.
 - P6-T02 — Records Tab (DONE): Implemented Records inner tab with filter chips (All/Notes/Letters/MC), data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs, record cards with type-specific icons, loading/empty/error states, detail views (AlertReportWidget, HTML bottom sheet, WebViewX+). Updated reports_model.dart with RecordType/FilterType enums and HealthRecord data class.
 - P6-T01 — Health Tab Scaffold (DONE): Rewrote `lib/front_page/reports/reports_widget.dart` with V2 design system. Replaced old Visit/MyLabs/MyDocuments tabs with Records/Vitals/Documents using V2 tokens (AppColors, AppSpacing, AppRadius). AppBar: "My Health", no back arrow, primary background. TabBar: accent indicator, white text, Plus Jakarta Sans 14px w600. Tab bodies: 4× SkeletonListTile placeholders.

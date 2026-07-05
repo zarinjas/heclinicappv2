@@ -1113,24 +1113,46 @@ class GetArticlesCall {
 class GetReportCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
+    bool forceRefresh = false,
   }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'getReport',
-      apiUrl:
-          '${EnvConfig.platomBaseUrl}/patient/${patientId}/note',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('patient_note');
+
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'current_page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
+      return ApiManager.instance.makeApiCall(
+        callName: 'getReport',
+        apiUrl:
+            '${EnvConfig.platomBaseUrl}/patient/${patientId}/note',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: params,
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'patient_note',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? note(dynamic response) => (getJsonField(
@@ -1202,8 +1224,18 @@ class GetReportCall {
 class GetVitalsGraphingCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
+    bool forceRefresh = false,
   }) async {
-    return ApiManager.instance.makeApiCall(
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('vitals_graphing');
+
+    final params = <String, String>{};
+    if (modifiedSince != null) {
+      params['modified_since'] = modifiedSince.toString();
+    }
+
+    final response = await ApiManager.instance.makeApiCall(
       callName: 'GetVitalsGraphing',
       apiUrl: '${EnvConfig.platomBaseUrl}/patient/${patientId}/graphing',
       callType: ApiCallType.GET,
@@ -1211,7 +1243,7 @@ class GetVitalsGraphingCall {
         'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'db': 'hemedclinic',
       },
-      params: {},
+      params: params,
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
@@ -1219,6 +1251,15 @@ class GetVitalsGraphingCall {
       isStreamingApi: false,
       alwaysAllowBody: false,
     );
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'vitals_graphing',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 }
 
@@ -1910,23 +1951,45 @@ class EditPatiendCall {
 class GetPatientDocumentsCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
+    bool forceRefresh = false,
   }) async {
+    final int? modifiedSince = forceRefresh
+        ? null
+        : await ModifiedSinceHelper.getLastFetchTimestamp('patient_documents');
+
     final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
-    return ApiManager.instance.makeApiCall(
-      callName: 'GetPatientDocuments',
-      apiUrl: '$baseUrl/v2/patients/${patientId}/documents',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    final response = await PaginationHelper.fetchAllPages((currentPage) {
+      final params = <String, String>{
+        'page': currentPage.toString(),
+      };
+      if (modifiedSince != null) {
+        params['modified_since'] = modifiedSince.toString();
+      }
+      return ApiManager.instance.makeApiCall(
+        callName: 'GetPatientDocuments',
+        apiUrl: '$baseUrl/v2/patients/${patientId}/documents',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        },
+        params: params,
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
+
+    if (response.succeeded) {
+      await ModifiedSinceHelper.setLastFetchTimestamp(
+        'patient_documents',
+        ModifiedSinceHelper.now(),
+      );
+    }
+
+    return response;
   }
 
   static List<String>? names(dynamic response) => (getJsonField(

@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P6-T04 |
 | Blocked Reason | N/A |
@@ -160,16 +160,20 @@ RefreshIndicator(
 > Filled by Developer after implementation.
 
 ### What Was Done
-{to be filled}
+Upgraded all three Health Tab API call classes to use PaginationHelper + ModifiedSinceHelper patterns matching the existing LetterCall reference. Added pull-to-refresh with RefreshIndicator to all three Health tab sub-tab list views.
 
 ### Files Changed
-{to be filled}
+- `lib/backend/api_requests/api_calls.dart` — Upgraded GetReportCall.call() with PaginationHelper.fetchAllPages() loop, modified_since param, and forceRefresh support (key: 'patient_note'). Upgraded GetVitalsGraphingCall.call() with modified_since param and forceRefresh support (key: 'vitals_graphing'). Upgraded GetPatientDocumentsCall.call() with PaginationHelper.fetchAllPages() using Laravel page param, modified_since, and forceRefresh (key: 'patient_documents').
+- `lib/front_page/reports/reports_widget.dart` — Modified _loadRecords(), _loadVitals(), _loadDocuments() to accept `{bool forceRefresh = false}` parameter. When forceRefresh=true, skip setting isLoading flags (no skeleton). On API errors during forceRefresh, silently fail (keep existing data visible). Added RefreshIndicator wrappers to _buildRecordsTab() (inside filterChips Column), _buildVitalsTab(). and _buildDocumentsTab() ListView data views with AppColors accent/primary styling. Wired all API call sites to pass forceRefresh parameter through.
 
 ### Decisions Made During Implementation
-{to be filled}
+- Document API pagination uses Laravel `?page=` param (not Plato `current_page=`) since the endpoint hits Laravel's `/v2/patients/{id}/documents`
+- Vitals graphing data is not paginated (single response per Plato API), but still supports modified_since for efficiency
+- Force-refresh errors silently fail — user retains existing data rather than seeing an error page during pull-to-refresh
+- ModifiedSinceHelper storage keys: 'patient_note', 'vitals_graphing', 'patient_documents'
 
 ### Known Limitations
-{to be filled}
+- `flutter analyze` could not be executed in this CI environment (flutter CLI not installed). Code manually verified to match patterns from working LetterCall reference.
 
 ---
 
