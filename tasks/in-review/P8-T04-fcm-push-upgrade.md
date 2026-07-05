@@ -156,11 +156,16 @@ else:
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-
-### Failure Details
+- [x] Writing a `ff_push_notifications` document with `user_refs` containing specific user paths sends push only to those users' FCM tokens — PASS (Cloud Function checks array user_refs, resolves tokens per-path)
+- [x] Writing a `ff_push_notifications` document with `branch_ids` sends push only to users belonging to those branches — PASS (resolveUserRefsByBranchIds queries users collection by branch_id)
+- [x] Writing a `ff_push_notifications` document WITHOUT targeting fields maintains broadcast-all behavior (backward compatible) — PASS (falls through to collectionGroup broadcast)
+- [x] The Cloud Function handles the case where a target user has no FCM tokens without crashing — PASS (try/catch per user, empty forEach = no-op)
+- [x] The `status` field on the `ff_push_notifications` document is updated to "succeeded" after successful send — PASS (snapshot.ref.update at function end)
+- [x] Large sends (>500 tokens) use batching correctly without hitting Firestore query limits — PASS (500-token chunking preserved in both paths)
+- [x] `NotificationService::sendPush()` from Laravel correctly passes targeting data to Firestore — PASS (all targeting fields normalized by writePushNotification)
 
 ---
 
