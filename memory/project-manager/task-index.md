@@ -83,7 +83,7 @@ Last Updated: 2026-07-05 (Process 10 tasks added)
 | UI-P0-T07 | app-card | Epic UI — Phase 0 | Step 7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T08 | app-chip | Epic UI — Phase 0 | Step 8 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T09 | app-skeleton | Epic UI — Phase 0 | Step 9 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P0-T10 | app-bottom-sheet | Epic UI — Phase 0 | Step 10 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P0-T10 | app-bottom-sheet | Epic UI — Phase 0 | Step 10 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P0-T11 | app-dialog | Epic UI — Phase 0 | Step 11 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P0-T12 | app-toast | Epic UI — Phase 0 | Step 12 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P0-T13 | app-empty-state | Epic UI — Phase 0 | Step 13 | Flutter | flutter-developer | BACKLOG | — |
