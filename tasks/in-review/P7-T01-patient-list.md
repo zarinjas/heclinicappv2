@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -157,19 +157,28 @@ Plato patient response fields (from `docs/api-guidelines.md`):
 ## Implementation Notes
 
 > Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created the PatientController with `index()` and `show()` methods, fetching data from Plato via `PlatoProxyService`. Built the Blade view for patient listing with search functionality and pagination. Added sidebar navigation link and web routes.
 
 ### Files Changed
-
+- `laravel/app/Http/Controllers/Admin/PatientController.php` — new controller with index() method that queries Plato `/patient` endpoint with search params (name, NRIC, phone) and `current_page` for pagination. Uses LengthAwarePaginator to wrap Plato response data for Blade pagination links. Includes show() method for patient detail view (stub for P7-T02).
+- `laravel/resources/views/admin/patients/index.blade.php` — new Blade view extending layouts.admin. Search form with 3 text inputs (name, NRIC, phone). Data table with columns: #, Name, NRIC, Given ID, Phone, Actions (View button linking to show). Empty state with user SVG. Pagination links and row count.
+- `laravel/resources/views/admin/patients/show.blade.php` — stub detail view with back link, patient info definition list (name, NRIC, phone, DOB, gender, address, nationality, allergies, medical notes). Will be enhanced in P7-T02.
+- `laravel/routes/web.php` — added PatientController import and `Route::resource('patients', PatientController::class)->only(['index', 'show'])` under auth+role middleware.
+- `laravel/resources/views/layouts/admin.blade.php` — added "Patients" sidebar nav link with people SVG icon between Doctors and Calendar Setup, active state using `routeIs('admin.patients.*')`.
 
 ### Decisions Made During Implementation
-
+- Pagination total estimation: since Plato does not return a total count, the total is calculated as `($currentPage * $perPage) + $perPage` when the current page has full results (20), or `(($currentPage - 1) * $perPage) + $count` when on the last page. This enables forward pagination while being conservative.
+- PatientController uses only `index` and `show` resource actions (no create/edit/delete) since Plato is the source of truth for patient data.
+- Search parameters (name, NRIC, phone) are passed directly to Plato's query params and filtering is done server-side by Plato.
+- The `show()` method was included as a stub in this task to support the View action button in the patient list, even though the full detail view is deferred to P7-T02.
+- No local patients MySQL table — all patient data is fetched live from Plato via the proxy service.
 
 ### Known Limitations
-
+- Pagination total is estimated, not exact. Page numbers beyond the actual data range may show empty pages.
+- Search is server-side only (relies on Plato's filtering capability). If Plato's search is limited, results may be incomplete.
+- No caching of patient list data (each page request hits Plato). Can be optimized in future with Redis cache.
 
 ---
 

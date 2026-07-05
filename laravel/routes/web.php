@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\PatientController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -21,6 +22,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::resource('branches', BranchController::class);
         Route::resource('doctors', DoctorController::class);
+        Route::resource('patients', PatientController::class)->only(['index', 'show']);
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
     });
