@@ -669,6 +669,67 @@ class GetPatientCall {
           .toList();
 }
 
+class GetDoctorsCall {
+  static Future<ApiCallResponse> call({
+    String? branchId,
+    bool? visible,
+  }) async {
+    final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+    final params = <String, String>{};
+    if (branchId != null && branchId.isNotEmpty) {
+      params['branch_id'] = branchId;
+    }
+    if (visible != null) {
+      params['visible'] = visible ? '1' : '0';
+    }
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'getDoctors',
+      apiUrl: '$baseUrl/config/doctors',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'Content-Type': 'application/json',
+      },
+      params: params,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<String>? id(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? name(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].name''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? specialty(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].specialty''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+}
+
 class GetproviderCall {
   static Future<ApiCallResponse> call({
     bool forceRefresh = false,

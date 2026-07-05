@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,4 +16,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::any('/v2/plato/{path}', [PlatoProxyController::class, 'proxy'])
         ->where('path', '.*')
         ->name('plato.proxy');
+
+    Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])
+        ->name('config.doctors');
 });

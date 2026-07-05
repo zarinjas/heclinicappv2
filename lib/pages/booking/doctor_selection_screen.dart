@@ -40,18 +40,23 @@ class _DoctorSelectionScreenWidgetState
     });
 
     try {
-      final response = await GetproviderCall.call();
+      final response = await GetDoctorsCall.call(
+        branchId: _bookingModel.selectedBranchId.isNotEmpty
+            ? _bookingModel.selectedBranchId
+            : null,
+        visible: true,
+      );
       if (response.succeeded) {
-        final ids = GetproviderCall.id(response.jsonBody) ?? [];
-        final names = GetproviderCall.name(response.jsonBody) ?? [];
-        final nrics = GetproviderCall.nric(response.jsonBody) ?? [];
+        final ids = GetDoctorsCall.id(response.jsonBody) ?? [];
+        final names = GetDoctorsCall.name(response.jsonBody) ?? [];
+        final specialties = GetDoctorsCall.specialty(response.jsonBody) ?? [];
 
         final doctors = <DoctorItem>[];
         for (int i = 0; i < ids.length; i++) {
           doctors.add(DoctorItem(
             id: i < ids.length ? ids[i] : '',
             name: i < names.length ? names[i] : '',
-            specialty: i < nrics.length ? nrics[i] : '',
+            specialty: i < specialties.length ? specialties[i] : '',
           ));
         }
 
