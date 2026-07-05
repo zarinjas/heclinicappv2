@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -83,3 +83,21 @@ Build the `HealthRecordCard` reusable component for displaying clinical records 
 - [ ] Dark mode renders with correct surface colors and icon backgrounds
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/health_record_card.dart`:
+- `HealthRecordType` enum with `note`, `letter`, `lab`, `mc` variants
+- `HealthRecordCard` — uses `AppCard` as base, `Row` layout with leading 40px accent-tinted circle icon, title (heading3), subtitle (body2/textSecondary), trailing date (body2/textSecondary)
+- `HealthRecordCardSkeleton` — shimmer skeleton: 40px circle + 3 text bars matching live layout
+- Icons: note=`description_outlined`, letter=`mail_outlined`, lab=`science_outlined`, mc=`assignment_outlined`
+- All design tokens used: `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadius`
+- Dark mode: surface colors, divider colors, icon background opacity adjusted per theme brightness
+- `flutter analyze` passed with zero errors
+- Presentational only — all data via constructor, no business logic
+
+---
+
+## QA Notes
