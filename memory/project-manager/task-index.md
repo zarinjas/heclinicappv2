@@ -14,10 +14,22 @@ Last Updated: 2026-07-05
 | P1-T08 | remove-duplicate-profile-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T09 | remove-duplicate-booking-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T10 | remove-hardcoded-doctor-modals | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P3-T01 | global-api-error-interceptor | 3 | Step 1 | Flutter | flutter-developer | BACKLOG | — |
+| P3-T02 | pagination-helper | 3 | Step 2 | Flutter | flutter-developer | BACKLOG | — |
+| P3-T03 | modified-since-strategy | 3 | Step 3 | Flutter | flutter-developer | BACKLOG | — |
+| P3-T04 | exponential-backoff-429 | 3 | Step 4 | Flutter | flutter-developer | BACKLOG | — |
+| P3-T05 | rate-limit-monitor | 3 | Step 5 | Flutter | flutter-developer | BACKLOG | — |
+| P3-T06 | laravel-proxy-url-audit | 3 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**
-- Track A (security): P1-T01 → P1-T02 (P1-T02 blocked until P1-T01 DONE)
-- Track B (code cleanup): P1-T03, P1-T04, P1-T05, P1-T06, P1-T07, P1-T08, P1-T09, P1-T10 (all parallel-ready)
+- Process 3 all tasks are sequential (each depends on the previous):
+  - P3-T01 → P3-T02 → P3-T03 → P3-T04 → P3-T05 → P3-T06
+- P3-T01 (error interceptor) — foundation for all subsequent tasks
+- P3-T02 (pagination) — depends on interceptor
+- P3-T03 (modified_since) — depends on pagination helper
+- P3-T04 (429 backoff) — depends on interceptor
+- P3-T05 (rate limit monitor) — depends on interceptor + backoff
+- P3-T06 (proxy URL audit) — verification after all refactoring done
 
 **Note:** Agentic AI Director is now active via GitHub Actions + Telegram approval.
 Bot URL: https://heclinic.cyberoket.cloud/bot/webhook

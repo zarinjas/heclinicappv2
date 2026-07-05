@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Current Process
-Process 1 — Security and Foundation
+Process 3 — Mobile App: Data Layer Refactor (Flutter)
 
 ## Active Tasks
-None — Process 1 complete (all 10 tasks DONE).
+P3-T01 — P3-T06 created and in BACKLOG. Ready for AI Director to pick up.
 
 ## Blocked Tasks
 None currently.
@@ -18,7 +18,7 @@ None currently.
 - Flutter version upgrade timing undecided — blocks Process 4 UI Overhaul
 
 ## Next Task to Create
-Process 1 Step 1 is fully defined (10 tasks). Next process creation: Process 2 — Laravel Admin Scaffold (after all Process 1 DONE).
+After all Process 3 tasks are DONE, create Process 4 tasks (Mobile App: UI/UX Overhaul).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
@@ -27,5 +27,6 @@ Process 1 Step 1 is fully defined (10 tasks). Next process creation: Process 2 �
 - VPS bot server: `/var/www/heclinic-bot/` (PM2)
 
 ## Notes
-Process 1 Track A (P1-T01, P1-T02) requires Laravel repo on VPS.
-Process 1 Track B (P1-T03–P1-T10) are all Flutter tasks — ready to run immediately.
+Process 1 is complete (all 10 tasks DONE). Process 3 is now the active process.
+Process 3 tasks are all sequential Flutter tasks — each builds on the previous.
+P3-T01 (error interceptor) is the critical foundation for all subsequent data layer improvements.
