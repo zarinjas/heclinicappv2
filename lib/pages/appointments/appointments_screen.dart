@@ -227,6 +227,132 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
         : AppColors.textSecondary;
   }
 
+  void _showAppointmentDetail(Map<String, dynamic> appointment) {
+    final start = appointment['start'] as DateTime?;
+    final end = appointment['end'] as DateTime?;
+    final doctorName = appointment['doctorName'] as String? ?? 'Not Set';
+    final locationName = appointment['locationName'] as String? ?? '';
+    final color = appointment['color'] as Color;
+    final statusLabel = _statusLabel(appointment);
+    final statusColor = _statusColor(appointment);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.surfaceDark
+              : AppColors.surface,
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 36.0,
+              height: 4.0,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Container(
+              width: 56.0,
+              height: 56.0,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+              ),
+              child: Icon(
+                Icons.calendar_today,
+                color: color,
+                size: 28.0,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Appointment Detail',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.textInverse
+                    : AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Column(
+                children: [
+                  _detailRow(Icons.access_time, 'Date & Time',
+                      '${_formatDate(start)} at ${_formatTime(start)}'),
+                  if (end != null)
+                    _detailRow(Icons.timer_outlined, 'Ends at',
+                        _formatTime(end)),
+                  if (locationName.isNotEmpty)
+                    _detailRow(Icons.location_on_outlined, 'Branch',
+                        locationName),
+                  _detailRow(Icons.person_outline, 'Doctor', doctorName),
+                  _detailRow(Icons.info_outline, 'Status', statusLabel,
+                      valueColor: statusColor),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value,
+      {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20.0, color: AppColors.textSecondary),
+          const SizedBox(width: AppSpacing.md),
+          SizedBox(
+            width: 80.0,
+            child: Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w600,
+                color: valueColor ??
+                    (Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.textInverse
+                        : AppColors.textPrimary),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -457,10 +583,11 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                   ? () => context.pushNamed('/branchSelectionScreen')
                   : null,
             ),
-          ),
         ),
-      );
-    }
+      ),
+    ),
+    );
+  }
 
     return _pullToRefresh(
       isUpcoming,
@@ -489,7 +616,9 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
     final statusLabel = _statusLabel(appointment);
     final statusColor = _statusColor(appointment);
 
-    return Padding(
+    return GestureDetector(
+      onTap: () => _showAppointmentDetail(appointment),
+      child: Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Material(
         color: Theme.of(context).brightness == Brightness.dark

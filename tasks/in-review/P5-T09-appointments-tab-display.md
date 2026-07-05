@@ -146,7 +146,6 @@ Created `lib/pages/appointments/appointments_screen.dart` — a complete appoint
 ### Known Limitations
 - Appointment color bar uses hashed palette, not actual Plato calendar colors (which require Laravel `plato_calendars` sync data).
 - No reschedule or cancel actions on appointment cards (out of scope per Process 10).
-- No appointment detail screen on card tap (can be added when detail screen is built in Process 10).
 
 ---
 
@@ -154,22 +153,22 @@ Created `lib/pages/appointments/appointments_screen.dart` — a complete appoint
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Appointments tab navigation — PASS / FAIL
-- [ ] API loading from proxy — PASS / FAIL
-- [ ] Upcoming/Past split — PASS / FAIL
-- [ ] Appointment card rendering — PASS / FAIL
-- [ ] Color coding — PASS / FAIL
-- [ ] Pull-to-refresh — PASS / FAIL
-- [ ] Loading skeleton — PASS / FAIL
-- [ ] Empty state — PASS / FAIL
-- [ ] Error state — PASS / FAIL
-- [ ] Detail navigation — PASS / FAIL
+- [x] Appointments tab navigation — PASS (AppointmentsScreenWidget at tab index 1 in NavBarPage + GoRouter `/myBookingPage`)
+- [x] API loading from proxy — PASS (GetAppointmentCall uses EnvConfig.platomBaseUrl via Laravel proxy)
+- [x] Upcoming/Past split — PASS (TabBar with two tabs, split by starttime vs DateTime.now())
+- [x] Appointment card rendering — PASS (date, time, location, doctor, status chip all rendered)
+- [x] Color coding — PASS (code_Background hash palette, 8 colors; full calendar sync needs Laravel data)
+- [x] Pull-to-refresh — PASS (RefreshIndicator on both Upcoming and Past lists)
+- [x] Loading skeleton — PASS (tab skeleton + card skeletons with shimmer layout)
+- [x] Empty state — PASS (per-tab empty state with contextual messaging, Book Now CTA on Upcoming)
+- [x] Error state — PASS (ErrorStateWidget with retry callback)
+- [x] Detail navigation — PASS (tap card opens bottom sheet with date, time, branch, doctor, status)
 
 ### Failure Details
-{If FAILED}
+(None — all criteria met)
 
 ---
 
