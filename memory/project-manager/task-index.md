@@ -13,7 +13,7 @@ Last Updated: 2026-07-05
 | P1-T07 | remove-duplicate-auth-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T08 | remove-duplicate-profile-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P1-T09 | remove-duplicate-booking-pages | 1 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| P1-T10 | remove-hardcoded-doctor-modals | 1 | Step 3 | Flutter | — | BACKLOG | — |
+| P1-T10 | remove-hardcoded-doctor-modals | 1 | Step 3 | Flutter | flutter-developer | IN-PROGRESS | — |
 
 **Parallel tracks:**
 - Track A (security): P1-T01 → P1-T02 (P1-T02 blocked until P1-T01 DONE)
