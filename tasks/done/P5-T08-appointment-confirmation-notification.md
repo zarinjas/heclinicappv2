@@ -17,7 +17,7 @@ Appointment Confirmation Notification
 | Type | Both |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T07 |
 | Blocked Reason | N/A |
@@ -160,11 +160,11 @@ N/A — All criteria passed. Build gate (`flutter analyze`) returned zero errors
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 8 "Mobile: Patient receives Push + Email + In-App notification Appointment Confirmed" fully met. Push (FCM) handled for background/killed (push_notifications_handler.dart) and foreground (setup_f_c_m_foreground_handler.dart). In-App via existing notificationPage reading Firestore historynotif (written by P5-T07 Laravel). Navigation to MyBookingPage on notification tap.
+- v2-ux-spec.md alignment: YES — No new UI introduced; leverages existing notificationPage design and badge system. Design system compliance maintained.
 
 ### Rejection Reason
-{If REJECTED}
+N/A
