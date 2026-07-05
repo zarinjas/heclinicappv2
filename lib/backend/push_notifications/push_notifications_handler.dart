@@ -177,7 +177,7 @@ final parametersBuilderMap =
       ),
   'BiometricSetupPage': ParameterData.none(),
   'ForgotPassword': ParameterData.none(),
-  'ProfileCopy': ParameterData.none(),
+  'Profile': ParameterData.none(),
   'onBoardingNew': ParameterData.none(),
   'hemedInfoCopy': ParameterData.none(),
   'SelectDateReshecedule': (data) async => ParameterData(

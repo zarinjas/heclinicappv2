@@ -58,4 +58,14 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
+
+## Implementation Notes
+- Audited both `profile/` and `profile_copy/` — both are feature-identical (same API call, same UI sections: avatar, name/email, edit profile, biometric setup, change password, notification settings, support, terms of service, log out). Models are both empty.
+- Kept `lib/front_page/profile/` (ProfileWidget) — uses clean `/profile` path and `ProfileWidget` class name without "Copy" suffix.
+- Updated `lib/main.dart`: changed tab index 3 entry from `ProfileCopyWidget` to `ProfileWidget`, tab key from `'ProfileCopy'` to `'Profile'`.
+- Updated `lib/flutter_flow/nav/nav.dart`: replaced `ProfileCopyWidget` FFRoute with `ProfileWidget` FFRoute using `NavBarPage(initialPage: 'Profile')` for embedded tab navigation, removed duplicate standalone `/profile` route.
+- Updated `lib/backend/push_notifications/push_notifications_handler.dart`: changed `'ProfileCopy'` handler key to `'Profile'`.
+- Removed `ProfileCopyWidget` export from `lib/index.dart`.
+- Deleted `lib/front_page/profile_copy/` directory entirely.
+- Verified: `grep -r ProfileCopy lib/` returns zero results.

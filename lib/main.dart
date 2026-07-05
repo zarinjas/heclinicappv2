@@ -164,7 +164,7 @@ class _NavBarPageState extends State<NavBarPage> {
       'HomepageNew': HomepageNewWidget(),
       'branchLocationNewCopy': BranchLocationNewCopyWidget(),
       'bookingPage': BookingPageWidget(),
-      'ProfileCopy': ProfileCopyWidget(),
+      'Profile': ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
 

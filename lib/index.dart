@@ -42,8 +42,7 @@ export '/front_page/biometric_setup_page/biometric_setup_page_widget.dart'
     show BiometricSetupPageWidget;
 export '/front_page/forgot_password/forgot_password_widget.dart'
     show ForgotPasswordWidget;
-export '/front_page/profile_copy/profile_copy_widget.dart'
-    show ProfileCopyWidget;
+
 export '/on_boarding_new/on_boarding_new_widget.dart' show OnBoardingNewWidget;
 export '/info_page/hemed_info_copy/hemed_info_copy_widget.dart'
     show HemedInfoCopyWidget;

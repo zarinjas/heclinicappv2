@@ -95,11 +95,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               appStateNotifier.loggedIn ? NavBarPage() : SplashScreenWidget(),
         ),
         FFRoute(
-          name: ProfileWidget.routeName,
-          path: ProfileWidget.routePath,
-          builder: (context, params) => ProfileWidget(),
-        ),
-        FFRoute(
           name: ArticleDetailPageWidget.routeName,
           path: ArticleDetailPageWidget.routePath,
           builder: (context, params) => ArticleDetailPageWidget(
@@ -293,11 +288,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ForgotPasswordWidget(),
         ),
         FFRoute(
-          name: ProfileCopyWidget.routeName,
-          path: ProfileCopyWidget.routePath,
+          name: ProfileWidget.routeName,
+          path: ProfileWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'ProfileCopy')
-              : ProfileCopyWidget(),
+              ? NavBarPage(initialPage: 'Profile')
+              : ProfileWidget(),
         ),
         FFRoute(
           name: OnBoardingNewWidget.routeName,
