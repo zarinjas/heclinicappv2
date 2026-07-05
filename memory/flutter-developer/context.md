@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-(None — awaiting next task)
+P6-T03 — Vitals Tab — Health Trends Graphs (IN-REVIEW)
 
 ## Recent Work
+- P6-T03 — Vitals Tab (IN-REVIEW): Added fl_chart dependency, GetVitalsGraphingCall API call class (GET /patient/{id}/graphing), VitalDataPoint/VitalType data models, vitals state fields in ReportsModel, _loadVitals() method with dynamic JSON key parsing and unit inference, _buildVitalChartCard() with LineChart rendering using V2 design tokens, _buildVitalsTab() with loading/empty/error/data states, lazy-load on Vitals tab switch. Replaced skeleton placeholder with real implementation.
 - P6-T02 — Records Tab (DONE): Implemented Records inner tab with filter chips (All/Notes/Letters/MC), data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs, record cards with type-specific icons, loading/empty/error states, detail views (AlertReportWidget, HTML bottom sheet, WebViewX+). Updated reports_model.dart with RecordType/FilterType enums and HealthRecord data class.
 - P6-T01 — Health Tab Scaffold (DONE): Rewrote `lib/front_page/reports/reports_widget.dart` with V2 design system. Replaced old Visit/MyLabs/MyDocuments tabs with Records/Vitals/Documents using V2 tokens (AppColors, AppSpacing, AppRadius). AppBar: "My Health", no back arrow, primary background. TabBar: accent indicator, white text, Plus Jakarta Sans 14px w600. Tab bodies: 4× SkeletonListTile placeholders.
 - P5-T09 — Appointments Tab Display (DONE): Created `lib/pages/appointments/appointments_screen.dart` with Upcoming/Past tabs, appointment cards with 4px color bar, status chips, skeleton loading, pull-to-refresh, empty/error states. Added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`. Wired `AppointmentsScreenWidget` into NavBarPage and GoRouter replacing `MyBookingPageWidget`.
@@ -20,6 +21,10 @@ Last Updated: 2026-07-05
 - P4-T03 — Dynamic Doctor List (DONE): Created DoctorCardWidget, DoctorDetailSheet, DoctorListWidget
 
 ## Key Files
+- `lib/front_page/reports/reports_widget.dart` — UPDATED: _loadVitals(), _inferUnit(), _buildVitalChartCard(), _buildVitalsTab(), tab change listener
+- `lib/front_page/reports/reports_model.dart` — UPDATED: VitalDataPoint, VitalType classes, vitals state fields
+- `lib/backend/api_requests/api_calls.dart` — UPDATED: GetVitalsGraphingCall class
+- `pubspec.yaml` — UPDATED: fl_chart 0.68.0 dependency
 - `lib/backend/push_notifications/push_notifications_handler.dart` — UPDATED: appointment_confirmed type handling, badge increment, MyBookingPage navigation
 - `lib/custom_code/actions/setup_f_c_m_foreground_handler.dart` — UPDATED: appointment foreground notification, badge increment, tap navigation
 - `lib/app_state.dart` — UPDATED: added incrementNotifCount(), resetNotifCount() helpers

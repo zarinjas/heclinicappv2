@@ -1199,6 +1199,29 @@ class GetReportCall {
           .toList();
 }
 
+class GetVitalsGraphingCall {
+  static Future<ApiCallResponse> call({
+    String? patientId = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetVitalsGraphing',
+      apiUrl: '${EnvConfig.platomBaseUrl}/patient/${patientId}/graphing',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'db': 'hemedclinic',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
 class LetterCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',

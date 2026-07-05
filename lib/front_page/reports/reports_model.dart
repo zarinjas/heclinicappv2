@@ -19,6 +19,28 @@ enum RecordType { note, letter, mc }
 
 enum FilterType { all, notes, letters, mc }
 
+class VitalDataPoint {
+  final DateTime timestamp;
+  final double value;
+
+  const VitalDataPoint({
+    required this.timestamp,
+    required this.value,
+  });
+}
+
+class VitalType {
+  final String name;
+  final String unit;
+  final List<VitalDataPoint> dataPoints;
+
+  const VitalType({
+    required this.name,
+    required this.unit,
+    required this.dataPoints,
+  });
+}
+
 class HealthRecord {
   final RecordType type;
   final String title;
@@ -57,6 +79,11 @@ class ReportsModel extends FlutterFlowModel<ReportsWidget> {
   List<HealthRecord> recordsList = [];
   bool isLoading = false;
   String? errorMessage;
+
+  // Vitals tab state
+  List<VitalType> vitalsData = [];
+  bool isLoadingVitals = false;
+  String? vitalsError;
 
   @override
   void initState(BuildContext context) {}

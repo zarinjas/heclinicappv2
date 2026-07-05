@@ -68,6 +68,7 @@ dependencies:
   firebase_storage: 12.4.7
   firebase_storage_platform_interface: 5.2.7
   firebase_storage_web: 3.10.14
+  fl_chart: 0.68.0
   flutter_animate: 4.5.0
   flutter_cache_manager: 3.4.1
   flutter_local_notifications:

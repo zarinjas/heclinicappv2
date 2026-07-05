@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P6-T02 |
 | Blocked Reason | N/A |
@@ -172,16 +172,35 @@ The parsing must iterate over top-level keys and treat each as a vital type.
 > Filled by Developer after implementation.
 
 ### What Was Done
-{to be filled}
+- Added `fl_chart: 0.68.0` to pubspec.yaml dependencies
+- Created `GetVitalsGraphingCall` API call class in `lib/backend/api_requests/api_calls.dart` targeting `GET /patient/{id}/graphing` via Laravel proxy
+- Added `VitalDataPoint` and `VitalType` data model classes to `lib/front_page/reports/reports_model.dart`
+- Added vitals state fields (`vitalsData`, `isLoadingVitals`, `vitalsError`) to `ReportsModel`
+- Implemented `_loadVitals()` method: calls GetVitalsGraphingCall, dynamically iterates over response JSON keys, parses timestamp+value data points, infers unit from vital name keywords
+- Implemented `_inferUnit()` helper: maps vital name keywords to standard units (kg, mmHg, mmol/L, bpm, °C, %, cm, kg/m²)
+- Implemented `_buildVitalChartCard()`: renders one `LineChart` card per vital type using fl_chart with V2 token styling (accent line, primary dots, divider grid)
+- Implemented `_buildVitalsTab()`: handles all states — 2× SkeletonCard loading, ErrorStateWidget on failure, EmptyStateWidget with monitor_heart icon when no data, scrollable chart cards when data present
+- Replaced Vitals tab skeleton placeholder in TabBarView with `_buildVitalsTab()`
+- Added tab change listener: auto-loads vitals when user switches to Vitals tab (index 1) if not already loaded
+- Chart renders dynamically based on API response shape — no hardcoded vital type names
 
 ### Files Changed
-{to be filled}
+- `pubspec.yaml` — added `fl_chart: 0.68.0`
+- `lib/backend/api_requests/api_calls.dart` — added `GetVitalsGraphingCall` class (lines after GetReportCall)
+- `lib/front_page/reports/reports_model.dart` — added `VitalDataPoint`, `VitalType` classes and vitals state fields
+- `lib/front_page/reports/reports_widget.dart` — added `_loadVitals()`, `_inferUnit()`, `_buildVitalChartCard()`, `_buildVitalsTab()`, updated `initState` tab listener, replaced Vitals placeholder
 
 ### Decisions Made During Implementation
-{to be filled}
+- Unit is inferred from vital name keywords rather than expecting it in the API response (Plato API does not include a unit field)
+- Timestamp field parsing supports `timestamp`, `time`, and `date` keys for flexibility with API response variations
+- Empty response body (empty Map) is treated as "no vitals" rather than an error
+- Vitals tab loads lazily (on tab switch) rather than eagerly on page load, to avoid unnecessary API calls for unused tabs
+- Line chart uses millisecondsSinceEpoch for X axis; date labels shown as "Mon DD" format
 
 ### Known Limitations
-{to be filled}
+- `fl_chart` compilation not verified in this runner (Flutter CLI unavailable); GitHub Actions will catch any issues
+- Unit inference relies on English/Malay keyword matching; unusual vital types may show empty unit
+- Single data point per vital type will render a chart with one dot (no line); this is acceptable per dynamic rendering spec
 
 ---
 
