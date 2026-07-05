@@ -16,8 +16,8 @@ Laravel Project Setup with Auth and Roles
 | Process Step | Step 1 |
 | Type | Laravel |
 | Assigned To | laravel-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
