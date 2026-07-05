@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Tasks
-UI-P2-T07 — Forgot Email (BACKLOG)
+UI-P2-T07 — Forgot Email (IN-PROGRESS)
 
 ## Recent Work
 - UI-P2-T06 — Register Step 2 (DONE): Created `lib/features/auth/register_step2_screen.dart` with password/confirm password fields (AppInput isPassword), 4-segment strength indicator, terms/privacy checkbox, AppButton.primary for registration using existing RegisterCall API, back button to step 1, AppErrorState for failures. Dark mode support with all design tokens.
