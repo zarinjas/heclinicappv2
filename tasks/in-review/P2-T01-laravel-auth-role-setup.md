@@ -159,23 +159,19 @@ Installed and configured Laravel authentication and role system for the Admin Pa
 
 > Filled in by QA after verification.
 
-### Result: FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [x] Auth scaffolding functional — PASS: AuthController with login/logout, Blade login view, session-based auth via routes
-- [x] Role column exists — PASS: Migration adds enum('role', ['super_admin', 'branch_admin', 'staff'])
-- [x] RoleMiddleware works — PASS: Multi-role check, registered as alias, used in route groups
-- [x] UserSeeder creates admin — PASS: Reads ADMIN_EMAIL, ADMIN_PASSWORD from env(); creates Super Admin + Staff users
-- [x] Admin dashboard loads — PASS: Dashboard view extends admin layout with sidebar, placeholder nav links, flash messages
-- [x] API routes unaffected — PASS: routes/api.php unchanged; sanctum middleware intact
-- [ ] migrate:fresh --seed runs without errors — FAIL: Two issues prevent clean migration execution
+- [x] Auth scaffolding functional — PASS: AuthController with login/logout, Blade login view with CSRF, session-based auth via routes, redirect-to-dashboard on success, logout invalidates session
+- [x] Role column exists — PASS: Migration adds enum('role', ['super_admin', 'branch_admin', 'staff']) to users table with default 'staff'
+- [x] RoleMiddleware works — PASS: Multi-role check with in_array(), registered as 'role' alias in bootstrap/app.php, used in route groups with auth + role middleware chain
+- [x] UserSeeder creates admin — PASS: Reads ADMIN_EMAIL and ADMIN_PASSWORD from env(), creates Super Admin (email_verified_at set), creates sample Staff user; uses firstOrCreate pattern to avoid duplicates
+- [x] Admin dashboard loads — PASS: Dashboard view extends admin layout, shows stats cards (Branches, Doctors, Users as placeholders), welcome message with user role badge, sidebar with dark theme and "Soon" placeholder nav links for future modules
+- [x] API routes unaffected — PASS: routes/api.php untouched, sanctum middleware intact, Plato proxy route unchanged
+- [x] migrate:fresh --seed runs without errors — PASS: Migration up() creates role enum and nullable branch_id without FK constraint; down() only drops columns (no dropForeign crash — FIXED Round 2). User model has no Branch dependency (branch() deferred to P2-T02). DatabaseSeeder calls UserSeeder. No blocking dependencies.
 
 ### Failure Details
-**Bug 1 — Migration rollback crash**: `down()` method calls `$table->dropForeign(['branch_id'])` but `foreignId('branch_id')` was used WITHOUT `.constrained()`, so no FK constraint exists. Running `php artisan migrate:rollback` would throw a RuntimeException.
-
-**Bug 2 — Runtime class error**: `User::branch()` returns `$this->belongsTo(Branch::class)`. The `Branch` model doesn't exist yet (to be created in P2-T02). Any code path that loads a User and accesses `->branch` will throw a "Class 'App\Models\Branch' not found" error. The `branch()` relationship should either be removed for now or guarded until Branch model exists.
-
-Both bugs require fixes before QA can pass.
+N/A — All 7 criteria PASSED. Round 1 bugs (dropForeign crash + Branch class reference) resolved in Round 2.
 
 ---
 
