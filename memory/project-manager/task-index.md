@@ -46,6 +46,12 @@ Last Updated: 2026-07-05
 | P6-T03 | vitals-tab-graphing | 6 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P6-T04 | documents-tab-pdfs | 6 | Step 4 | Flutter + Laravel | flutter-developer | DONE | 2026-07-05 |
 | P6-T05 | health-tab-pagination-modified-since | 6 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P7-T01 | patient-list | 7 | Step 1 | Laravel | laravel-developer | BACKLOG | — |
+| P7-T02 | patient-profile-view | 7 | Step 2 | Laravel | laravel-developer | BACKLOG | — |
+| P7-T03 | patient-document-upload | 7 | Step 3 | Laravel | laravel-developer | BACKLOG | — |
+| P7-T04 | appointment-calendar-view | 7 | Step 4 | Laravel | laravel-developer | BACKLOG | — |
+| P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | BACKLOG | — |
+| P7-T06 | appointment-detail-view | 7 | Step 6 | Laravel | laravel-developer | BACKLOG | — |
 
 **Parallel tracks:**
 - Process 5 tasks have the following dependency chain:
@@ -64,6 +70,13 @@ Last Updated: 2026-07-05
   - P6-T03 (vitals tab) — depends on P6-T02 (needs tab infrastructure)
   - P6-T04 (documents tab) — depends on P6-T03 (needs tab infrastructure)
   - P6-T05 (pagination + modified_since) — depends on P6-T04 (needs all endpoints implemented)
+- Process 7 tasks have the following dependency chain:
+  - P7-T01 (patient list) — no dependencies (entry point)
+  - P7-T02 (patient profile view) — depends on P7-T01 (needs patient list to navigate from)
+  - P7-T03 (patient document upload) — depends on P7-T02 (needs patient profile page)
+  - P7-T04 (appointment calendar view) — no dependencies (can run in parallel with P7-T01/T02/T03)
+  - P7-T05 (create walk-in appointment) — depends on P7-T04 (creates from appointment management view)
+  - P7-T06 (appointment detail view) — depends on P7-T04 (needs appointment list to navigate from)
 - Process 4 tasks have the following dependency chain:
   - P4-T01 (design system) — foundation for all subsequent UI tasks (no dependencies)
   - P4-T02 (nav 5 tabs) — depends on P4-T01 (needs design system for nav colors)

@@ -3,15 +3,19 @@
 Last Updated: 2026-07-05
 
 ## Current Process
-Process 6 — Health Tab (Flutter)
+Process 7 — Admin Panel: Patient and Appointment Management (Laravel)
 
 ## Active Tasks
-**Process 6 — Health Tab:**
-P6-T01 — Health Tab Scaffold with 3 Inner Tabs (DONE)
-P6-T02 — Records Tab — Notes, Letters, MC, Filter Chips (DONE)
-P6-T03 — Vitals Tab — Health Trends Graphs (DONE)
-P6-T04 — Documents Tab — Admin-Uploaded PDFs (DONE)
-P6-T05 — Pagination and Modified Since for Health Tab (DONE)
+**Process 7 — Admin Panel (NEW):**
+P7-T01 — Patient List — Server-Side Pagination, Search (BACKLOG)
+P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (BACKLOG)
+P7-T03 — Patient Document Upload — PDF to Firebase Storage (BACKLOG)
+P7-T04 — Appointment Calendar View — Admin Panel (BACKLOG)
+P7-T05 — Create Walk-In Appointment — Admin Panel (BACKLOG)
+P7-T06 — Appointment Detail View — Admin Panel (BACKLOG)
+
+**Process 6 — Health Tab (completed):**
+P6-T01 through P6-T05 — ALL DONE
 
 **Process 5 — Booking Flow (completed):**
 P5-T01 through P5-T09 — ALL DONE
@@ -33,7 +37,7 @@ P5-T01 through P5-T09 — ALL DONE
 - Process 5 — Booking Flow: ALL DONE (P5-T01 through P5-T09)
 
 ## Next Task to Create
-After all Process 6 tasks are DONE, create Process 7 tasks (Admin Panel: Patient and Appointment Management).
+After all Process 7 tasks are DONE, create Process 8 tasks (Notifications Module).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
