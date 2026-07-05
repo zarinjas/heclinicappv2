@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P7-T03 — Patient Document Upload — PDF to Firebase Storage (PASSED — 9/9 criteria)
+P7-T04 — Appointment Calendar View — Admin Panel (PASSED — 10/10 criteria)
 
 ## Verification History
+- P7-T04 (2026-07-05): PASSED — 10/10 criteria. AdminAppointmentController@index fetches appointments from Plato via proxy, supports filters (date_from, date_to, doctor_id, facility_id, status), uses LengthAwarePaginator with 20/page. Blade view renders data table with 7 columns (Date, Time, Patient Name, NRIC, Doctor, Branch, Status chip). Colored status chips (green/amber/red/blue) with dot indicators. Filter row with date inputs, doctor/branch dropdowns, status dropdown. Empty state with calendar SVG. Pagination links. Sidebar Appointments link between Patients and Calendar Setup. "New Walk-In Appointment" shown as disabled placeholder. View action shown as disabled placeholder. php -l passes syntax check on all 4 files.
 - P7-T03 (2026-07-05): PASSED — 9/9 criteria. Upload form in documents section of patient show page. mimetypes:application/pdf validation rejects non-PDF. max:10240 validation rejects >10MB. PatientDocumentService stores to public disk at patients/{uid}/documents/{uuid}.pdf and inserts DB record. show() lists documents via PatientDocumentService@list(). Delete route removes file + DB record with confirm() dialog. Download link serves via Storage::disk('public')->url(). php -l passed on all 5 new/modified files. Storage path includes patient Plato UID.
 - P7-T02 (2026-07-05): PASSED — 8/8 criteria. PatientController@show enhanced with Request parameter for ?sync=1 cache-busting, vitals count from /patient/{id}/graphing, passes $vitalsCount to view. show.blade.php full rewrite with grouped sections (Personal Info: NRIC/DOB/Gender/Nationality, Contact: Phone/Address, Medical: Allergies/Notes with None fallback, Vitals: count badge or Unavailable). "Re-sync from Plato" button with teal bg-[#00C9A7] styling. Back link to admin.patients.index. Footer with Patient ID. php -l syntax check passed on PatientController.php.
 - P7-T01 (2026-07-05): PASSED — 8/8 criteria. PatientController@index queries Plato /patient via PlatoProxyService with search params (name, NRIC, phone) and current_page pagination. LengthAwarePaginator wraps response for Blade pagination links. index.blade.php renders data table with 5 columns (Name, NRIC, Given ID, Phone, View action). Empty state rendered when no patients. Sidebar Patients link between Doctors and Calendar Setup. All 32 PHP files in laravel/app/ pass php -l syntax check with zero errors.
@@ -32,9 +33,11 @@ P7-T03 — Patient Document Upload — PDF to Firebase Storage (PASSED — 9/9 c
 - P3-T06 through P3-T01: All PASSED.
 
 ## Key Files to Monitor
+- `laravel/app/Http/Controllers/Admin/AdminAppointmentController.php` — NEW: Appointment index with filters and pagination
+- `laravel/resources/views/admin/appointments/index.blade.php` — NEW: Appointment list view
 - `laravel/app/Http/Controllers/Admin/PatientController.php` — PatientController with index(), show(), uploadDocument(), deleteDocument()
-- `laravel/app/Services/PatientDocumentService.php` — NEW: document upload/delete/list/serve service
+- `laravel/app/Services/PatientDocumentService.php` — document upload/delete/list/serve service
 - `laravel/resources/views/admin/patients/show.blade.php` — patient detail with documents section
 - `laravel/resources/views/admin/patients/index.blade.php` — patient list view
-- `laravel/routes/web.php` — patients resource + document routes
-- `laravel/resources/views/layouts/admin.blade.php` — sidebar with Patients link
+- `laravel/routes/web.php` — patients/appointments resource routes
+- `laravel/resources/views/layouts/admin.blade.php` — sidebar with Patients, Appointments links
