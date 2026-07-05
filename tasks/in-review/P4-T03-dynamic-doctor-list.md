@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P4-T01 |
 | Blocked Reason | N/A |
@@ -124,19 +124,33 @@ Doctor data model (from Plato facility endpoint):
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
-
 ### What Was Done
 
+- Created `DoctorCardWidget` — supports compact (list) and full (horizontal scroll) layouts with avatar (photo or initials fallback), name, specialty, branch. Uses V2 design tokens for cards (border radius 16px, border, shadow sm).
+- Created `DoctorDetailSheet` — bottom sheet modal with handle bar, 100px avatar, doctor info, bio, and Book Appointment button. Dismissible via backdrop or drag-down. Uses static `.show()` method for convenient invocation.
+- Created `DoctorListWidget` — fetches doctors from `GET /facility` via `GetproviderCall`, supports horizontal and vertical layouts, loading skeleton (4 placeholder cards), error state (error icon + Try Again button), and empty state (icon + "No doctors available" message). Filters by `is_visible_in_app` client-side.
+- Refactored `AllDoctorWidget` (telehealth page) — replaced all 17 hardcoded doctor card blocks with a single `DoctorListWidget(layout: DoctorListLayout.vertical)`. Removed redundant imports (flutter_rating_bar, webviewx_plus, doctor_detail_bottom_sheet). Cleaned up model file to remove 17 rating bar value fields.
 
 ### Files Changed
 
+- `lib/components/doctor_card_widget.dart` — NEW
+- `lib/components/doctor_detail_sheet.dart` — NEW
+- `lib/components/doctor_list_widget.dart` — NEW
+- `lib/telehealth/all_doctor/all_doctor_widget.dart` — REWRITE (3434 → 85 lines)
+- `lib/telehealth/all_doctor/all_doctor_model.dart` — REWRITE (56 → 16 lines)
 
 ### Decisions Made During Implementation
 
+- Doctor photos are not available from Plato /facility (only _id, name, nric, dob, email). Used initials-based avatar fallback. Photo and bio fields will come from CMS data (Process 9).
+- Specialty and branch fields are not in current Plato /facility response. Components handle optional fields gracefully — hide sections when data unavailable.
+- `is_visible_in_app` filtering is client-side (defaults to true if field absent), preparing for CMS-managed visibility in Process 9.
+- Did not delete `lib/component/modal_*/` directories per task scope (deferred to P4-T06 global cleanup).
+- Book Appointment button on doctor detail sheet currently pops back; actual booking flow wiring is Process 5 scope.
 
 ### Known Limitations
+
+- Doctor list shows only what Plato /facility returns — no bio, photo, or specialty until CMS data is integrated (Process 9).
+- Horizontal doctor list on Home screen is prepared but not yet embedded — that is P4-T04 scope.
 
 
 ---
