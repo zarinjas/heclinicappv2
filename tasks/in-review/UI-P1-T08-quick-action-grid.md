@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BACKLOG |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -80,3 +80,20 @@ Build the `QuickActionGrid` reusable component for the Home screen 2×2 quick ac
 - [ ] Dark mode renders correctly
 - [ ] No hardcoded design tokens
 - [ ] `flutter analyze` returns zero errors
+
+---
+
+## Implementation Notes
+
+Created `lib/core/widgets/quick_action_grid.dart`:
+- `QuickAction` data class with `icon` (IconData), `label` (String), and `onTap` callback
+- `QuickActionGrid`: `GridView.builder` 2×2 layout (SliverGridDelegateWithFixedCrossAxisCount, crossAxisSpacing/mainSpacing 12px, aspectRatio 1.4), uses `AppCard` per tile with centered 28px accent icon + body2 label
+- Returns `SizedBox.shrink()` when actions list empty
+- `QuickActionGridSkeleton`: 4 shimmer tiles in 2×2 grid, each rendering with surface background, border, shadow, and animated shimmer sweep using flutter_animate
+- All tokens: AppColors, AppTextStyles, AppSpacing, AppRadius, AppShadows
+- Dark mode: AppCard handles surface adaptively; skeleton uses theme-aware colors
+- `flutter analyze` passed with zero errors
+
+---
+
+## QA Notes
