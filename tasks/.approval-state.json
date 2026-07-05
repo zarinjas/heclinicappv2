@@ -1,13 +1,8 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P0-T11", "title": "AppDialog — Modal Dialog Component (4 Variants)"},
-    {"task_id": "UI-P0-T12", "title": "AppToast — Toast / Snackbar Utility"},
-    {"task_id": "UI-P0-T13", "title": "AppEmptyState — Empty State Component"},
-    {"task_id": "UI-P0-T14", "title": "AppErrorState — Error State Component"},
-    {"task_id": "UI-P0-T15", "title": "AppAppBar — Main Tab + Sub-page App Bar"}
+    {"task_id": "UI-P0-T16", "title": "AppNavBar — 5-Tab Bottom Navigation Bar"}
   ],
-  "created_at": "2026-07-05T16:10:35Z",
-  "approved_at": "2026-07-05T16:35:00Z",
-  "approved": true
+  "created_at": "2026-07-05T16:45:00Z",
+  "approved": null
 }
