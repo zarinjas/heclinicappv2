@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P3-T02",
-  "task_title": "Pagination Helper",
+  "pending": true,
+  "task_id": "P3-T03",
+  "task_title": "modified_since Strategy",
   "completed_by": "flutter-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T00:00:00Z",
-  "approved_at": "2026-07-05T02:40:13Z",
-  "approved": true
+  "created_at": "2026-07-05T02:40:13Z",
+  "approved_at": null,
+  "approved": false
 }
