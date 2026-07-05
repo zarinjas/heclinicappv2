@@ -3,9 +3,20 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T06 — Appointment Detail View — Admin Panel (IN-REVIEW)
+P8-T01 — Notification Composer — Admin Panel (IN-REVIEW)
 
-## Implementation Summary — P7-T06
+## Implementation Summary — P8-T01
+- `database/migrations/2026_07_05_000012_add_image_to_notifications_log.php`: adds `image_url` column to `notifications_log` table
+- `app/Models/NotificationLog.php`: added `image_url` to `$fillable`
+- `app/Http/Controllers/Admin/NotificationController.php`: `compose()` shows Blade form, `send()` validates (title max 255, body max 2000, image_url optional valid URL) and saves draft to `notifications_log` with type=`manual`, target=`all`, channels=`['push', 'email', 'in_app']`, status=`draft`
+- `routes/web.php`: GET/POST `/admin/notifications/compose` and `/admin/notifications/send` inside auth+role middleware
+- `resources/views/admin/notifications/compose.blade.php`: Blade form with title (char counter), body textarea (char counter), image_url (optional), success flash
+- `resources/views/layouts/admin.blade.php`: added Notifications sidebar nav link with bell icon
+
+## Last Completed Task
+P7-T06 — Appointment Detail View — Admin Panel (DONE)
+
+## Previous Implementation Summary — P7-T06
 - `app/Http/Controllers/Admin/AdminAppointmentController.php`: added `show($id)` method — tries local DB by primary key, then by `plato_appointment_id`, then falls back to Plato proxy; casts Plato data to object with `from_plato` flag
 - `resources/views/admin/appointments/show.blade.php`: new detail view following branches/show pattern — grouped sections (Patient Info, Appointment Details, Assignment, Notes, Local Record), colored status badge, monospace Plato ID, patient profile link, back navigation
 - `routes/web.php`: added `'show'` to `Route::resource('appointments')->only([...])`

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,5 +32,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::resource('appointments', AdminAppointmentController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
+
+        Route::get('notifications/compose', [NotificationController::class, 'compose'])
+            ->name('notifications.compose');
+        Route::post('notifications/compose', [NotificationController::class, 'send'])
+            ->name('notifications.send');
     });
 });

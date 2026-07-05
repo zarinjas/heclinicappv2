@@ -12,6 +12,7 @@ class NotificationLog extends Model
         'type',
         'title',
         'body',
+        'image_url',
         'target_type',
         'target_ids',
         'channels',

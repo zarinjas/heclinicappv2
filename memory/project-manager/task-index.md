@@ -52,7 +52,7 @@ Last Updated: 2026-07-05 (Process 8 tasks added)
 | P7-T04 | appointment-calendar-view | 7 | Step 4 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T06 | appointment-detail-view | 7 | Step 6 | Laravel | laravel-developer | DONE | 2026-07-05 |
-| P8-T01 | notification-composer | 8 | Step 1 | Laravel | laravel-developer | IN-PROGRESS | — |
+| P8-T01 | notification-composer | 8 | Step 1 | Laravel | laravel-developer | IN-REVIEW | — |
 | P8-T02 | targeting-system | 8 | Step 2 | Laravel | laravel-developer | BACKLOG | — |
 | P8-T03 | channel-selection | 8 | Step 3 | Laravel | laravel-developer | BACKLOG | — |
 | P8-T04 | fcm-push-upgrade | 8 | Step 4 | Both | laravel-developer | BACKLOG | — |

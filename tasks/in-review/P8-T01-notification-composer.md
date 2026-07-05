@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -124,12 +124,26 @@ Use existing admin layout pattern from `DoctorController@create` or `BranchContr
 > Filled in by the Developer after implementation.
 
 ### What Was Done
+Created the admin panel notification composer — a Blade form page where staff can draft notifications with title, body, and optional image URL. Writes drafts to `notifications_log` MySQL table with status `draft` and placeholder targeting (`all`) and channels (`push`, `email`, `in_app`) for future Process 8 tasks.
 
 ### Files Changed
+- `laravel/database/migrations/2026_07_05_000012_add_image_to_notifications_log.php` — NEW: adds `image_url` column to `notifications_log` table
+- `laravel/app/Models/NotificationLog.php` — UPDATE: added `image_url` to `$fillable`
+- `laravel/app/Http/Controllers/Admin/NotificationController.php` — NEW: `compose()` (show form) and `send()` (validate + save draft)
+- `laravel/routes/web.php` — ADD: `GET /admin/notifications/compose` and `POST /admin/notifications/send` routes inside auth+role middleware
+- `laravel/resources/views/admin/notifications/compose.blade.php` — NEW: Blade form with title, body (textarea), image_url (optional URL) inputs
+- `laravel/resources/views/layouts/admin.blade.php` — ADD: Notifications sidebar nav link with bell icon
 
 ### Decisions Made During Implementation
+- Used Blade + Tailwind CSS v4 (not Inertia/Vue) to match existing admin panel convention — all other pages are pure Blade
+- Route names: `admin.notifications.compose` (GET) and `admin.notifications.send` (POST)
+- Drafts saved with default channels `['push', 'email', 'in_app']` and target `all` — these will be made configurable in P8-T02 and P8-T03
+- Character counter JavaScript added following the Doctors create page pattern
 
 ### Known Limitations
+- Send logic not yet implemented (P8-T04); notifications saved as `draft` only
+- No targeting or channel selection (P8-T02, P8-T03)
+- No notification history list view yet (P8-T08)
 
 ---
 
