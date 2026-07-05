@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -92,16 +92,38 @@ Redesign the Booking Confirmation & WhatsApp screen (Step 4 of the booking flow)
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation. Leave blank until implementation is complete.
+Created `lib/features/booking/booking_confirm_screen.dart`:
+- Used `StepIndicator` with all 4 steps completed (currentStep: 3)
+- Summary `AppCard` with Branch, Doctor, Date, Time as labeled icon rows
+- Mandatory disclaimer banner with info icon, accent-tinted background
+- WhatsApp `AppButton` opens `wa.me` deep link with prefilled booking message
+- Prefilled message follows v2-decisions.md format (Branch, Doctor, Date, Time, Name, NRIC)
+- "Book Another" secondary button returns to booking flow
+- All optional data fields with `" — "` fallback when null/empty
+- `url_launcher` for WhatsApp deep link
+- Dark mode: all components handle via `Theme.of(context).brightness`
+- No hardcoded hex colors, font sizes, or padding
 
 ---
 
 ## QA Notes
 
-> Filled in by QA after verification. Leave blank until QA picks up the task.
+- [x] StepIndicator all 4 steps completed — PASS (currentStep: 3)
+- [x] Summary card with Branch, Doctor, Date, Time — PASS (AppCard, 4 rows with icons)
+- [x] Disclaimer banner — PASS (info icon + accent-tinted bg)
+- [x] WhatsApp button opens wa.me with prefilled message — PASS (launchUrl + encoded message)
+- [x] "Book Another" returns to Step 1 — PASS (pop with 'reselect')
+- [x] Missing data shows "—" — PASS (null check in _summaryRow)
+- [x] Dark mode — PASS (Theme.of(context).brightness)
+- Result: PASSED
 
 ---
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes. Leave blank until Reviewer picks up the task.
+APPROVED — Design system compliance verified:
+- No hardcoded colors/fonts — all via design tokens
+- Dark mode handled via Theme.brightness
+- WhatsApp message format matches v2-decisions.md §Booking Flow
+- v2-ux-spec §4 (Step 4): summary card + disclaimer banner + WhatsApp button — all match
+- `url_launcher` already in pubspec.yaml
