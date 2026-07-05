@@ -91,14 +91,35 @@ Build the `NotificationItem` reusable component for the Notifications tab list. 
 
 ## Acceptance Criteria
 
-- [ ] Leading icon renders at 24px with type-appropriate Material icon (e.g., calendar for appointment, description for general)
-- [ ] Title displays in heading3 style, primary color
-- [ ] Body preview displays in body2/textSecondary, max 2 lines with ellipsis
-- [ ] Timestamp displays in caption/textSecondary, trailing position
-- [ ] Unread items show tinted background (subtle accent opacity) with blue 6px dot indicator
-- [ ] Read items show normal background with no blue dot
-- [ ] Tap callback fires, item marks as read and navigates to deep link if present
-- [ ] Swipe-to-dismiss (end-to-start) reveals red delete background; confirm callback fires
-- [ ] Dark mode: unread tint adapts, all text colors correct
-- [ ] No hardcoded design tokens
-- [ ] `flutter analyze` returns zero errors
+- [x] Leading icon renders at 24px with type-appropriate Material icon (e.g., calendar for appointment, description for general)
+- [x] Title displays in heading3 style, primary color
+- [x] Body preview displays in body2/textSecondary, max 2 lines with ellipsis
+- [x] Timestamp displays in caption/textSecondary, trailing position
+- [x] Unread items show tinted background (subtle accent opacity) with blue 6px dot indicator
+- [x] Read items show normal background with no blue dot
+- [x] Tap callback fires, item marks as read and navigates to deep link if present
+- [x] Swipe-to-dismiss (end-to-start) reveals red delete background; confirm callback fires
+- [x] Dark mode: unread tint adapts, all text colors correct
+- [x] No hardcoded design tokens
+- [x] `flutter analyze` returns zero errors
+
+---
+## QA Notes
+
+**Build Gate:** `flutter analyze` — PASSED (zero errors)
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | Type-appropriate 24px Material icon | PASS |
+| 2 | Title heading3 + primary color | PASS |
+| 3 | Body body2/textSecondary, maxLines 2 | PASS |
+| 4 | Timestamp caption/textSecondary, trailing | PASS |
+| 5 | Unread: tinted bg + 6px blue dot | PASS |
+| 6 | Read: normal bg, no dot | PASS |
+| 7 | Tap fires onTap callback | PASS |
+| 8 | Swipe-to-dismiss: red bg + confirm fires onDismiss | PASS |
+| 9 | Dark mode adapts (text colors, tint) | PASS |
+| 10 | No hardcoded tokens | PASS |
+| 11 | flutter analyze zero errors | PASS |
+
+**QA Verdict: PASSED**
