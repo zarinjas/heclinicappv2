@@ -541,11 +541,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: AppSpacing.space12),
           if (titles.isEmpty)
-            const AppEmptyState(
+            AppEmptyState(
               icon: Icons.calendar_today,
               title: 'No upcoming appointments',
               subtitle: 'Book your next visit with us',
               ctaLabel: 'Book Now',
+              onCtaTap: () =>
+                  context.pushNamed(BookingPageWidget.routeName),
             )
           else
             for (var i = 0; i < titles.length && i < 1; i++)
