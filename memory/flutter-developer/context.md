@@ -3,17 +3,27 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P3-T06 (laravel-proxy-url-audit) — IN-REVIEW. Full audit completed: zero hardcoded Plato tokens (1463d1150e7b199effa2793c2d809034) or URLs (clinic.platomedical.com) found in lib/. All 14 Plato API call classes in api_calls.dart confirmed using EnvConfig.platomBaseUrl. EnvConfig default already set to Laravel proxy (https://heclinic.cyberoket.cloud/api/v2/plato). Updated docs/CODEBASE.md to reflect proxy architecture. No Dart code changes needed — configuration was already correct.
+P4-T01 — Apply V2 Design System (IN-REVIEW)
 
-## Last Completed Task
-P3-T05 (rate-limit-monitor) — DONE.
+## Recent Work
+- P3-T06 — Laravel Proxy URL Audit (DONE)
+- P3-T05 — Rate Limit Monitor (DONE)
+- P3-T04 — HTTP 429 Exponential Backoff (DONE)
+- P3-T03 — modified_since Strategy (DONE)
+- P3-T02 — Pagination Helper (DONE)
+- P3-T01 — Global API Error Interceptor (DONE)
 
-## Known Constraints
-- All Plato API calls must route through Laravel proxy
-- Use EnvConfig for all base URLs — never hardcode
-- Follow FlutterFlow-inherited patterns in docs/CODEBASE.md
-- Apply design tokens from docs/v2-ux-spec.md Section 1
-- Always implement skeleton loaders, empty states, and error states on list/content screens
+## Implementation Notes (P4-T01)
+- Created `lib/theme/app_theme.dart` with AppColors, AppSpacing, AppRadius, AppShadows, light ThemeData, dark ThemeData
+- Wired into `main.dart` via `theme` and `darkTheme` parameters
+- Used `google_fonts` for Plus Jakarta Sans
+- Old `flutter_flow_theme.dart` retained for backward compatibility
+- Existing pages still use old theme — migration in P4-T02 through P4-T06
 
-## Pending Items
-None — all Process 3 tasks complete or in review.
+## Key Files
+- `lib/theme/app_theme.dart` — New V2 theme system
+- `lib/main.dart` — App entry point with new theme wiring
+- `lib/flutter_flow/flutter_flow_theme.dart` — Old theme (preserved)
+- `lib/env_config.dart` — Environment config
+- `lib/backend/api_requests/api_interceptor.dart` — API error interceptor
+- `lib/backend/api_requests/api_calls.dart` — All API endpoint definitions

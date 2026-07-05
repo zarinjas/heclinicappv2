@@ -17,6 +17,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'flutter_flow/nav/nav.dart';
 import 'index.dart';
 import 'backend/api_requests/api_interceptor.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -186,10 +187,8 @@ class _MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', '')],
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
       routerConfig: _router,
     );

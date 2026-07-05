@@ -10,8 +10,8 @@
 | Process Step | Step 1 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date |  |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -133,16 +133,21 @@ N/A — This task creates only the theme infrastructure.
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created `lib/theme/app_theme.dart` with complete V2 design system: all 14 color tokens (AppColors), spacing scale (AppSpacing), border radius tokens (AppRadius), shadow definitions (AppShadows), light ThemeData, and dark ThemeData. Wired into `main.dart` via `theme` and `darkTheme` parameters on `MaterialApp.router`. Plus Jakarta Sans font served via `google_fonts` package (already in pubspec). Existing `flutter_flow_theme.dart` left intact for backward compatibility.
 
 ### Files Changed
-
+- `lib/theme/app_theme.dart` — Created: V2 theme definition with AppColors, AppSpacing, AppRadius, AppShadows, AppTheme.lightTheme, AppTheme.darkTheme
+- `lib/main.dart` — Added import for `theme/app_theme.dart`; replaced inline `ThemeData(brightness: Brightness.light, useMaterial3: true)` with `AppTheme.lightTheme` and added `darkTheme: AppTheme.darkTheme`
 
 ### Decisions Made During Implementation
-
+- Used `google_fonts` package for Plus Jakarta Sans instead of adding font files to assets (package is already in pubspec, avoids manual font file management)
+- Kept old `flutter_flow_theme.dart` fully intact for backward compatibility — pages still reference `FlutterFlowTheme.of(context)` which will continue to work
+- Used Material 3 theme system with `ThemeData` for both light and dark modes; used `ColorScheme` to define semantic colors
+- Removed unused `google_fonts` import from `main.dart` (no longer used there)
 
 ### Known Limitations
-
+- Existing pages still use `FlutterFlowTheme.of(context)` and will not automatically pick up V2 styling — they need to be individually migrated in P4-T02 through P4-T06
+- `FlutterFlowTheme.of(context).primary` etc. returns old colors until pages are migrated
 
 ---
 
