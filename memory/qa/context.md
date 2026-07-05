@@ -3,7 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P7-T05 — Create Walk-In Appointment — Admin Panel (PASSED — 10/10 criteria)
+P7-T06 — Appointment Detail View — Admin Panel (PASSED — 9/9 criteria)
+
+## Verification History
+- P7-T06 (2026-07-05): PASSED — 9/9 criteria. AdminAppointmentController@show($id) finds appointment by primary key, then by plato_appointment_id, then falls back to Plato proxy; abort(404) if not found. show.blade.php follows branches/show.blade.php pattern with grouped sections: Patient Info (Name, NRIC, Phone, Profile link), Appointment Details (Date, Time, Status badge, monospace Plato ID), Assignment (Doctor, Branch, Calendar Color ID), Notes (or "No notes" placeholder), Local Record timestamps (Created/Updated/Notification Sent). Index view replaced disabled button with active link to show route. Routes updated to include 'show'. php -l passes all 4 modified files.
 
 ## Verification History
 - P7-T05 (2026-07-05): PASSED — 10/10 criteria. StoreAppointmentRequest FormRequest with validation (required fields, after:today for date, max lengths). AdminAppointmentController@create passes branches + doctors to view. @store calls AppointmentService::createAppointment() with validated data, handles Runtime/Exception with flash error. create.blade.php form with 3 sections (Patient Info, Appointment Details, Notes), branch/doctor dropdowns with JS client-side filtering (data-branch attributes), date input with min=tomorrow, hidden branch_name/doctor_name/calendar_color_id auto-populated via JS. Appointment index page "New Walk-In Appointment" button now links to create route. Admin layout updated with @stack('scripts') for page-level JS. Resource route expanded to ['index', 'create', 'store']. php -l passes on all modified PHP files.

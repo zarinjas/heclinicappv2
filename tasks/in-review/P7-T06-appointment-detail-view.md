@@ -177,20 +177,21 @@ Implemented the appointment detail view in the Laravel Admin Panel. Added `show(
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 4} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 5} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 6} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 7} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 8} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 9} — PASS / FAIL — {note if fail}
+- [x] Clicking "View" on an appointment in the list navigates to `/admin/appointments/{id}` and shows detail page — PASS — Index view now has `<a href="{{ route('admin.appointments.show', $appointment['id'] ?? 0) }}">` link; route maps to `AdminAppointmentController@show` at `/admin/appointments/{id}`.
+- [x] Detail page shows: patient name, NRIC, phone, doctor name, branch name, appointment date/time — PASS — All fields rendered in Patient Info, Appointment Details, and Assignment sections of show.blade.php.
+- [x] Status is shown as a colored badge (green/amber/red/blue matching status) — PASS — Status badge uses correct color mapping: confirmed=green, pending=amber, cancelled=red, completed=blue with dot indicator.
+- [x] Plato appointment ID is displayed (monospace, readable format) — PASS — Rendered with `font-mono` CSS class for monospace rendering.
+- [x] Notes section shows appointment notes or "No notes" if empty — PASS — `@if ($notes)` renders notes text; `@else` shows "No notes" placeholder in italic gray.
+- [x] "Back to Appointments" link returns to the appointment list — PASS — Left arrow SVG link with `route('admin.appointments.index')`.
+- [x] Invalid appointment ID shows a 404 page (not a PHP error) — PASS — `abort(404, 'Appointment not found.')` called when neither local DB nor Plato has the record.
+- [x] Local DB record timestamps (created_at, updated_at) are displayed — PASS — `Local Record` section shows Created At, Updated At, and Notification Sent timestamps when appointment has a local record (`from_plato === false`).
+- [x] `php -l` passes syntax check — PASS — All four modified files: AdminAppointmentController.php, routes/web.php, show.blade.php, index.blade.php — zero syntax errors.
 
 ### Failure Details
+(None — all criteria passed.)
 
 
 ---
