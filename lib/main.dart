@@ -16,6 +16,7 @@ import 'flutter_flow/flutter_flow_util.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'flutter_flow/nav/nav.dart';
 import 'index.dart';
+import 'backend/api_requests/api_interceptor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,6 +96,59 @@ class _MyAppState extends State<MyApp> {
       Duration(milliseconds: 1000),
       () => _appStateNotifier.stopShowingSplashImage(),
     );
+
+    _registerApiInterceptor();
+  }
+
+  void _registerApiInterceptor() {
+    final interceptor = ApiInterceptor.instance;
+
+    interceptor.onUnauthorized = () {
+      FFAppState().isLoggedIn = false;
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Session expired. Please log in again.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+        ));
+        while (appNavigatorKey.currentState?.canPop() == true) {
+          appNavigatorKey.currentState?.pop();
+        }
+        GoRouter.of(context).go('/loginPage');
+      }
+    };
+
+    interceptor.onServerError = (statusCode, callName) {
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Server error. Please try again. (${statusCode})'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Try Again',
+            textColor: Colors.white,
+            onPressed: () {},
+          ),
+        ));
+      }
+    };
+
+    interceptor.onNetworkError = (message) {
+      final context = appNavigatorKey.currentContext;
+      if (context != null) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('No internet connection — showing last synced data'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 4),
+        ));
+      }
+    };
   }
 
   @override

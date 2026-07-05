@@ -18,6 +18,7 @@ import 'package:http/browser_client.dart'
 import '/flutter_flow/uploaded_file.dart';
 
 import 'get_streamed_response.dart';
+import 'api_interceptor.dart';
 
 enum ApiCallType {
   GET,
@@ -606,8 +607,11 @@ class ApiManager {
       if (cache) {
         _apiCache[callOptions] = result;
       }
+
+      ApiInterceptor.instance.handleResponse(result, callOptions);
     } catch (e) {
       result = ApiCallResponse(null, {}, -1, exception: e);
+      ApiInterceptor.instance.handleResponse(result, callOptions);
     }
 
     return result;
