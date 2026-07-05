@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -120,15 +120,24 @@ Build the Notification Preferences screen — accessed from Profile Tab's "Notif
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created `lib/features/profile/notification_prefs_screen.dart` — V2 Notification Preferences screen. Features: 2 AppCard sections ("Channels" and "Notification Types"), 5 toggle rows with icon + label + subtitle + Switch (Push Notifications, Email Notifications, Appointment Reminders, Health Updates, Promotions & Offers), preferences stored in Firestore `notification_preferences/{patientId}` document (read on load, write on toggle), AppSkeleton shimmer during load, AppErrorState with retry on Firestore failure, AppToast.info on each preference change, descriptive header text. Dark mode support. All design tokens — zero hardcoded colors/styles.
 
 ### Files Changed
-
+- `lib/features/profile/notification_prefs_screen.dart` — Created new screen (300 lines)
 
 ### Decisions Made During Implementation
-
+- Firestore collection `notification_preferences` document per patient (keyed by patientId from FFAppState) — new collection, not existing legacy structure
+- Default preference: push+email+appointmentReminders+healthUpdates = true, promotions = false
+- Toggle changes persist individually via SetOptions(merge: true) (no batch save needed)
+- No dependency on legacy NotificationSettingWidget — clean V2 implementation
+- Patient ID uses platoID with fallback to id_patient (matches home_screen.dart pattern)
+- `flutter analyze` not available on this runner
 
 ### Known Limitations
+- Push notification permission management not included (handled by Firebase Messaging service separately)
+- Email channel configuration requires backend SMTP setup (already done in Process 8)
+- `flutter analyze` could not be executed on this CI runner (Flutter SDK not installed)
+- Navigation path /notificationPrefsScreen needs to be registered in GoRouter (Phase 12 navigation migration)
 
 
 

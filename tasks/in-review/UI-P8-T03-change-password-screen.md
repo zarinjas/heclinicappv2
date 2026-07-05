@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -115,15 +115,21 @@ Build the Change Password screen — accessed from Profile Tab's Settings sectio
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created `lib/features/profile/change_password_screen.dart` — V2 Change Password form screen. Features: 3 AppInput fields (Current Password, New Password, Confirm Password — all with show/hide password toggle), form validation (current password required, new password min 8 chars, confirm must match new), "Change Password" primary button (disabled + loading spinner during API call), API call via existing MedicalAppsApiGroup.changepasswordCall, AppToast.success + pop on success, error state display with retry on API failure, descriptive subtitle text. Dark mode support. All design tokens — zero hardcoded colors/styles.
 
 ### Files Changed
-
+- `lib/features/profile/change_password_screen.dart` — Created new screen (180 lines)
 
 ### Decisions Made During Implementation
-
+- Used existing MedicalAppsApiGroup.changepasswordCall API endpoint (same pattern as first_change_password_screen.dart)
+- On API failure, bodyText is displayed as error (matching first_change_password_screen.dart pattern) rather than generic error
+- Password validation on form submit (not on blur) to avoid premature validation errors for password fields
+- Confirm password match validation is inline (no API side validation needed for this check)
+- `flutter analyze` not available on this runner
 
 ### Known Limitations
+- `flutter analyze` could not be executed on this CI runner (Flutter SDK not installed)
+- Navigation path /changePasswordScreen needs to be registered in GoRouter (Phase 12 navigation migration)
 
 
 

@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -121,15 +121,23 @@ Build the Profile Tab — the 5th bottom nav tab. Consolidates existing profile 
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created `lib/features/profile/profile_screen.dart` — V2 Profile Tab (5th bottom nav tab). Scrollable screen with: avatar (80px circle with patient photo via CachedNetworkImage or initials fallback), full name, email, NRIC display. "My Details" section with "Edit Profile" arrow row, "Settings" section with Biometric Login toggle (Switch, reads/writes FFAppState + SharedPreferences), "Notification Preferences" arrow row, "Change Password" arrow row. "About" section with He Clinic Info, Privacy Policy, Terms of Service arrow rows. "Log Out" destructive AppButton with AppDialog.confirmation. Skeleton shimmer during profile load (AppSkeleton.circle + text + card placeholders). AppErrorState with retry on profile fetch failure. RefreshIndicator pull-to-refresh. Dark mode support. All design tokens used — zero hardcoded colors, FlutterFlow themes, or inline styles.
 
 ### Files Changed
-
+- `lib/features/profile/profile_screen.dart` — Created new screen (380 lines)
 
 ### Decisions Made During Implementation
-
+- Used direct FFAppState reads for name/email/nric/phone display (matches existing pattern in home_screen.dart for profile data)
+- Biometric toggle directly manipulates FFAppState + SharedPreferences (matches existing saveBiometricStatus pattern)
+- Logout flow: clear FFAppState tokens + SharedPreferences + navigate to /authPage (matches existing app logout pattern)
+- Avatar fetched from Plato API /profile endpoint via existing MedicalAppsApiGroup.profileCall
+- Section dividers hidden for last items in each group via `isLast` flag
+- `flutter analyze` not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
+- Navigation routes (/profileEditPage, /notificationPrefsScreen, /changePasswordScreen, /clinicInfoScreen, /privacyPolicyScreen, /termsOfServiceScreen) not yet registered in GoRouter (Phase 12 navigation migration)
+- Profile Edit navigation reuses existing /profileEditPage route path (legacy ProfileEditPageWidget) until navigation migration replaces routing
+- `flutter analyze` could not be executed on this CI runner (Flutter SDK not installed)
 
 
 
