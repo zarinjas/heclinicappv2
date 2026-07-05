@@ -6,7 +6,7 @@ Last Updated: 2026-07-04
 Process 1 — Security and Foundation
 
 ## Active Tasks
-None.
+P1-T08 (remove-duplicate-profile-pages) — flutter-developer
 
 ## Blocked Tasks
 None currently.
