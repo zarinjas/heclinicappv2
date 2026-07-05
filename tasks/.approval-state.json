@@ -1,13 +1,12 @@
 {
-  "pending": false,
+  "pending": true,
   "batch": [
-    {"task_id": "UI-P2-T06", "title": "Register Step 2 Screen"},
-    {"task_id": "UI-P2-T07", "title": "Forgot Email Screen"},
-    {"task_id": "UI-P2-T08", "title": "Forgot OTP Screen"},
-    {"task_id": "UI-P2-T09", "title": "Forgot New Password Screen"},
-    {"task_id": "UI-P2-T10", "title": "First Change Password Screen"}
+    {"task_id": "UI-P3-T01", "title": "Home Screen (Shell)"},
+    {"task_id": "UI-P3-T02", "title": "Hero Slider Section"},
+    {"task_id": "UI-P3-T03", "title": "Quick Actions Section"},
+    {"task_id": "UI-P3-T04", "title": "Upcoming Appointment Section"},
+    {"task_id": "UI-P3-T05", "title": "Loyalty Section"}
   ],
-  "created_at": "2026-07-05T22:00:00Z",
-  "approved_at": "2026-07-05T22:00:00Z",
-  "approved": true
+  "created_at": "2026-07-05T23:00:00Z",
+  "approved": null
 }
