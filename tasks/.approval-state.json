@@ -1,10 +1,10 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "UI-P3-T06", "title": "Doctors Section"},
     {"task_id": "UI-P3-T07", "title": "Health Articles Section"},
     {"task_id": "UI-P3-T08", "title": "Health Videos Section"}
   ],
   "created_at": "2026-07-05T23:10:00Z",
-  "approved": null
+  "approved_at": "2026-07-05T18:02:07Z"
 }
