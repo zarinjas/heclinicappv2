@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -169,15 +169,27 @@ Plato appointment response fields:
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created AdminAppointmentController with index() method that fetches appointments from Plato via proxy service and displays them in a paginated data table. Created Blade view with filter controls (date range, doctor, branch, status). Added route and sidebar navigation link.
 
 ### Files Changed
-
+- `laravel/app/Http/Controllers/Admin/AdminAppointmentController.php` — new controller
+- `laravel/resources/views/admin/appointments/index.blade.php` — new list view
+- `laravel/routes/web.php` — added GET /admin/appointments route
+- `laravel/resources/views/layouts/admin.blade.php` — added Appointments sidebar link
 
 ### Decisions Made During Implementation
-
+- Used app(PlatoProxyService::class) pattern consistent with PatientController
+- Pagination uses LengthAwarePaginator with 20 per page matching Plato limit
+- Status displayed as colored chips (green/amber/red/blue) with dot indicators
+- "New Walk-In Appointment" button shown as disabled placeholder for P7-T05
+- View detail action shown as disabled placeholder for P7-T06
+- Doctor filter uses plato_facility_id as the filter value (maps to Plato doctor_id)
+- Branch filter uses plato_facility_id as the filter value (maps to Plato facility_id)
 
 ### Known Limitations
+- View appointment detail is a disabled button (placeholder for P7-T06)
+- New walk-in appointment button is disabled (placeholder for P7-T05)
+- No edit/cancel capability (Plato is source of truth)
 
 
 ---

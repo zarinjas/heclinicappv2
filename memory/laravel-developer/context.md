@@ -3,9 +3,13 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T03 — Patient Document Upload — PDF to Firebase Storage (IN-REVIEW)
+P7-T04 — Appointment Calendar View — Admin Panel (IN-REVIEW)
 
-## Implementation Summary — P7-T03
+## Implementation Summary — P7-T04
+- `app/Http/Controllers/Admin/AdminAppointmentController.php`: new controller with index() fetching appointments from Plato via proxy (`GET /appointment`), supports filters (date_from, date_to, doctor_id, facility_id, status), uses LengthAwarePaginator with 20/page
+- `resources/views/admin/appointments/index.blade.php`: Blade view with filter row (date range, doctor/branch dropdowns, status), data table (Date, Time, Patient Name, NRIC, Doctor, Branch, Status chip), colored status chips (green/amber/red/blue), empty state, pagination
+- `routes/web.php`: added AdminAppointmentController import and Route::resource('appointments')->only(['index']) under auth+role middleware
+- `resources/views/layouts/admin.blade.php`: added Appointments sidebar nav link with calendar SVG icon between Patients and Calendar Setup
 - `database/migrations/2026_07_05_000011_create_patient_documents_table.php`: patient_documents table with patient_plato_uid, filename, original_name, title, mime_type, size_bytes, uploaded_by FK, unique on (patient_plato_uid, filename)
 - `app/Services/PatientDocumentService.php`: upload/delete/list/serve for patient PDFs using Laravel Storage public disk at `patients/{uid}/documents/{uuid}.pdf`
 - `app/Http/Controllers/Admin/PatientController.php`: added uploadDocument() (validates PDF only, max 10MB), deleteDocument(), show() now passes $documents

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\PatientController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('patients.documents.upload');
         Route::delete('patients/{patient}/documents/{filename}', [PatientController::class, 'deleteDocument'])
             ->name('patients.documents.delete');
+        Route::resource('appointments', AdminAppointmentController::class)->only(['index']);
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
     });
