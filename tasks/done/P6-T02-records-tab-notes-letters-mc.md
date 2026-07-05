@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P6-T01 |
 | Blocked Reason | N/A |
@@ -173,11 +173,11 @@ N/A
 
 > Filled by Reviewer after QA passes.
 
-### Decision: {APPROVED / REJECTED}
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: {YES / NO} — {note}
-- v2-ux-spec.md alignment: {YES / NO} — {note}
+- v2-decisions.md alignment: YES — Process 6 Step 2 specifies clinical notes + letters + MC with filter chips by type, all three APIs called correctly
+- v2-ux-spec.md alignment: YES — Filter chips match spec (All/Notes/Letters/MC), record cards show type icon + title + date + author, detail views per type, skeleton/empty/error states present
 
 ### Rejection Reason
-{to be filled if rejected}
+N/A

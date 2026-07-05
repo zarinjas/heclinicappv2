@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P6-T01 — Health Tab Scaffold (APPROVED — 2026-07-05)
+P6-T02 — Records Tab — Notes, Letters, MC, Filter Chips (APPROVED — 2026-07-05)
 
 ## Review History
+- P6-T02 (2026-07-05): APPROVED — v2-decisions Process 6 Step 2 "Records tab: clinical notes from GET /patient/{id}/note, MC + letters from GET /letter, filter chips by type" fully met. v2-ux-spec Records Tab specification matched: ChoiceChip filter chips (All/Notes/Letters/MC), record cards with type-specific icons, skeleton/empty/error states, detail views per type. All 8 QA criteria PASS.
 - P6-T01 (2026-07-05): APPROVED — v2-decisions Process 6 Step 1 "Health tab scaffold — 3 inner tabs: Records, Vitals, Documents" fully met. ReportsWidget rewritten with V2 design tokens (AppColors, AppSpacing, AppRadius). AppBar "My Health" on primary bg, no back arrow. TabBar with icons + labels, accent indicator, white text colors. TabBarView with skeleton placeholders per tab. Design matches v2-ux-spec Health Tab screen. All 7 QA criteria PASS.
 - P5-T09 (2026-07-05): APPROVED — v2-decisions Process 5 Step 9 "Appointment appears in Appointments tab via GET /appointment" fully met.
 - P5-T08 (2026-07-05): APPROVED — v2-decisions Process 5 Step 8 "Mobile: Patient receives Push + Email + In-App notification Appointment Confirmed" fully met. Push notification reception for background/killed via push_notifications_handler.dart with type="appointment_confirmed" detection. Foreground via setup_f_c_m_foreground_handler.dart with dedicated appointment_channel_id. Notification badge (coutnnotif) increment in both flows. Navigation to MyBookingPage on tap. Existing notification behavior preserved via type-check fallthrough. In-App via existing notificationPage reading Firestore historynotif (written by P5-T07 Laravel). All 7 QA criteria PASS.

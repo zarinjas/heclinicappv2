@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P6-T02 — Records Tab — Notes, Letters, MC, Filter Chips (IN-REVIEW)
+(None — awaiting next task)
 
 ## Recent Work
-- P6-T02 — Records Tab (IN-REVIEW): Implemented Records inner tab with filter chips (All/Notes/Letters/MC), data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs, record cards with type-specific icons, loading/empty/error states, detail views (AlertReportWidget, HTML bottom sheet, WebViewX+). Updated reports_model.dart with RecordType/FilterType enums and HealthRecord data class.
+- P6-T02 — Records Tab (DONE): Implemented Records inner tab with filter chips (All/Notes/Letters/MC), data fetching from GetReportCall, LetterCall, GetMedicalCertificateCall APIs, record cards with type-specific icons, loading/empty/error states, detail views (AlertReportWidget, HTML bottom sheet, WebViewX+). Updated reports_model.dart with RecordType/FilterType enums and HealthRecord data class.
 - P6-T01 — Health Tab Scaffold (DONE): Rewrote `lib/front_page/reports/reports_widget.dart` with V2 design system. Replaced old Visit/MyLabs/MyDocuments tabs with Records/Vitals/Documents using V2 tokens (AppColors, AppSpacing, AppRadius). AppBar: "My Health", no back arrow, primary background. TabBar: accent indicator, white text, Plus Jakarta Sans 14px w600. Tab bodies: 4× SkeletonListTile placeholders.
 - P5-T09 — Appointments Tab Display (DONE): Created `lib/pages/appointments/appointments_screen.dart` with Upcoming/Past tabs, appointment cards with 4px color bar, status chips, skeleton loading, pull-to-refresh, empty/error states. Added `title`, `doctorCode`, `locationCode` parsers to `GetAppointmentCall`. Wired `AppointmentsScreenWidget` into NavBarPage and GoRouter replacing `MyBookingPageWidget`.
 - P5-T08 — Appointment Confirmation Notification (DONE): Updated `push_notifications_handler.dart` to detect `type: "appointment_confirmed"` in FCM payload, navigate to MyBookingPage, increment `coutnnotif`. Rewrote `setup_f_c_m_foreground_handler.dart` for appointment notification handling in foreground with dedicated channel, badge increment, and tap-to-navigate. Added `incrementNotifCount()` and `resetNotifCount()` to `app_state.dart`. Handles cold start, background, and foreground notification scenarios.
