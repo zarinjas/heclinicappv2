@@ -17,10 +17,10 @@ Doctor Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | BLOCKED |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P5-T02, Process 2 (Laravel Admin Panel) |
-| Blocked Reason | Branch filtering and is_visible_in_app require Process 2 — Laravel Admin Panel Scaffold with MySQL doctors table and branch-doctor mapping |
+| Blocked Reason | |
 
 ---
 

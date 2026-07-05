@@ -14,8 +14,8 @@ P2-T04 — Doctor Management CRUD (DONE)
 P2-T05 — Plato API Proxy Layer (DONE)
 P2-T06 — Calendar Setup UI (DONE)
 
-**Process 5 — Booking Flow (paused, blocked by Process 2):**
-P5-T03 — Doctor Selection Screen (BLOCKED — requires Process 2: Laravel Admin Panel Scaffold)
+**Process 5 — Booking Flow (resumed after Process 2 completion):**
+P5-T03 — Doctor Selection Screen (IN-PROGRESS — Process 2 completed, unblocked)
 P5-T04 — Date and Time Slot Selection (BACKLOG)
 P5-T05 — Booking Confirmation Screen (BACKLOG)
 P5-T06 — WhatsApp Redirect After Booking (BACKLOG)
@@ -24,7 +24,7 @@ P5-T08 — Appointment Confirmation Notification (BACKLOG)
 P5-T09 — Appointments Tab Display (BACKLOG)
 
 ## Blocked Tasks
-P5-T03 — Doctor Selection Screen: Branch filtering and is_visible_in_app filtering require Process 2 (Laravel Admin Panel Scaffold) with MySQL doctors table and branch-doctor mapping.
+(None — Process 2 completed, P5-T03 unblocked)
 
 ## Open Decisions (from v2-decisions.md — Still Pending)
 - Design mockup approval from client pending — blocks Process 4 UI Overhaul
