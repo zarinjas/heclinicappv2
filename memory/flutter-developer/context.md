@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P4-T01 — Apply V2 Design System (IN-REVIEW)
+P4-T02 — Replace Bottom Navigation: 4 Tabs to 5 Tabs (IN-REVIEW)
 
 ## Recent Work
+- P4-T02 — Bottom Nav 5 Tabs: Updated main.dart NavBarPage + nav.dart routes (IN-REVIEW)
 - P3-T06 — Laravel Proxy URL Audit (DONE)
 - P3-T05 — Rate Limit Monitor (DONE)
 - P3-T04 — HTTP 429 Exponential Backoff (DONE)

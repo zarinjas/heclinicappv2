@@ -129,7 +129,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: BookingPageWidget.routeName,
           path: BookingPageWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'bookingPage')
+              ? NavBarPage(initialPage: 'myBookingPage')
               : BookingPageWidget(
                   cas: params.getParam(
                     'cas',
@@ -158,7 +158,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: MyBookingPageWidget.routeName,
           path: MyBookingPageWidget.routePath,
-          builder: (context, params) => MyBookingPageWidget(),
+          builder: (context, params) => params.isEmpty
+              ? NavBarPage(initialPage: 'myBookingPage')
+              : MyBookingPageWidget(),
         ),
         FFRoute(
           name: RegisterPageWidget.routeName,
@@ -194,12 +196,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: ReportsWidget.routeName,
           path: ReportsWidget.routePath,
-          builder: (context, params) => ReportsWidget(
-            id: params.getParam(
-              'id',
-              ParamType.String,
-            ),
-          ),
+          builder: (context, params) => params.isEmpty
+              ? NavBarPage(initialPage: 'health')
+              : ReportsWidget(
+                  id: params.getParam(
+                    'id',
+                    ParamType.String,
+                  ),
+                ),
         ),
         FFRoute(
           name: HomepageNewWidget.routeName,
@@ -252,14 +256,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: BranchLocationNewCopyWidget.routeName,
           path: BranchLocationNewCopyWidget.routePath,
-          builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'branchLocationNewCopy')
-              : BranchLocationNewCopyWidget(),
+          builder: (context, params) => BranchLocationNewCopyWidget(),
         ),
         FFRoute(
           name: NotificationPageWidget.routeName,
           path: NotificationPageWidget.routePath,
-          builder: (context, params) => NotificationPageWidget(),
+          builder: (context, params) => params.isEmpty
+              ? NavBarPage(initialPage: 'notificationPage')
+              : NotificationPageWidget(),
         ),
         FFRoute(
           name: VisitsWidget.routeName,

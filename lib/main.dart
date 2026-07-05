@@ -227,11 +227,13 @@ class _NavBarPageState extends State<NavBarPage> {
   Widget build(BuildContext context) {
     final tabs = {
       'HomepageNew': HomepageNewWidget(),
-      'branchLocationNewCopy': BranchLocationNewCopyWidget(),
-      'bookingPage': BookingPageWidget(),
+      'myBookingPage': MyBookingPageWidget(),
+      'health': ReportsWidget(),
+      'notificationPage': NotificationPageWidget(),
       'Profile': ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
+    final unreadCount = FFAppState().coutnnotif;
 
     return Scaffold(
       resizeToAvoidBottomInset: !widget.disableResizeToAvoidBottomInset,
@@ -242,66 +244,64 @@ class _NavBarPageState extends State<NavBarPage> {
           _currentPage = null;
           _currentPageName = tabs.keys.toList()[i];
         }),
-        backgroundColor: Colors.white,
-        selectedItemColor: FlutterFlowTheme.of(context).primary,
-        unselectedItemColor: FlutterFlowTheme.of(context).secondaryText,
+        backgroundColor: AppColors.primary,
+        selectedItemColor: AppColors.accent,
+        unselectedItemColor: const Color(0x80FFFFFF),
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: FlutterFlowTheme.of(context).bodySmall.override(
-              fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.0,
-            ),
-        unselectedLabelStyle: FlutterFlowTheme.of(context).bodySmall.override(
-              fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
-              letterSpacing: 0.0,
-            ),
+        selectedLabelStyle: const TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 11.0,
+          fontWeight: FontWeight.w400,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 11.0,
+          fontWeight: FontWeight.w400,
+        ),
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_outlined,
-              size: 26.0,
-            ),
-            activeIcon: Icon(
-              Icons.home,
-              size: 26.0,
-            ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined, size: 26.0),
+            activeIcon: Icon(Icons.home, size: 26.0),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.pin_drop_outlined,
-              size: 26.0,
-            ),
-            activeIcon: Icon(
-              Icons.pin_drop,
-              size: 26.0,
-            ),
-            label: 'Branches',
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined, size: 26.0),
+            activeIcon: Icon(Icons.calendar_today, size: 26.0),
+            label: 'Appointments',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_outline, size: 26.0),
+            activeIcon: Icon(Icons.favorite, size: 26.0),
+            label: 'Health',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month_outlined,
-              size: 26.0,
+            icon: Badge(
+              isLabelVisible: unreadCount != '0' && unreadCount.isNotEmpty,
+              label: Text(
+                unreadCount,
+                style: const TextStyle(fontSize: 10.0, color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              child: const Icon(Icons.notifications_outlined, size: 26.0),
             ),
-            activeIcon: Icon(
-              Icons.calendar_month,
-              size: 26.0,
+            activeIcon: Badge(
+              isLabelVisible: unreadCount != '0' && unreadCount.isNotEmpty,
+              label: Text(
+                unreadCount,
+                style: const TextStyle(fontSize: 10.0, color: Colors.white),
+              ),
+              backgroundColor: AppColors.error,
+              child: const Icon(Icons.notifications, size: 26.0),
             ),
-            label: 'Booking',
+            label: 'Notifications',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person_outline,
-              size: 26.0,
-            ),
-            activeIcon: Icon(
-              Icons.person,
-              size: 26.0,
-            ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline, size: 26.0),
+            activeIcon: Icon(Icons.person, size: 26.0),
             label: 'Profile',
-          )
+          ),
         ],
       ),
     );

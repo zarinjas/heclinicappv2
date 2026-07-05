@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P4-T01 |
 | Blocked Reason | N/A |
@@ -114,18 +114,25 @@ Tab icon references:
 ## Implementation Notes
 
 > Filled in by the Developer after implementation.
-> Leave blank until implementation is complete.
 
 ### What Was Done
-
+Replaced the 4-tab bottom navigation with a 5-tab layout per v2-ux-spec.md Section 3: Home, Appointments, Health, Notifications, Profile. Updated NavBarPage in main.dart to use V2 theme styling (primary background #0F1B3D, accent active #00C9A7, white 50% inactive). Added notification badge with unread count from FFAppState().coutnnotif on the Notifications tab. Updated GoRouter routes in nav.dart to wrap the new tab pages (MyBookingPage, Reports, NotificationPage) with NavBarPage for root navigation, and removed the old BranchLocation tab from the NavBarPage.
 
 ### Files Changed
-
+- `lib/main.dart` — Updated NavBarPage widget: 5 tabs with V2 styling, notification badge, new tab keys; removed FlutterFlowTheme dependency; added direct AppColors usage
+- `lib/flutter_flow/nav/nav.dart` — Updated BookingPageWidget route initialPage to 'myBookingPage'; added NavBarPage wrappers for MyBookingPageWidget, ReportsWidget, and NotificationPageWidget routes; removed NavBarPage wrapper from BranchLocationNewCopyWidget route (no longer a tab)
 
 ### Decisions Made During Implementation
-
+- Reused `ReportsWidget()` with no id parameter for the Health tab — widget handles null id gracefully (shows patient's own reports)
+- Used Flutter's built-in `Badge` widget for notification count instead of custom widget for consistency with Material 3
+- Branch location page kept as standalone route (still accessible) but removed from bottom nav (replaced by Appointments tab)
+- MyBookingPageWidget used for Appointments tab instead of BookingPageWidget to show the booking list screen
+- Left old `flutter_flow_theme.dart` import in main.dart intact for backward compatibility
 
 ### Known Limitations
+- ReportsWidget requires caller to pass id for specific report viewing; Health tab loads with null id (patient view)
+- NotificationPageWidget is reused as-is; no unread/read differentiation yet (future process)
+- FFAppState().coutnnotif is a string — badge shows raw string value; may need parsing if format is non-numeric
 
 
 ---
@@ -138,9 +145,14 @@ Tab icon references:
 ### Result: PASSED / FAILED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
+- [ ] Bottom navigation bar shows exactly 5 tabs in the correct order: Home, Appointments, Health, Notifications, Profile — PASS / FAIL — {note if fail}
+- [ ] Each tab icon + label is visible with correct active (accent green) and inactive (white 50%) colors — PASS / FAIL — {note if fail}
+- [ ] Nav bar background is primary color (#0F1B3D) — PASS / FAIL — {note if fail}
+- [ ] Tapping each tab navigates to the correct screen without errors — PASS / FAIL — {note if fail}
+- [ ] Notifications tab shows a red badge when FFAppState().coutnnotif is non-zero — PASS / FAIL — {note if fail}
+- [ ] Health tab displays the Reports screen or a placeholder with "Health" title — PASS / FAIL — {note if fail}
+- [ ] Appointments tab displays MyBookingPage screen — PASS / FAIL — {note if fail}
+- [ ] App compiles and runs without crash on tab switch — PASS / FAIL — {note if fail}
 
 ### Failure Details
 
