@@ -60,4 +60,24 @@ class BookingFlowModel extends ChangeNotifier {
     _isNoPreference = isNoPreference;
     notifyListeners();
   }
+
+  DateTime? _selectedDate;
+  DateTime? get selectedDate => _selectedDate;
+
+  String _selectedTime = '';
+  String get selectedTime => _selectedTime;
+
+  String _selectedSlotId = '';
+  String get selectedSlotId => _selectedSlotId;
+
+  void selectDateTime({
+    required DateTime date,
+    required String time,
+    required String slotId,
+  }) {
+    _selectedDate = date;
+    _selectedTime = time;
+    _selectedSlotId = slotId;
+    notifyListeners();
+  }
 }

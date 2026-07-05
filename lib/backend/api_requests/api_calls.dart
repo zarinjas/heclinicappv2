@@ -1695,6 +1695,59 @@ class GetAppointmentCodeCall {
           .toList();
 }
 
+class PostAppointmentSlotsCall {
+  static Future<ApiCallResponse> call({
+    required String month,
+    required List<String> checkForConflicts,
+    required int simultaneous,
+    required int interval,
+    required String starttime,
+    required String endtime,
+  }) async {
+    final body = <String, dynamic>{
+      'month': month,
+      'check_for_conflicts': checkForConflicts,
+      'simultaneous': simultaneous,
+      'interval': interval,
+      'starttime': starttime,
+      'endtime': endtime,
+    };
+
+    await RateLimitMonitor.instance.waitIfPaused(
+      '${EnvConfig.platomBaseUrl}/appointment/slots',
+    );
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'Appointment Slots',
+      apiUrl: '${EnvConfig.platomBaseUrl}/appointment/slots',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'db': 'hemedclinic',
+      },
+      params: {},
+      body: jsonEncode(body),
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<String>? slots(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].time''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+}
+
 class GetAppointmentCopyCall {
   static Future<ApiCallResponse> call({
     bool forceRefresh = false,

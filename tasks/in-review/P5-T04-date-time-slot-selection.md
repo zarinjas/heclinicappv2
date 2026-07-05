@@ -17,7 +17,7 @@ Date and Time Slot Selection
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T03 |
 | Blocked Reason | N/A |
@@ -124,16 +124,39 @@ Create the date and time slot selection screen for the Booking Flow (Step 3 of 4
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created date/time slot selection screen (Step 3 of booking flow):
+- DateTimeSlotSelectionScreenWidget with 4-step indicator (step 3 active)
+- Month selector with left/right arrows, only future months allowed
+- Calendar grid using table_calendar 3.2.0 with day markers for available slots
+- Time slot chips below calendar: outlined accent (available), filled accent (selected)
+- POST /appointment/slots API call via Laravel proxy with proper parameters
+- Skeleton loader while fetching slots (mimicking chip layout)
+- Continue button disabled until time slot selected
+- Empty/error states with retry capability
+- Back navigation preserves model state
+- Extended BookingFlowModel with selectedDate, selectedTime, selectedSlotId
+- Added PostAppointmentSlotsCall to api_calls.dart
+- Registered route in nav.dart
 
 ### Files Changed
-- {To be filled}
+- lib/pages/booking/date_time_slot_screen.dart — new file
+- lib/pages/booking/booking_flow_model.dart — added date/time/slotId fields
+- lib/backend/api_requests/api_calls.dart — added PostAppointmentSlotsCall class
+- lib/flutter_flow/nav/nav.dart — registered /dateTimeSlotSelection route
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used calendar color IDs from GetAppointmentCodeCall.Response for check_for_conflicts parameter
+- Default operating hours 08:00-18:00 with 15-min intervals for slot queries
+- Slots are filtered client-side for the selected day from the full month response
+- Month validation is client-side only (reject past months before API call)
+- Continue button navigates to /bookingConfirmation (P5-T05, not yet implemented)
+- Rate limit monitor used before each slot API call
 
 ### Known Limitations
-{To be filled}
+- Slots fetched for an entire month at once; filtering done client-side
+- Calendar color IDs fetched fresh each time; could be cached in model
+- Confirmation screen route (/bookingConfirmation) not yet implemented (P5-T05)
+- No calendar day pre-highlighting — dots appear only after slots are first fetched for a day
 
 ---
 

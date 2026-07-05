@@ -20,6 +20,7 @@ import 'serialization_util.dart';
 import '/index.dart';
 import '/pages/booking/branch_selection_screen.dart';
 import '/pages/booking/doctor_selection_screen.dart';
+import '/pages/booking/date_time_slot_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -308,6 +309,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: DoctorSelectionScreenWidget.routeName,
           path: DoctorSelectionScreenWidget.routePath,
           builder: (context, params) => const DoctorSelectionScreenWidget(),
+        ),
+        FFRoute(
+          name: DateTimeSlotSelectionScreenWidget.routeName,
+          path: DateTimeSlotSelectionScreenWidget.routePath,
+          builder: (context, params) =>
+              const DateTimeSlotSelectionScreenWidget(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
