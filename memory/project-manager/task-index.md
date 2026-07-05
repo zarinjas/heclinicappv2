@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 8 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 9 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -141,6 +141,11 @@ Last Updated: 2026-07-05 (UI Epic Phase 8 tasks created)
 | UI-P6-T03 | vitals-tab | Epic UI — Phase 6 | Step 6.3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T04 | documents-tab | Epic UI — Phase 6 | Step 6.4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T05 | record-detail-viewer | Epic UI — Phase 6 | Step 6.5 | Flutter | flutter-developer | DONE | 2026-07-05 |
+**Phase 9 Dependency Order:**
+- All 3 tasks are parallel (no dependencies between them)
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/v2-ux-spec.md, docs/v2-decisions.md
+
 **Phase 8 Dependency Order:**
 - All 8 tasks are parallel (no dependencies between them)
 - All tasks are Flutter type, assigned to flutter-developer
@@ -158,6 +163,9 @@ Last Updated: 2026-07-05 (UI Epic Phase 8 tasks created)
 | UI-P8-T06 | clinic-info-screen | Epic UI — Phase 8 | Step 8.6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P8-T07 | privacy-policy-screen | Epic UI — Phase 8 | Step 8.7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P8-T08 | terms-of-service-screen | Epic UI — Phase 8 | Step 8.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P9-T01 | my-points-screen | Epic UI — Phase 9 | Step 9.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P9-T02 | redeem-points-sheet | Epic UI — Phase 9 | Step 9.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P9-T03 | redemption-code-modal | Epic UI — Phase 9 | Step 9.3 | Flutter | flutter-developer | BACKLOG | — |
 
 **Phase 6 Dependency Order:**
 - UI-P6-T01 (Health Tab shell) — no dependencies, foundation for inner tabs
