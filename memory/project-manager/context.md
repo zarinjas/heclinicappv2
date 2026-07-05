@@ -8,7 +8,7 @@ Process 4 — Mobile App: UI/UX Overhaul (Flutter)
 ## Active Tasks
 P4-T01 — Apply V2 Design System (BACKLOG)
 P4-T02 — Replace Bottom Navigation: 4 Tabs to 5 Tabs (DONE)
-P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (BACKLOG)
+P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (IN-PROGRESS)
 P4-T04 — Home Screen Redesign (BACKLOG)
 P4-T05 — Consolidate Profile Screen (BACKLOG)
 P4-T06 — Apply Global Loading, Empty, and Error States (BACKLOG)
