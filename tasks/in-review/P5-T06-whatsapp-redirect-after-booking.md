@@ -153,20 +153,20 @@ Note: WhatsApp deep link uses international format without +, spaces, or dashes.
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Message contains all booking details — PASS / FAIL
-- [ ] Branch/doctor/date/time match selections — PASS / FAIL
-- [ ] Patient data matches FFAppState — PASS / FAIL
-- [ ] WhatsApp opens with pre-filled message — PASS / FAIL
-- [ ] Error dialog when WhatsApp not installed — PASS / FAIL
-- [ ] Dynamic phone number per branch — PASS / FAIL
-- [ ] Message format matches spec — PASS / FAIL
-- [ ] URL encoding handles special characters — PASS / FAIL
+- [x] Message contains all booking details — PASS (WhatsAppHelper.buildPreFilledMessage includes branch, doctor, date, time, patient name, NRIC)
+- [x] Branch/doctor/date/time match selections — PASS (data sourced from BookingFlowModel singleton, same instance used in build())
+- [x] Patient data matches FFAppState — PASS (FFAppState().name and FFAppState().nationalman used directly)
+- [x] WhatsApp opens with pre-filled message — PASS (canLaunchUrl + launchUrl with LaunchMode.externalApplication, Uri.encodeComponent for encoding)
+- [x] Error dialog when WhatsApp not installed — PASS (_showWhatsAppNotInstalledDialog with Cancel + Install WhatsApp buttons)
+- [x] Dynamic phone number per branch — PASS (selectedBranchWhatsApp from BookingFlowModel, populated from branch selection API)
+- [x] Message format matches spec — PASS (exact format from v2-ux-spec.md lines 557-569, including blank lines)
+- [x] URL encoding handles special characters — PASS (Uri.encodeComponent used in buildDeepLink)
 
 ### Failure Details
-{If FAILED}
+N/A — All criteria PASSED.
 
 ---
 
