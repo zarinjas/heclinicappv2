@@ -203,6 +203,20 @@ app.get("/platom/appointment/codes", (req, res) => {
   });
 });
 
+app.get("/platom/appointment/:id", (req, res) => {
+  const appointmentId = req.params.id;
+  console.log(`[GET_APPOINTMENT_DETAIL] id=${appointmentId}`);
+  const detail = {
+    starttime: "2025-07-01 09:00",
+    endtime: "2025-07-01 10:00",
+    title: "General Checkup",
+    code_Background: "B001",
+    code_Top: "L001",
+    appointment_id: appointmentId,
+  };
+  res.json([detail]);
+});
+
 app.get("/platom/appointments/calendars", (req, res) => {
   res.json(mockAppointments);
 });

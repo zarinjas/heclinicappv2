@@ -50,7 +50,9 @@ flutter-developer
 2026-07-04
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
 
 ## Implementation Notes
-—
+- **api_calls.dart (line 1445–1490):** Added `appointmentId` String parameter to `GetAppointmentDetailsCall.call()`. URL now uses `'${EnvConfig.platomBaseUrl}/appointment/$appointmentId'` dynamically. Falls back to `/appointment` if `appointmentId` is null/empty.
+- **mock_server/index.js:** Added `GET /platom/appointment/:id` route returning mock appointment detail with the requested ID embedded in the response.
+- **Call sites:** No direct `GetAppointmentDetailsCall.call()` invocations found in the local codebase. FlutterFlow manages API call bindings in its cloud editor — the call class signature update must be synced there for the new `appointmentId` parameter to be connected to UI actions. This is expected for FlutterFlow-exported projects.

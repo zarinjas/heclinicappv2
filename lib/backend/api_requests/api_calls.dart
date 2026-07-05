@@ -1444,13 +1444,16 @@ class GetAppointmentUpcomingCall {
 
 class GetAppointmentDetailsCall {
   static Future<ApiCallResponse> call({
+    String? appointmentId = '',
     String? patientId = '',
     String? modifiedSince = '',
   }) async {
+    final url = appointmentId != null && appointmentId.isNotEmpty
+        ? '${EnvConfig.platomBaseUrl}/appointment/$appointmentId'
+        : '${EnvConfig.platomBaseUrl}/appointment';
     return ApiManager.instance.makeApiCall(
       callName: 'Get Appointment Details',
-      apiUrl:
-          '${EnvConfig.platomBaseUrl}/appointment/a052e78b3a5547bba54ddbbc83619e93',
+      apiUrl: url,
       callType: ApiCallType.GET,
       headers: {
         'Authorization': 'Bearer ${FFAppState().tokenauth}',
