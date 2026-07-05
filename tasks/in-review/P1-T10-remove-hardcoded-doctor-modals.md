@@ -76,5 +76,19 @@ Deleted:
 
 Verified: grep for `ModalArifWidget`, `ModalAveneshWidget` etc. across `lib/` returns zero results.
 
+## QA Notes
+Verified 2026-07-05:
+
+1. [PASS] All 17 `modal_*/` directories deleted — confirmed via `ls lib/component/ | grep modal_` returns nothing.
+2. [PASS] `DoctorDetailBottomSheetWidget` exists at `lib/component/doctor_detail_bottom_sheet/doctor_detail_bottom_sheet_widget.dart` with required parameters: `doctorName`, `specialty`, `branchName`, `photoAsset`, `bio`.
+3. [PASS] All 17 call sites in `all_doctor_widget.dart` replaced — each `ModalXxxWidget()` invocation replaced with `DoctorDetailBottomSheetWidget(...)`.
+4. [PASS] Grep for `ModalArifWidget|ModalAveneshWidget|...` across `lib/` returns zero results.
+5. [PASS] `showModalBottomSheet` pattern preserved in all 17 InkWell onTap handlers — tapping any doctor card still opens a bottom sheet.
+6. [PASS] Widget renders: handle bar (Divider), circular photo (100px), doctor name, specialty, branch, About heading, bio, and Book Appointment primary button.
+7. [PASS] `lib/index.dart` had zero modal exports — no changes needed, verified no modal references remain.
+8. [PASS] Code structurally valid — imports resolve, patterns match existing FlutterFlow conventions. Flutter runtime not available in CI for `flutter build apk` verification, but zero compile-blocking issues identified.
+
+QA Result: PASSED (8/8)
+
 ## Status
 IN-REVIEW
