@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P2-T05",
-  "task_title": "Plato API Proxy Layer — Robust Proxy with Rate Limiting and Caching",
+  "pending": true,
+  "task_id": "P2-T06",
+  "task_title": "Calendar Setup UI — Map Doctors to Plato Calendar Color IDs",
   "completed_by": "laravel-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T12:40:00Z",
-  "approved_at": "2026-07-05T13:00:00Z",
-  "approved": true
+  "created_at": "2026-07-05T13:15:00Z",
+  "approved_at": null,
+  "approved": null
 }
