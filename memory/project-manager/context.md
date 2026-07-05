@@ -7,7 +7,7 @@ Process 3 — Mobile App: Data Layer Refactor (Flutter)
 
 ## Active Tasks
 P3-T01 — Global API Error Interceptor (DONE)
-P3-T02 — Pagination Helper (IN-REVIEW)
+P3-T02 — Pagination Helper (DONE)
 P3-T03 — P3-T06 in BACKLOG
 
 ## Blocked Tasks
