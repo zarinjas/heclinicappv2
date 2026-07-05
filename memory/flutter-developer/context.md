@@ -3,8 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Tasks
-UI-P1-T06 — HealthRecordCard (IN-REVIEW): Created `lib/core/widgets/health_record_card.dart` with HealthRecordType enum (note/letter/lab/mc), leading 40px accent-tinted circle icon, title (heading3), subtitle doctor name (body2/textSecondary), trailing date (body2/textSecondary), onTap callback, HealthRecordCardSkeleton shimmer.
-UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation, AppColors.primary background, Accent/accent active, 50% white inactive, shadowNav, notification badge, SafeArea-aware height
+(None — UI-P1-T06 complete)
 
 ## Recent Work
 - UI-P0-T16 — AppNavBar (IN-REVIEW): Created `lib/core/widgets/app_nav_bar.dart` with 5-tab bottom navigation (Home/Appointments/Health/Notifications/Profile), AppColors.primary background, AppColors.accent active color, 50% white inactive, AppTextStyles.caption labels, AppShadows.shadowNav elevation, notification badge on Notifications tab when notificationCount > 0. Uses Container with BoxDecoration for custom shadow. Height: 64px + bottomSafeArea.
