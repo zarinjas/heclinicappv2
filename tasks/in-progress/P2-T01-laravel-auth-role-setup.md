@@ -17,7 +17,7 @@ Laravel Project Setup with Auth and Roles
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -157,19 +157,23 @@ Installed and configured Laravel authentication and role system for the Admin Pa
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: FAILED
 
 ### Criteria Results
-- [ ] Auth scaffolding functional — PASS / FAIL
-- [ ] Role column exists — PASS / FAIL
-- [ ] RoleMiddleware works — PASS / FAIL
-- [ ] UserSeeder creates admin — PASS / FAIL
-- [ ] Admin dashboard loads — PASS / FAIL
-- [ ] API routes unaffected — PASS / FAIL
-- [ ] migrate:fresh --seed works — PASS / FAIL
+- [x] Auth scaffolding functional — PASS: AuthController with login/logout, Blade login view, session-based auth via routes
+- [x] Role column exists — PASS: Migration adds enum('role', ['super_admin', 'branch_admin', 'staff'])
+- [x] RoleMiddleware works — PASS: Multi-role check, registered as alias, used in route groups
+- [x] UserSeeder creates admin — PASS: Reads ADMIN_EMAIL, ADMIN_PASSWORD from env(); creates Super Admin + Staff users
+- [x] Admin dashboard loads — PASS: Dashboard view extends admin layout with sidebar, placeholder nav links, flash messages
+- [x] API routes unaffected — PASS: routes/api.php unchanged; sanctum middleware intact
+- [ ] migrate:fresh --seed runs without errors — FAIL: Two issues prevent clean migration execution
 
 ### Failure Details
-{If FAILED}
+**Bug 1 — Migration rollback crash**: `down()` method calls `$table->dropForeign(['branch_id'])` but `foreignId('branch_id')` was used WITHOUT `.constrained()`, so no FK constraint exists. Running `php artisan migrate:rollback` would throw a RuntimeException.
+
+**Bug 2 — Runtime class error**: `User::branch()` returns `$this->belongsTo(Branch::class)`. The `Branch` model doesn't exist yet (to be created in P2-T02). Any code path that loads a User and accesses `->branch` will throw a "Class 'App\Models\Branch' not found" error. The `branch()` relationship should either be removed for now or guarded until Branch model exists.
+
+Both bugs require fixes before QA can pass.
 
 ---
 
