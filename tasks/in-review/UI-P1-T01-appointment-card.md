@@ -130,8 +130,19 @@ Built the `AppointmentCard` component per the design system spec. Includes docto
 
 ## QA Notes
 
-> Filled in by QA after verification.
-> Leave blank until QA picks up the task.
+### Result: PASSED
+
+### Criteria Results
+- [x] {Criterion 1} Doctor photo renders as 56px circle avatar on the left — PASS — `_DoctorAvatar` uses `ClipOval` with 56×56 `SizedBox`
+- [x] {Criterion 2} Doctor name in heading3 style, specialty in body2 with textSecondary — PASS — `AppTextStyles.heading3` and `AppTextStyles.body2` with `secondaryTextColor`
+- [x] {Criterion 3} Branch name row with location icon and branch name — PASS — `Icons.location_on_outlined` with branch name in body2
+- [x] {Criterion 4} Bottom row: formatted date/time left, status chip right with correct colors — PASS — Calendar icon + date/time text left; `AppChip` with `StatusChipVariant` right
+- [x] {Criterion 5} Upcoming variant: "X days to go" badge top-right corner, accent bg — PASS — `_DaysToGoBadge` positioned via `Positioned` top-right with `AppColors.accent` bg
+- [x] {Criterion 6} Tap callback fires correctly — PASS — Passed through `AppCard.onTap` which handles press animation + callback
+- [x] {Criterion 7} Skeleton loader renders shimmer placeholder matching card layout — PASS — `AppointmentCardSkeleton` with circle + text boxes matching layout
+- [x] {Criterion 8} Dark mode: card bg=#141C2E, text=#FFFFFF, divider=#1F2937 — PASS — Used `AppColors.surfaceDark`, `AppColors.textPrimaryDark`, `AppColors.dividerDark`
+- [x] {Criterion 9} No hardcoded colors, text styles, spacing, or radius values — PASS — All values from `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadius`, `AppShadows`
+- [x] {Criterion 10} `flutter analyze` returns zero errors — PASS — Build gate confirmed: 0 errors
 
 ---
 
