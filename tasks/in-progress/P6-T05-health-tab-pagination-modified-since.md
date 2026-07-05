@@ -10,8 +10,8 @@
 | Process Step | Step 5 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | TBD |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P6-T04 |
 | Blocked Reason | N/A |
