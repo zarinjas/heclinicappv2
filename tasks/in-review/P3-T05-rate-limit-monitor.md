@@ -32,6 +32,20 @@ Plato API includes `x-ratelimit-limit` and `x-ratelimit-remaining` headers in ev
 - [ ] All rate limit state is reset when the app restarts (in-memory only — no persistence needed).
 
 ## Implementation Notes
+- Created `lib/backend/api_requests/rate_limit_monitor.dart` — singleton pattern with `instance` getter.
+  - Tracks `_remainingCalls` and `_rateLimitLimit` parsed from response headers.
+  - `_isPaused: true` when remainingCalls ≤ 5 (PAUSE_THRESHOLD constant).
+  - `waitIfPaused(url)` — pauses bulk Plato calls; single-record endpoints (`/patient/`, `/search/`) bypass the pause gate.
+  - Auto-resume after 60-second pause window. Header-based recovery via `updateFromHeaders()` also unpauses when remainingCalls > 5.
+  - `reset()` clears all state on app restart (in-memory only).
+- Modified `lib/backend/api_requests/api_manager.dart`:
+  - Added import for `rate_limit_monitor.dart` and `/env_config.dart`.
+  - Before the retry loop in `makeApiCall()`: if URL starts with `EnvConfig.platomBaseUrl`, calls `RateLimitMonitor.instance.waitIfPaused(apiUrl)`. Non-Plato APIs (MedicalApps, WordPress) are never paused.
+  - After each response (including non-429 responses), if URL starts with `EnvConfig.platomBaseUrl`, calls `RateLimitMonitor.instance.updateFromHeaders(result.headers)` to track rate limit state.
+- `api_calls.dart` needed no changes — the pause gate is handled transparently at the `ApiManager` level. All existing call classes benefit automatically.
+  - Single-record Plato calls: `GetPatientbyidCall`, `CeknumberphoneCall`, `GetReportCall`, `EditPatiendCall`, `DeletePatientForAdminOnlyCall`, `GetAppointmentDetailsCall` — these match `/patient/` or `/search/` URL patterns and bypass the pause gate.
+  - Bulk Plato calls: `GetPatientCall`, `GetproviderCall`, `LetterCall`, `GetInvoiceCall`, `GetAppointmentCall`, `GetAppointmentUpcomingCall`, `GetAppointmentCodeCall`, `GetAppointmentCopyCall` — these are paused when near rate limit.
+  - Non-Plato calls: `MedicalAppsApiGroup` (medicalAppsBaseUrl) and WordPress (wordpressBaseUrl) — never paused.
 
 ## QA Notes
 
@@ -44,4 +58,4 @@ flutter-developer
 2026-07-05
 
 ## Status
-IN-PROGRESS
+IN-REVIEW

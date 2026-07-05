@@ -18,7 +18,7 @@ Last Updated: 2026-07-05
 | P3-T02 | pagination-helper | 3 | Step 2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T03 | modified-since-strategy | 3 | Step 3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P3-T04 | exponential-backoff-429 | 3 | Step 4 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| P3-T05 | rate-limit-monitor | 3 | Step 5 | Flutter | flutter-developer | IN-PROGRESS | — |
+| P3-T05 | rate-limit-monitor | 3 | Step 5 | Flutter | flutter-developer | IN-REVIEW | — |
 | P3-T06 | laravel-proxy-url-audit | 3 | Step 6 | Flutter | flutter-developer | BACKLOG | — |
 
 **Parallel tracks:**

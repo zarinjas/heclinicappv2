@@ -17,8 +17,10 @@ import 'package:http/browser_client.dart'
 
 import '/flutter_flow/uploaded_file.dart';
 
+import '/env_config.dart';
 import 'get_streamed_response.dart';
 import 'api_interceptor.dart';
+import 'rate_limit_monitor.dart';
 
 enum ApiCallType {
   GET,
@@ -544,6 +546,10 @@ class ApiManager {
     const kMaxRetries = 4;
     const kBaseDelayMs = 1000;
 
+    if (apiUrl.startsWith(EnvConfig.platomBaseUrl)) {
+      await RateLimitMonitor.instance.waitIfPaused(apiUrl);
+    }
+
     ApiCallResponse result;
     int retryCount = 0;
 
@@ -616,6 +622,10 @@ class ApiManager {
               'ApiManager: HTTP 429 — retry $retryCount/$kMaxRetries in ${delayMs}ms for $callName');
           await Future.delayed(Duration(milliseconds: delayMs));
           continue;
+        }
+
+        if (apiUrl.startsWith(EnvConfig.platomBaseUrl)) {
+          RateLimitMonitor.instance.updateFromHeaders(result.headers);
         }
 
         if (cache) {
