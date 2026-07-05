@@ -150,21 +150,21 @@ Created `AppNavBar` StatelessWidget in `lib/core/widgets/app_nav_bar.dart`. Impl
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PENDING
+### Result: PASSED
 
 ### Criteria Results
-- [ ] AppNavBar widget exists — PENDING
-- [ ] 5 tabs present — PENDING
-- [ ] Primary background — PENDING
-- [ ] Active tab accent color — PENDING
-- [ ] Inactive tabs 50% white — PENDING
-- [ ] Caption label style — PENDING
-- [ ] 64px + safe area height — PENDING
-- [ ] shadowNav applied — PENDING
-- [ ] Notification badge shows when count > 0 — PENDING
-- [ ] Badge hidden when count 0 — PENDING
-- [ ] onTap fires correctly — PENDING
-- [ ] flutter analyze passes — PENDING
+- [x] AppNavBar widget exists — PASS
+- [x] 5 tabs present — PASS
+- [x] Primary background — PASS
+- [x] Active tab accent color — PASS
+- [x] Inactive tabs 50% white — PASS
+- [x] Caption label style — PASS
+- [x] 64px + safe area height — PASS
+- [x] shadowNav applied — PASS
+- [x] Notification badge shows when count > 0 — PASS
+- [x] Badge hidden when count 0 — PASS
+- [x] onTap fires correctly — PASS
+- [x] flutter analyze passes — PASS
 
 ### Failure Details
 {}

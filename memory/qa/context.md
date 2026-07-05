@@ -1,13 +1,12 @@
 # QA — Context
 
-Last Updated: 2026-07-05 (UI-P0-T11 to UI-P0-T15 verified)
+Last Updated: 2026-07-05 (UI-P0-T16 verified)
 
-## Last Verified Tasks (Batch 3: UI Epic Phase 0)
-- UI-P0-T15 — AppAppBar (PASSED — 9/9 criteria)
-- UI-P0-T14 — AppErrorState (PASSED — 9/9 criteria)
-- UI-P0-T13 — AppEmptyState (PASSED — 9/9 criteria)
-- UI-P0-T12 — AppToast (PASSED — 12/12 criteria)
-- UI-P0-T11 — AppDialog (PASSED — 9/9 criteria)
+## Last Verified Tasks
+- UI-P0-T16 — AppNavBar (PASSED — 12/12 criteria)
+
+## Verification History
+- UI-P0-T16 (2026-07-05): PASSED — 12/12 criteria. BUILD GATE: zero Flutter compile errors. All 5 tabs present with correct icons (Home/Appointments/Health/Notifications/Profile). AppColors.primary background, AppColors.accent active, 50% white inactive. AppTextStyles.caption labels. AppShadows.shadowNav applied via Container BoxDecoration. Height 64px + bottomSafeArea. Notification badge on index 3 when count>0, hidden when 0. onTap wired via BottomNavigationBar.onTap. All design tokens used; no hardcoded colors/sizes.
 
 ## Verification History
 - UI-P0-T11 (2026-07-05): PASSED — 9/9 criteria. BUILD GATE: Flutter unavailable in headless CI; code manually reviewed. All 4 dialog variants implemented. Design tokens used consistently. Dark mode supported. AnimatedCheckmarkDialog with scale animation.
