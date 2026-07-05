@@ -54,3 +54,4 @@ export '/pages/queue/queue_tracker_screen.dart'
     show QueueTrackerScreenWidget;
 export '/pages/payment/payment_history_screen.dart'
     show PaymentHistoryScreenWidget;
+export '/features/home/home_screen.dart' show HomeScreen;

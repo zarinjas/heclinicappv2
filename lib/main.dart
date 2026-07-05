@@ -226,7 +226,7 @@ class _NavBarPageState extends State<NavBarPage> {
   @override
   Widget build(BuildContext context) {
     final tabs = {
-      'HomepageNew': HomepageNewWidget(),
+      'HomepageNew': HomeScreen(),
       'myBookingPage': AppointmentsScreenWidget(),
       'health': ReportsWidget(id: null),
       'notificationPage': NotificationPageWidget(),

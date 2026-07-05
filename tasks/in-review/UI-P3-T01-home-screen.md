@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A (Phase 0, Phase 1 DONE) |
 | Blocked Reason | N/A |
@@ -114,17 +114,22 @@ Rebuild the Home Screen shell (`lib/features/home/home_screen.dart`) from the ex
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created `lib/features/home/home_screen.dart` - a complete rebuild of the home screen shell using V2 design system. Replaced `HomepageNewWidget` with `HomeScreen` in `lib/main.dart` NavBarPage. The new home screen preserves all business logic from the existing implementation: profile loading, slider fetching, upcoming appointment, articles, and videos. All FlutterFlow styling replaced with `AppColors`, `AppTextStyles`, `AppSpacing`, `AppRadius`, `AppShadows` tokens. All section slots wired: greeting header, hero slider (using `HeroSlider` + `HeroSliderSkeleton`), quick actions (using `QuickActionGrid`), loyalty points (using `LoyaltyCard` compact variant), upcoming appointment (using `AppointmentCard`), doctors (using `DoctorListWidget`), articles (using `ArticleCard`), and videos (using `VideoCard`). Dark mode supported throughout via `Theme.of(context).brightness` checks. `AppAppBar.main` used for the app bar with notification badge. `RefreshIndicator` wraps the `SingleChildScrollView`. `AppEmptyState` and `AppErrorState` used for empty/error cases in each section._
 
 ### Files Changed
-
+- `lib/features/home/home_screen.dart` — Created (new V2 home screen shell with all 8 section slots)
+- `lib/main.dart` — Updated NavBarPage home tab from `HomepageNewWidget()` to `HomeScreen()`
+- `lib/index.dart` — Added export for `HomeScreen`
 
 ### Decisions Made During Implementation
-
+- Used `LoyaltyCard` compact variant with static data (1250 points, Gold tier) as placeholder since loyalty API endpoint is not yet defined. UI-P3-T05 will replace with dynamic data.
+- `AppAppBar.main` used for top bar; building separate top bar header would be redundant with this already-built component.
+- `DoctorListWidget` (existing shared component) used for doctors section instead of creating custom inline doctor listing — preserves existing data fetching logic.
+- Sections that show data depending on specific API response fields use safe indexing (`length > i`) to prevent index out of bounds.
 
 ### Known Limitations
-
-
+- Loyalty section shows static placeholder data (1250 pts Gold). Will be replaced by UI-P3-T05 when loyalty API is available.
+- The `_profileResponse` stored as `dynamic` type — Dart cannot statically verify API call response fields, but this matches the existing pattern used across the codebase.
 ---
 
 ## QA Notes
