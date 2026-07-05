@@ -40,4 +40,24 @@ class BookingFlowModel extends ChangeNotifier {
     _selectedBranchHours = hours;
     notifyListeners();
   }
+
+  String _selectedDoctorId = '';
+  String get selectedDoctorId => _selectedDoctorId;
+
+  String _selectedDoctorName = '';
+  String get selectedDoctorName => _selectedDoctorName;
+
+  bool _isNoPreference = false;
+  bool get isNoPreference => _isNoPreference;
+
+  void selectDoctor({
+    required String id,
+    required String name,
+    required bool isNoPreference,
+  }) {
+    _selectedDoctorId = id;
+    _selectedDoctorName = name;
+    _isNoPreference = isNoPreference;
+    notifyListeners();
+  }
 }

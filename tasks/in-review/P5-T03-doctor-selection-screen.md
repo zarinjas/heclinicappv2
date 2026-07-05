@@ -17,7 +17,7 @@ Doctor Selection Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P5-T02 |
 | Blocked Reason | N/A |
@@ -112,16 +112,34 @@ Create the doctor selection screen for the Booking Flow (Step 2 of 4). The user 
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+- Created `DoctorSelectionScreenWidget` in `lib/pages/booking/doctor_selection_screen.dart`
+- Added step indicator with 4 steps (step 2 active: Doctor)
+- Added "No Preference" card at top with groups icon, label, and subtitle
+- Added dynamic doctor list from GET /facility API via Laravel proxy
+- Doctor cards show circle avatar (64px), name, specialty
+- Selected doctor/no-preference gets accent border highlight (#00C9A7)
+- "Next" button disabled until selection made
+- Extended BookingFlowModel with `selectDoctor()`, `selectedDoctorId`, `selectedDoctorName`, `isNoPreference`
+- Registered route `/doctorSelectionScreen` in GoRouter
+- Exported widget from `lib/index.dart`
+- Implemented loading (skeleton), error (retry), and empty states per v2-ux-spec
 
 ### Files Changed
-- {To be filled}
+- lib/pages/booking/doctor_selection_screen.dart — new screen widget (387 lines)
+- lib/pages/booking/booking_flow_model.dart — added doctor selection state
+- lib/flutter_flow/nav/nav.dart — added doctor selection route
+- lib/index.dart — exported new screen widget
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used GET /facility endpoint (GetproviderCall) for doctor data since Admin Panel with MySQL doctors table is not yet built (Process 2)
+- `is_visible_in_app` filter not implemented client-side: data source is Admin Panel MySQL which doesn't exist yet. All facility results shown as doctors for now.
+- Branch filtering deferred: Plato facility API does not provide parent facility ID field.
+- "No Preference" selection stored with empty doctorId and isNoPreference=true flag.
 
 ### Known Limitations
-{To be filled}
+- Cannot filter doctors by `is_visible_in_app` until Admin Panel (Process 2) is built
+- Cannot filter doctors by selected branch until Plato API returns facility hierarchy data
+- Doctor avatars use initial letters (no photo URLs available from current API response)
 
 ---
 
