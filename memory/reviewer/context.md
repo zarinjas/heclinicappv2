@@ -2,8 +2,19 @@
 
 Last Updated: 2026-07-05
 
-## Last Review
-P3-T06 (laravel-proxy-url-audit) — APPROVED. QA PASSED (7/7). Full audit confirmed: zero hardcoded tokens/URLs in lib/, all Plato calls use EnvConfig.platomBaseUrl (Laravel proxy), proxy controller with wildcard route forwards all paths, CODEBASE.md updated. Final Process 3 task — all P3 tasks DONE. Aligned with v2-decisions.md Process 3.
+## Last Reviewed Task
+P4-T01 — Apply V2 Design System (APPROVED — 2026-07-05)
 
-## Previous
-P3-T05 (rate-limit-monitor) — APPROVED. QA PASSED (8/8). rate_limit_monitor.dart singleton at ApiManager level.
+## Review History
+- P4-T01 (2026-07-05): APPROVED — Full alignment with v2-decisions.md Process 4 Step 1 and v2-ux-spec.md Section 1
+- P3-T06 (2026-07-05): APPROVED
+- P3-T05 (2026-07-05): APPROVED
+- P3-T04 (2026-07-05): APPROVED
+- P3-T03 (2026-07-05): APPROVED
+- P3-T02 (2026-07-05): APPROVED
+- P3-T01 (2026-07-05): APPROVED
+
+## Key Standards
+- All Flutter tasks must use EnvConfig for URLs (no hardcoded API URLs)
+- Theme/token alignment verified against v2-ux-spec.md
+- Old code preserved where needed for backward compatibility until full migration complete
