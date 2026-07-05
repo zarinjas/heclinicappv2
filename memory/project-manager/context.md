@@ -17,7 +17,7 @@ P2-T06 — Calendar Setup UI (DONE)
 **Process 5 — Booking Flow (resumed after Process 2 completion):**
 P5-T03 — Doctor Selection Screen (DONE)
 P5-T04 — Date and Time Slot Selection (DONE)
-P5-T05 — Booking Confirmation Screen (BACKLOG)
+P5-T05 — Booking Confirmation Screen (IN-PROGRESS)
 P5-T06 — WhatsApp Redirect After Booking (BACKLOG)
 P5-T07 — Admin Appointment Creation and Confirmation (BACKLOG)
 P5-T08 — Appointment Confirmation Notification (BACKLOG)
