@@ -8,12 +8,12 @@ Epic: UI Migration — Phase 7 (Notifications Tab) — IN PROGRESS
 ## Active Tasks
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P7-T01 | Notifications Screen | BACKLOG |
+| UI-P7-T01 | Notifications Screen | IN-PROGRESS |
 
 ## Phase 7 — IN PROGRESS
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P7-T01 | Notifications Screen | BACKLOG |
+| UI-P7-T01 | Notifications Screen | IN-PROGRESS |
 
 ---
 
