@@ -157,17 +157,21 @@ Doctor data model (from Plato facility endpoint):
 
 ## QA Notes
 
-> Filled in by QA after verification.
-> Leave blank until QA picks up the task.
-
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
+- [x] DoctorListWidget fetches from GET /facility and renders horizontally — PASS — Uses GetproviderCall.call() with PaginationHelper.fetchAllPages(); _buildHorizontalList() produces scrollable DoctorCardWidget list
+- [x] DoctorDetailSheet opens on tapping doctor card — PASS — _showDoctorDetail() calls DoctorDetailSheet.show() via showModalBottomSheet with photo/initials, name, specialty, branch, bio, Book Appointment
+- [x] Bottom sheet dismissable via backdrop/drag — PASS — showModalBottomSheet defaults enable both
+- [x] 17 hardcoded modals no longer referenced — PASS — all_doctor_widget.dart reduced 3434→85 lines; no modal_* imports; no flutter_rating_bar or webviewx_plus
+- [x] Loading state skeleton cards — PASS — 4 skeleton cards in both layouts match doctor card shape (avatar circle + text bars)
+- [x] Empty state when no doctors — PASS — people_outline icon + "No doctors available" heading + subtitle
+- [x] Error state with Try Again — PASS — error icon + "Something went wrong" + error text + Try Again button calls _fetchDoctors()
+- [x] API pagination for >20 records — PASS — GetproviderCall uses PaginationHelper.fetchAllPages() which loops current_page until empty
 
 ### Failure Details
+
+N/A — All criteria PASS.
 
 
 ---
