@@ -7,6 +7,7 @@ use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Models\Branch;
 use App\Models\Doctor;
+use App\Traits\BranchScoped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,9 +15,12 @@ use Illuminate\View\View;
 
 class DoctorController extends Controller
 {
+    use BranchScoped;
+
     public function index(Request $request): View
     {
         $query = Doctor::query()->with('branch');
+        $query = $this->scopeToUserBranch($query);
 
         if ($request->filled('search')) {
             $search = $request->string('search')->trim();

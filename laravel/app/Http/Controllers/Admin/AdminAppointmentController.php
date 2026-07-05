@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Doctor;
 use App\Services\AppointmentService;
 use App\Services\PlatoProxyService;
+use App\Traits\BranchScoped;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class AdminAppointmentController extends Controller
 {
+    use BranchScoped;
+
     public function index(Request $request): View
     {
         $query = [
@@ -81,7 +84,9 @@ class AdminAppointmentController extends Controller
 
     public function show($id): View
     {
-        $appointment = Appointment::with(['branch', 'doctor'])->find($id);
+        $query = Appointment::with(['branch', 'doctor']);
+        $query = $this->scopeToUserBranch($query);
+        $appointment = $query->find($id);
 
         if (! $appointment) {
             $appointment = Appointment::with(['branch', 'doctor'])

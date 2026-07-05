@@ -9,6 +9,7 @@ use App\Models\Doctor;
 use App\Models\PlatoCalendar;
 use App\Models\Setting;
 use App\Services\PlatoSystemSetupService;
+use App\Traits\BranchScoped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class CalendarSetupController extends Controller
 {
+    use BranchScoped;
+
     private PlatoSystemSetupService $systemSetup;
 
     public function __construct(PlatoSystemSetupService $systemSetup)
@@ -26,6 +29,7 @@ class CalendarSetupController extends Controller
     public function index(Request $request): View
     {
         $query = PlatoCalendar::query()->with('doctor.branch');
+        $query = $this->scopeCalendarToUserBranch($query);
 
         if ($request->filled('search')) {
             $search = $request->string('search')->trim();

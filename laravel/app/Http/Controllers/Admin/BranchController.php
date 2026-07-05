@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use App\Models\Branch;
+use App\Traits\BranchScoped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,9 +14,12 @@ use Illuminate\View\View;
 
 class BranchController extends Controller
 {
+    use BranchScoped;
+
     public function index(Request $request): View
     {
         $query = Branch::query();
+        $query = $this->scopeToUserBranch($query);
 
         if ($request->filled('search')) {
             $search = $request->string('search')->trim();
