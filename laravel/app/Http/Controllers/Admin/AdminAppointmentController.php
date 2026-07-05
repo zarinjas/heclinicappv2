@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Models\Appointment;
 use App\Models\Branch;
 use App\Models\Doctor;
 use App\Services\AppointmentService;
@@ -76,6 +77,35 @@ class AdminAppointmentController extends Controller
         $doctors = Doctor::with('branch')->where('is_active', true)->orderBy('name')->get();
 
         return view('admin.appointments.create', compact('branches', 'doctors'));
+    }
+
+    public function show($id): View
+    {
+        $appointment = Appointment::with(['branch', 'doctor'])->find($id);
+
+        if (! $appointment) {
+            $appointment = Appointment::with(['branch', 'doctor'])
+                ->where('plato_appointment_id', $id)
+                ->first();
+        }
+
+        if (! $appointment) {
+            $plato = app(PlatoProxyService::class);
+            $response = $plato->proxy('GET', 'appointment', ['id' => $id]);
+
+            $data = $response['data'][0] ?? $response['data'] ?? null;
+
+            if (! $data) {
+                abort(404, 'Appointment not found.');
+            }
+
+            $appointment = (object) $data;
+            $appointment->from_plato = true;
+        } else {
+            $appointment->from_plato = false;
+        }
+
+        return view('admin.appointments.show', compact('appointment'));
     }
 
     public function store(StoreAppointmentRequest $request): RedirectResponse

@@ -3,7 +3,13 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P7-T06 — Appointment Detail View — Admin Panel (IN-PROGRESS)
+P7-T06 — Appointment Detail View — Admin Panel (IN-REVIEW)
+
+## Implementation Summary — P7-T06
+- `app/Http/Controllers/Admin/AdminAppointmentController.php`: added `show($id)` method — tries local DB by primary key, then by `plato_appointment_id`, then falls back to Plato proxy; casts Plato data to object with `from_plato` flag
+- `resources/views/admin/appointments/show.blade.php`: new detail view following branches/show pattern — grouped sections (Patient Info, Appointment Details, Assignment, Notes, Local Record), colored status badge, monospace Plato ID, patient profile link, back navigation
+- `routes/web.php`: added `'show'` to `Route::resource('appointments')->only([...])`
+- `resources/views/admin/appointments/index.blade.php`: replaced disabled "coming soon" button with working `route('admin.appointments.show')` link
 
 ## Implementation Summary — P7-T04
 - `app/Http/Controllers/Admin/AdminAppointmentController.php`: new controller with index() fetching appointments from Plato via proxy (`GET /appointment`), supports filters (date_from, date_to, doctor_id, facility_id, status), uses LengthAwarePaginator with 20/page

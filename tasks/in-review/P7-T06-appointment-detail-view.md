@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P7-T04 |
 | Blocked Reason | N/A |
@@ -152,14 +152,22 @@ From local `appointments` table (or Plato response):
 
 ### What Was Done
 
+Implemented the appointment detail view in the Laravel Admin Panel. Added `show()` method to `AdminAppointmentController` that first tries to find the appointment in the local `appointments` table (by primary key, then by `plato_appointment_id`), and falls back to fetching from Plato via the proxy service if no local record exists. Created a Blade view `admin/appointments/show.blade.php` following the `branches/show.blade.php` pattern with grouped sections for Patient Info, Appointment Details, Assignment, Notes, and Local Record timestamps. Updated routes to include the `show` resource action. Replaced the disabled "coming soon" button in the index view with a working link to the detail page.
 
 ### Files Changed
-
+- `laravel/app/Http/Controllers/Admin/AdminAppointmentController.php` — added `show($id)` method, imported `Appointment` model
+- `laravel/resources/views/admin/appointments/show.blade.php` — new detail view with grouped definition lists, colored status badge, patient profile link, back navigation
+- `laravel/routes/web.php` — added `'show'` to `Route::resource('appointments')->only([...])`
+- `laravel/resources/views/admin/appointments/index.blade.php` — replaced disabled "coming soon" button with clickable link to `admin.appointments.show` route
 
 ### Decisions Made During Implementation
-
+- `show()` tries local DB in two ways: first by auto-increment primary key (`find($id)`), then by `plato_appointment_id` (`where('plato_appointment_id', $id)`). This supports both local IDs and Plato UUIDs from the index page links.
+- Plato-fetched appointments are cast to `(object)` for consistent property access in the view. A `from_plato` flag is set to conditionally hide local record timestamps (created_at, updated_at, notified_at) which don't apply to Plato-only records.
+- The `plato_response` JSON field on the local model is checked for `patient_id` to build the "View Patient Profile" link when available.
 
 ### Known Limitations
+- Plato-only appointments (not created locally) do not show local record timestamps or notification status.
+- No edit/delete/cancel actions are provided on the detail page — this is read-only display per scope.
 
 
 ---

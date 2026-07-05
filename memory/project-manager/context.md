@@ -12,7 +12,7 @@ P7-T02 — Patient Profile View — Plato Data with Manual Re-Sync (DONE)
 P7-T03 — Patient Document Upload — PDF to Firebase Storage (DONE)
 P7-T04 — Appointment Calendar View — Admin Panel (DONE)
 P7-T05 — Create Walk-In Appointment — Admin Panel (DONE)
-P7-T06 — Appointment Detail View — Admin Panel (IN-PROGRESS)
+P7-T06 — Appointment Detail View — Admin Panel (IN-REVIEW)
 
 **Process 6 — Health Tab (completed):**
 P6-T01 through P6-T05 — ALL DONE
