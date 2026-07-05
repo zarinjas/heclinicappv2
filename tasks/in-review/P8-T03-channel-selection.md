@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T01 |
 | Blocked Reason | N/A |
@@ -109,12 +109,22 @@ Existing `channels` column in `notifications_log`:
 > Filled in by the Developer after implementation.
 
 ### What Was Done
+Added channel selection to notification composer. Admin can now select Push, Email, and/or In-App channels (all checked by default). User selection is validated (at least one required) and persisted to the `channels` JSON column. NotificationService updated to gate send methods (sendPush/sendEmail/sendInApp) based on provided channels array, with full backward compatibility (null defaults to all 3 channels).
 
 ### Files Changed
+- `laravel/resources/views/admin/notifications/compose.blade.php` — Added Delivery Channels section with 3 checkboxes (Push/Email/In-App), all checked by default
+- `laravel/app/Http/Controllers/Admin/NotificationController.php` — Added channels validation (required, array, min:1, values in:push/email/in_app), custom error message, stores validated channels
+- `laravel/app/Services/NotificationService.php` — Added optional `$channels` parameter to `sendAppointmentConfirmation()`, defaults to all 3 for backward compat, gates each send method
 
 ### Decisions Made During Implementation
+- Used Blade checkboxes instead of Vue (project uses Blade/Tailwind, not Vue)
+- Default channels: all 3 checked to preserve existing "send all" behavior
+- Backward compat: `$channels = null` parameter defaults to `['push', 'email', 'in_app']`, existing callers unchanged
+- Channel values match exactly: `'push'`, `'email'`, `'in_app'`
 
 ### Known Limitations
+- Actual push/in-app/email sending not verified (out of scope for this task)
+- Channel-specific failure handling deferred to P8-T08
 
 ---
 

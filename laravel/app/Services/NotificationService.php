@@ -16,8 +16,10 @@ final class NotificationService
         $this->firebase = $firebase;
     }
 
-    public function sendAppointmentConfirmation(Appointment $appointment): void
+    public function sendAppointmentConfirmation(Appointment $appointment, ?array $channels = null): void
     {
+        $selectedChannels = $channels ?? ['push', 'email', 'in_app'];
+
         $title = 'Appointment Confirmed';
         $body = sprintf(
             'Your appointment with %s at %s on %s %s is confirmed.',
@@ -27,9 +29,17 @@ final class NotificationService
             $appointment->appointment_time,
         );
 
-        $this->sendPush($title, $body, $appointment);
-        $this->sendInApp($title, $body, $appointment);
-        $this->sendEmail($title, $body, $appointment);
+        if (in_array('push', $selectedChannels, true)) {
+            $this->sendPush($title, $body, $appointment);
+        }
+
+        if (in_array('in_app', $selectedChannels, true)) {
+            $this->sendInApp($title, $body, $appointment);
+        }
+
+        if (in_array('email', $selectedChannels, true)) {
+            $this->sendEmail($title, $body, $appointment);
+        }
 
         $appointment->update(['notified_at' => now()]);
 
@@ -39,7 +49,7 @@ final class NotificationService
             'body' => $body,
             'target_type' => 'appointment',
             'target_ids' => [(string) $appointment->id],
-            'channels' => ['push', 'email', 'in_app'],
+            'channels' => $selectedChannels,
             'status' => 'sent',
             'sent_at' => now(),
         ]);

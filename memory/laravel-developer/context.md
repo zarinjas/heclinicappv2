@@ -3,6 +3,14 @@
 Last Updated: 2026-07-05
 
 ## Active Task
+P8-T03 — Channel Selection — Notifications (IN-REVIEW)
+
+## Implementation Summary — P8-T03
+- `laravel/app/Http/Controllers/Admin/NotificationController.php`: added channels validation (required array, min:1, in:push/email/in_app), custom error message "Please select at least one delivery channel.", stores validated channels array instead of hardcoded all-3
+- `laravel/app/Services/NotificationService.php`: added optional `$channels` parameter (defaults to all 3 for backward compat), gates `sendPush`/`sendEmail`/`sendInApp` with `in_array()` checks, logs selected channels into NotificationLog
+- `laravel/resources/views/admin/notifications/compose.blade.php`: added "Delivery Channels" section with 3 checkboxes (Push/Email/In-App), all checked by default via `old('channels', ['push', 'email', 'in_app'])`, validation error display
+
+## Last Completed Task
 P8-T02 — Targeting System — Notifications (DONE)
 
 ## Implementation Summary — P8-T02

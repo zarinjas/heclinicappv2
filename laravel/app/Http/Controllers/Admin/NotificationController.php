@@ -40,6 +40,11 @@ class NotificationController extends Controller
             'target_date_from' => 'nullable|date',
             'target_date_to' => 'nullable|date|after_or_equal:target_date_from',
             'target_patient' => 'nullable|string|max:255',
+            'channels' => 'required|array|min:1',
+            'channels.*' => 'in:push,email,in_app',
+        ], [
+            'channels.required' => 'Please select at least one delivery channel.',
+            'channels.min' => 'Please select at least one delivery channel.',
         ]);
 
         $targetIds = null;
@@ -60,7 +65,7 @@ class NotificationController extends Controller
             'target_ids' => $targetIds,
             'target_date_from' => $validated['target_date_from'] ?? null,
             'target_date_to' => $validated['target_date_to'] ?? null,
-            'channels' => ['push', 'email', 'in_app'],
+            'channels' => $validated['channels'],
             'status' => 'draft',
         ]);
 

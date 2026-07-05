@@ -2,7 +2,7 @@
 
 @section('title', 'Compose Notification')
 
-@section('subtitle', 'Create a new push notification')
+@section('subtitle', 'Create a new notification')
 
 @section('content')
     <form method="POST" action="{{ route('admin.notifications.send') }}" class="max-w-2xl">
@@ -62,6 +62,47 @@
                     >
                     <p class="mt-1 text-xs text-gray-400">Optional. Provide a valid HTTPS URL for the notification image.</p>
                     @error('image_url')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="border-t border-gray-100 pt-6">
+                    <h3 class="text-sm font-semibold text-[#0F1B3D] mb-4">Delivery Channels</h3>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="channels[]"
+                                value="push"
+                                class="rounded border-gray-300 text-[#00C9A7] focus:ring-[#00C9A7]"
+                                {{ in_array('push', old('channels', ['push', 'email', 'in_app'])) ? 'checked' : '' }}
+                            >
+                            <span class="text-sm text-gray-700">Push Notification</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="channels[]"
+                                value="email"
+                                class="rounded border-gray-300 text-[#00C9A7] focus:ring-[#00C9A7]"
+                                {{ in_array('email', old('channels', ['push', 'email', 'in_app'])) ? 'checked' : '' }}
+                            >
+                            <span class="text-sm text-gray-700">Email</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="channels[]"
+                                value="in_app"
+                                class="rounded border-gray-300 text-[#00C9A7] focus:ring-[#00C9A7]"
+                                {{ in_array('in_app', old('channels', ['push', 'email', 'in_app'])) ? 'checked' : '' }}
+                            >
+                            <span class="text-sm text-gray-700">In-App Notification</span>
+                        </label>
+                    </div>
+
+                    @error('channels')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>
