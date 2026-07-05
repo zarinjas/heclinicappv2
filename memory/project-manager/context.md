@@ -20,7 +20,7 @@ P5-T04 — Date and Time Slot Selection (DONE)
 P5-T05 — Booking Confirmation Screen (DONE)
 P5-T06 — WhatsApp Redirect After Booking (DONE)
 P5-T07 — Admin Appointment Creation and Confirmation (DONE)
-P5-T08 — Appointment Confirmation Notification (BACKLOG)
+P5-T08 — Appointment Confirmation Notification (IN-PROGRESS)
 P5-T09 — Appointments Tab Display (BACKLOG)
 
 ## Blocked Tasks
