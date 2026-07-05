@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -203,14 +203,11 @@ N/A — all criteria passed.
 
 ## Reviewer Notes
 
-> Filled in by Reviewer after QA passes.
-> Leave blank until Reviewer picks up the task.
-
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO — {note if deviation found}
-- v2-ux-spec.md alignment: YES / NO — {note if deviation found}
+- v2-decisions.md alignment: YES — Process 7 Step 1 requires server-side pagination (20/page), search by name/NRIC/phone via Plato proxy. All implemented in PatientController@index.
+- v2-ux-spec.md alignment: YES — Admin Panel table pattern followed: striped rows, per-row View action, pagination links, search form with Clear button, empty state with SVG illustration. Sidebar link placed between Doctors and Calendar Setup matching the navigation architecture.
 
 ### Rejection Reason
 N/A
