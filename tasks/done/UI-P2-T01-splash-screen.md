@@ -117,14 +117,14 @@ Created `lib/features/auth/splash_screen.dart` with flutter_animate fade-in + sc
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Splash screen displays He Clinic logo centered on primary background — PASS / FAIL
-- [ ] Logo fades in smoothly (flutter_animate, not FlutterFlow animation lib) — PASS / FAIL
-- [ ] Splash auto-navigates after animation completes — PASS / FAIL
-- [ ] No hardcoded hex colors — uses `AppColors.primary` — PASS / FAIL
-- [ ] Dark mode does not break logo visibility or animation — PASS / FAIL
+- [x] Splash screen displays He Clinic logo centered on primary background — PASS — Scaffold bg AppColors.primary, Center widget
+- [x] Logo fades in smoothly (flutter_animate, not FlutterFlow animation lib) — PASS — flutter_animate .fadeIn() + .scale()
+- [x] Splash auto-navigates after animation completes — PASS — context.go('/mainPage') after 2.5s
+- [x] No hardcoded hex colors — uses `AppColors.primary` — PASS — all colors from AppColors
+- [x] Dark mode does not break logo visibility or animation — PASS — primary bg is dark blue regardless of theme
 
 ### Failure Details
 
@@ -135,10 +135,10 @@ Created `lib/features/auth/splash_screen.dart` with flutter_animate fade-in + sc
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- ui-design-system.md alignment: YES / NO
-- v2-ux-spec.md alignment: YES / NO
+- ui-design-system.md alignment: YES — AppColors.primary, AppTextStyles used, no hardcoded values
+- v2-ux-spec.md alignment: YES — Splash with logo fade-in, no skip button
 
 ### Rejection Reason
