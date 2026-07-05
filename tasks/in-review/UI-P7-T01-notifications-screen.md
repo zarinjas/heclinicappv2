@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | N/A (single task in phase) |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -116,15 +116,24 @@ Build the Notifications Tab — the 4th bottom nav tab. Displays a list of `Noti
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created `lib/features/notifications/notifications_screen.dart` — Notifications screen (4th bottom nav tab). Implements a real-time Firestore-backed notification list using `StreamBuilder<List<HistorynotifRecord>>` streaming from `historynotif` collection filtered by patient ID. Features: unread indication (Accent background tint + blue dot via `NotificationItem`), "Mark all read" banner + batch update (queries unread docs, updates each to `readBool: true`, resets `FFAppState.coutnnotif`), swipe-to-dismiss marking as read, tap-to-navigate with deep link routing (`appointments` → MyBookingPage, `health/*` → Reports, `profile` → HomepageNew), skeleton loading state (`AppSkeleton.listItem()`), empty state with bell illustration, error state with retry, `RefreshIndicator` pull-to-refresh, dark mode support. All design tokens used — no hardcoded hex colors, FlutterFlow themes, or inline styles.
 
 ### Files Changed
-
+- `lib/features/notifications/notifications_screen.dart` — Created new screen (232 lines)
 
 ### Decisions Made During Implementation
-
+- Used `StreamBuilder` (real-time Firestore) instead of one-shot Future — matches existing `notification_page_widget.dart` pattern and gives instant read-state updates
+- "Mark all read" uses `queryHistorynotifRecordOnce()` to fetch all unread docs by `id_patient + read == 'no'`, then batch-updates each document's `read` field to `true` — preserves backward compat with both old `'yes'/'no'` and new `bool` read formats via `createHistorynotifRecordData(readBool: true)`
+- Mark-all-read banner appears only when unread notifications exist — auto-hides when all read
+- Swipe-dismiss marks as read (via `_handleDismiss`) — notification stays in list but changes to "read" styling (transparent bg, no blue dot, muted icon color) via `NotificationItem` component
+- Deep link routing follows existing `notification_page_widget.dart` mapping — `MyBookingPage` for appointments, `Reports` for health, `HomepageNew` for profile
+- Relative imports used to match V2 screen conventions (same pattern as `appointments_screen.dart`)
+- `flutter analyze` not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
+- Deep link `profile` navigates to old `HomepageNew` route (will be updated when Phase 8 Profile Tab migration completes)
+- Swipe-to-dismiss marks notification as read but item remains visible in "read" state until next stream rebuild removes accent styling
+- `flutter analyze` could not be executed on this CI runner (Flutter SDK not installed) — manual verification recommended
 
 
 
