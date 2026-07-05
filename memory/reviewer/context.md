@@ -3,7 +3,11 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
+P8-T05 — Email Provider Configuration (APPROVED, moved to DONE)
 P8-T04 — FCM Push Notification — Cloud Function Upgrade (APPROVED, moved to DONE)
+
+## Review History
+- P8-T05 (2026-07-05): APPROVED — v2-decisions Process 8 Step 5 "Email: Laravel Mail — resolve email provider before this step" handled by making system provider-agnostic via .env + config/mail.php. Two Notification classes (AppointmentNotification, GeneralNotification) with toMail() using subject/greeting/body/salutation. sendEmail() accepts nullable $recipientEmail param, skips gracefully with warning on missing email. Plato patient email resolution via NRIC/name lookup with try/catch. sendAppointmentConfirmation() creates NotificationLog record. All 7 QA criteria PASS.
 P8-T03 — Channel Selection — Notifications (APPROVED — 2026-07-05)
 
 ## Review History

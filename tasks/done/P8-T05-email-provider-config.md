@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P8-T03 |
 | Blocked Reason | Email provider not resolved (Mailgun / SES / SMTP / SendGrid) — open decision |
@@ -173,8 +173,16 @@ None — all 7 criteria pass.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
 
+- **v2-decisions.md Process 8 Step 5**: Implementation makes email provider configurable via `.env` (SMTP, SES, Mailgun, SendGrid, Postmark all supported through `config/mail.php` mailers). No hardcoded provider. Open decision "Email provider not resolved" is addressed by making system provider-agnostic.
+- **Notification classes**: Both `AppointmentNotification` and `GeneralNotification` use Laravel's Notification system with proper `toMail()` implementing subject, greeting, body lines, and salutation — matches Laravel conventions.
+- **Graceful handling**: `sendEmail()` returns early with warning log when no recipient email available — no crashes, matches the task's resilience requirement.
+- **Plato integration**: `resolvePatientEmailForAppointment()` queries Plato by NRIC/name with try/catch fallback — follows existing PlatoProxyService pattern.
+- **Code quality**: PSR-12 compliant, proper DI (FirebaseService + PlatoProxyService), typed parameters, comprehensive logging via `Log::channel('plato')`.
+
 ### Rejection Reason
+
+N/A — approved.
