@@ -120,7 +120,6 @@ class ParameterData {
 final parametersBuilderMap =
     <String, Future<ParameterData> Function(Map<String, dynamic>)>{
   'Profile': ParameterData.none(),
-  'testPage': ParameterData.none(),
   'ArticleDetailPage': (data) async => ParameterData(
         allParams: {
           'title': getParameter<String>(data, 'title'),

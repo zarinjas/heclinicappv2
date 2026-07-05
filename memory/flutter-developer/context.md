@@ -1,12 +1,12 @@
 # Flutter Developer — Context
 
-Last Updated: 2026-07-04
+Last Updated: 2026-07-05
 
 ## Active Task
 None.
 
 ## Last Completed Task
-P1-T04 (fix-hardcoded-appointment-id) — DONE. Added `appointmentId` dynamic parameter to `GetAppointmentDetailsCall.call()`, replaced hardcoded ID in URL, added mock server route `GET /platom/appointment/:id`. No local call sites found (managed by FlutterFlow). QA PASSED (7/7), Reviewer APPROVED.
+P1-T05 (remove-test-page) — IN-REVIEW. Deleted `lib/front_page/test_page/` directory, removed export from `lib/index.dart`, removed GoRouter route from `lib/flutter_flow/nav/nav.dart`, removed push notification handler entry from `lib/backend/push_notifications/push_notifications_handler.dart`. Verified zero references across `lib/`. (Flutter SDK not available for compile check.)
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy (after P1-T01 + P1-T02 complete)

@@ -100,11 +100,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => ProfileWidget(),
         ),
         FFRoute(
-          name: TestPageWidget.routeName,
-          path: TestPageWidget.routePath,
-          builder: (context, params) => TestPageWidget(),
-        ),
-        FFRoute(
           name: ArticleDetailPageWidget.routeName,
           path: ArticleDetailPageWidget.routePath,
           builder: (context, params) => ArticleDetailPageWidget(

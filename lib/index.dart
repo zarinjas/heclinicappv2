@@ -1,6 +1,5 @@
 // Export pages
 export '/front_page/profile/profile_widget.dart' show ProfileWidget;
-export '/front_page/test_page/test_page_widget.dart' show TestPageWidget;
 export '/article_page/article_detail_page/article_detail_page_widget.dart'
     show ArticleDetailPageWidget;
 export '/auth_page/login_page/login_page_widget.dart' show LoginPageWidget;
