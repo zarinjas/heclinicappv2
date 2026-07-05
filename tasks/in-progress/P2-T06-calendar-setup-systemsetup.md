@@ -16,8 +16,8 @@ Calendar Setup UI — Map Doctors to Plato Calendar Color IDs
 | Process Step | Step 6 |
 | Type | Laravel |
 | Assigned To | laravel-developer |
-| Assigned Date | |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-05 |
+| Status | IN-PROGRESS |
 | Parallel | NO |
 | Depends On | P2-T04 |
 | Blocked Reason | N/A |
