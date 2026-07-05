@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-06 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -97,7 +97,19 @@ Redesign the Appointment Detail screen to use the V2 design system. Display full
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation. Leave blank until implementation is complete.
+- Created `lib/features/booking/appointment_detail_screen.dart` with V2 design system
+- Header: doctor initial avatar (circle), name, specialty, status chip (AppChip)
+- Detail card (AppCard): labeled rows for Branch, Date, Time, Appointment Type, Notes
+- Cancel Appointment: AppButton.destructive → AppDialog.confirm with destructive variant
+- Cancel button hidden for cancelled/completed appointments
+- Status chip updates to "cancelled" after successful cancellation, success dialog shown
+- Skeleton loader: shimmer-animated placeholder matching content layout (flutter_animate)
+- Error state: AppErrorState with "Try Again" button
+- Dark mode: all colors/text adapt via Theme.of(context).brightness
+- Data fetching: GetAppointmentDetailsCall + fallback to constructor params
+- Cancel API: POST to Laravel proxy /appointment/{id}/cancel
+- All colors from AppColors, typography from AppTextStyles, spacing from AppSpacing
+- No hardcoded hex values, font sizes, or padding
 
 ---
 
