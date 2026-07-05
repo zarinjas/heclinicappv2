@@ -7,7 +7,7 @@ Process 2 — Laravel Admin Panel Scaffold (started to unblock P5-T03)
 
 ## Active Tasks
 **Process 2 — Laravel Admin Panel Scaffold:**
-P2-T01 — Laravel Project Setup with Auth and Roles (IN-REVIEW — fixed)
+P2-T01 — Laravel Project Setup with Auth and Roles (DONE)
 P2-T02 — MySQL Schema (BACKLOG)
 P2-T03 — Branch Management CRUD (BACKLOG)
 P2-T04 — Doctor Management CRUD (BACKLOG)
