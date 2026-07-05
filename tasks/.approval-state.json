@@ -1,11 +1,11 @@
 {
-  "pending": false,
-  "task_id": "P6-T01",
-  "task_title": "Health Tab Scaffold",
+  "pending": true,
+  "task_id": "P6-T02",
+  "task_title": "Records Tab — Notes, Letters, MC, Filter Chips",
   "completed_by": "flutter-developer",
   "qa_result": "PASSED",
   "reviewer_decision": "APPROVED",
-  "created_at": "2026-07-05T22:00:00Z",
-  "approved_at": "2026-07-05T23:00:00Z",
-  "approved": true
+  "created_at": "2026-07-06T00:00:00Z",
+  "approved_at": null,
+  "approved": null
 }
