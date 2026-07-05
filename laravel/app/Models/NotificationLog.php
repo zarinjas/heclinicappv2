@@ -15,6 +15,8 @@ class NotificationLog extends Model
         'image_url',
         'target_type',
         'target_ids',
+        'target_date_from',
+        'target_date_to',
         'channels',
         'status',
         'sent_at',
@@ -25,6 +27,8 @@ class NotificationLog extends Model
         return [
             'target_ids' => 'array',
             'channels' => 'array',
+            'target_date_from' => 'date',
+            'target_date_to' => 'date',
             'sent_at' => 'datetime',
         ];
     }

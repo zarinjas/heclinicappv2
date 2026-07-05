@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
+use App\Models\Doctor;
 use App\Models\NotificationLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,7 +14,18 @@ class NotificationController extends Controller
 {
     public function compose(): View
     {
-        return view('admin.notifications.compose');
+        $user = auth()->user();
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
+
+        $doctorsQuery = Doctor::where('is_active', true)->orderBy('name');
+
+        if ($user->branch_id) {
+            $doctorsQuery->where('branch_id', $user->branch_id);
+        }
+
+        $doctors = $doctorsQuery->get();
+
+        return view('admin.notifications.compose', compact('branches', 'doctors'));
     }
 
     public function send(Request $request): RedirectResponse
@@ -21,15 +34,32 @@ class NotificationController extends Controller
             'title' => 'required|string|max:255',
             'body' => 'required|string|max:2000',
             'image_url' => 'nullable|url|max:500',
+            'target_type' => 'required|string|in:all,branch,doctor,appointment_date_range,specific_patient',
+            'target_ids' => 'nullable|array',
+            'target_ids.*' => 'integer',
+            'target_date_from' => 'nullable|date',
+            'target_date_to' => 'nullable|date|after_or_equal:target_date_from',
+            'target_patient' => 'nullable|string|max:255',
         ]);
+
+        $targetIds = null;
+        if ($validated['target_type'] === 'specific_patient' && !empty($validated['target_patient'])) {
+            $targetIds = [$validated['target_patient']];
+        } elseif ($validated['target_type'] === 'all') {
+            $targetIds = null;
+        } else {
+            $targetIds = $validated['target_ids'] ?? null;
+        }
 
         NotificationLog::create([
             'type' => 'manual',
             'title' => $validated['title'],
             'body' => $validated['body'],
             'image_url' => $validated['image_url'] ?? null,
-            'target_type' => 'all',
-            'target_ids' => null,
+            'target_type' => $validated['target_type'],
+            'target_ids' => $targetIds,
+            'target_date_from' => $validated['target_date_from'] ?? null,
+            'target_date_to' => $validated['target_date_to'] ?? null,
             'channels' => ['push', 'email', 'in_app'],
             'status' => 'draft',
         ]);

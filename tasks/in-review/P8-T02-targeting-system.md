@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T01 |
 | Blocked Reason | N/A |
@@ -118,12 +118,29 @@ Per `docs/v2-decisions.md` Step 2 of Process 8.
 > Filled in by the Developer after implementation.
 
 ### What Was Done
+- Created migration `2026_07_05_000013_add_targeting_fields_to_notifications_log.php` adding `target_date_from` and `target_date_to` columns to `notifications_log` table
+- Updated `NotificationLog` model: added `target_date_from`, `target_date_to` to `$fillable` and `$casts` (date)
+- Updated `NotificationController@compose()` to pass `$branches` (active only) and `$doctors` (filtered by branch if user has `branch_id`) to the Blade view
+- Updated `NotificationController@send()` to accept and validate `target_type` (required, one of 5 values), `target_ids` (array of integers), `target_date_from`, `target_date_to`, `target_patient` (string). For `specific_patient` type, patient text is stored as a single-element `target_ids` array.
+- Updated `compose.blade.php`: added "Target Audience" section with dropdown selector and 4 conditional panels (branch checkboxes, doctor checkboxes, date range inputs, patient text input) toggled via JavaScript
 
 ### Files Changed
+- `laravel/database/migrations/2026_07_05_000013_add_targeting_fields_to_notifications_log.php` (NEW)
+- `laravel/app/Models/NotificationLog.php` — added 2 fillable fields + date casts
+- `laravel/app/Http/Controllers/Admin/NotificationController.php` — updated compose() and send()
+- `laravel/resources/views/admin/notifications/compose.blade.php` — added targeting section with JS toggle
 
 ### Decisions Made During Implementation
+- Used plain Blade (not Vue/Inertia) since the existing codebase uses Blade templates exclusively
+- Patient targeting uses a plain text input as placeholder (full Plato search deferred to P8-T07)
+- Branch Admin doctor filtering uses `auth()->user()->branch_id` — same pattern as other controllers
+- Date range validation uses Laravel's `after_or_equal` rule on `target_date_to`
+- For "All Users" targeting, `target_ids` is set to null (no filter needed)
 
 ### Known Limitations
+- Patient targeting stores the text input in `target_ids` JSON array as-is; no Plato validation yet
+- No autocomplete for patient search (deferred to P8-T07)
+- Branch admin filtering relies on existing `branch_id` on User model
 
 ---
 

@@ -3,7 +3,16 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P8-T01 — Notification Composer — Admin Panel (IN-REVIEW)
+P8-T02 — Targeting System — Notifications (IN-REVIEW)
+
+## Implementation Summary — P8-T02
+- `database/migrations/2026_07_05_000013_add_targeting_fields_to_notifications_log.php`: adds `target_date_from` and `target_date_to` columns to `notifications_log` table
+- `app/Models/NotificationLog.php`: added `target_date_from`, `target_date_to` to `$fillable` and `$casts` (date)
+- `app/Http/Controllers/Admin/NotificationController.php`: `compose()` passes active branches and doctors (filtered by branch_id for branch admins) to view; `send()` validates `target_type` (in:all,branch,doctor,appointment_date_range,specific_patient), `target_ids[]` array, `target_date_from/to` dates, `target_patient` text. For specific_patient, text stored in target_ids JSON. For all, target_ids=null.
+- `resources/views/admin/notifications/compose.blade.php`: added "Target Audience" section with dropdown selector (5 options) + 4 conditional panels (branch checkboxes, doctor checkboxes, date range inputs, patient text input) toggled via JavaScript. Uses existing Tailwind form patterns.
+
+## Last Completed Task
+P8-T01 — Notification Composer — Admin Panel (DONE)
 
 ## Implementation Summary — P8-T01
 - `database/migrations/2026_07_05_000012_add_image_to_notifications_log.php`: adds `image_url` column to `notifications_log` table
