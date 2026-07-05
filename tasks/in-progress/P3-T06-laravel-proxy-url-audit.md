@@ -6,6 +6,12 @@ P3-T06
 ## Title
 Audit and Finalize Laravel Proxy URL Configuration — Remove All Hardcoded Plato URLs
 
+## Assigned To
+flutter-developer
+
+## Assigned Date
+2026-07-05
+
 ## Description
 Process 1 Step 2 already rerouted Platome API calls to use `EnvConfig.platomBaseUrl` (pointing to the Laravel proxy at `https://heclinic.cyberoket.cloud/api/v2/plato`). However, the original hardcoded Plato token `1463d1150e7b199effa2793c2d809034` and any residual hardcoded URLs must be verified as completely removed. This task conducts a full audit of the Flutter codebase to ensure: (1) zero hardcoded Plato URLs or tokens remain; (2) all Plato calls go through `EnvConfig.platomBaseUrl` via the Laravel proxy; (3) the proxy endpoint mapping is correct for all Plato API paths; (4) documentation is updated to reflect the final configuration.
 
@@ -34,4 +40,4 @@ Process 1 Step 2 already rerouted Platome API calls to use `EnvConfig.platomBase
 ## Reviewer Notes
 
 ## Status
-BACKLOG
+IN-PROGRESS
