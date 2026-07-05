@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P4-T01 |
 | Blocked Reason | N/A |
@@ -150,14 +150,48 @@ Animation: shimmer left-to-right, 1.5s loop, using `flutter_animate`.
 
 ### What Was Done
 
+Created 4 reusable state components and applied them across all major screens in the app per v2-ux-spec.md Section 2 and 6 design specifications.
+
+**New Components (lib/components/):**
+- `skeleton_loaders.dart` — SkeletonListTile (avatar circle + 2 text lines), SkeletonCard (full card rectangle), SkeletonSlider (180px height), SkeletonGrid (2-column grid), SkeletonTextBlock (varied-width bars). All use flutter_animate shimmer animation (left-to-right, 1.5s loop). Dark/light mode aware.
+- `empty_state_widget.dart` — Configurable EmptyStateWidget with icon, title, subtitle, and optional CTA button.
+- `error_state_widget.dart` — ErrorStateWidget with error icon, "Something went wrong" message, and "Try Again" button with retry callback.
+- `inline_spinner.dart` — InlineSpinner for button loading states.
+
+**Screens Updated:**
+- Homepage — Replaced in-page skeleton helpers with SkeletonSlider, SkeletonListTile, SkeletonTextBlock, SkeletonGrid. Section errors now use ErrorStateWidget. Empty states use EmptyStateWidget.
+- Appointments (my_booking_page) — Replaced loading GIF with SkeletonListTile, added ErrorStateWidget and EmptyStateWidget ("No upcoming appointments" with "Book Now" CTA).
+- Notifications (notification_page) — Replaced loading GIF with SkeletonListTile, added ErrorStateWidget and EmptyStateWidget ("You are all caught up").
+- Health/Reports (reports_widget) — Replaced 3 loading GIFs with SkeletonListTile, added ErrorStateWidget to each FutureBuilder, added EmptyStateWidget to each tab (Visits, Labs, Documents).
+- Articles (all_article_page_new) — Replaced loading GIF with SkeletonCard, added ErrorStateWidget and EmptyStateWidget ("No articles yet").
 
 ### Files Changed
 
+- `lib/components/skeleton_loaders.dart` (new)
+- `lib/components/empty_state_widget.dart` (new)
+- `lib/components/error_state_widget.dart` (new)
+- `lib/components/inline_spinner.dart` (new)
+- `lib/front_page/homepage_new/homepage_new_widget.dart` (modified)
+- `lib/booking_page/my_booking_page/my_booking_page_widget.dart` (modified)
+- `lib/front_page/notification_page/notification_page_widget.dart` (modified)
+- `lib/front_page/reports/reports_widget.dart` (modified)
+- `lib/article_page/all_article_page_new/all_article_page_new_widget.dart` (modified)
 
 ### Decisions Made During Implementation
 
+- Used AppColors/AppTheme (v2 design system) for component theming — consistent with Process 4 design tokens.
+- Used Flutter icons instead of SVG assets for empty/error states to avoid asset dependencies.
+- Skeleton shimmer uses dark/light aware colors: #E5E7EB→#F3F4F6 (light) / #1F2937→#374151 (dark) per spec.
+- Error states accept a `VoidCallback onRetry` to allow each screen to provide its own retry logic.
+- Did not modify Profile screen — its only data fetch (_fetchAvatarUrl) already has proper error fallback (shows initials).
+- Did not modify screens outside scope (splash, select_date, visits, booking flow).
 
 ### Known Limitations
+
+- Toast/snackbar infrastructure and offline banner remain out of scope (per task spec).
+- Form validation UI not addressed (not in scope).
+- Screens using Firestore StreamBuilder (notifications, articles) will show skeleton briefly on first connect, which is expected behavior.
+- flutter_animate 4.5.0 shimmer effect is applied via Animate widget; some platforms may have slight performance impact with many simultaneous shimmers.
 
 
 ---

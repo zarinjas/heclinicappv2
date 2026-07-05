@@ -4,6 +4,9 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
 import '/flutter_flow/custom_functions.dart' as functions;
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -169,10 +172,17 @@ class _MyBookingPageWidgetState extends State<MyBookingPageWidget>
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
                                 if (!snapshot.hasData) {
-                                  return Center(
-                                    child: Image.asset(
-                                      'assets/images/output-onlinegiftools.gif',
-                                    ),
+                                  return ListView.builder(
+                                    padding: const EdgeInsets.all(10.0),
+                                    itemCount: 3,
+                                    itemBuilder: (_, __) =>
+                                        const SkeletonListTile(),
+                                  );
+                                }
+
+                                if (snapshot.hasError) {
+                                  return ErrorStateWidget(
+                                    onRetry: () => setState(() {}),
                                   );
                                 }
                                 final listViewGetAppointmentUpcomingResponse =
@@ -186,6 +196,18 @@ class _MyBookingPageWidgetState extends State<MyBookingPageWidget>
                                                   .jsonBody,
                                             )?.toList() ??
                                             [];
+
+                                    if (appointmentList.isEmpty) {
+                                      return EmptyStateWidget(
+                                        icon: Icons.event_busy,
+                                        title: 'No upcoming appointments',
+                                        subtitle:
+                                            'Book your first visit today',
+                                        actionLabel: 'Book Now',
+                                        onAction: () => context
+                                            .pushNamed('/bookingPage'),
+                                      );
+                                    }
 
                                     return ListView.builder(
                                       padding: EdgeInsets.zero,

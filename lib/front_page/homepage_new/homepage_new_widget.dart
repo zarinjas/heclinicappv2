@@ -18,6 +18,9 @@ import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 import '/theme/app_theme.dart';
 import '/components/doctor_list_widget.dart';
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import 'homepage_new_model.dart';
 export 'homepage_new_model.dart';
 
@@ -581,43 +584,22 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
 
   Widget _buildUpcomingAppointment() {
     if (!_upcomingLoaded) {
-      return _buildSectionSkeleton(
-        'Upcoming Appointment',
-        child: Container(
-          height: 100.0,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.divider),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48.0, height: 48.0,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFE5E7EB),
-                ),
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Upcoming Appointment',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(width: 120.0, height: 12.0,
-                      decoration: BoxDecoration(color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(6.0))),
-                    const SizedBox(height: 8.0),
-                    Container(width: 80.0, height: 10.0,
-                      decoration: BoxDecoration(color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(5.0))),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8.0),
+            const SkeletonListTile(),
+          ],
         ),
       );
     }
@@ -764,53 +746,22 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
     final theme = FlutterFlowTheme.of(context);
 
     if (!_articlesLoaded) {
-      return _buildSectionSkeleton(
-        'Health Tips',
-        child: SizedBox(
-          height: 220.0,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            itemCount: 2,
-            separatorBuilder: (_, __) => const SizedBox(width: 12.0),
-            itemBuilder: (_, __) => Container(
-              width: 200.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(color: AppColors.divider),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 110.0,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(AppRadius.lg),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(width: 140.0, height: 12.0,
-                          decoration: BoxDecoration(color: const Color(0xFFE5E7EB),
-                              borderRadius: BorderRadius.circular(6.0))),
-                        const SizedBox(height: 8.0),
-                        Container(width: 100.0, height: 10.0,
-                          decoration: BoxDecoration(color: const Color(0xFFE5E7EB),
-                              borderRadius: BorderRadius.circular(5.0))),
-                      ],
-                    ),
-                  ),
-                ],
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Health Tips',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
             ),
-          ),
+            const SizedBox(height: 8.0),
+            const SkeletonTextBlock(lineCount: 3),
+          ],
         ),
       );
     }
@@ -960,28 +911,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
             stream: queryVideosRecord(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12.0,
-                    mainAxisSpacing: 12.0,
-                    childAspectRatio: 1.2,
-                  ),
-                  itemCount: 4,
-                  itemBuilder: (_, __) => Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.play_circle_outline,
-                          size: 32.0, color: AppColors.textSecondary),
-                    ),
-                  ),
-                );
+                return const SkeletonGrid(itemCount: 4);
               }
 
               final videos = snapshot.data!;
@@ -1087,18 +1017,9 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   }
 
   Widget _buildHeroSkeleton() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-      child: Container(
-        height: 180.0,
-        decoration: BoxDecoration(
-          color: const Color(0xFFE5E7EB),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-        ),
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
-      ),
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+      child: SkeletonSlider(),
     );
   }
 
@@ -1127,110 +1048,19 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
 
   Widget _buildSectionError(String sectionName, VoidCallback onRetry,
       {double? height}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        height: height ?? 120.0,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.divider),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, size: 32.0, color: AppColors.error),
-              const SizedBox(height: 8.0),
-              Text(
-                'Failed to load',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13.0,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              TextButton(
-                onPressed: onRetry,
-                child: const Text('Try Again'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    return ErrorStateWidget(onRetry: onRetry);
   }
 
   Widget _buildEmptyStateCard(String title, String message, String subMessage,
       {IconData icon = Icons.inbox_outlined,
       VoidCallback? onAction,
       String? actionLabel}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.divider),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 48.0, color: AppColors.textSecondary.withOpacity(0.5)),
-                const SizedBox(height: 8.0),
-                Text(
-                  message,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  subMessage,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.0,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                if (onAction != null && actionLabel != null) ...[
-                  const SizedBox(height: 12.0),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: onAction,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.accent,
-                        side: const BorderSide(color: AppColors.accent),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.xl),
-                        ),
-                      ),
-                      child: Text(actionLabel),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+    return EmptyStateWidget(
+      icon: icon,
+      title: message,
+      subtitle: subMessage,
+      actionLabel: actionLabel,
+      onAction: onAction,
     );
   }
 

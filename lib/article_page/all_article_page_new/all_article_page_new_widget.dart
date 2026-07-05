@@ -4,6 +4,9 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
 import '/index.dart';
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -81,14 +84,32 @@ class _AllArticlePageNewWidgetState extends State<AllArticlePageNewWidget> {
               builder: (context, snapshot) {
                 // Customize what your widget looks like when it's loading.
                 if (!snapshot.hasData) {
-                  return Center(
-                    child: Image.asset(
-                      'assets/images/output-onlinegiftools.gif',
+                  return ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: 5,
+                    itemBuilder: (_, __) => const Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(0.0, 10.0, 0.0, 10.0),
+                      child: SkeletonCard(height: 300.0),
                     ),
                   );
                 }
+
+                if (snapshot.hasError) {
+                  return ErrorStateWidget(
+                    onRetry: () => setState(() {}),
+                  );
+                }
+
                 List<ArticlesRecord> listViewArticlesRecordList =
                     snapshot.data!;
+
+                if (listViewArticlesRecordList.isEmpty) {
+                  return const EmptyStateWidget(
+                    icon: Icons.article_outlined,
+                    title: 'No articles yet',
+                    subtitle: 'Check back soon for health tips and updates',
+                  );
+                }
 
                 return ListView.builder(
                   padding: EdgeInsets.zero,

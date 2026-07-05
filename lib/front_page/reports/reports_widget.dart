@@ -7,6 +7,9 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/components/skeleton_loaders.dart';
+import '/components/empty_state_widget.dart';
+import '/components/error_state_widget.dart';
 import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -167,10 +170,15 @@ class _ReportsWidgetState extends State<ReportsWidget>
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
                                 if (!snapshot.hasData) {
-                                  return Center(
-                                    child: Image.asset(
-                                      'assets/images/output-onlinegiftools.gif',
-                                    ),
+                                  return ListView.builder(
+                                    padding: const EdgeInsets.all(10.0),
+                                    itemCount: 4,
+                                    itemBuilder: (_, __) => const SkeletonListTile(),
+                                  );
+                                }
+                                if (snapshot.hasError) {
+                                  return ErrorStateWidget(
+                                    onRetry: () => setState(() {}),
                                   );
                                 }
                                 final listViewLetterCopyResponse =
@@ -182,6 +190,15 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                           listViewLetterCopyResponse.jsonBody,
                                         )?.toList() ??
                                         [];
+
+                                    if (visitlist.isEmpty) {
+                                      return const EmptyStateWidget(
+                                        icon: Icons.receipt_long_outlined,
+                                        title: 'No visits yet',
+                                        subtitle:
+                                            'Your visit history will appear here',
+                                      );
+                                    }
 
                                     return RefreshIndicator(
                                       onRefresh: () async {
@@ -451,13 +468,18 @@ class _ReportsWidgetState extends State<ReportsWidget>
                             builder: (context, snapshot) {
                               // Customize what your widget looks like when it's loading.
                               if (!snapshot.hasData) {
-                                return Center(
-                                  child: Image.asset(
-                                    'assets/images/output-onlinegiftools.gif',
-                                  ),
+                                return ListView.builder(
+                                  padding: const EdgeInsets.all(10.0),
+                                  itemCount: 4,
+                                  itemBuilder: (_, __) => const SkeletonListTile(),
                                 );
-                              }
-                              final columnGetReportResponse = snapshot.data!;
+                                }
+                                if (snapshot.hasError) {
+                                  return ErrorStateWidget(
+                                    onRetry: () => setState(() {}),
+                                  );
+                                }
+                                final columnGetReportResponse = snapshot.data!;
 
                               return Builder(
                                 builder: (context) {
@@ -465,6 +487,15 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                         columnGetReportResponse.jsonBody,
                                       )?.toList() ??
                                       [];
+
+                                  if (note.isEmpty) {
+                                    return const EmptyStateWidget(
+                                      icon: Icons.note_alt_outlined,
+                                      title: 'No records found',
+                                      subtitle:
+                                          'Your clinical notes will appear here',
+                                    );
+                                  }
 
                                   return RefreshIndicator(
                                     onRefresh: () async {
@@ -760,13 +791,18 @@ class _ReportsWidgetState extends State<ReportsWidget>
                             builder: (context, snapshot) {
                               // Customize what your widget looks like when it's loading.
                               if (!snapshot.hasData) {
-                                return Center(
-                                  child: Image.asset(
-                                    'assets/images/output-onlinegiftools.gif',
-                                  ),
+                                return ListView.builder(
+                                  padding: const EdgeInsets.all(10.0),
+                                  itemCount: 4,
+                                  itemBuilder: (_, __) => const SkeletonListTile(),
                                 );
-                              }
-                              final listViewGetReportResponse = snapshot.data!;
+                                }
+                                if (snapshot.hasError) {
+                                  return ErrorStateWidget(
+                                    onRetry: () => setState(() {}),
+                                  );
+                                }
+                                final listViewGetReportResponse = snapshot.data!;
 
                               return Builder(
                                 builder: (context) {
@@ -774,6 +810,15 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                         listViewGetReportResponse.jsonBody,
                                       )?.toList() ??
                                       [];
+
+                                  if (note.isEmpty) {
+                                    return const EmptyStateWidget(
+                                      icon: Icons.description_outlined,
+                                      title: 'No documents yet',
+                                      subtitle:
+                                          'Your health records will appear here',
+                                    );
+                                  }
 
                                   return RefreshIndicator(
                                     onRefresh: () async {
