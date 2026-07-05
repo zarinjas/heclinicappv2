@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P8-T03 |
 | Blocked Reason | Email provider not resolved (Mailgun / SES / SMTP / SendGrid) — open decision |
@@ -112,11 +112,38 @@ N/A — no new API routes. Email sending is internal Laravel logic.
 
 ### What Was Done
 
+- Added MAIL_* environment variables to `.env.example` (MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS, MAIL_FROM_NAME)
+- Created `App\Notifications\AppointmentNotification.php` — Laravel Notification class with `toMail()` (subject, greeting, body with appointment details) and `toArray()`
+- Created `App\Notifications\GeneralNotification.php` — Laravel Notification class for manual/composed notifications with `toMail()` (subject, greeting, body, optional image) and `toArray()`
+- Refactored `NotificationService::sendEmail()` to accept `$recipientEmail` parameter (nullable string) and use Laravel Notification system instead of raw `Mail::raw()`
+- Added `sendManualEmailNotification()` public method for Admin Panel composer integration — accepts title, body, recipient email, optional image URL
+- Added `resolvePatientEmailForAppointment()` private method that queries Plato `GET /patient` by NRIC/name to find patient email; returns null gracefully if not found
+- Updated `sendAppointmentConfirmation()` to resolve patient email via Plato lookup and pass it to `sendEmail()`
+- Added comprehensive logging: email sent (info), email skipped due to no recipient (warning), email failed (warning), Plato lookup failed (warning)
+- Injected `PlatoProxyService` into `NotificationService` constructor for patient email resolution
+- Graceful handling: if patient has no email on file, `sendEmail()` logs a warning and skips (no crash)
+
 ### Files Changed
+
+- `laravel/.env.example` — ADDED: MAIL_* variables (8 lines)
+- `laravel/app/Notifications/AppointmentNotification.php` — NEW: 68 lines
+- `laravel/app/Notifications/GeneralNotification.php` — NEW: 51 lines
+- `laravel/app/Services/NotificationService.php` — UPDATE: expanded from 138 to 268 lines
 
 ### Decisions Made During Implementation
 
+- **Notification classes over raw Mail::raw()** — Used Laravel's Notification system (AppointmentNotification, GeneralNotification) instead of inline Mail::raw() for proper HTML templating and queue support
+- **Plato patient email resolution** — Attempts lookup via `GET /patient` using patient NRIC and name; gracefully skips email if no valid email found in Plato patient record or if Plato is unreachable
+- **recipientEmail parameter is nullable** — `sendEmail()` accepts null and logs a warning instead of crashing; this ensures backward compatibility when email is unavailable
+- **Separate `sendManualEmailNotification()` for compose flow** — Admin Panel's notification composer uses a different notification class (GeneralNotification) than automated appointment confirmations (AppointmentNotification)
+- **Defaults to SMTP in .env.example** — SMTP is most universally available; other providers (SES, Mailgun, SendGrid) supported via config/mail.php mailers
+- **MAIL_MAILER=log for development** — Setting to `log` writes email content to laravel.log instead of actually sending, as required
+
 ### Known Limitations
+
+- Patient email resolution depends on Plato `GET /patient` returning records with email field; some Plato patient records may not have email stored
+- No local patient email cache table — each email send triggers a Plato API call; recommended to cache patient emails locally in a future iteration
+- Admin Panel manual notification email dispatch not yet connected — `sendManualEmailNotification()` method exists but NotificationController::send() still only saves draft; integration will be in P8-T08
 
 ---
 

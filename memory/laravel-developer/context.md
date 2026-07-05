@@ -3,7 +3,13 @@
 Last Updated: 2026-07-05 (P8-T04 implemented)
 
 ## Active Task
-P8-T04 — FCM Push Notification — Cloud Function Upgrade (IN-REVIEW)
+P8-T05 — Email Provider Configuration (IN-REVIEW)
+
+## Implementation Summary — P8-T05
+- `laravel/.env.example`: added MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS, MAIL_FROM_NAME variables with SMTP defaults
+- `laravel/app/Notifications/AppointmentNotification.php`: NEW — Laravel Notification class with toMail() (subject, greeting, appointment detail lines, salutation) and toArray()
+- `laravel/app/Notifications/GeneralNotification.php`: NEW — Laravel Notification class for manual compose notifications with toMail() (subject, greeting, body, optional inline image) and toArray()
+- `laravel/app/Services/NotificationService.php`: MAJOR REFACTOR — injected PlatoProxyService for email resolution; sendEmail() now accepts $recipientEmail (nullable) and uses Laravel Notification::route() instead of Mail::raw(); added sendManualEmailNotification() for Admin Panel compose flow; added resolvePatientEmailForAppointment() that queries Plato GET /patient by NRIC/name; graceful skip when no email found (warning logged, no crash); comprehensive try/catch with plato channel logging for all email paths
 
 ## Implementation Summary — P8-T04
 - `laravel/app/Services/FirebaseService.php`: `writePushNotification()` updated to accept `user_refs` as array (with string backward compat), `branch_ids` array, `doctor_ids` array, `target_date_range` map. Normalizes all inputs before write.

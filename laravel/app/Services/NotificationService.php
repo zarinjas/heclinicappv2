@@ -4,16 +4,22 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\NotificationLog;
+use App\Notifications\AppointmentNotification;
+use App\Notifications\GeneralNotification;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 final class NotificationService
 {
     private FirebaseService $firebase;
+    private PlatoProxyService $platoProxy;
 
-    public function __construct(FirebaseService $firebase)
+    public function __construct(FirebaseService $firebase, PlatoProxyService $platoProxy)
     {
         $this->firebase = $firebase;
+        $this->platoProxy = $platoProxy;
     }
 
     public function sendAppointmentConfirmation(Appointment $appointment, ?array $channels = null): void
@@ -45,7 +51,8 @@ final class NotificationService
         }
 
         if (in_array('email', $selectedChannels, true)) {
-            $this->sendEmail($title, $body, $appointment);
+            $recipientEmail = $this->resolvePatientEmailForAppointment($appointment);
+            $this->sendEmail($title, $body, $recipientEmail, $appointment);
         }
 
         $appointment->update(['notified_at' => now()]);
@@ -91,6 +98,37 @@ final class NotificationService
         return $this->sendPush($title, $body, $pushData);
     }
 
+    public function sendManualEmailNotification(string $title, string $body, string $recipientEmail, ?string $imageUrl = null): bool
+    {
+        if (empty(trim($recipientEmail))) {
+            Log::channel('plato')->warning('Manual email notification skipped — no recipient email provided', [
+                'title' => $title,
+            ]);
+
+            return false;
+        }
+
+        try {
+            Notification::route('mail', $recipientEmail)
+                ->notify(new GeneralNotification($title, $body, $imageUrl));
+
+            Log::channel('plato')->info('Manual email notification sent', [
+                'recipient' => $recipientEmail,
+                'title' => $title,
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::channel('plato')->warning('Manual email notification failed', [
+                'recipient' => $recipientEmail,
+                'title' => $title,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
     private function sendPush(string $title, string $body, array $options): array
     {
         $payload = array_merge([
@@ -121,18 +159,96 @@ final class NotificationService
         ]);
     }
 
-    private function sendEmail(string $title, string $body, Appointment $appointment): void
+    private function sendEmail(string $title, string $body, ?string $recipientEmail, ?Appointment $appointment = null): void
     {
+        if ($recipientEmail === null || trim($recipientEmail) === '') {
+            Log::channel('plato')->warning('Email notification skipped — no recipient email available', [
+                'appointment_id' => $appointment?->id,
+                'title' => $title,
+            ]);
+
+            return;
+        }
+
         try {
-            Mail::raw($body, function ($message) use ($title) {
-                $message->to(config('mail.from.address'))
-                    ->subject($title);
-            });
+            $appointmentData = [];
+            if ($appointment !== null) {
+                $appointmentData = [
+                    'doctor_name' => $appointment->doctor_name,
+                    'branch_name' => $appointment->branch_name,
+                    'appointment_date' => $appointment->appointment_date?->format('d M Y'),
+                    'appointment_time' => $appointment->appointment_time,
+                ];
+            }
+
+            Notification::route('mail', $recipientEmail)
+                ->notify(new AppointmentNotification($title, $body, $appointmentData));
+
+            Log::channel('plato')->info('Email notification sent', [
+                'recipient' => $recipientEmail,
+                'appointment_id' => $appointment?->id,
+                'title' => $title,
+            ]);
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Email notification failed', [
-                'appointment_id' => $appointment->id,
+                'appointment_id' => $appointment?->id,
+                'recipient' => $recipientEmail,
                 'error' => $e->getMessage(),
             ]);
+        }
+    }
+
+    private function resolvePatientEmailForAppointment(Appointment $appointment): ?string
+    {
+        if (empty($appointment->patient_nric) && empty($appointment->patient_name)) {
+            Log::channel('plato')->warning('Cannot resolve patient email — no NRIC or name on appointment', [
+                'appointment_id' => $appointment->id,
+            ]);
+
+            return null;
+        }
+
+        try {
+            $query = ['current_page' => 1];
+            if (!empty($appointment->patient_nric)) {
+                $query['ic'] = $appointment->patient_nric;
+            }
+            if (!empty($appointment->patient_name)) {
+                $query['name'] = $appointment->patient_name;
+            }
+
+            $result = $this->platoProxy->proxy('GET', 'patient', $query);
+
+            if (!empty($result['data']) && is_array($result['data'])) {
+                $patients = $result['data'];
+            } elseif (!empty($result['patients']) && is_array($result['patients'])) {
+                $patients = $result['patients'];
+            } elseif (is_array($result) && !empty($result[0])) {
+                $patients = $result;
+            } else {
+                $patients = [];
+            }
+
+            foreach ($patients as $patient) {
+                if (!empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
+                    return $patient['email'];
+                }
+            }
+
+            Log::channel('plato')->warning('No email found for patient in Plato', [
+                'appointment_id' => $appointment->id,
+                'patient_nric' => $appointment->patient_nric,
+            ]);
+
+            return null;
+        } catch (\Exception $e) {
+            Log::channel('plato')->warning('Failed to resolve patient email from Plato', [
+                'appointment_id' => $appointment->id,
+                'patient_nric' => $appointment->patient_nric,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
         }
     }
 }
