@@ -7,7 +7,7 @@ Process 8 — Notifications Module (Laravel + Firebase)
 
 ## Active Tasks
 **Process 8 — Notifications Module (NEW):**
-P8-T01 — Notification Composer — Admin Panel (IN-REVIEW)
+P8-T01 — Notification Composer — Admin Panel (DONE)
 P8-T02 — Targeting System (BACKLOG)
 P8-T03 — Channel Selection (BACKLOG)
 P8-T04 — FCM Push Notification — Cloud Function Upgrade (BACKLOG)

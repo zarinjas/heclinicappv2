@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P7-T06 — Appointment Detail View — Admin Panel (APPROVED — 2026-07-05)
+P8-T01 — Notification Composer — Admin Panel (APPROVED — 2026-07-05)
 
 ## Review History
+- P8-T01 (2026-07-05): APPROVED — v2-decisions Process 8 Step 1 "Notification composer" fully met. NotificationController with compose() and send() following existing admin controller patterns. Blade form with title (char counter), body textarea (char counter), image_url (optional). Validation: title required max 255, body required max 2000, image_url nullable url. Saves draft to notifications_log with status=draft, type=manual, target=all, channels=['push','email','in_app']. Routes in auth+role middleware. Migration adds image_url to notifications_log. Sidebar nav link with bell icon. Refined for targeting (P8-T02) and channel selection (P8-T03). All 8 QA criteria PASS.
 - P7-T06 (2026-07-05): APPROVED — v2-decisions Process 7 Step 6 "Appointment detail view" fully met. AdminAppointmentController@show retrieves appointment with local DB priority (primary key → plato_appointment_id → Plato proxy fallback). show.blade.php follows admin panel patterns from branches/show with grouped definition lists (Patient Info, Appointment Details, Assignment, Notes, Local Record). Status badges match index page color scheme. monospace Plato ID display. Back link, patient profile link when available. Routes web.php updated from ['index','create','store'] to include 'show'. Index view action button enabled with route link. Read-only display per scope — no edit/delete. All 9 QA criteria PASS.
 
 ## Review History
