@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0 (all), UI-P1 (all) |
 | Blocked Reason | N/A |
@@ -108,15 +108,20 @@ Migrate the existing forgot password step 1 from `auth_page/forgot*/` to a new V
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-
+Created new `lib/features/auth/forgot_email_screen.dart` — V2 design-compliant forgot password step 1 screen. Uses AppAppBar.sub with "Forgot Password" title and back navigation to login. Email/Phone AppInput with validation. AppButton.primary "Send OTP" calls existing ForgotchangeCall API with telephone param. On success navigates to /forgotOtp. On failure shows AppErrorState with retry. Dark mode fully supported.
 
 ### Files Changed
-- 
+- `lib/features/auth/forgot_email_screen.dart` — NEW file (189 lines)
 
 ### Decisions Made During Implementation
-
+- Used existing `MedicalAppsApiGroup.forgotchangeCall` API (POST /changePasswordforgot with telephone param) to preserve existing API logic
+- Input accepts both email and phone (keyboardType: emailAddress) and passes value as-is to the API
+- On success navigates to /forgotOtp (step 2 OTP screen) instead of showing old-style dialog
+- AppAppBar.sub provides consistent back button + title pattern matching auth screens
 
 ### Known Limitations
+- API only accepts telephone parameter; email input may not work with backend
+- Route /forgotOtp needs to exist for navigation to succeed after API call
 
 
 ---
