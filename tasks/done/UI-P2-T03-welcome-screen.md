@@ -127,19 +127,17 @@ Created `lib/features/auth/welcome_screen.dart` with He Clinic logo, tagline, an
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Logo centered — PASS / FAIL
-- [ ] Tagline visible — PASS / FAIL
-- [ ] Login button navigates correctly — PASS / FAIL
-- [ ] Register button navigates correctly — PASS / FAIL
-- [ ] No hardcoded hex — PASS / FAIL
-- [ ] No hardcoded fontSize — PASS / FAIL
-- [ ] Dark mode — PASS / FAIL
-- [ ] No FlutterFlow imports — PASS / FAIL
-
-### Failure Details
+- [x] Welcome screen displays He Clinic logo centered — PASS
+- [x] Tagline/subtitle text visible using AppTextStyles — PASS
+- [x] Login button (AppButton primary) navigates to login screen — PASS
+- [x] Register button (AppButton) navigates to register step 1 — PASS
+- [x] No hardcoded hex colors — PASS
+- [x] No hardcoded fontSize — PASS
+- [x] Dark mode renders correctly — PASS
+- [x] No FlutterFlow widget imports — PASS
 
 
 ---
@@ -148,10 +146,8 @@ Created `lib/features/auth/welcome_screen.dart` with He Clinic logo, tagline, an
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- ui-design-system.md alignment: YES / NO
-- v2-ux-spec.md alignment: YES / NO
-
-### Rejection Reason
+- ui-design-system.md alignment: YES — AppColors, AppTextStyles, AppButton, AppSpacing all used
+- v2-ux-spec.md alignment: YES — Welcome screen with logo, tagline, auth buttons

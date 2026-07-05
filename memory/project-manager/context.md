@@ -6,12 +6,12 @@ Last Updated: 2026-07-05 (UI Epic Phase 2 — Auth Screens, 10 tasks created in 
 Epic: UI Migration — Phase 2: Auth Screens (10 tasks in BACKLOG)
 
 ## Active Tasks
-**Epic UI Migration — Phase 2 (5 of 10 in progress):**
-UI-P2-T01 — Splash Screen (IN-PROGRESS)
-UI-P2-T02 — Onboarding Screen (IN-PROGRESS)
-UI-P2-T03 — Welcome Screen (IN-PROGRESS)
-UI-P2-T04 — Login Screen (IN-PROGRESS)
-UI-P2-T05 — Register Step 1 (IN-PROGRESS)
+**Epic UI Migration — Phase 2 (5 of 10 complete, 5 remaining):**
+UI-P2-T01 — Splash Screen (DONE)
+UI-P2-T02 — Onboarding Screen (DONE)
+UI-P2-T03 — Welcome Screen (DONE)
+UI-P2-T04 — Login Screen (DONE)
+UI-P2-T05 — Register Step 1 (DONE)
 UI-P2-T06 — Register Step 2 (BACKLOG)
 UI-P2-T07 — Forgot Email (BACKLOG)
 UI-P2-T08 — Forgot OTP (BACKLOG)

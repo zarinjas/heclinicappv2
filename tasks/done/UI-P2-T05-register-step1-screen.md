@@ -138,20 +138,18 @@ Created `lib/features/auth/register_step1_screen.dart` with personal info form (
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] StepIndicator step 1 active — PASS / FAIL
-- [ ] All form fields use AppInput — PASS / FAIL
-- [ ] Gender selection functional — PASS / FAIL
-- [ ] Next button validates and navigates — PASS / FAIL
-- [ ] Form validation works — PASS / FAIL
-- [ ] Login link navigates — PASS / FAIL
-- [ ] No hardcoded styling — PASS / FAIL
-- [ ] Dark mode — PASS / FAIL
-- [ ] No FlutterFlow imports — PASS / FAIL
-
-### Failure Details
+- [x] StepIndicator shows step 1 of 2 active — PASS
+- [x] Name, Email, Phone, DOB fields use AppInput — PASS
+- [x] Gender selection functional — PASS — ChoiceChip Male/Female
+- [x] Next button validates and navigates — PASS
+- [x] Form validation works — PASS
+- [x] Login link navigates — PASS
+- [x] No hardcoded styling — PASS
+- [x] Dark mode renders correctly — PASS
+- [x] No FlutterFlow widget imports — PASS
 
 
 ---
@@ -160,10 +158,8 @@ Created `lib/features/auth/register_step1_screen.dart` with personal info form (
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- ui-design-system.md alignment: YES / NO
-- v2-ux-spec.md alignment: YES / NO
-
-### Rejection Reason
+- ui-design-system.md alignment: YES — AppColors, AppTextStyles, AppButton, AppInput, StepIndicator, AppSpacing all used
+- v2-ux-spec.md alignment: YES — Register step 1 with StepIndicator, personal info form
