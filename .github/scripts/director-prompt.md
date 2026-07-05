@@ -91,8 +91,8 @@ IF UI task: also check ui-design-system.md compliance (hard rejection on non-com
 APPROVED → DONE. REJECTED → in-progress/ with reason. Update memory. Commit.
 
 ### Node 5 — LAST TASK GATE
-Collect batch summary. Merge develop: git checkout develop && git merge main --no-edit && git push origin develop && git checkout main.
-IF TRIGGER_ACTION=auto: skip Telegram. curl -X POST dispatch next workflow with action=auto using $GH_PAT. Print summary. Exit.
+Collect batch summary. Try merge develop: git fetch origin 2>/dev/null; git checkout develop 2>/dev/null && git merge main --no-edit && git push origin develop 2>/dev/null; git checkout main.
+IF TRIGGER_ACTION=auto: curl -s -X POST "https://api.github.com/repos/zarinjas/heclinicappv2/actions/workflows/agent-director.yml/dispatches" -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_PAT" -d '{"ref":"main","inputs":{"action":"auto"}}'. Print summary. Exit.
 IF TRIGGER_ACTION!=auto: write approval-state.json (pending=true, batch summary). curl Telegram bot. Exit.
 
 Not last task → DONE silently, continue next task in batch.
