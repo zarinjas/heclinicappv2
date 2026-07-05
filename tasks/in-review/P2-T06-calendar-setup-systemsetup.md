@@ -163,21 +163,21 @@ Build the Calendar Setup module in the Admin Panel. Fetch Plato calendar data fr
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] Index page loads — PASS / FAIL
-- [ ] Sync from Plato works — PASS / FAIL
-- [ ] Calendar entries stored — PASS / FAIL
-- [ ] Doctor-calendar mapping — PASS / FAIL
-- [ ] Unmapping works — PASS / FAIL
-- [ ] Sidebar navigation — PASS / FAIL
-- [ ] Duplicate prevention — PASS / FAIL
-- [ ] Last sync timestamp — PASS / FAIL
-- [ ] Success/error messages — PASS / FAIL
+- [x] Index page loads — PASS (table shows doctor name, calendar name, color ID in code tag, active/inactive badge; includes search, doctor filter, status filter, sort, pagination, empty state with Sync CTA)
+- [x] Sync from Plato works — PASS (POST /admin/calendars/sync calls PlatoSystemSetupService which proxies GET /systemsetup via PlatoProxyService; parsed calendar entries upserted into plato_calendars)
+- [x] Calendar entries stored — PASS (upsert by plato_calendar_color_id + doctor_id IS NULL; stores name and is_active; deactivates entries not in current sync)
+- [x] Doctor-calendar mapping — PASS (create form with doctor dropdown + color ID input + name input + active toggle; edit form with same fields; store/update with validation)
+- [x] Unmapping works — PASS (destroy method deletes PlatoCalendar record; delete button on index with JS confirm dialog)
+- [x] Sidebar navigation — PASS (admin.blade.php updated: disabled placeholder replaced with active route link using routeIs('admin.calendars.*'))
+- [x] Duplicate prevention — PASS (sync queries existing entry by plato_calendar_color_id + null doctor_id before insert; updates existing, creates only if not found)
+- [x] Last sync timestamp — PASS (stored in settings table via Setting::updateOrCreate; displayed on index via Carbon formatting)
+- [x] Success/error messages — PASS (admin layout renders session('success') green and session('error') red banners; all actions return flash messages)
 
 ### Failure Details
-{If FAILED}
+N/A — All criteria passed code review verification.
 
 ---
 
