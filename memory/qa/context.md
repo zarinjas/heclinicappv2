@@ -2,8 +2,18 @@
 
 Last Updated: 2026-07-05
 
-## Last QA Activity
-P3-T06 (laravel-proxy-url-audit) — PASSED (7/7). All 7 acceptance criteria verified: zero hardcoded Plato tokens (1463d1150e7b199effa2793c2d809034) in lib/; zero hardcoded Plato URLs (clinic.platomedical.com) in lib/; all 14 Plato API call classes use EnvConfig.platomBaseUrl; EnvConfig default is Laravel proxy; Laravel proxy controller with wildcard route forwards all paths; docs/CODEBASE.md updated to reflect proxy architecture and mark issue #1 RESOLVED.
+## Last Verified Task
+P4-T01 — Apply V2 Design System (PASSED — all 8 criteria)
 
-## Previous
-P3-T05 (rate-limit-monitor) — PASSED (8/8). All 8 acceptance criteria verified. `RateLimitMonitor` singleton created with header parsing, pause gate for bulk Plato endpoints, 60s auto-resume, single-record endpoint exemption, and in-memory-only state. Integrated into `ApiManager.makeApiCall()` transparently.
+## Verification History
+- P4-T01 (2026-07-05): PASSED — theme file created, all color/token/text/light/dark criteria met
+- P3-T06 (2026-07-05): PASSED
+- P3-T05 (2026-07-05): PASSED
+- P3-T04 (2026-07-05): PASSED
+- P3-T03 (2026-07-05): PASSED
+- P3-T02 (2026-07-05): PASSED
+- P3-T01 (2026-07-05): PASSED
+
+## Key Files to Monitor
+- `lib/theme/app_theme.dart` — V2 design system; verify all tokens match v2-ux-spec.md
+- `lib/main.dart` — Theme wiring; verify theme/darkTheme are set
