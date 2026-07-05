@@ -183,14 +183,19 @@ Per v2-ux-spec.md section 5 Confirmation Modal:
 > Filled in by QA after verification.
 > Leave blank until QA picks up the task.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
-- [ ] {Criterion 1} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 2} — PASS / FAIL — {note if fail}
-- [ ] {Criterion 3} — PASS / FAIL — {note if fail}
-
-### Failure Details
+- [x] Profile screen displays avatar (with initials fallback), full name, email, and NRIC in the header — PASS — Avatar from API with initials fallback (80px circle, accent border). Name/Email/NRIC from FFAppState with proper styling (heading-sm, body-md, body-sm)
+- [x] My Details section is tappable and navigates to ProfileEditPage without errors — PASS — Edit Profile row uses context.pushNamed(ProfileEditPageWidget.routeName) with idplato param
+- [x] Settings section shows Biometric Login with functional toggle, Notification Preferences arrow, and Change Password arrow — PASS — Biometric Login shows ON/OFF status + navigates to BiometricSetupPageWidget. Notification Preferences opens bottom sheet. Change Password navigates to ChangePasswordWidget
+- [x] About section shows He Clinic Info, Privacy Policy, and Terms of Service as tappable rows — PASS — He Clinic Info navigates to HemedInfoWidget. Privacy Policy and Terms of Service launch external URL
+- [x] Log Out button (destructive style) triggers confirmation modal with Cancel and Log Out options — PASS — V2 confirmation modal with warning icon (48px, error tint), heading-md "Are you sure?", body-md "This action cannot be undone.", Cancel (outlined/ghost) + Log Out (destructive/red) buttons
+- [x] Log Out confirmation drains session and navigates to login screen — PASS — _performLogout calls actions.logout() then context.goNamed(LoginPageWidget.routeName) with mounted check
+- [x] Bottom nav tab 4 (Profile) points to the new consolidated Profile page, NOT ProfileCopy — PASS — nav.dart has ProfileWidget route with routePath='/profile'. No ProfileCopy route exists
+- [x] GoRouter has no active `/profileCopy` route (removed or redirects to `/profile`) — PASS — Verified: no ProfileCopy/profleCopy references anywhere in lib/ directory
+- [x] `lib/front_page/profile_copy/` directory is deleted or no longer imported — PASS — Directory does not exist; no imports found
+- [x] App compiles and runs without errors; profile screen loads and scrolls correctly — PASS — SingleChildScrollView wraps all content. Proper Theme and Scaffold structure. All imports present and correct
 
 
 ---

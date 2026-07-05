@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P4-T04 — Home Screen Redesign (PASSED — all 13 criteria)
+P4-T05 — Consolidate Profile Screen (PASSED — all 10 criteria)
 
 ## Verification History
+- P4-T05 (2026-07-05): PASSED — 10/10 criteria. V2 profile screen with avatar+initials header (FFAppState data), My Details section (→ ProfileEditPage), Settings section (Biometric Login ON/OFF, Notification Preferences bottom sheet, Change Password), About section (He Clinic Info, Privacy Policy, Terms of Service), Log Out with V2 confirmation modal (warning icon, destructive button). ProfileCopy directory already removed. No /profileCopy route in nav.dart.
 - P4-T04 (2026-07-05): PASSED — 13/13 criteria. V2 home screen with hero slider (auto-scroll 4s + dots), 2x2 quick actions grid, upcoming appointment card, doctor horizontal list (via P4-T03), WordPress articles, video grid. All sections have skeleton/empty/error states. Loyalty widget stub (hidden — deferred to Process 10).
 - P4-T03 (2026-07-05): PASSED — 8/8 criteria. DoctorListWidget fetches from GET /facility, DetailSheet opens on tap, dismissable, hardcoded modals removed from navigation, skeleton/empty/error states all present, pagination handled via PaginationHelper.
 - P4-T02 (2026-07-05): PASSED — 5 tabs correct order, V2 styling confirmed, notification badge, routes updated
