@@ -116,7 +116,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 2 tasks created)
 | UI-P2-T06 | register-step2-screen | Epic UI — Phase 2 | Step 2.6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P2-T07 | forgot-email-screen | Epic UI — Phase 2 | Step 2.7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P2-T08 | forgot-otp-screen | Epic UI — Phase 2 | Step 2.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P2-T09 | forgot-newpassword-screen | Epic UI — Phase 2 | Step 2.9 | Flutter | flutter-developer | BACKLOG | |
+| UI-P2-T09 | forgot-newpassword-screen | Epic UI — Phase 2 | Step 2.9 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P2-T10 | first-change-password-screen | Epic UI — Phase 2 | Step 2.10 | Flutter | flutter-developer | BACKLOG | |
 
 **Phase 2 Dependency Order:**
