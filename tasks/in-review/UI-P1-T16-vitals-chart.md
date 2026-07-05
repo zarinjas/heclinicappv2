@@ -80,17 +80,17 @@ Build the `VitalsChart` reusable component for displaying health vitals trends i
 
 ## Acceptance Criteria
 
-- [ ] Card wrapper displays vital type title in heading3 style
-- [ ] Line chart renders data points with x-axis (dates) and y-axis (values) using fl_chart
-- [ ] Line color varies correctly by vital type (BP systolic red, BP diastolic blue, HR accent, etc.)
-- [ ] Chart fills card width with height between 180-220px
-- [ ] Latest reading displays as "Last: XX.X unit — DD MMM" in body2/textSecondary below chart
-- [ ] Empty state shows "No vitals data yet" styled per AppEmptyState when no data points provided
-- [ ] Error state shows retry message per AppErrorState pattern
-- [ ] Skeleton loader renders card-shaped shimmer while loading
-- [ ] Dark mode: chart grid lines and labels adapt to dark colors
-- [ ] No hardcoded design tokens
-- [ ] `flutter analyze` returns zero errors
+- [x] Card wrapper displays vital type title in heading3 style
+- [x] Line chart renders data points with x-axis (dates) and y-axis (values) using fl_chart
+- [x] Line color varies correctly by vital type (BP systolic red, BP diastolic blue, HR accent, etc.)
+- [x] Chart fills card width with height between 180-220px
+- [x] Latest reading displays as "Last: XX.X unit — DD MMM" in body2/textSecondary below chart
+- [x] Empty state shows "No vitals data yet" styled per AppEmptyState when no data points provided
+- [x] Error state shows retry message per AppErrorState pattern
+- [x] Skeleton loader renders card-shaped shimmer while loading
+- [x] Dark mode: chart grid lines and labels adapt to dark colors
+- [x] No hardcoded design tokens
+- [x] `flutter analyze` returns zero errors
 
 ---
 
@@ -108,3 +108,16 @@ Created `lib/core/widgets/vitals_chart.dart`:
 - Chart height: 190px with bottom/left axis labels, 2.5px line, 25 alpha area fill
 
 ## QA Notes
+
+QA=PASSED
+- Verified title uses AppTextStyles.heading3 in AppCard
+- Line chart uses fl_chart with curved lines, area fill, dots, and adaptive grid
+- lineColor param enables per-type coloring at call site
+- Chart height: SizedBox(height: 190) within card
+- Latest reading formatted as "Last: XX.X unit — DD MMM" with AppTextStyles.body2/textSecondary
+- Empty state: AppEmptyState(icon: show_chart) inside AppCard
+- Error state: AppErrorState with retry callback inside AppCard
+- Skeleton: VitalsChartSkeleton with AppSkeleton.slider() + AppSkeleton.listItem()
+- Dark mode: isDark checks for grid lines, tooltip, axis labels
+- All tokens from AppColors, AppTextStyles, AppSpacing. No hardcoded hex/values
+- flutter analyze: zero errors
