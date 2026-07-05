@@ -149,13 +149,14 @@ final class NotificationService
         return $result;
     }
 
-    private function sendInApp(string $title, string $body, Appointment $appointment): void
+    private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): void
     {
         $this->firebase->writeInAppNotification([
             'title' => $title,
             'body' => $body,
-            'type' => 'appointment_confirmed',
-            'deep_link' => 'appointments',
+            'type' => $type,
+            'deep_link' => $deepLink,
+            'id_patient' => $appointment->patient_plato_id ?? null,
         ]);
     }
 

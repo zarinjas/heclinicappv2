@@ -127,6 +127,7 @@ final class FirebaseService
             'read' => false,
             'deep_link' => $data['deep_link'] ?? 'appointments',
             'type' => $data['type'] ?? 'appointment',
+            'id_patient' => $data['id_patient'] ?? null,
         ];
 
         return $this->writeToFirestore('historynotif', $payload);

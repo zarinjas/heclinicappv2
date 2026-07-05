@@ -140,11 +140,34 @@ Existing handler mappings in `push_notifications_handler.dart` around line 27 (p
 
 ### What Was Done
 
+1. **FirebaseService::writeInAppNotification()** — Added `id_patient` field to the payload, sourced from the `$data` array. All other fields (`title`, `body`, `read: false` (boolean), `deep_link`, `type`, `timestamp`) were already present.
+2. **NotificationService::sendInApp()** — Updated signature to accept `$deepLink` and `$type` parameters (with sensible defaults). Now passes `id_patient` from the Appointment model.
+3. **Appointment model** — Added `patient_plato_id` to `$fillable` so it can be stored when known.
+4. **historynotif_record.dart** — Added `title`, `body`, `deepLink`, `type` fields. Changed `read` field from `String?` to `dynamic` with a `readBool` getter that handles both `bool` (new) and `String` "yes"/"no" (old) formats. The `read` string getter is preserved for backward compatibility via `readBool`. Updated `createHistorynotifRecordData` to accept `bool? readBool` alongside `String? read`. Updated `equals`/`hash` methods.
+5. **notification_page_widget.dart** — Updated tap handler:
+   - Writes `readBool: true` (boolean) instead of `read: '"yes"'` (string) when marking as read.
+   - Added deep link navigation: parses `deepLink` field and routes to `MyBookingPage` (appointments), `Reports` (health/*), or `HomepageNew` (profile).
+   - Fallback to old message/tittle-based logic when `deepLink` is empty (backward compatible).
+
 ### Files Changed
+
+- `laravel/app/Services/FirebaseService.php` — added `id_patient` to payload
+- `laravel/app/Services/NotificationService.php` — updated `sendInApp` signature + id_patient
+- `laravel/app/Models/Appointment.php` — added `patient_plato_id` to fillable
+- `lib/backend/schema/historynotif_record.dart` — new fields, read backward compat
+- `lib/front_page/notification_page/notification_page_widget.dart` — deep link nav + boolean read
 
 ### Decisions Made During Implementation
 
+- **Timestamp format**: Kept `now()->timestamp` (integer) instead of server timestamp sentinel. The existing `toFirestoreValue()` method does not handle the Firestore server timestamp sentinel format, and adding such support would require changes to the shared serializer.
+- **Backward compatibility**: The `read` field uses a `dynamic` type internally and exposes both `readBool` (bool) and `read` (String) getters. Old documents with `read: "yes"`/`"no"` strings continue to work.
+- **`id_patient` resolution**: Added `patient_plato_id` to the Appointment model fillable. When not set on the appointment, `id_patient` will be `null` in the Firestore document. The Flutter query filters by `id_patient = FFAppState().idplato`, so documents without `id_patient` will not appear in the mobile app notification center (but can be queried in the admin panel).
+
 ### Known Limitations
+
+- Notifications without `id_patient` set will not appear in the Flutter notification center (filtered out by query).
+- The `tittle` typo field from old documents is preserved for backward compat; preferred field is `title`. New documents write `title`.
+- `health/*` deep links all route to `ReportsWidget` without differentiating the tab index (tab selection is a future enhancement in Process 10).
 
 ---
 

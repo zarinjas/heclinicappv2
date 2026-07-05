@@ -146,25 +146,61 @@ class _NotificationPageWidgetState extends State<NotificationPageWidget> {
                             onTap: () async {
                               await listViewHistorynotifRecord.reference
                                   .update(createHistorynotifRecordData(
-                                read: '\"yes\"',
+                                readBool: true,
                               ));
 
                               FFAppState().update(() {});
-                              if ((listViewHistorynotifRecord.message ==
-                                      'A new doctor has been signed to your appointments.') ||
-                                  (listViewHistorynotifRecord.tittle ==
-                                      'Appointment Baru')) {
-                                context.pushNamed(HomepageNewWidget.routeName);
+
+                              final deepLink = listViewHistorynotifRecord.deepLink;
+                              if (deepLink.isNotEmpty) {
+                                switch (deepLink) {
+                                  case 'appointments':
+                                    context.pushNamed('MyBookingPage');
+                                    break;
+                                  case 'health/records':
+                                  case 'health/vitals':
+                                  case 'health/documents':
+                                    context.pushNamed(
+                                      'Reports',
+                                      queryParameters: {
+                                        'id': serializeParam(
+                                          FFAppState().idplato,
+                                          ParamType.String,
+                                        ),
+                                      }.withoutNulls,
+                                    );
+                                    break;
+                                  case 'profile':
+                                    context.pushNamed('HomepageNew');
+                                    break;
+                                  default:
+                                    context.pushNamed(
+                                      'Reports',
+                                      queryParameters: {
+                                        'id': serializeParam(
+                                          FFAppState().idplato,
+                                          ParamType.String,
+                                        ),
+                                      }.withoutNulls,
+                                    );
+                                }
                               } else {
-                                context.pushNamed(
-                                  ReportsWidget.routeName,
-                                  queryParameters: {
-                                    'id': serializeParam(
-                                      FFAppState().idplato,
-                                      ParamType.String,
-                                    ),
-                                  }.withoutNulls,
-                                );
+                                if ((listViewHistorynotifRecord.message ==
+                                        'A new doctor has been signed to your appointments.') ||
+                                    (listViewHistorynotifRecord.tittle ==
+                                        'Appointment Baru')) {
+                                  context.pushNamed(HomepageNewWidget.routeName);
+                                } else {
+                                  context.pushNamed(
+                                    ReportsWidget.routeName,
+                                    queryParameters: {
+                                      'id': serializeParam(
+                                        FFAppState().idplato,
+                                        ParamType.String,
+                                      ),
+                                    }.withoutNulls,
+                                  );
+                                }
                               }
                             },
                             child: Container(

@@ -12,6 +12,7 @@ class Appointment extends Model
         'patient_name',
         'patient_nric',
         'patient_phone',
+        'patient_plato_id',
         'branch_id',
         'branch_name',
         'doctor_id',

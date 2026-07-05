@@ -21,19 +21,41 @@ class HistorynotifRecord extends FirestoreRecord {
   String get idPatient => _idPatient ?? '';
   bool hasIdPatient() => _idPatient != null;
 
-  // "message" field.
+  // "message" field (backward compat — old field name).
   String? _message;
-  String get message => _message ?? '';
-  bool hasMessage() => _message != null;
+  String get message {
+    if (_message != null && _message!.isNotEmpty) return _message!;
+    return _body ?? '';
+  }
+  bool hasMessage() => _message != null || _body != null;
 
-  // "tittle" field.
+  // "tittle" field (backward compat — old field name).
   String? _tittle;
-  String get tittle => _tittle ?? '';
-  bool hasTittle() => _tittle != null;
+  String get tittle {
+    if (_tittle != null && _tittle!.isNotEmpty) return _tittle!;
+    return _title ?? '';
+  }
+  bool hasTittle() => _tittle != null || _title != null;
 
-  // "read" field.
-  String? _read;
-  String get read => _read ?? '';
+  // "title" field (new field name).
+  String? _title;
+  String get title => _title ?? tittle;
+  bool hasTitle() => _title != null || _tittle != null;
+
+  // "body" field (new field name).
+  String? _body;
+  String get body => _body ?? message;
+  bool hasBody() => _body != null || _message != null;
+
+  // "read" field — supports both bool (new) and string "yes"/"no" (old).
+  dynamic _read;
+  String get read => readBool ? 'yes' : 'no';
+  bool get readBool {
+    if (_read == null) return false;
+    if (_read is bool) return _read;
+    if (_read is String) return _read == 'yes';
+    return false;
+  }
   bool hasRead() => _read != null;
 
   // "created_at" field.
@@ -46,13 +68,27 @@ class HistorynotifRecord extends FirestoreRecord {
   String get appointment => _appointment ?? '';
   bool hasAppointment() => _appointment != null;
 
+  // "deep_link" field.
+  String? _deepLink;
+  String get deepLink => _deepLink ?? '';
+  bool hasDeepLink() => _deepLink != null;
+
+  // "type" field.
+  String? _type;
+  String get type => _type ?? '';
+  bool hasType() => _type != null;
+
   void _initializeFields() {
     _idPatient = snapshotData['id_patient'] as String?;
     _message = snapshotData['message'] as String?;
     _tittle = snapshotData['tittle'] as String?;
-    _read = snapshotData['read'] as String?;
+    _title = snapshotData['title'] as String?;
+    _body = snapshotData['body'] as String?;
+    _read = snapshotData['read'];
     _createdAt = snapshotData['created_at'] as DateTime?;
     _appointment = snapshotData['appointment'] as String?;
+    _deepLink = snapshotData['deep_link'] as String?;
+    _type = snapshotData['type'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -93,18 +129,27 @@ Map<String, dynamic> createHistorynotifRecordData({
   String? idPatient,
   String? message,
   String? tittle,
+  String? title,
+  String? body,
   String? read,
+  bool? readBool,
   DateTime? createdAt,
   String? appointment,
+  String? deepLink,
+  String? type,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'id_patient': idPatient,
       'message': message,
       'tittle': tittle,
-      'read': read,
+      'title': title,
+      'body': body,
+      'read': readBool ?? read,
       'created_at': createdAt,
       'appointment': appointment,
+      'deep_link': deepLink,
+      'type': type,
     }.withoutNulls,
   );
 
@@ -120,9 +165,13 @@ class HistorynotifRecordDocumentEquality
     return e1?.idPatient == e2?.idPatient &&
         e1?.message == e2?.message &&
         e1?.tittle == e2?.tittle &&
-        e1?.read == e2?.read &&
+        e1?.title == e2?.title &&
+        e1?.body == e2?.body &&
+        e1?.readBool == e2?.readBool &&
         e1?.createdAt == e2?.createdAt &&
-        e1?.appointment == e2?.appointment;
+        e1?.appointment == e2?.appointment &&
+        e1?.deepLink == e2?.deepLink &&
+        e1?.type == e2?.type;
   }
 
   @override
@@ -130,9 +179,13 @@ class HistorynotifRecordDocumentEquality
         e?.idPatient,
         e?.message,
         e?.tittle,
-        e?.read,
+        e?.title,
+        e?.body,
+        e?.readBool,
         e?.createdAt,
-        e?.appointment
+        e?.appointment,
+        e?.deepLink,
+        e?.type,
       ]);
 
   @override

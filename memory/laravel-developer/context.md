@@ -1,9 +1,17 @@
 # Laravel Developer — Context
 
-Last Updated: 2026-07-05 (P8-T04 implemented)
+Last Updated: 2026-07-05 (P8-T06 implemented)
 
 ## Active Task
-P8-T05 — Email Provider Configuration (IN-REVIEW)
+P8-T06 — In-App Notifications — Deep Link Support (IN-REVIEW)
+
+## Implementation Summary — P8-T06
+- `laravel/app/Services/FirebaseService.php`: added `id_patient` field to `writeInAppNotification()` payload, sourced from `$data` array. All other fields (`title`, `body`, `read: false` (boolean), `deep_link`, `type`) were already present.
+- `laravel/app/Services/NotificationService.php`: `sendInApp()` signature updated to accept `$deepLink` and `$type` parameters with defaults. Now passes `$appointment->patient_plato_id` as `id_patient` to FirebaseService.
+- `laravel/app/Models/Appointment.php`: added `patient_plato_id` to `$fillable` so it can be stored when known.
+- `lib/backend/schema/historynotif_record.dart`: added `title`, `body`, `deep_link`, `type` fields. `read` field refactored from `String?` to `dynamic` with `readBool` getter (handles both bool and String "yes"/"no" for backward compat). Updated `createHistorynotifRecordData` to accept `bool? readBool`.
+- `lib/front_page/notification_page/notification_page_widget.dart`: tap handler now writes `readBool: true` (boolean). Added deep link routing: `appointments` → MyBookingPage, `health/*` → Reports, `profile` → HomepageNew. Fallback to old message/tittle logic when `deepLink` is empty.
+- PHP syntax: all 3 files pass lint. Flutter analyze: zero errors.
 
 ## Implementation Summary — P8-T05
 - `laravel/.env.example`: added MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_ENCRYPTION, MAIL_FROM_ADDRESS, MAIL_FROM_NAME variables with SMTP defaults
