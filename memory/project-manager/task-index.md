@@ -50,7 +50,7 @@ Last Updated: 2026-07-05
 | P7-T02 | patient-profile-view | 7 | Step 2 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T03 | patient-document-upload | 7 | Step 3 | Laravel | laravel-developer | DONE | 2026-07-05 |
 | P7-T04 | appointment-calendar-view | 7 | Step 4 | Laravel | laravel-developer | DONE | 2026-07-05 |
-| P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | IN-PROGRESS | — |
+| P7-T05 | create-walkin-appointment | 7 | Step 5 | Laravel | laravel-developer | IN-REVIEW | — |
 | P7-T06 | appointment-detail-view | 7 | Step 6 | Laravel | laravel-developer | BACKLOG | — |
 
 **Parallel tracks:**

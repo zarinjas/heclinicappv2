@@ -28,7 +28,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('patients.documents.upload');
         Route::delete('patients/{patient}/documents/{filename}', [PatientController::class, 'deleteDocument'])
             ->name('patients.documents.delete');
-        Route::resource('appointments', AdminAppointmentController::class)->only(['index']);
+        Route::resource('appointments', AdminAppointmentController::class)->only(['index', 'create', 'store']);
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
     });

@@ -94,9 +94,8 @@
                     Showing {{ $appointments->firstItem() ?: 0 }}–{{ $appointments->lastItem() ?: 0 }} of {{ $appointments->total() }} appointments
                 @endif
             </p>
-            <a href="#"
-               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors whitespace-nowrap opacity-50 cursor-not-allowed"
-               title="Coming in a future update">
+            <a href="{{ route('admin.appointments.create') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors whitespace-nowrap">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>

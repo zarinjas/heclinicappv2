@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P7-T04 |
 | Blocked Reason | N/A |
@@ -163,17 +163,27 @@ public function store(StoreAppointmentRequest $request)
 > Leave blank until implementation is complete.
 
 ### What Was Done
-
+Created walk-in appointment creation form in the Laravel Admin Panel. Staff can fill in patient details, select branch/doctor (with JS-based doctor filtering by branch), pick appointment date/time, and submit to create an appointment via Plato proxy and local DB.
 
 ### Files Changed
-
+- `app/Http/Requests/StoreAppointmentRequest.php` — new FormRequest with validation (required fields, future date, max lengths)
+- `app/Http/Controllers/Admin/AdminAppointmentController.php` — added create() (passes branches + doctors to view) and store() (calls AppointmentService, handles success/error with flash messages)
+- `resources/views/admin/appointments/create.blade.php` — new form view extending layouts.admin with patient info, appointment details (branch/doctor dropdowns with JS filter), date/time inputs, notes textarea
+- `resources/views/admin/appointments/index.blade.php` — enabled "New Walk-In Appointment" button, now links to create route
+- `resources/views/layouts/admin.blade.php` — added @stack('scripts') before </body> to support page-level JS
+- `routes/web.php` — updated appointments resource route from ->only(['index']) to ->only(['index', 'create', 'store'])
 
 ### Decisions Made During Implementation
-
+- Doctor dropdown filtering via client-side JS (render all doctors initially with data-branch attributes, filter on branch select change) — avoids extra AJAX roundtrip
+- Calendar color ID auto-populated from doctor's first plato_calendars record — passed as hidden input
+- Branch name and doctor name passed as hidden inputs, populated via JS on select change
+- Date input uses HTML5 min attribute set to tomorrow's date for client-side enforcement, backed by `after:today` validation rule
+- Uses `@push('scripts')` / `@stack('scripts')` pattern for page-specific JS
 
 ### Known Limitations
-
-
+- Doctor filtering is client-side only — all doctors loaded in initial page render
+- Slot availability check not implemented (deferred per task scope)
+- Calendar color auto-detection only uses first calendar per doctor
 ---
 
 ## QA Notes

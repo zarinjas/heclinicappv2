@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Branch;
 use App\Models\Doctor;
+use App\Services\AppointmentService;
 use App\Services\PlatoProxyService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -65,5 +68,42 @@ class AdminAppointmentController extends Controller
         $doctors = Doctor::where('is_active', true)->orderBy('name')->get();
 
         return view('admin.appointments.index', compact('appointments', 'branches', 'doctors'));
+    }
+
+    public function create(): View
+    {
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
+        $doctors = Doctor::with('branch')->where('is_active', true)->orderBy('name')->get();
+
+        return view('admin.appointments.create', compact('branches', 'doctors'));
+    }
+
+    public function store(StoreAppointmentRequest $request): RedirectResponse
+    {
+        try {
+            $service = app(AppointmentService::class);
+            $result = $service->createAppointment($request->validated());
+
+            if ($result['success'] ?? false) {
+                return redirect()
+                    ->route('admin.appointments.index')
+                    ->with('success', 'Walk-in appointment created successfully.');
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Failed to create appointment. Plato API returned an error.');
+        } catch (\RuntimeException $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'An unexpected error occurred while creating the appointment.');
+        }
     }
 }
