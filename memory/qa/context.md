@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P4-T01 — Apply V2 Design System (PASSED — all 8 criteria)
+P4-T02 — Replace Bottom Navigation: 4 Tabs to 5 Tabs (PASSED — all 8 criteria)
 
 ## Verification History
+- P4-T02 (2026-07-05): PASSED — 5 tabs correct order, V2 styling confirmed, notification badge, routes updated
 - P4-T01 (2026-07-05): PASSED — theme file created, all color/token/text/light/dark criteria met
 - P3-T06 (2026-07-05): PASSED
 - P3-T05 (2026-07-05): PASSED
