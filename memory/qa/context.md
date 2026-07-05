@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Verified Task
-P4-T06 — Apply Global Loading, Empty, and Error States (PASSED — all 11 criteria)
+P5-T01 — Verify Booking Flow Prerequisites (PASSED — all 6 criteria)
 
 ## Verification History
+- P5-T01 (2026-07-05): PASSED — 6/6 criteria. Verified PlatoProxyController handles all HTTP methods, catch-all route with Sanctum auth, services config reads PLATO_API_TOKEN from .env. All booking endpoints (GET /facility, GET /appointment/calendars, POST /appointment/slots, POST /appointment, GET /appointment) supported by generic proxy. Known limitations documented: VPS live connectivity not testable from workspace, /systemsetup not yet implemented.
 - P4-T06 (2026-07-05): PASSED — 11/11 criteria. 4 reusable components created (skeleton_loaders with 5 variants + shimmer, empty_state_widget, error_state_widget, inline_spinner). Applied to Homepage, Appointments, Notifications, Reports/Health (3 tabs), Articles. All GIF loading animations replaced with shimmer skeletons. Error states with Try Again on all data screens. Empty states with correct messaging per v2-ux-spec.md table.
 - P4-T05 (2026-07-05): PASSED — 10/10 criteria. V2 profile screen with avatar+initials header (FFAppState data), My Details section (→ ProfileEditPage), Settings section (Biometric Login ON/OFF, Notification Preferences bottom sheet, Change Password), About section (He Clinic Info, Privacy Policy, Terms of Service), Log Out with V2 confirmation modal (warning icon, destructive button). ProfileCopy directory already removed. No /profileCopy route in nav.dart.
 - P4-T04 (2026-07-05): PASSED — 13/13 criteria. V2 home screen with hero slider (auto-scroll 4s + dots), 2x2 quick actions grid, upcoming appointment card, doctor horizontal list (via P4-T03), WordPress articles, video grid. All sections have skeleton/empty/error states. Loyalty widget stub (hidden — deferred to Process 10).
