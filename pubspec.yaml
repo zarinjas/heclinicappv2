@@ -41,6 +41,7 @@ dependencies:
   cloud_functions_platform_interface: 5.7.2
   cloud_functions_web: 4.11.2
   collection: 1.19.1
+  connectivity_plus: ^7.0.0
   cross_file: ^0.3.4
   csslib: 1.0.2
   dropdown_button2: 
