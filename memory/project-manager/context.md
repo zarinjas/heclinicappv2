@@ -11,7 +11,7 @@ P9-T01 — Sliders CMS — Admin Panel + Mobile (DONE)
 P9-T02 — Service Packages CMS — Admin Panel + Mobile (DONE)
 P9-T03 — Articles CMS — Admin Panel + Mobile (DONE)
 P9-T04 — Videos CMS — Admin Panel + Mobile (DONE)
-P9-T05 — Doctor Profiles CMS Enhancements — Admin Panel (BACKLOG)
+P9-T05 — Doctor Profiles CMS Enhancements — Admin Panel (DONE)
 P9-T06 — Branch Profiles CMS Enhancements — Admin Panel (BACKLOG)
 
 **Process 8 — Notifications Module (completed):**

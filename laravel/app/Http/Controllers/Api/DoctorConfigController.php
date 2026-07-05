@@ -38,6 +38,7 @@ final class DoctorConfigController extends Controller
             'id' => $doctor->plato_facility_id ?? (string) $doctor->id,
             'name' => $doctor->name,
             'specialty' => $doctor->specialty,
+            'bio' => $doctor->bio,
             'photo' => $doctor->photo ? asset('storage/' . $doctor->photo) : null,
             'is_visible_in_app' => $doctor->is_visible_in_app,
             'branch_id' => $doctor->branch?->plato_facility_id,
