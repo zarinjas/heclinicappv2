@@ -3,9 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Last Reviewed Task
-P4-T06 — Apply Global Loading, Empty, and Error States (APPROVED — 2026-07-05)
+P5-T01 — Verify Booking Flow Prerequisites (APPROVED — 2026-07-05)
 
 ## Review History
+- P5-T01 (2026-07-05): APPROVED — v2-decisions Process 5 Step 1 (Prerequisite) verified. PlatoProxyController correctly handles all HTTP methods with Bearer token from .env. Catch-all route with Sanctum auth. All booking endpoints (GET /facility, GET /appointment/calendars, GET /appointment/codes, POST /appointment/slots, POST /appointment, GET /appointment) supported. Known limitations documented transparently.
 - P4-T06 (2026-07-05): APPROVED — v2-decisions Process 4 Step 6 + v2-ux-spec Section 2 (Component Library: Skeleton Loaders, Empty States, Error States) fully aligned. 4 new components created with correct design tokens. Applied to Homepage, Appointments, Notifications, Reports/Health (3 tabs), Articles. All 11 criteria met. Empty state messages match v2-ux-spec Section 2 table exactly. Shimmer animation (1.5s) uses correct colors per spec. Error states never leave blank screen.
 - P4-T05 (2026-07-05): APPROVED — v2-decisions Process 4 Step 5 "Profile screen — consolidated (remove ProfileCopy duplicate)" + v2-ux-spec Section 4 "SCREEN: Profile Tab" fully aligned. Avatar+initials header, My Details/Settings/About sections, V2 confirmation modal for Log Out. ProfileCopy already removed from codebase. All V2 tokens (AppColors, AppSpacing, AppRadius, AppShadows) applied consistently.
 - P4-T04 (2026-07-05): APPROVED — v2-decisions Process 4 Step 4 + v2-ux-spec Section 4 fully aligned. Hero slider (4s auto-scroll + dots), 2x2 quick actions, upcoming appointment card, doctor horizontal list (P4-T03), WordPress articles, video grid. All sections handle skeleton/empty/error. EnvConfig used, no hardcoded tokens.
