@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | UI-P0-T04 |
 | Blocked Reason | N/A |
@@ -113,16 +113,19 @@ class AppButton extends StatelessWidget {
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{}
+Created `lib/core/widgets/app_button.dart` with `AppButton` StatelessWidget supporting 6 variants (primary, secondary, ghost, destructive, whatsapp, disabled) via both constructor and named factory methods. Implemented loading state with white spinner, press animation (scale 0.97, 150ms ease), full-width/auto-width modes, and optional leading icon with 8px spacing.
 
 ### Files Changed
-- `lib/core/widgets/app_button.dart`
+- `lib/core/widgets/app_button.dart` — created with AppButton widget + internal _AppButtonPressable
 
 ### Decisions Made During Implementation
-{}
+- Built custom press animation with AnimationController/Tween instead of flutter_animate for precise control over tap down/up behavior
+- Used `_AppButtonPressable` internal widget with `SingleTickerProviderStateMixin` to handle scale animation on press
+- Named factory constructors for each variant: `.primary()`, `.secondary()`, `.ghost()`, `.destructive()`, `.whatsApp()`
+- Disabled state controlled by `onPressed == null`, not a separate variant enum value
 
 ### Known Limitations
-{}
+None
 
 ---
 
