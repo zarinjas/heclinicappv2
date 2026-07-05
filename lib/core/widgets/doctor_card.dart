@@ -18,6 +18,7 @@ class DoctorCard extends StatelessWidget {
     required this.specialty,
     this.rating,
     this.isAvailable = false,
+    this.isSelected = false,
     this.variant = DoctorCardVariant.horizontal,
     this.onTap,
   });
@@ -27,6 +28,7 @@ class DoctorCard extends StatelessWidget {
   final String specialty;
   final double? rating;
   final bool isAvailable;
+  final bool isSelected;
   final DoctorCardVariant variant;
   final VoidCallback? onTap;
 
@@ -39,6 +41,7 @@ class DoctorCard extends StatelessWidget {
           specialty: specialty,
           rating: rating,
           isAvailable: isAvailable,
+          isSelected: isSelected,
           onTap: onTap,
         ),
       DoctorCardVariant.vertical => _VerticalDoctorCard(
@@ -47,6 +50,7 @@ class DoctorCard extends StatelessWidget {
           specialty: specialty,
           rating: rating,
           isAvailable: isAvailable,
+          isSelected: isSelected,
           onTap: onTap,
         ),
     };
@@ -60,6 +64,7 @@ class _HorizontalDoctorCard extends StatelessWidget {
     required this.specialty,
     this.rating,
     this.isAvailable = false,
+    this.isSelected = false,
     this.onTap,
   });
 
@@ -68,6 +73,7 @@ class _HorizontalDoctorCard extends StatelessWidget {
   final String specialty;
   final double? rating;
   final bool isAvailable;
+  final bool isSelected;
   final VoidCallback? onTap;
 
   @override
@@ -149,6 +155,7 @@ class _VerticalDoctorCard extends StatelessWidget {
     required this.specialty,
     this.rating,
     this.isAvailable = false,
+    this.isSelected = false,
     this.onTap,
   });
 
@@ -157,6 +164,7 @@ class _VerticalDoctorCard extends StatelessWidget {
   final String specialty;
   final double? rating;
   final bool isAvailable;
+  final bool isSelected;
   final VoidCallback? onTap;
 
   @override
@@ -168,7 +176,17 @@ class _VerticalDoctorCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
-      child: Row(
+      padding: EdgeInsets.zero,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.space16),
+        decoration: isSelected
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+                border: Border.all(color: AppColors.accent, width: 1.5),
+                color: AppColors.accent.withOpacity(isDark ? 0.10 : 0.05),
+              )
+            : null,
+        child: Row(
         children: [
           _DoctorAvatar(photoUrl: photoUrl, size: 72),
           const SizedBox(width: AppSpacing.space16),
@@ -220,6 +238,7 @@ class _VerticalDoctorCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
       ),
     );
   }

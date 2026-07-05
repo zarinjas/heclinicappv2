@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -98,7 +98,19 @@ Redesign the Booking Doctor Selection screen (Step 2 of the booking flow) to use
 
 ## Implementation Notes
 
-> Filled in by the Developer after implementation. Leave blank until implementation is complete.
+Created `lib/features/booking/booking_doctor_screen.dart`:
+- Used `StepIndicator` with 4 steps at step 1 (Doctor highlighted)
+- "No Preference" card built with `AppCard`, always first item, selectable with accent border
+- Active doctors rendered as `DoctorCard` (vertical variant) from `GetDoctorsCall` API
+- Added `isSelected` parameter to `DoctorCard` component for accent border on selection
+- Used `DoctorCardSkeleton` during loading state
+- Used `AppEmptyState` with person_outline icon when no doctors available
+- Used `AppErrorState` with retry on API failure
+- Used `AppButton` (primary variant), disabled until selection made
+- Used `AppAppBar.sub` with back button and "Select Doctor" title
+- API: `GetDoctorsCall.call(visible: true)` — existing endpoint
+- Dark mode: all components handle light/dark via `Theme.of(context).brightness`
+- No hardcoded hex colors, font sizes, or padding — all from design tokens
 
 ---
 
