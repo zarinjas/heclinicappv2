@@ -16,7 +16,7 @@ P10-T05 — Role and Permission Audit (DONE)
 **Process 10 — Polish and Remaining Features: 6 of 8 tasks DONE**
 Remaining: P10-T07, P10-T08 in BACKLOG
 P10-T06 — Firestore Security Rules Audit and Tighten (DONE)
-P10-T07 — Remove Unused Firebase Functions Dependencies (BACKLOG)
+P10-T07 — Remove Unused Firebase Functions Dependencies (IN-PROGRESS)
 P10-T08 — Flutter Version Upgrade Assessment (BACKLOG)
 
 **Process 10 — Polish and Remaining Features: 8 tasks in BACKLOG**
