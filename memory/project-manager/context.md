@@ -3,15 +3,18 @@
 Last Updated: 2026-07-05
 
 ## Current Process
-Process 4 — Mobile App: UI/UX Overhaul (Flutter)
+Process 5 — Booking Flow (Flutter + Laravel)
 
 ## Active Tasks
-P4-T01 — Apply V2 Design System (DONE)
-P4-T02 — Replace Bottom Navigation: 4 Tabs to 5 Tabs (DONE)
-P4-T03 — Replace 17 Hardcoded Doctor Modals with Dynamic Doctor List (DONE)
-P4-T04 — Home Screen Redesign (DONE)
-P4-T05 — Consolidate Profile Screen (DONE)
-P4-T06 — Apply Global Loading, Empty, and Error States (DONE)
+P5-T01 — Verify Booking Flow Prerequisites (BACKLOG)
+P5-T02 — Branch Selection Screen (BACKLOG)
+P5-T03 — Doctor Selection Screen (BACKLOG)
+P5-T04 — Date and Time Slot Selection (BACKLOG)
+P5-T05 — Booking Confirmation Screen (BACKLOG)
+P5-T06 — WhatsApp Redirect After Booking (BACKLOG)
+P5-T07 — Admin Appointment Creation and Confirmation (BACKLOG)
+P5-T08 — Appointment Confirmation Notification (BACKLOG)
+P5-T09 — Appointments Tab Display (BACKLOG)
 
 ## Blocked Tasks
 None currently.
@@ -28,7 +31,7 @@ None currently.
 - Process 4 — Mobile App: UI/UX Overhaul: ALL DONE (P4-T01 through P4-T06)
 
 ## Next Task to Create
-After all Process 4 tasks are DONE, create Process 5 tasks (Booking Flow).
+After all Process 5 tasks are DONE, create Process 6 tasks (Health Tab).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
@@ -37,5 +40,7 @@ After all Process 4 tasks are DONE, create Process 5 tasks (Booking Flow).
 - VPS bot server: `/var/www/heclinic-bot/` (PM2)
 
 ## Notes
-Process 4 tasks have a dependency chain: P4-T01 (design foundation) → P4-T02 (nav), P4-T03 (doctors) → P4-T04 (home) ← P4-T05 (profile) → P4-T06 (global states applied everywhere).
-P4-T01 is the critical foundation for all subsequent UI work.
+Process 5 tasks have a linear dependency chain:
+P5-T01 (verify prerequisites) → P5-T02 (branch) → P5-T03 (doctor) → P5-T04 (date/time) → P5-T05 (confirmation) → P5-T06 (WhatsApp) → P5-T07 (admin appointment) → P5-T08 (notifications) → P5-T09 (appointments tab).
+P5-T01 verifies the Laravel proxy is ready for POST /appointment/slots calls.
+P5-T07 and P5-T08 require the Admin Panel Laravel setup to be functional.

@@ -26,8 +26,27 @@ Last Updated: 2026-07-05
 | P4-T04 | home-screen-redesign | 4 | Step 4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P4-T05 | consolidate-profile-screen | 4 | Step 5 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | P4-T06 | global-states | 4 | Step 6 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| P5-T01 | verify-booking-flow-prerequisites | 5 | Step 1 | Both | laravel-developer | BACKLOG | |
+| P5-T02 | branch-selection-screen | 5 | Step 2 | Flutter | flutter-developer | BACKLOG | |
+| P5-T03 | doctor-selection-screen | 5 | Step 3 | Flutter | flutter-developer | BACKLOG | |
+| P5-T04 | date-time-slot-selection | 5 | Step 4 | Flutter | flutter-developer | BACKLOG | |
+| P5-T05 | booking-confirmation-screen | 5 | Step 5 | Flutter | flutter-developer | BACKLOG | |
+| P5-T06 | whatsapp-redirect-after-booking | 5 | Step 6 | Flutter | flutter-developer | BACKLOG | |
+| P5-T07 | admin-appointment-creation | 5 | Step 7 | Laravel | laravel-developer | BACKLOG | |
+| P5-T08 | appointment-confirmation-notification | 5 | Step 8 | Both | flutter-developer | BACKLOG | |
+| P5-T09 | appointments-tab-display | 5 | Step 9 | Flutter | flutter-developer | BACKLOG | |
 
 **Parallel tracks:**
+- Process 5 tasks have the following dependency chain:
+  - P5-T01 (verify prerequisites) — validation task, blocks all subsequent P5 tasks
+  - P5-T02 (branch selection) — depends on P5-T01
+  - P5-T03 (doctor selection) — depends on P5-T02
+  - P5-T04 (date/time slots) — depends on P5-T03
+  - P5-T05 (confirmation) — depends on P5-T04
+  - P5-T06 (WhatsApp redirect) — depends on P5-T05
+  - P5-T07 (admin appointment creation) — depends on P5-T06
+  - P5-T08 (confirmation notification) — depends on P5-T07
+  - P5-T09 (appointments tab) — depends on P5-T08
 - Process 4 tasks have the following dependency chain:
   - P4-T01 (design system) — foundation for all subsequent UI tasks (no dependencies)
   - P4-T02 (nav 5 tabs) — depends on P4-T01 (needs design system for nav colors)
