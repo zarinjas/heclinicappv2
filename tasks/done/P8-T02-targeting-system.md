@@ -11,7 +11,7 @@
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P8-T01 |
 | Blocked Reason | N/A |
@@ -102,14 +102,14 @@ Per `docs/v2-decisions.md` Step 2 of Process 8.
 
 > Testable, binary (PASS/FAIL) criteria. QA verifies exactly these.
 
-- [ ] The compose form shows a "Target Audience" dropdown with 5 options: All, By Branch, By Doctor, By Appointment Date Range, Specific Patient
-- [ ] Selecting "By Branch" shows a multi-select list of active branches from the database
-- [ ] Selecting "By Doctor" shows a multi-select list of doctors from the database
-- [ ] Selecting "By Appointment Date Range" shows date from/to picker fields
-- [ ] Selecting "Specific Patient" shows a text input for patient name/NRIC
-- [ ] Switching targeting types correctly hides/shows only the relevant fields (no stale field data persists)
-- [ ] Submitting the form stores the selected `target_type` and `target_ids` in the `notifications_log` table
-- [ ] Branch Admin users see only their branch's doctors (not all doctors)
+- [x] The compose form shows a "Target Audience" dropdown with 5 options: All, By Branch, By Doctor, By Appointment Date Range, Specific Patient
+- [x] Selecting "By Branch" shows a multi-select list of active branches from the database
+- [x] Selecting "By Doctor" shows a multi-select list of doctors from the database
+- [x] Selecting "By Appointment Date Range" shows date from/to picker fields
+- [x] Selecting "Specific Patient" shows a text input for patient name/NRIC
+- [x] Switching targeting types correctly hides/shows only the relevant fields (no stale field data persists)
+- [x] Submitting the form stores the selected `target_type` and `target_ids` in the `notifications_log` table
+- [x] Branch Admin users see only their branch's doctors (not all doctors)
 
 ---
 
@@ -148,11 +148,20 @@ Per `docs/v2-decisions.md` Step 2 of Process 8.
 
 > Filled in by QA after verification.
 
-### Result: PASSED / FAILED
+### Result: PASSED
 
 ### Criteria Results
+1. PASS — Blade form has `<select>` with 5 options: All Users, By Branch, By Doctor, By Appointment Date Range, Specific Patient
+2. PASS — Branch checkboxes populated from `Branch::where('is_active', true)->get()` via controller
+3. PASS — Doctor checkboxes populated from `Doctor::where('is_active', true)->get()` via controller
+4. PASS — Two `<input type="date">` fields (target_date_from, target_date_to) in conditional panel
+5. PASS — Text input with name="target_patient", placeholder "Enter patient name or NRIC"
+6. PASS — JavaScript `toggleTargetFields()` hides all sections first, then shows only the matching one; stale data cleared by re-hiding
+7. PASS — Controller `send()` validates target_type (in:all,branch,doctor,appointment_date_range,specific_patient), target_ids[], target_date_from/to, and stores via `NotificationLog::create()` with all targeting fields
+8. PASS — `compose()` checks `auth()->user()->branch_id`; if set, filters doctors by `where('branch_id', $user->branch_id)`
 
 ### Failure Details
+None — all acceptance criteria PASS.
 
 ---
 
@@ -160,8 +169,14 @@ Per `docs/v2-decisions.md` Step 2 of Process 8.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
+- v2-decisions.md Process 8 Step 2: Targeting options (All / By branch / By doctor / By appointment date range / Specific patient) — all 5 implemented exactly as specified
+- v2-ux-spec.md Design System: Uses project colors (#0F1B3D primary, #00C9A7 accent, gray-200 borders) matching design tokens
+- Task scope: All in-scope items delivered; out-of-scope items (actual delivery, Plato patient search, FCM resolution) correctly deferred to later tasks
+- Code conventions: Blade template pattern matches existing admin forms (branches/create, doctors/create)
+- Branch Admin isolation: Doctor filtering by user->branch_id consistent with role-based access patterns used in other controllers
 
 ### Rejection Reason
+N/A

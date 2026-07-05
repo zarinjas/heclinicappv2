@@ -3,7 +3,7 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P8-T02 — Targeting System — Notifications (IN-REVIEW)
+P8-T02 — Targeting System — Notifications (DONE)
 
 ## Implementation Summary — P8-T02
 - `database/migrations/2026_07_05_000013_add_targeting_fields_to_notifications_log.php`: adds `target_date_from` and `target_date_to` columns to `notifications_log` table
