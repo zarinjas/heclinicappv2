@@ -105,3 +105,17 @@ Created `lib/core/widgets/hero_slider.dart`:
 ---
 
 ## QA Notes
+
+| # | Criterion | Result | Notes |
+|---|-----------|--------|-------|
+| 1 | PageView 180px height, 16px radius | PASS | SizedBox(height:180) + ClipRRect(AppRadius.radiusLG) |
+| 2 | Auto-scroll 4s with smooth animation | PASS | Timer.periodic(4s), animateToPage(350ms easeInOut), resets on page change |
+| 3 | Dot indicators: active accent, inactive grey | PASS | AnimatedContainer row, active=accent/18px wide pill, inactive=grey/opacity 0.4 |
+| 4 | Tap fires callback | PASS | GestureDetector(onTap: slide.onTap) per slide |
+| 5 | SizedBox.shrink when empty | PASS | Early return before column build |
+| 6 | Skeleton 180px shimmer | PASS | HeroSliderSkeleton: Container 180px + animate().shimmer() |
+| 7 | Dark mode | PASS | isDark applied to dot color, image placeholder, skeleton colors |
+| 8 | No hardcoded design tokens | PASS | All AppColors/AppRadius/AppSpacing |
+| 9 | flutter analyze zero errors | PASS | Confirmed zero output |
+
+**QA Result: PASSED** — All 9 criteria verified.
