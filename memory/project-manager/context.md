@@ -1,12 +1,21 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 7 — NOTIFICATIONS DONE)
+Last Updated: 2026-07-05 (UI Epic Phase 8 — PROFILE TAB tasks created)
 
 ## Current Process
-Epic: UI Migration — Phase 7 (Notifications Tab) — COMPLETE
+Epic: UI Migration — Phase 8 (Profile Tab & Settings) — IN PROGRESS (tasks created)
 
 ## Active Tasks
-(None — Phase 7 complete)
+| Task ID | Name | Status |
+|---------|------|--------|
+| UI-P8-T01 | Profile Screen | BACKLOG |
+| UI-P8-T02 | Edit Profile Screen | BACKLOG |
+| UI-P8-T03 | Change Password Screen | BACKLOG |
+| UI-P8-T04 | Biometric Settings | BACKLOG |
+| UI-P8-T05 | Notification Preferences | BACKLOG |
+| UI-P8-T06 | He Clinic Info | BACKLOG |
+| UI-P8-T07 | Privacy Policy | BACKLOG |
+| UI-P8-T08 | Terms of Service | BACKLOG |
 
 ## Phase 7 — COMPLETE
 | Task ID | Name | Status |
@@ -50,7 +59,7 @@ Epic: UI Migration — Phase 7 (Notifications Tab) — COMPLETE
 - Process 1 through Process 10 — ALL DONE
 
 ## Next Task to Create
-After Phase 6 tasks are DONE, create Phase 7 tasks (Notifications Tab).
+After Phase 8 tasks are DONE, create Phase 9 tasks (Loyalty Points Screens).
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`

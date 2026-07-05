@@ -1,6 +1,6 @@
 # Task Index
 
-Last Updated: 2026-07-05 (UI Epic Phase 6 tasks created)
+Last Updated: 2026-07-05 (UI Epic Phase 8 tasks created)
 
 | Task ID | Slug | Process | Step | Type | Assigned To | State | Done Date |
 |---------|------|---------|------|------|-------------|-------|-----------|
@@ -141,7 +141,23 @@ Last Updated: 2026-07-05 (UI Epic Phase 6 tasks created)
 | UI-P6-T03 | vitals-tab | Epic UI — Phase 6 | Step 6.3 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T04 | documents-tab | Epic UI — Phase 6 | Step 6.4 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P6-T05 | record-detail-viewer | Epic UI — Phase 6 | Step 6.5 | Flutter | flutter-developer | DONE | 2026-07-05 |
+**Phase 8 Dependency Order:**
+- All 8 tasks are parallel (no dependencies between them)
+- All tasks are Flutter type, assigned to flutter-developer
+- Each task references: docs/ui-migration-plan.md, docs/ui-design-system.md, docs/design-system-v2.png
+
+**Phase 7 Dependency Order:**
+- UI-P7-T01 (Notifications Screen) — single task, no dependencies
+
 | UI-P7-T01 | notifications-screen | Epic UI — Phase 7 | Step 7.1 | Flutter | flutter-developer | DONE | 2026-07-05 |
+| UI-P8-T01 | profile-screen | Epic UI — Phase 8 | Step 8.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T02 | edit-profile-screen | Epic UI — Phase 8 | Step 8.2 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T03 | change-password-screen | Epic UI — Phase 8 | Step 8.3 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T04 | biometric-settings | Epic UI — Phase 8 | Step 8.4 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T05 | notification-preferences | Epic UI — Phase 8 | Step 8.5 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T06 | clinic-info-screen | Epic UI — Phase 8 | Step 8.6 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T07 | privacy-policy-screen | Epic UI — Phase 8 | Step 8.7 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P8-T08 | terms-of-service-screen | Epic UI — Phase 8 | Step 8.8 | Flutter | flutter-developer | BACKLOG | — |
 
 **Phase 6 Dependency Order:**
 - UI-P6-T01 (Health Tab shell) — no dependencies, foundation for inner tabs
