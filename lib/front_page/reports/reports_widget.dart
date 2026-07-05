@@ -49,6 +49,9 @@ class _ReportsWidgetState extends State<ReportsWidget>
           if (_model.tabBarCurrentIndex == 1 && _model.vitalsData.isEmpty && !_model.isLoadingVitals) {
             _loadVitals();
           }
+          if (_model.tabBarCurrentIndex == 2 && _model.documentsList.isEmpty && !_model.isLoadingDocuments) {
+            _loadDocuments();
+          }
         });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -252,6 +255,52 @@ class _ReportsWidgetState extends State<ReportsWidget>
     } catch (e) {
       _model.vitalsError = 'Failed to load vitals data';
       _model.isLoadingVitals = false;
+      safeSetState(() {});
+    }
+  }
+
+  Future<void> _loadDocuments() async {
+    _model.isLoadingDocuments = true;
+    _model.documentsError = null;
+    safeSetState(() {});
+
+    try {
+      final patientId = FFAppState().idplato;
+      final response = await GetPatientDocumentsCall.call(patientId: patientId);
+
+      if (!response.succeeded) {
+        _model.documentsError = 'Failed to load documents';
+        _model.isLoadingDocuments = false;
+        safeSetState(() {});
+        return;
+      }
+
+      final body = response.jsonBody;
+      final names = GetPatientDocumentsCall.names(body);
+      final urls = GetPatientDocumentsCall.urls(body);
+      final uploadedAts = GetPatientDocumentsCall.uploadedAt(body);
+      final adminNotes = GetPatientDocumentsCall.adminNotes(body);
+      final sizeBytes = GetPatientDocumentsCall.sizeBytes(body);
+
+      final docs = <PatientDocument>[];
+      if (names != null) {
+        for (var i = 0; i < names.length; i++) {
+          docs.add(PatientDocument(
+            name: names[i],
+            url: i < (urls?.length ?? 0) ? (urls?[i] ?? '') : '',
+            uploadedAt: i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
+            adminNote: i < (adminNotes?.length ?? 0) ? adminNotes?[i] : null,
+            sizeBytes: i < (sizeBytes?.length ?? 0) ? (sizeBytes?[i] ?? 0) : 0,
+          ));
+        }
+      }
+
+      _model.documentsList = docs;
+      _model.isLoadingDocuments = false;
+      safeSetState(() {});
+    } catch (e) {
+      _model.documentsError = 'Failed to load documents';
+      _model.isLoadingDocuments = false;
       safeSetState(() {});
     }
   }
@@ -771,6 +820,188 @@ class _ReportsWidgetState extends State<ReportsWidget>
     );
   }
 
+  Widget _buildDocumentCard(PatientDocument doc) {
+    final dateFormatted = doc.uploadedAt.length >= 10
+        ? doc.uploadedAt.substring(0, 10)
+        : doc.uploadedAt;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Card(
+        color: AppColors.surface,
+        elevation: 0.0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: const BorderSide(color: AppColors.divider, width: 1.0),
+        ),
+        child: InkWell(
+          onTap: () => _onDocumentTap(doc),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(AppRadius.full),
+                  ),
+                  child: const Icon(
+                    Icons.picture_as_pdf,
+                    size: 20,
+                    color: AppColors.textInverse,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doc.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      if (dateFormatted.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Uploaded $dateFormatted',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                      if (doc.adminNote != null && doc.adminNote!.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          doc.adminNote!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onDocumentTap(PatientDocument doc) {
+    if (doc.url.isEmpty) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        height: MediaQuery.sizeOf(context).height * 0.9,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(AppRadius.full),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      doc.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: WebViewXPlus(
+                initialContent: doc.url,
+                initialSourceType: SourceType.url,
+                width: MediaQuery.sizeOf(context).width,
+                height: MediaQuery.sizeOf(context).height,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentsTab() {
+    if (_model.isLoadingDocuments) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: 4,
+        itemBuilder: (_, __) => const SkeletonListTile(),
+      );
+    }
+
+    if (_model.documentsError != null) {
+      return Center(
+        child: ErrorStateWidget(
+          message: _model.documentsError!,
+          onRetry: _loadDocuments,
+        ),
+      );
+    }
+
+    if (_model.documentsList.isEmpty) {
+      return const EmptyStateWidget(
+        icon: Icons.folder_outlined,
+        title: 'No documents yet',
+        subtitle: 'Your health records will appear here',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: _model.documentsList.length,
+      itemBuilder: (_, index) =>
+          _buildDocumentCard(_model.documentsList[index]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
@@ -834,11 +1065,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 children: [
                   _buildRecordsTab(),
                   _buildVitalsTab(),
-                  ListView.builder(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: 4,
-                    itemBuilder: (_, __) => const SkeletonListTile(),
-                  ),
+                  _buildDocumentsTab(),
                 ],
               ),
             ),

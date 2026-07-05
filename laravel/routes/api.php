@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DoctorConfigController;
+use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,4 +24,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::post('/v2/admin/appointments', [AppointmentController::class, 'store'])
         ->name('admin.appointments.store');
+
+    Route::get('/v2/patients/{id}/documents', [PatientDocumentController::class, 'index'])
+        ->name('patients.documents');
 });

@@ -1907,6 +1907,75 @@ class EditPatiendCall {
   }
 }
 
+class GetPatientDocumentsCall {
+  static Future<ApiCallResponse> call({
+    String? patientId = '',
+  }) async {
+    final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetPatientDocuments',
+      apiUrl: '$baseUrl/v2/patients/${patientId}/documents',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<String>? names(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].name''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? urls(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].url''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? uploadedAt(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].uploaded_at''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? adminNotes(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].admin_note''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<int>? sizeBytes(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].size_bytes''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<int>(x))
+          .withoutNulls
+          .toList();
+}
+
 class ApiPagingParams {
   int nextPageNumber = 0;
   int numItems = 0;

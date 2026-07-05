@@ -61,6 +61,22 @@ class HealthRecord {
   });
 }
 
+class PatientDocument {
+  final String name;
+  final String url;
+  final String uploadedAt;
+  final String? adminNote;
+  final int sizeBytes;
+
+  const PatientDocument({
+    required this.name,
+    required this.url,
+    required this.uploadedAt,
+    this.adminNote,
+    this.sizeBytes = 0,
+  });
+}
+
 class ReportsModel extends FlutterFlowModel<ReportsWidget> {
   ///  State fields for stateful widgets in this page.
 
@@ -84,6 +100,11 @@ class ReportsModel extends FlutterFlowModel<ReportsWidget> {
   List<VitalType> vitalsData = [];
   bool isLoadingVitals = false;
   String? vitalsError;
+
+  // Documents tab state
+  List<PatientDocument> documentsList = [];
+  bool isLoadingDocuments = false;
+  String? documentsError;
 
   @override
   void initState(BuildContext context) {}
