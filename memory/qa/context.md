@@ -3,4 +3,4 @@
 Last Updated: 2026-07-05
 
 ## Last QA Activity
-P1-T10 (remove-hardcoded-doctor-modals) — PASSED (8/8). All 17 modal directories deleted, new reusable DoctorDetailBottomSheetWidget verified, all call sites correctly updated, zero orphaned references.
+P3-T02 (pagination-helper) — PASSED (11/11). All 8 Plato list endpoints updated to use PaginationHelper.fetchAllPages(). Non-list endpoints untouched. Headers preserved for P3-T05.

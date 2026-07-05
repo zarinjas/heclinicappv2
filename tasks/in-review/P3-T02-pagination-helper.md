@@ -37,8 +37,20 @@ Plato API limits responses to **20 records per request**. The current app does n
 Created `lib/backend/api_requests/pagination_helper.dart` — standalone utility with `PaginationHelper.fetchAllPages()` that accepts a `PageFetcher` callback, loops `current_page=1,2,3...` until response returns fewer than 20 records (or empty), and merges all records into a single `ApiCallResponse`. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to use the helper: GetPatientCall, GetproviderCall, LetterCall, GetInvoiceCall, GetAppointmentCall, GetAppointmentUpcomingCall, GetAppointmentCodeCall, GetAppointmentCopyCall. Non-list endpoints (GetPatientbyidCall, CeknumberphoneCall, GetReportCall, GetAppointmentDetailsCall, EditPatiendCall, DeletePatientForAdminOnlyCall) left untouched. Rate limit headers from the final page are preserved in the merged response for future P3-T05 use.
 
 ## QA Notes
+QA Result: PASSED
+1. PASS — `PaginationHelper.fetchAllPages()` exists, loops `current_page` until `records.length < perPage`. 
+2. PASS — GetPatientCall uses pagination with `current_page` param.
+3. PASS — GetAppointmentCall and GetAppointmentUpcomingCall both updated.
+4. PASS — LetterCall updated with `current_page` param.
+5. PASS — GetInvoiceCall (LetterCopyCall equivalent) updated.
+6. PASS — GetproviderCall (GET /facility) updated.
+7. PASS — GetAppointmentCodeCall updated.
+8. PASS — GetAppointmentCopyCall (GET /appointments/calendars) updated.
+9. PASS — Non-list endpoints (GetPatientbyidCall, CeknumberphoneCall, GetReportCall, GetAppointmentDetailsCall, EditPatiendCall, DeletePatientForAdminOnlyCall) untouched.
+10. PASS — Headers of final page preserved in merged ApiCallResponse for future P3-T05 rate limit monitoring.
+11. PASS — Merged result returns ApiCallResponse with merged jsonBody (List), final page headers, and final page statusCode.
 
 ## Reviewer Notes
 
 ## Status
-IN-PROGRESS
+IN-REVIEW
