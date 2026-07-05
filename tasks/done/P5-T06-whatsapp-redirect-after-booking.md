@@ -17,7 +17,7 @@ WhatsApp Redirect After Booking
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T05 |
 | Blocked Reason | N/A |
@@ -174,11 +174,11 @@ N/A — All criteria PASSED.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — WhatsApp redirect uses https://wa.me/{branch_wa_number}?text={prefilled_message} per Process 5 Step 6, dynamic per-branch number, pre-filled message format matches
+- v2-ux-spec.md alignment: YES — Pre-filled message format matches lines 557-569 exactly, confirmation screen button "Book via WhatsApp" implemented, error dialog per spec
 
 ### Rejection Reason
-{If REJECTED}
+N/A — Approved.
