@@ -3,10 +3,10 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P3-T01 (global-api-error-interceptor) — IN-REVIEW. Implemented global API error interceptor via callback-based `ApiInterceptor` class. Created `lib/backend/api_requests/api_interceptor.dart`, wired into `ApiManager.makeApiCall()`, registered callbacks in `lib/main.dart`.
+P3-T02 (pagination-helper) — IN-REVIEW. Created `lib/backend/api_requests/pagination_helper.dart` with `PaginationHelper.fetchAllPages()` that loops `current_page` until response is empty. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to use the helper.
 
 ## Last Completed Task
-P1-T10 (remove-hardcoded-doctor-modals) — DONE. Replaced 17 hardcoded doctor modal components with single reusable `DoctorDetailBottomSheetWidget`.
+P3-T01 (global-api-error-interceptor) — DONE. Implemented global API error interceptor via callback-based `ApiInterceptor` class.
 
 ## Known Constraints
 - All Plato API calls must route through Laravel proxy

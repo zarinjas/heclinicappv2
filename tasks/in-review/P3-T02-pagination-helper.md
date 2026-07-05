@@ -34,6 +34,7 @@ Plato API limits responses to **20 records per request**. The current app does n
 - [ ] Merged results preserve the same `ApiCallResponse` structure (status code, headers of final page, merged `jsonBody`).
 
 ## Implementation Notes
+Created `lib/backend/api_requests/pagination_helper.dart` — standalone utility with `PaginationHelper.fetchAllPages()` that accepts a `PageFetcher` callback, loops `current_page=1,2,3...` until response returns fewer than 20 records (or empty), and merges all records into a single `ApiCallResponse`. Updated all 8 Plato list endpoint call classes in `api_calls.dart` to use the helper: GetPatientCall, GetproviderCall, LetterCall, GetInvoiceCall, GetAppointmentCall, GetAppointmentUpcomingCall, GetAppointmentCodeCall, GetAppointmentCopyCall. Non-list endpoints (GetPatientbyidCall, CeknumberphoneCall, GetReportCall, GetAppointmentDetailsCall, EditPatiendCall, DeletePatientForAdminOnlyCall) left untouched. Rate limit headers from the final page are preserved in the merged response for future P3-T05 use.
 
 ## QA Notes
 

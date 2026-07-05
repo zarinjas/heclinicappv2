@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/env_config.dart';
 import 'api_manager.dart';
+import 'pagination_helper.dart';
 
 export 'api_manager.dart' show ApiCallResponse;
 
@@ -579,22 +580,26 @@ class ForgotchangeCall {
 
 class GetPatientCall {
   static Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'getPatient',
-      apiUrl: '${EnvConfig.platomBaseUrl}/patient',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'getPatient',
+        apiUrl: '${EnvConfig.platomBaseUrl}/patient',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'Content-Type': 'application/json',
+        },
+        params: {
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? id(dynamic response) => (getJsonField(
@@ -646,22 +651,26 @@ class GetPatientCall {
 
 class GetproviderCall {
   static Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'getprovider',
-      apiUrl: '${EnvConfig.platomBaseUrl}/facility',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'Content-Type': 'application/json',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'getprovider',
+        apiUrl: '${EnvConfig.platomBaseUrl}/facility',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'Content-Type': 'application/json',
+        },
+        params: {
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? id(dynamic response) => (getJsonField(
@@ -1084,24 +1093,27 @@ class LetterCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
   }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'Letter',
-      apiUrl: '${EnvConfig.platomBaseUrl}/letter',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {
-        'patient_id': patientId,
-      },
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'Letter',
+        apiUrl: '${EnvConfig.platomBaseUrl}/letter',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'patient_id': patientId,
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? subject(dynamic response) => (getJsonField(
@@ -1146,24 +1158,27 @@ class GetInvoiceCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',
   }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'GetInvoice',
-      apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {
-        'patient_id': patientId,
-      },
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'GetInvoice',
+        apiUrl: '${EnvConfig.platomBaseUrl}/invoice',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'patient_id': patientId,
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? itemname(dynamic response) => (getJsonField(
@@ -1255,25 +1270,28 @@ class GetAppointmentCall {
     String? patientId = '',
     String? modifiedSince = '',
   }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'Get Appointment',
-      apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {
-        'patient_id': patientId,
-        'modified_since': modifiedSince,
-      },
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'Get Appointment',
+        apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'patient_id': patientId,
+          'modified_since': modifiedSince,
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
@@ -1301,25 +1319,28 @@ class GetAppointmentUpcomingCall {
     String? patientId = '',
     String? startDate = '',
   }) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'Get Appointment upcoming',
-      apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {
-        'patient_id': patientId,
-        'start_date': startDate,
-      },
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'Get Appointment upcoming',
+        apiUrl: '${EnvConfig.platomBaseUrl}/appointment',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'patient_id': patientId,
+          'start_date': startDate,
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
@@ -1421,23 +1442,27 @@ class GetAppointmentDetailsCall {
 
 class GetAppointmentCodeCall {
   static Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'Get Appointment Code',
-      apiUrl:
-          '${EnvConfig.platomBaseUrl}/appointment/codes',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'Get Appointment Code',
+        apiUrl:
+            '${EnvConfig.platomBaseUrl}/appointment/codes',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? codes(dynamic response) => (getJsonField(
@@ -1480,23 +1505,27 @@ class GetAppointmentCodeCall {
 
 class GetAppointmentCopyCall {
   static Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'Get Appointment Copy',
-      apiUrl:
-          '${EnvConfig.platomBaseUrl}/appointments/calendars',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
+    return PaginationHelper.fetchAllPages((currentPage) {
+      return ApiManager.instance.makeApiCall(
+        callName: 'Get Appointment Copy',
+        apiUrl:
+            '${EnvConfig.platomBaseUrl}/appointments/calendars',
+        callType: ApiCallType.GET,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {
+          'current_page': currentPage.toString(),
+        },
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+    });
   }
 
   static List<String>? start(dynamic response) => (getJsonField(
