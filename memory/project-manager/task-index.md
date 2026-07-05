@@ -126,7 +126,7 @@ Last Updated: 2026-07-05 (UI Epic Phase 4 tasks created)
 | UI-P3-T06 | doctors-section | Epic UI — Phase 3 | Step 3.6 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P3-T07 | health-articles-section | Epic UI — Phase 3 | Step 3.7 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P3-T08 | health-videos-section | Epic UI — Phase 3 | Step 3.8 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P4-T01 | booking-branch-screen | Epic UI — Phase 4 | Step 4.1 | Flutter | flutter-developer | BACKLOG | — |
+| UI-P4-T01 | booking-branch-screen | Epic UI — Phase 4 | Step 4.1 | Flutter | flutter-developer | IN-PROGRESS | — |
 | UI-P4-T02 | booking-doctor-screen | Epic UI — Phase 4 | Step 4.2 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P4-T03 | booking-datetime-screen | Epic UI — Phase 4 | Step 4.3 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P4-T04 | booking-confirm-screen | Epic UI — Phase 4 | Step 4.4 | Flutter | flutter-developer | BACKLOG | — |
