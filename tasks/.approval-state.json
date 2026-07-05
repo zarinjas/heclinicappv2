@@ -1,5 +1,5 @@
 {
-  "pending": true,
+  "pending": false,
   "batch": [
     {"task_id": "P9-T03", "title": "Articles CMS — Admin Panel + Mobile"},
     {"task_id": "P9-T04", "title": "Videos CMS — Admin Panel + Mobile"},
@@ -7,5 +7,5 @@
     {"task_id": "P9-T06", "title": "Branch Profiles CMS Enhancements — Admin Panel"}
   ],
   "created_at": "2026-07-05T00:00:00Z",
-  "approved": null
+  "approved": "2026-07-05T00:00:00Z"
 }
