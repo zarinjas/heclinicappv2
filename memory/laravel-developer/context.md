@@ -3,10 +3,23 @@
 Last Updated: 2026-07-05
 
 ## Active Task
-P2-T03 — Branch Management CRUD (IN-REVIEW)
+P2-T04 — Doctor Management CRUD (IN-REVIEW)
 
 ## Last Completed Task
-P2-T02 — MySQL Schema (DONE)
+P2-T03 — Branch Management CRUD (DONE)
+
+## Implementation Summary — P2-T04
+- DoctorController: full CRUD resource controller (index with search/branch/visibility filters, create, store with photo upload to storage/app/public/doctors/, show, edit, update with photo replacement, destroy with photo cleanup)
+- StoreDoctorRequest: validation (name required, branch_id required, photo max 2MB image, bio max 500 chars, plato_facility_id unique, is_visible_in_app/is_active boolean)
+- UpdateDoctorRequest: same rules with current doctor ignore on unique plato_facility_id
+- Blade views: index (table with avatar, name, specialty, branch, visibility eye/eye-off badge, active/inactive badge, pagination, branch filter, visibility filter, text search), create/edit forms (photo file input with preview, branch dropdown, bio textarea with char counter, is_visible_in_app toggle default OFF, is_active toggle), show detail (photo, badges, timestamps, calendar count)
+- Updated admin.blade.php: Doctors sidebar "Soon" placeholder replaced with active route link
+- Routes: Route::resource('doctors', DoctorController::class) under auth+role middleware
+- DoctorSeeder: 3 sample doctors (Ahmad, Siti at Shah Alam visible; Rajesh at Bangi hidden)
+- DatabaseSeeder: added DoctorSeeder call
+- Flash success/error messages via session on all CRUD operations
+- Delete confirmation via JS confirm() dialog with cascade warning
+- Photo upload: stored in storage/app/public/doctors/, deleted on doctor removal, replaced on update
 
 ## Implementation Summary — P2-T03
 - BranchController: full CRUD resource controller (index, create, store, show, edit, update, destroy)
@@ -48,5 +61,5 @@ P2-T02 — MySQL Schema (DONE)
 - Admin Panel timeout: 10s per Plato request, retry once, then fail with message
 
 ## Pending Items
-- Sidebar links for Doctors, Calendar Setup are placeholders — implemented in P2-T04, P2-T06
+- Calendar Setup sidebar link is placeholder — implemented in P2-T06
 - Admin password reset flow not implemented (out of scope)

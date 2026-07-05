@@ -17,7 +17,7 @@ Doctor Management Module — CRUD with Visibility Toggle and Plato Facility Link
 | Type | Laravel |
 | Assigned To | laravel-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | NO |
 | Depends On | P2-T03 |
 | Blocked Reason | N/A |
@@ -124,16 +124,34 @@ Build the Doctor Management module in the Laravel Admin Panel. Provide full CRUD
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled}
+Created full Doctor Management CRUD module in Laravel Admin Panel. Implemented DoctorController with index (searchable, filterable by branch and visibility), create, store (with photo upload to storage/app/public/doctors/), show, edit, update (with photo replacement), and destroy (with photo cleanup and cascade delete). Created Blade views: index (table with name/avatar, specialty, branch, visibility badge with eye icon, active badge, actions), create/edit forms (photo upload, branch dropdown, specialty, bio with 500 char counter, Plato facility ID, is_visible_in_app toggle default OFF, is_active toggle), show page. Added doctors resource route to web.php, added Doctors sidebar nav link (replaced "Soon" placeholder), created DoctorSeeder with 3 sample doctors, registered in DatabaseSeeder.
 
 ### Files Changed
-- {To be filled}
+- `laravel/app/Http/Controllers/Admin/DoctorController.php` (new)
+- `laravel/app/Http/Requests/StoreDoctorRequest.php` (new)
+- `laravel/app/Http/Requests/UpdateDoctorRequest.php` (new)
+- `laravel/resources/views/admin/doctors/index.blade.php` (new)
+- `laravel/resources/views/admin/doctors/create.blade.php` (new)
+- `laravel/resources/views/admin/doctors/edit.blade.php` (new)
+- `laravel/resources/views/admin/doctors/show.blade.php` (new)
+- `laravel/routes/web.php` (modified — added doctors resource route)
+- `laravel/resources/views/layouts/admin.blade.php` (modified — replaced Doctors "Soon" placeholder with active nav link)
+- `laravel/database/seeders/DoctorSeeder.php` (new)
+- `laravel/database/seeders/DatabaseSeeder.php` (modified — added DoctorSeeder)
 
 ### Decisions Made During Implementation
-{To be filled}
+- Used Storage facade for public disk photo uploads (requires `php artisan storage:link`)
+- Photo upload limited to 2MB, jpg/jpeg/png/webp formats
+- is_visible_in_app defaults to 0 (OFF/false) via checkbox hidden input pattern, matching BranchController convention
+- Cascade delete on plato_calendars handled by FK constraint in migration (cascadeOnDelete)
+- Branch dropdown filtered to active branches only
+- Index page includes branch filter dropdown, visibility filter checkbox, and text search
 
 ### Known Limitations
-{To be filled}
+- Requires `php artisan storage:link` to serve uploaded photos
+- No image cropping/resizing — photos uploaded as-is
+- PlatoFacility model not yet created; plato_facility_id is just a string reference
+- No Plato API sync for doctor-facility validation
 
 ---
 
