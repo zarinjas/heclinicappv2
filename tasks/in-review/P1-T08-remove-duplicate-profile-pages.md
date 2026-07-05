@@ -69,3 +69,16 @@ IN-REVIEW
 - Removed `ProfileCopyWidget` export from `lib/index.dart`.
 - Deleted `lib/front_page/profile_copy/` directory entirely.
 - Verified: `grep -r ProfileCopy lib/` returns zero results.
+
+## QA Notes
+**Result: PASSED (9/9)**
+
+1. [PASS] Only one profile page directory exists under `lib/front_page/` — `profile_copy/` deleted, `profile/` remains.
+2. [PASS] Bottom navigation tab 3 uses `'Profile': ProfileWidget()`.
+3. [PASS] GoRouter route `/profile` has no "Copy" naming.
+4. [PASS] `lib/index.dart` does not export ProfileCopyWidget.
+5. [PASS] `grep -r ProfileCopy lib/` returns zero results.
+6. [PASS] ProfileWidget displays name and email (phone fallback preserved, as before).
+7. [PASS] Edit Profile navigation via `pushNamed(ProfileEditPageWidget)` with all params intact.
+8. [PASS] Log out shows confirmation dialog, calls `actions.logout()`, navigates to LoginPage.
+9. [PASS] Changes are pure deletions + renames — no new imports or logic. Non-breaking.
