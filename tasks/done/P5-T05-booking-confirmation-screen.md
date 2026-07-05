@@ -17,7 +17,7 @@ Booking Confirmation Screen
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-05 |
-| Status | IN-REVIEW |
+| Status | DONE |
 | Parallel | NO |
 | Depends On | P5-T04 |
 | Blocked Reason | N/A |
@@ -171,11 +171,11 @@ None — all criteria PASSED.
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: APPROVED / REJECTED
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: YES / NO —
-- v2-ux-spec.md alignment: YES / NO —
+- v2-decisions.md alignment: YES — Process 5 Step 5 specifies "Confirmation screen — summary of Branch, Doctor, Date, Time + slot disclaimer banner." Implementation matches exactly with all fields and disclaimer banner present.
+- v2-ux-spec.md alignment: YES — Layout matches spec (lines 540-552): step indicator (step 4 active), summary card (Branch/Doctor/Date/Time/Patient with Name+NRIC), info banner (teal styling, correct disclaimer text), Book via WhatsApp button. WhatsApp deep link (lines 554-569) correctly deferred to P5-T06 (Process 5 Step 6).
 
 ### Rejection Reason
-{If REJECTED}
+N/A — APPROVED.
