@@ -28,8 +28,10 @@ import 'booking/my_bookings_screen.dart';
 import 'content/article_detail_screen.dart';
 import 'content/articles_list_screen.dart';
 import 'content/branch_detail_screen.dart';
+import 'content/doctor_detail_screen.dart';
 import 'content/doctors_list_screen.dart';
 import 'content/packages_screen.dart';
+import 'content/telehealth_screen.dart';
 import 'content/videos_list_screen.dart';
 import 'loyalty/my_points_screen.dart';
 import 'profile/biometric_screen.dart';
@@ -116,6 +118,8 @@ class PrototypeApp extends StatelessWidget {
         '/article-detail': (_) => const ArticleDetailScreen(),
         '/videos-list': (_) => const VideosListScreen(),
         '/packages': (_) => const PackagesScreen(),
+        '/telehealth': (_) => const TelehealthScreen(),
+        '/doctor-detail': (_) => const DoctorDetailScreen(),
         '/doctors-list': (_) => const DoctorsListScreen(),
         '/branch-detail': (_) => const BranchDetailScreen(),
         '/health': (_) => const PrototypeShell(initialTab: 2),

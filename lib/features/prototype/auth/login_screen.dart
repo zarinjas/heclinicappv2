@@ -131,13 +131,21 @@ class _LoginScreenState extends State<LoginScreen> {
             _SocialButton(
               icon: Icons.g_mobiledata_rounded,
               label: 'Continue with Google',
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Coming soon'), duration: Duration(seconds: 2)),
+                );
+              },
             ),
             const SizedBox(height: AppSpacing.space12),
             _SocialButton(
               icon: Icons.apple,
               label: 'Continue with Apple',
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Coming soon'), duration: Duration(seconds: 2)),
+                );
+              },
             ),
             const SizedBox(height: AppSpacing.space32),
             Center(

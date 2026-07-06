@@ -70,19 +70,28 @@ class ClinicInfoScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.space8),
-                  const _BranchCard(
-                    name: 'TTDI',
-                    address: 'No. 12, Jalan Burhanuddin Helmi,\nTaman Tun Dr Ismail, 60000 KL',
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/branch-detail'),
+                    child: const _BranchCard(
+                      name: 'TTDI',
+                      address: 'No. 12, Jalan Burhanuddin Helmi,\nTaman Tun Dr Ismail, 60000 KL',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.space12),
-                  const _BranchCard(
-                    name: 'Bangsar',
-                    address: 'No. 45, Jalan Telawi 3,\nBangsar Baru, 59100 KL',
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/branch-detail'),
+                    child: const _BranchCard(
+                      name: 'Bangsar',
+                      address: 'No. 45, Jalan Telawi 3,\nBangsar Baru, 59100 KL',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.space12),
-                  const _BranchCard(
-                    name: 'PJ',
-                    address: 'No. 88, Jalan SS 21/56,\nDamansara Utama, 47400 PJ',
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, '/branch-detail'),
+                    child: const _BranchCard(
+                      name: 'PJ',
+                      address: 'No. 88, Jalan SS 21/56,\nDamansara Utama, 47400 PJ',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.space16),
                   Text(

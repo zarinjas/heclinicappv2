@@ -44,7 +44,7 @@ class HomeScreenContent extends StatelessWidget {
             icon: Icons.video_call_outlined,
             label: 'Telehealth',
             tint: const Color(0xFFF5A623),
-            onTap: () => onNavigate('/packages'),
+            onTap: () => onNavigate('/telehealth'),
           ),
           CompactQuickAction(
             icon: Icons.medical_information_outlined,
@@ -330,7 +330,7 @@ class HomeScreenContent extends StatelessWidget {
                 durationLabel: v.duration,
                 videoAspectRatio: 9 / 16,
                 platformLabel: 'TikTok',
-                onTap: () {},
+                onTap: () => nav('/videos-list'),
               );
             },
           ),

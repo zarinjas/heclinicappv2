@@ -50,7 +50,15 @@ class ForgotOtpScreen extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Reset code sent!'),
+                        backgroundColor: AppColors.success,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
                   child: Text(
                     'Resend',
                     style: AppTextStyles.body2.copyWith(

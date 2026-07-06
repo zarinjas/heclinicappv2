@@ -71,6 +71,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  void _markAsRead(int index) {
+    setState(() {
+      _notifications[index] = _NotificationData(
+        title: _notifications[index].title,
+        body: _notifications[index].body,
+        isRead: true,
+        type: _notifications[index].type,
+      );
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Opened: ${_notifications[index].title}'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,6 +121,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               body: n.body,
               isRead: n.isRead,
               type: n.type,
+              onTap: () => _markAsRead(index),
               onDismiss: () => _dismiss(index),
             ),
           );
