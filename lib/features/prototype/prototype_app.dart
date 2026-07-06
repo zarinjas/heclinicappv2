@@ -33,6 +33,8 @@ import 'content/doctors_list_screen.dart';
 import 'content/packages_screen.dart';
 import 'content/telehealth_screen.dart';
 import 'content/videos_list_screen.dart';
+import 'content/vouchers_list_screen.dart';
+import 'content/my_vouchers_screen.dart';
 import 'loyalty/my_points_screen.dart';
 import 'profile/biometric_screen.dart';
 import 'profile/change_password_screen.dart';
@@ -118,6 +120,8 @@ class PrototypeApp extends StatelessWidget {
         '/article-detail': (_) => const ArticleDetailScreen(),
         '/videos-list': (_) => const VideosListScreen(),
         '/packages': (_) => const PackagesScreen(),
+        '/vouchers': (_) => const VouchersListScreen(),
+        '/my-vouchers': (_) => const MyVouchersScreen(),
         '/telehealth': (_) => const TelehealthScreen(),
         '/doctor-detail': (_) => const DoctorDetailScreen(),
         '/doctors-list': (_) => const DoctorsListScreen(),

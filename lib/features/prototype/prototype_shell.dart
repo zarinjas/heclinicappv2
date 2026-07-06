@@ -173,6 +173,14 @@ class _PrototypeShellState extends State<PrototypeShell> {
               },
             ),
             _drawerItem(
+              icon: Icons.confirmation_num_outlined,
+              label: 'Vouchers & Deals',
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/vouchers');
+              },
+            ),
+            _drawerItem(
               icon: Icons.star_outline_rounded,
               label: 'My Points',
               onTap: () {
