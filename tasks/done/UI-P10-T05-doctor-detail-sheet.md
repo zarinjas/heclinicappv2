@@ -11,7 +11,8 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-06 |
-| Status | IN-REVIEW |
+| Status | DONE |
+| Done Date | 2026-07-06 |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -165,12 +166,13 @@ Created `lib/features/doctors/doctor_detail_sheet.dart` — V2 Doctor Detail Bot
 
 > Filled in by Reviewer after QA passes.
 
-### Decision: {APPROVED / REJECTED}
+### Decision: APPROVED
 
 ### Alignment Check
-- v2-decisions.md alignment: {YES / NO} — {note}
-- v2-ux-spec.md alignment: {YES / NO} — {note}
-- ui-design-system.md compliance: {YES / NO} — {note}
+- v2-decisions.md alignment: YES — Doctor Management (§390): doctor profiles from CMS, bottom sheet with photo, name, specialty, branch, bio, Book Appointment CTA. Replaces 24 hardcoded doctor modals.
+- v2-ux-spec.md alignment: YES — Doctor Detail Bottom Sheet (lines 654-669): handle bar, doctor photo (100px circle centered), name (heading-md centered), specialty (body-md secondary centered), branch (body-sm secondary centered), About section with bio, Book Appointment primary button full width.
+- ui-design-system.md compliance: YES — AppColors (surfaceDark, dividerDark, textPrimaryDark, textSecondaryDark, accent), AppTextStyles (heading3, body1, body2, caption), AppSpacing (space2-space32), AppBottomSheet.show() for presentation, AppButton.primary for Book Appointment, CircleAvatar with fallback person icon, dark mode (isDark for all colors), zero Color(0xFF...) patterns, zero FlutterFlow references.
+- ui-migration-plan.md alignment: YES — Phase 10.5, Doctor Detail at `lib/features/doctors/doctor_detail_sheet.dart`, AppBottomSheet variant, photo + name + specialty + branch + bio + Book Appointment button.
 
 ### Rejection Reason
-{If REJECTED: describe specific deviation.}
+N/A
