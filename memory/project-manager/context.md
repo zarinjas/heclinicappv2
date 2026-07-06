@@ -1,16 +1,31 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-05 (UI Epic Phase 9 — COMPLETE; all tasks DONE)
+Last Updated: 2026-07-06 (UI Epic Phase 10 tasks created)
 
 ## Current Process
-Epic: UI Migration — Phase 9 (Loyalty Points Screens) — COMPLETE
+Epic: UI Migration — Phase 10 (Content Screens) — BACKLOG
 
 ## Active Tasks
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P9-T01 | My Points Screen | DONE |
-| UI-P9-T02 | Redeem Points Bottom Sheet | DONE |
-| UI-P9-T03 | Redemption Code Modal | DONE |
+| UI-P10-T01 | Articles List Screen | BACKLOG |
+| UI-P10-T02 | Article Detail Screen | BACKLOG |
+| UI-P10-T03 | Videos List Screen | BACKLOG |
+| UI-P10-T04 | Service Packages Screen | BACKLOG |
+| UI-P10-T05 | Doctor Detail Bottom Sheet | BACKLOG |
+| UI-P10-T06 | All Doctors List Screen | BACKLOG |
+| UI-P10-T07 | Branch Detail Screen | BACKLOG |
+
+## Phase 10 — Content Screens
+| Task ID | Name | Status |
+|---------|------|--------|
+| UI-P10-T01 | Articles List Screen | BACKLOG |
+| UI-P10-T02 | Article Detail Screen | BACKLOG |
+| UI-P10-T03 | Videos List Screen | BACKLOG |
+| UI-P10-T04 | Service Packages Screen | BACKLOG |
+| UI-P10-T05 | Doctor Detail Bottom Sheet | BACKLOG |
+| UI-P10-T06 | All Doctors List Screen | BACKLOG |
+| UI-P10-T07 | Branch Detail Screen | BACKLOG |
 
 ## Phase 7 — COMPLETE
 | Task ID | Name | Status |
@@ -54,7 +69,7 @@ Epic: UI Migration — Phase 9 (Loyalty Points Screens) — COMPLETE
 - Process 1 through Process 10 — ALL DONE
 
 ## Next Task to Create
-After Phase 9 tasks are DONE, create Phase 10 tasks (Content Screens: Articles, Videos, Service Packages, Doctor Profiles, Branch Detail).
+After Phase 10 tasks are DONE, proceed to Phase 11 (Dialog Consolidation) per ui-migration-plan.md.
 
 ## Agentic AI Setup
 - AI Director workflow: `.github/workflows/agent-director.yml`
