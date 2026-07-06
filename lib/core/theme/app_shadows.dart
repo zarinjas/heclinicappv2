@@ -1,9 +1,9 @@
-import 'dart:ui';
+import 'package:flutter/widgets.dart';
 
 class AppShadows {
   AppShadows._();
 
-  static const List<BoxShadow> shadowLow = [
+  static const shadowLow = [
     BoxShadow(
       color: Color(0x0F000000),
       offset: Offset(0, 1),
@@ -12,7 +12,7 @@ class AppShadows {
     ),
   ];
 
-  static const List<BoxShadow> shadowMid = [
+  static const shadowMid = [
     BoxShadow(
       color: Color(0x1A000000),
       offset: Offset(0, 4),
@@ -21,7 +21,7 @@ class AppShadows {
     ),
   ];
 
-  static const List<BoxShadow> shadowHigh = [
+  static const shadowHigh = [
     BoxShadow(
       color: Color(0x29000000),
       offset: Offset(0, 8),
@@ -30,7 +30,7 @@ class AppShadows {
     ),
   ];
 
-  static const List<BoxShadow> shadowNav = [
+  static const shadowNav = [
     BoxShadow(
       color: Color(0x14000000),
       offset: Offset(0, -2),

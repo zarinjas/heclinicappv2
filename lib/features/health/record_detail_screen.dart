@@ -105,9 +105,9 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
   Widget _buildSkeleton() {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.space16),
-      children: const [
+      children: [
         AppSkeleton.card(),
-        SizedBox(height: AppSpacing.space16),
+        const SizedBox(height: AppSpacing.space16),
         AppSkeleton.card(),
       ],
     );

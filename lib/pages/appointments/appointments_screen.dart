@@ -140,7 +140,8 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
 
         past.sort(
           (a, b) => (b['start'] as DateTime?)
-              .compareTo(a['start'] as DateTime? ?? DateTime(0)),
+                  ?.compareTo(a['start'] as DateTime? ?? DateTime(0)) ??
+              0,
         );
 
         setState(() {
@@ -609,11 +610,10 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                   ? () => context.pushNamed('/branchSelectionScreen')
                   : null,
             ),
+          ),
         ),
-      ),
-    ),
-    );
-  }
+      );
+    }
 
     return _pullToRefresh(
       isUpcoming,
@@ -787,6 +787,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
             ),
           ),
         ),
+      ),
       ),
     );
   }

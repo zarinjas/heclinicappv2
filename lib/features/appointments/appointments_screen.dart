@@ -218,7 +218,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       padding: const EdgeInsets.all(AppSpacing.space16),
       itemCount: 5,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
-      itemBuilder: (_, i) => const AppSkeleton.appointmentCard(),
+      itemBuilder: (_, i) => AppSkeleton.appointmentCard(),
     );
   }
 

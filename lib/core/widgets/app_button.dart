@@ -154,12 +154,12 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  Border? _border() {
+  BorderSide? _border() {
     final isDisabled = onPressed == null;
     if (isDisabled) return null;
     switch (variant) {
       case AppButtonVariant.secondary:
-        return Border.all(color: AppColors.accent, width: 1.5);
+        return const BorderSide(color: AppColors.accent, width: 1.5);
       default:
         return null;
     }

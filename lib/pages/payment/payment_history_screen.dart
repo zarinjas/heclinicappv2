@@ -76,14 +76,15 @@ class _PaymentHistoryScreenWidgetState
 
   Future<void> _fetchPayments({bool isLoadMore = false}) async {
     try {
-      final result = await GetPaymentHistoryCall.call(
+      final api = GetPaymentHistoryCall();
+      final result = await api.call(
         page: _currentPage,
         limit: 20,
       );
 
       if (result.succeeded) {
-        final data = GetPaymentHistoryCall.data(result.jsonBody);
-        _lastPage = GetPaymentHistoryCall.lastPage(result.jsonBody);
+        final data = api.data(result.jsonBody);
+        _lastPage = api.lastPage(result.jsonBody);
 
         final parsed = <Map<String, dynamic>>[];
         if (data != null) {

@@ -70,7 +70,7 @@ class _VitalsTabState extends State<VitalsTab> {
       padding: const EdgeInsets.all(AppSpacing.space16),
       itemCount: 3,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space16),
-      itemBuilder: (_, i) => const AppSkeleton.card(),
+      itemBuilder: (_, i) => AppSkeleton.card(),
     );
   }
 

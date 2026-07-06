@@ -102,7 +102,7 @@ class VitalsChartSkeleton extends StatelessWidget {
         children: [
           AppSkeleton.slider(),
           const SizedBox(height: AppSpacing.space8),
-          const AppSkeleton.listItem(),
+          AppSkeleton.listItem(),
         ],
       ),
     );

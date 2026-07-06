@@ -42,15 +42,16 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
     });
 
     try {
-      final result = await GetQueueStatusCall.call();
+      final api = GetQueueStatusCall();
+      final result = await api.call();
 
       if (result.succeeded) {
         final body = result.jsonBody;
-        _queueNumber = GetQueueStatusCall.queueNumber(body);
-        _patientName = GetQueueStatusCall.patientName(body);
-        _status = GetQueueStatusCall.status(body);
-        _estimatedWait = GetQueueStatusCall.estimatedWait(body);
-        _currentServing = GetQueueStatusCall.currentServing(body);
+        _queueNumber = api.queueNumber(body);
+        _patientName = api.patientName(body);
+        _status = api.status(body);
+        _estimatedWait = api.estimatedWait(body);
+        _currentServing = api.currentServing(body);
 
         safeSetState(() {
           _isLoading = false;

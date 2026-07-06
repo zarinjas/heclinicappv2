@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
 import '../../backend/backend.dart';
@@ -115,7 +116,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
       itemCount: 5,
-      itemBuilder: (_, __) => const Padding(
+      itemBuilder: (_, __) => Padding(
         padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.space16,
           vertical: AppSpacing.space4,
@@ -240,3 +241,4 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
     );
   }
+}

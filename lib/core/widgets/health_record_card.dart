@@ -108,6 +108,12 @@ class HealthRecordCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base = isDark ? AppColors.skeletonBaseDark : AppColors.skeletonBase;
+
+    Widget box(double w, double h) => Container(
+      width: w, height: h,
+      decoration: BoxDecoration(color: base, borderRadius: BorderRadius.circular(4)),
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.space16),
@@ -117,20 +123,23 @@ class HealthRecordCardSkeleton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const _ShimmerCircle(size: 40),
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(color: base, shape: BoxShape.circle),
+          ),
           const SizedBox(width: AppSpacing.space16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _ShimmerBox(width: 160, height: 14),
+                box(160, 14),
                 const SizedBox(height: AppSpacing.space8),
-                const _ShimmerBox(width: 120, height: 12),
+                box(120, 12),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.space8),
-          const _ShimmerBox(width: 72, height: 12),
+          box(72, 12),
         ],
       ),
     );

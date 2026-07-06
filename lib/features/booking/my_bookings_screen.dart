@@ -7,6 +7,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_empty_state.dart';
+import '../../core/widgets/app_chip.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_skeleton.dart';
 import '../../core/widgets/appointment_card.dart';
@@ -229,7 +230,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         itemCount: 5,
         separatorBuilder: (_, __) =>
             const SizedBox(height: AppSpacing.space12),
-        itemBuilder: (_, i) => const AppSkeleton.appointmentCard(),
+        itemBuilder: (_, i) => AppSkeleton.appointmentCard(),
       );
     }
 
@@ -265,7 +266,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             padding: const EdgeInsets.symmetric(
               vertical: AppSpacing.space12,
             ),
-            child: const Center(
+            child: Center(
               child: AppSkeleton.appointmentCard(),
             ),
           );

@@ -497,7 +497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   context.pushNamed(MyBookingPageWidget.routeName),
             ),
             const SizedBox(height: AppSpacing.space12),
-            const AppSkeleton.appointmentCard(),
+            AppSkeleton.appointmentCard(),
           ],
         ),
       );
@@ -730,7 +730,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(
                         right: AppSpacing.space12),
-                    child: const AppSkeleton.articleCard(),
+                    child: AppSkeleton.articleCard(),
                   ),
                 ),
               ),
@@ -852,9 +852,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: AppSpacing.space12),
             Row(
-              children: const [
+              children: [
                 Expanded(child: AppSkeleton.videoGrid()),
-                SizedBox(width: AppSpacing.space16),
+                const SizedBox(width: AppSpacing.space16),
                 Expanded(child: AppSkeleton.videoGrid()),
               ],
             ),

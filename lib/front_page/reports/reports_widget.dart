@@ -11,6 +11,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:webviewx_plus/webviewx_plus.dart';
 import 'reports_model.dart';
 export 'reports_model.dart';
 
@@ -106,7 +107,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 date: i < (times?.length ?? 0) ? (times?[i] ?? '') : '',
                 author: i < (authors?.length ?? 0) ? (authors?[i] ?? '') : '',
                 detailData: notes[i],
-                kategori: i < (kategoris?.length ?? 0) ? kategoris?[i] : null,
+                kategori: kategoris != null && i < kategoris.length ? kategoris[i] : null,
                 diagnosis: i < (diagnosisList?.length ?? 0)
                     ? (diagnosisList?[i] is List ? List<String>.from(diagnosisList![i]) : null)
                     : null,
@@ -131,7 +132,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 title: subjects[i],
                 date: i < (tgLs?.length ?? 0) ? (tgLs?[i] ?? '') : '',
                 author: i < (authors?.length ?? 0) ? (authors?[i] ?? '') : '',
-                detailData: i < (htmls?.length ?? 0) ? htmls?[i] : null,
+                detailData: htmls != null && i < htmls.length ? htmls[i] : null,
               ));
             }
           }
@@ -305,7 +306,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
             name: names[i],
             url: i < (urls?.length ?? 0) ? (urls?[i] ?? '') : '',
             uploadedAt: i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
-            adminNote: i < (adminNotes?.length ?? 0) ? adminNotes?[i] : null,
+            adminNote: adminNotes != null && i < adminNotes.length ? adminNotes[i] : null,
             sizeBytes: i < (sizeBytes?.length ?? 0) ? (sizeBytes?[i] ?? 0) : 0,
           ));
         }
@@ -468,7 +469,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                     ),
                   ),
                   Expanded(
-                    child: WebViewXPlus(
+                    child: WebViewX(
                       initialContent: record.detailData!,
                       initialSourceType: SourceType.url,
                       width: MediaQuery.sizeOf(context).width,
@@ -983,7 +984,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
               ),
             ),
             Expanded(
-              child: WebViewXPlus(
+              child: WebViewX(
                 initialContent: doc.url,
                 initialSourceType: SourceType.url,
                 width: MediaQuery.sizeOf(context).width,

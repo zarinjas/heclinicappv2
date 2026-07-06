@@ -70,7 +70,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
       padding: const EdgeInsets.all(AppSpacing.space16),
       itemCount: 4,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
-      itemBuilder: (_, i) => const AppSkeleton.listItem(),
+      itemBuilder: (_, i) => AppSkeleton.listItem(),
     );
   }
 

@@ -7,7 +7,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'service_package_widget.dart' show ServicePackageWidget;
 
-class ServicePackageModel extends FlutterFlowModel<ServicePackageWidget> {
+class ServicePackageModel extends FlutterFlowModel<ServicePackageWidget>
+    with ChangeNotifier {
   bool isLoading = true;
   bool hasError = false;
   String errorMessage = '';
@@ -17,7 +18,9 @@ class ServicePackageModel extends FlutterFlowModel<ServicePackageWidget> {
   void initState(BuildContext context) {}
 
   @override
-  void dispose() {}
+  void dispose() {
+    super.dispose();
+  }
 
   Future<void> loadPackages() async {
     isLoading = true;

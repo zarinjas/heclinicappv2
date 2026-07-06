@@ -477,7 +477,7 @@ class _MyPointsScreenState extends State<MyPointsScreen> {
           ),
           const SizedBox(height: AppSpacing.space32),
           for (int i = 0; i < 5; i++) ...[
-            const AppSkeleton.listItem(),
+            AppSkeleton.listItem(),
             if (i < 4) const SizedBox(height: AppSpacing.space4),
           ],
         ],

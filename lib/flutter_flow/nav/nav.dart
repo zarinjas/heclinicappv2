@@ -23,9 +23,6 @@ import '/pages/booking/doctor_selection_screen.dart';
 import '/pages/booking/date_time_slot_screen.dart';
 import '/pages/booking/confirmation_screen.dart';
 import '/pages/appointments/appointments_screen.dart';
-import '/features/profile/clinic_info_screen.dart';
-import '/features/profile/privacy_screen.dart';
-import '/features/profile/terms_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -336,21 +333,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: BookingConfirmationScreenWidget.routePath,
           builder: (context, params) =>
               const BookingConfirmationScreenWidget(),
-        ),
-        FFRoute(
-          name: ClinicInfoScreen.routeName,
-          path: ClinicInfoScreen.routePath,
-          builder: (context, params) => const ClinicInfoScreen(),
-        ),
-        FFRoute(
-          name: PrivacyScreen.routeName,
-          path: PrivacyScreen.routePath,
-          builder: (context, params) => const PrivacyScreen(),
-        ),
-        FFRoute(
-          name: TermsScreen.routeName,
-          path: TermsScreen.routePath,
-          builder: (context, params) => const TermsScreen(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
