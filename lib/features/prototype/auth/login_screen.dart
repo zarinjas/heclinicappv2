@@ -16,12 +16,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  int _activeTab = 0; // 0 = Email, 1 = Phone
 
   @override
   void dispose() {
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -44,113 +47,267 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.space24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back',
-              style: AppTextStyles.heading2.copyWith(
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space4),
-            Text(
-              'Sign in to continue',
-              style: AppTextStyles.body1.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space32),
-            AppInput(
-              controller: _emailController,
-              label: 'Email',
-              placeholder: 'your@email.com',
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            AppInput(
-              controller: _passwordController,
-              label: 'Password',
-              placeholder: 'Enter password',
-              isPassword: true,
-            ),
-            const SizedBox(height: AppSpacing.space8),
-            Row(
-              children: [
-                const Spacer(),
-                GestureDetector(
-                  onTap: () =>
-                      Navigator.pushNamed(context, '/forgot-email'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.space24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: AppSpacing.space32),
+              // Branded logo
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.accent, Color(0xFF27F5A3)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
                   child: Text(
-                    'Forgot Password?',
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.accent,
-                      fontWeight: FontWeight.w600,
+                    'HE',
+                    style: AppTextStyles.heading2.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.space24),
-            AppButton.primary(
-              label: 'Log In',
-              onPressed: _onLogIn,
-              isLoading: _isLoading,
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            Row(
-              children: [
-                const Expanded(
-                  child: Divider(color: AppColors.divider),
+              ),
+              const SizedBox(height: AppSpacing.space12),
+              Text(
+                'He Medical Clinic',
+                style: AppTextStyles.heading3.copyWith(
+                  color: AppColors.primary,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.space16,
+              ),
+              const SizedBox(height: AppSpacing.space32),
+              // Welcome text
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Welcome back',
+                  style: AppTextStyles.heading2.copyWith(
+                    color: AppColors.primary,
                   ),
-                  child: Text(
-                    'or continue with',
-                    style: AppTextStyles.body2.copyWith(
-                      color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.space4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Sign in to your account',
+                  style: AppTextStyles.body1.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.space24),
+              // Tab switcher
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _activeTab = 0),
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: _activeTab == 0
+                                ? AppColors.accent
+                                : Colors.transparent,
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.radiusFull),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Email',
+                              style: AppTextStyles.label.copyWith(
+                                color: _activeTab == 0
+                                    ? Colors.white
+                                    : AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _activeTab = 1),
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: _activeTab == 1
+                                ? AppColors.accent
+                                : Colors.transparent,
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.radiusFull),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Phone',
+                              style: AppTextStyles.label.copyWith(
+                                color: _activeTab == 1
+                                    ? Colors.white
+                                    : AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.space24),
+              // Input fields
+              if (_activeTab == 0) ...[
+                AppInput(
+                  controller: _emailController,
+                  label: 'Email',
+                  placeholder: 'your@email.com',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+              ] else ...[
+                AppInput(
+                  controller: _phoneController,
+                  label: 'Phone',
+                  placeholder: '+60 12 345 6789',
+                  keyboardType: TextInputType.phone,
+                ),
+              ],
+              const SizedBox(height: AppSpacing.space16),
+              AppInput(
+                controller: _passwordController,
+                label: 'Password',
+                placeholder: 'Enter password',
+                isPassword: true,
+              ),
+              const SizedBox(height: AppSpacing.space8),
+              // Forgot password
+              Row(
+                children: [
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () =>
+                        Navigator.pushNamed(context, '/forgot-email'),
+                    child: Text(
+                      'Forgot Password?',
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.space24),
+              // Log In button
+              AppButton.primary(
+                label: 'Log In',
+                onPressed: _onLogIn,
+                isLoading: _isLoading,
+              ),
+              const SizedBox(height: AppSpacing.space24),
+              // Divider
+              Row(
+                children: [
+                  const Expanded(
+                    child: Divider(color: AppColors.divider),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.space16,
+                    ),
+                    child: Text(
+                      'or continue with',
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const Expanded(
+                    child: Divider(color: AppColors.divider),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.space16),
+              // Social buttons
+              _SocialButton(
+                icon: Icons.g_mobiledata_rounded,
+                label: 'Continue with Google',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Coming soon'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.space12),
+              _SocialButton(
+                icon: Icons.apple,
+                label: 'Continue with Apple',
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Coming soon'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.space24),
+              // Biometric button
+              GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Biometric authentication...'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.fingerprint,
+                        size: 48,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.space8),
+                    Text(
+                      'Use Face ID',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-                const Expanded(
-                  child: Divider(color: AppColors.divider),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            _SocialButton(
-              icon: Icons.g_mobiledata_rounded,
-              label: 'Continue with Google',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon'), duration: Duration(seconds: 2)),
-                );
-              },
-            ),
-            const SizedBox(height: AppSpacing.space12),
-            _SocialButton(
-              icon: Icons.apple,
-              label: 'Continue with Apple',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon'), duration: Duration(seconds: 2)),
-                );
-              },
-            ),
-            const SizedBox(height: AppSpacing.space32),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              ),
+              const SizedBox(height: AppSpacing.space32),
+              // Register link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     "Don't have an account? ",
@@ -171,8 +328,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.space24),
+            ],
+          ),
         ),
       ),
     );

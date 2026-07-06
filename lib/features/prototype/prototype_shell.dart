@@ -24,6 +24,7 @@ class PrototypeShell extends StatefulWidget {
 
 class _PrototypeShellState extends State<PrototypeShell> {
   late int _currentTab;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _PrototypeShellState extends State<PrototypeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColors.scaffoldBg,
       extendBody: true,
       drawer: _buildDrawer(context),
@@ -45,7 +47,7 @@ class _PrototypeShellState extends State<PrototypeShell> {
               _HomeTab(
                 onSwitchToNotifications: () => setState(() => _currentTab = 3),
                 onSwitchToProfile: () => setState(() => _currentTab = 4),
-                onOpenDrawer: () => Scaffold.of(context).openDrawer(),
+                onOpenDrawer: () => _scaffoldKey.currentState?.openDrawer(),
               ),
               const AppointmentsScreen(),
               const HealthScreen(),

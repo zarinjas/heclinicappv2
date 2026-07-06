@@ -23,6 +23,7 @@ class AppointmentCard extends StatelessWidget {
     this.countdownDueAt,
     this.onTap,
     this.onDetailsTap,
+    this.onAddToCalendar,
   });
 
   final String? doctorPhotoUrl;
@@ -37,6 +38,7 @@ class AppointmentCard extends StatelessWidget {
   final DateTime? countdownDueAt;
   final VoidCallback? onTap;
   final VoidCallback? onDetailsTap;
+  final VoidCallback? onAddToCalendar;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +103,27 @@ class AppointmentCard extends StatelessWidget {
           if (countdownDueAt != null) ...[
             const SizedBox(height: AppSpacing.space16),
             _buildCountdownBar(),
+          ],
+          if (onAddToCalendar != null) ...[
+            const SizedBox(height: AppSpacing.space12),
+            GestureDetector(
+              onTap: onAddToCalendar,
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.calendar_month_outlined, size: 16, color: AppColors.accent),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Add to Calendar',
+                    style: AppTextStyles.button.copyWith(
+                      color: AppColors.accent,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ],
       ),

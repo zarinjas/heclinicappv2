@@ -78,6 +78,15 @@ class HomeScreenContent extends StatelessWidget {
                 status: StatusChipVariant.confirmed,
                 countdownDueAt: DateTime.now().add(const Duration(days: 2, hours: 14, minutes: 32)),
                 onTap: () => onNavigate('/appointment-detail'),
+                onDetailsTap: () => onNavigate('/appointment-detail'),
+                onAddToCalendar: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Added to calendar'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -167,7 +176,7 @@ class HomeScreenContent extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.space12),
         SizedBox(
-          height: 148,
+          height: 180,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
