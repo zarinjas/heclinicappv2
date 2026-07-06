@@ -1,20 +1,18 @@
 # Project Manager — Context
 
-Last Updated: 2026-07-06 (UI Epic Phase 10 tasks created)
+Last Updated: 2026-07-06 (UI Epic Phase 10 — IN-PROGRESS)
 
 ## Current Process
-Epic: UI Migration — Phase 10 (Content Screens) — BACKLOG
+Epic: UI Migration — Phase 10 (Content Screens) — IN-PROGRESS
 
 ## Active Tasks
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P10-T01 | Articles List Screen | BACKLOG |
-| UI-P10-T02 | Article Detail Screen | BACKLOG |
-| UI-P10-T03 | Videos List Screen | BACKLOG |
-| UI-P10-T04 | Service Packages Screen | BACKLOG |
-| UI-P10-T05 | Doctor Detail Bottom Sheet | BACKLOG |
-| UI-P10-T06 | All Doctors List Screen | BACKLOG |
-| UI-P10-T07 | Branch Detail Screen | BACKLOG |
+| UI-P10-T01 | Articles List Screen | IN-PROGRESS |
+| UI-P10-T02 | Article Detail Screen | IN-PROGRESS |
+| UI-P10-T03 | Videos List Screen | IN-PROGRESS |
+| UI-P10-T04 | Service Packages Screen | IN-PROGRESS |
+| UI-P10-T05 | Doctor Detail Bottom Sheet | IN-PROGRESS |
 
 ## Phase 10 — Content Screens
 | Task ID | Name | Status |

@@ -1,17 +1,17 @@
-# Articles List Screen
+# Videos List Screen
 
 ## Header
 
 | Field | Value |
 |-------|-------|
-| Task ID | UI-P10-T01 |
-| Slug | articles-list-screen |
+| Task ID | UI-P10-T03 |
+| Slug | videos-list-screen |
 | Process | Epic: UI Migration — Phase 10 |
-| Process Step | Step 10.1 |
+| Process Step | Step 10.3 |
 | Type | Flutter |
 | Assigned To | flutter-developer |
-| Assigned Date | N/A |
-| Status | BACKLOG |
+| Assigned Date | 2026-07-06 |
+| Status | IN-PROGRESS |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -20,58 +20,59 @@
 
 ## Description
 
-Build the Articles List screen — the full list of health articles accessible from Home (Health Tips → See All). Displays a paginated vertical list of ArticleCard components with featured images, category chips, titles, excerpts, and author/date metadata. Skeleton shimmer during initial load, empty state when no articles exist, and error state with retry button on fetch failure.
+Build the Videos List screen — the full list of health videos accessible from Home (Videos → See All). Displays a 2-column paginated grid of VideoCard components with TikTok thumbnails, play icon overlays, titles, and author handles. Tap opens TikTok deep link via url_launcher. Skeleton shimmer during initial load, empty state when no videos exist, and error state with retry button on fetch failure.
 
 ---
 
 ## Context
 
-- `docs/ui-design-system.md` — §§2 (AppColors), 3 (AppTextStyles), 4–6 (Spacing/Radius/Shadows), 7 (ArticleCard), 10 (AppCard), 13 (AppAppBar), 15 (AppSkeleton), 16 (AppEmptyState), 17 (AppErrorState), 24 (Dark Mode)
-- `docs/ui-migration-plan.md` — Phase 10.1 (lines 246–247)
-- `docs/v2-ux-spec.md` — Articles List screen (lines 684–703)
+- `docs/ui-design-system.md` — §§2 (AppColors), 3 (AppTextStyles), 4–6 (Spacing/Radius/Shadows), 7 (VideoCard), 13 (AppAppBar), 15 (AppSkeleton), 16 (AppEmptyState), 17 (AppErrorState), 24 (Dark Mode)
+- `docs/ui-migration-plan.md` — Phase 10.3 (lines 249–250)
+- `docs/v2-ux-spec.md` — Videos List screen (lines 706–724)
 - `docs/v2-decisions.md` — CMS Content Management (§115, §390)
 - `docs/design-system-v2.png` — Visual target reference
-- `docs/CODEBASE.md` — `article_page/` existing reference (line 184)
+- `docs/CODEBASE.md` — `content_media/` existing reference (line 185)
 
 ---
 
 ## Scope
 
 ### In Scope
-- Create `lib/features/content/articles_list_screen.dart` with V2 design system
-- Paginated vertical list of `ArticleCard` components (10 items/page)
-- Each article card: featured image (full width, 140px height, lg radius), category chip overlay, title (heading-sm, 2 lines), excerpt (body-sm, text-secondary, 2 lines), author + date
-- `AppSkeleton` shimmer while loading (image rect + 3 text bars per card)
-- `AppEmptyState` with "No articles yet" + "Check back soon for health tips and updates"
+- Create `lib/features/content/videos_list_screen.dart` with V2 design system
+- 2-column `GridView` of `VideoCard` components, paginated (10 items/page)
+- Each video card: thumbnail image (16:9 ratio, lg radius), play icon overlay (36px, white, semi-transparent bg), title (body-sm, 2 lines max), TikTok author handle (body-sm, text-secondary)
+- Tap card → `url_launcher` opens `tiktok_url` in TikTok app or browser
+- `AppSkeleton` shimmer while loading (thumbnail rect + 2 text bars per card, 2×2 grid)
+- `AppEmptyState` with "No videos yet" + "Check back soon for our latest videos"
 - `AppErrorState` with retry on fetch failure
 - `RefreshIndicator` pull-to-refresh
 - Support dark mode on all states
-- `AppAppBar` (sub-page variant) with "Health Tips" title and back arrow
+- `AppAppBar` (sub-page variant) with "Videos" title and back arrow
 
 ### Out of Scope
-- Article Detail screen navigation (Phase 10.2 — separate task)
 - CMS backend CRUD (already DONE — Process 9)
 - Registering screen in GoRouter (Phase 12 — navigation migration)
-- Rich text rendering for article detail (Phase 10.2)
+- In-app video player (TikTok links open externally per spec)
+- Upload functionality (admin panel only — Process 9)
 
 ---
 
 ## Technical Spec
 
 ### Files to Create or Modify
-- `lib/features/content/articles_list_screen.dart` — Create new Articles List screen
+- `lib/features/content/videos_list_screen.dart` — Create new Videos List screen
 
 ### API Endpoints
-- `GET /api/v2/cms/articles` (paginated, 10/page) — Laravel proxy
+- `GET /api/v2/cms/videos` (paginated, 10/page) — Laravel proxy
 
 ### Data / Schema
-- CMS articles: id, title, slug, featured_image_url, category, excerpt, body_html, author, published_at, is_published
-- Pagination: cursor-based or offset-based (matched to existing CMS API)
+- CMS videos: id, title, tiktok_url, thumbnail_url, author_handle, is_published, published_at
 
 ### UI Components
-- `AppAppBar` (sub-page) — "Health Tips" title with back arrow
-- `ArticleCard` (from Phase 1 component) — per item
-- `AppSkeleton` — shimmer card presets
+- `AppAppBar` (sub-page) — "Videos" title with back arrow
+- `GridView` 2-column with `SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2)`
+- `VideoCard` (from Phase 1 component) — thumbnail + play icon + title + author
+- `AppSkeleton` — shimmer grid presets (2×2)
 - `AppEmptyState` — illustration + message
 - `AppErrorState` — error + retry button
 - `RefreshIndicator`
@@ -89,15 +90,16 @@ Build the Articles List screen — the full list of health articles accessible f
 
 ## Acceptance Criteria
 
-- [ ] Screen renders at `lib/features/content/articles_list_screen.dart`
-- [ ] `AppAppBar` with "Health Tips" title and back arrow displayed
-- [ ] Paginated vertical list of `ArticleCard` components (10 items/page)
-- [ ] ArticleCard: featured image (full width, 140px height, lg radius)
-- [ ] ArticleCard: category chip overlay on image (if category set)
-- [ ] ArticleCard: title (heading-sm, 2 lines max), excerpt (body-sm, text-secondary, 2 lines max)
-- [ ] ArticleCard: author + published date (body-sm, text-secondary)
+- [ ] Screen renders at `lib/features/content/videos_list_screen.dart`
+- [ ] `AppAppBar` with "Videos" title and back arrow displayed
+- [ ] 2-column `GridView` of `VideoCard` components, paginated (10/page)
+- [ ] VideoCard: thumbnail image (16:9 ratio, lg radius)
+- [ ] VideoCard: play icon overlay (36px, white, semi-transparent bg circle)
+- [ ] VideoCard: title (body-sm, 2 lines max) below thumbnail
+- [ ] VideoCard: TikTok author handle (body-sm, text-secondary) below title
+- [ ] Tap card → `url_launcher` opens TikTok URL in external app/browser
 - [ ] `AppSkeleton` shimmer shown during initial data load
-- [ ] `AppEmptyState` with "No articles yet" + subtitle on zero articles
+- [ ] `AppEmptyState` with "No videos yet" + subtitle on zero videos
 - [ ] `AppErrorState` rendered with retry button on fetch failure
 - [ ] `RefreshIndicator` pull-to-refresh working
 - [ ] All colors use `AppColors` tokens (no hardcoded hex)
@@ -147,7 +149,6 @@ Build the Articles List screen — the full list of health articles accessible f
 ## Reviewer Notes
 
 > Filled in by Reviewer after QA passes.
-> Leave blank until Reviewer picks up the task.
 
 ### Decision: {APPROVED / REJECTED}
 
