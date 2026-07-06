@@ -472,19 +472,39 @@ class _TopHeader extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(
-                          Icons.medical_services_rounded,
-                          color: AppColors.accent,
-                          size: 13,
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.accent,
+                                Color(0xFF27F5A3),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.radiusSM,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'HE',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 6),
                         Text(
-                          'He Clinic',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.accent,
+                          'He Medical Clinic',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w700,
                             fontSize: 10,
-                            letterSpacing: 1,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
@@ -980,15 +1000,24 @@ class _AppointmentCard extends StatelessWidget {
                   color: AppColors.accent,
                 ),
                 const SizedBox(width: AppSpacing.space8),
-                Text(
-                  'Starts in',
-                  style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
+                Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Starts in',
+                        style: AppTextStyles.body2.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.space8),
+                      Flexible(
+                        child: _Countdown(dueAt: dueAt),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.space8),
-                _Countdown(dueAt: dueAt),
                 const Spacer(),
                 Row(
                   children: [
@@ -1054,6 +1083,8 @@ class _CountdownState extends State<_Countdown> {
             : '${m}m';
     return Text(
       label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: AppTextStyles.heading3.copyWith(
         color: AppColors.primary,
         fontWeight: FontWeight.w700,
@@ -1594,7 +1625,7 @@ class _VideosSection extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: AppSpacing.space12,
               mainAxisSpacing: AppSpacing.space12,
-              childAspectRatio: 0.50,
+              childAspectRatio: 0.45,
             ),
             itemBuilder: (_, i) => _VideoCard(data: _kVideos[i]),
           ),
@@ -1882,7 +1913,7 @@ class _BranchesSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.space12),
         SizedBox(
-          height: 96,
+          height: 110,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
@@ -1891,7 +1922,7 @@ class _BranchesSection extends StatelessWidget {
             separatorBuilder: (_, __) =>
                 const SizedBox(width: AppSpacing.space12),
             itemBuilder: (_, i) => SizedBox(
-              width: 200,
+              width: 240,
               child: _BranchCard(data: _kBranches[i]),
             ),
           ),
@@ -1908,77 +1939,118 @@ class _BranchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.space12),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.radiusLG),
         border: Border.all(color: AppColors.divider),
         boxShadow: AppShadows.shadowLow,
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: data.gradient,
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            SizedBox(
+              width: 88,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: data.gradient,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Clinic',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              borderRadius: BorderRadius.circular(AppRadius.radiusMD),
             ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.location_on_rounded,
-              color: Colors.white,
-              size: 24,
+            const SizedBox(width: AppSpacing.space12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      data.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      data.address,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.body2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.directions_walk_rounded,
+                          size: 12,
+                          color: AppColors.accent,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          data.distance,
+                          style: AppTextStyles.body2.copyWith(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.space12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  data.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  data.address,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  data.distance,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.accent,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
+            const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
             ),
-          ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            size: 18,
-            color: AppColors.textSecondary,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
