@@ -5,33 +5,38 @@ import '../theme/app_radius.dart';
 import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
-import 'app_card.dart';
 import 'app_chip.dart';
-import 'app_skeleton.dart';
+import 'countdown_badge.dart';
 
 class AppointmentCard extends StatelessWidget {
   const AppointmentCard({
     super.key,
     this.doctorPhotoUrl,
+    this.doctorInitials,
+    this.doctorGradient,
     required this.doctorName,
     required this.specialty,
     required this.branchName,
     required this.date,
     required this.time,
     required this.status,
-    this.daysToGo,
+    this.countdownDueAt,
     this.onTap,
+    this.onDetailsTap,
   });
 
   final String? doctorPhotoUrl;
+  final String? doctorInitials;
+  final List<Color>? doctorGradient;
   final String doctorName;
   final String specialty;
   final String branchName;
   final String date;
   final String time;
   final StatusChipVariant status;
-  final int? daysToGo;
+  final DateTime? countdownDueAt;
   final VoidCallback? onTap;
+  final VoidCallback? onDetailsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,166 +44,179 @@ class AppointmentCard extends StatelessWidget {
     final primaryTextColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     final secondaryTextColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        AppCard(
-          onTap: onTap,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _DoctorAvatar(photoUrl: doctorPhotoUrl),
-              const SizedBox(width: AppSpacing.space16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      doctorName,
-                      style: AppTextStyles.heading3.copyWith(color: primaryTextColor),
-                    ),
-                    const SizedBox(height: AppSpacing.space4),
-                    Text(
-                      specialty,
-                      style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                    ),
-                    const SizedBox(height: AppSpacing.space8),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: 14,
-                          color: secondaryTextColor,
-                        ),
-                        const SizedBox(width: AppSpacing.space4),
-                        Expanded(
-                          child: Text(
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.space16),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        border: isDark
+            ? Border.all(color: AppColors.dividerDark, width: 1)
+            : Border.all(color: AppColors.divider, width: 1),
+        boxShadow: AppShadows.shadowLow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: Row(
+              children: [
+                _buildAvatar(),
+                const SizedBox(width: AppSpacing.space12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doctorName,
+                        style: AppTextStyles.heading3.copyWith(color: primaryTextColor),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        specialty,
+                        style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
+                      ),
+                      const SizedBox(height: AppSpacing.space4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: secondaryTextColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
                             branchName,
-                            style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.body2.copyWith(color: secondaryTextColor, fontSize: 11),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.space12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today_outlined,
-                                size: 14,
-                                color: secondaryTextColor,
-                              ),
-                              const SizedBox(width: AppSpacing.space4),
-                              Flexible(
-                                child: Text(
-                                  '$date • $time',
-                                  style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        AppChip(
-                          label: _statusLabel,
-                          type: AppChipType.status,
-                          statusVariant: status,
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                _buildStatusChip(),
+              ],
+            ),
           ),
-        ),
-        if (daysToGo != null && daysToGo! > 0)
-          Positioned(
-            top: 0,
-            right: 0,
-            child: _DaysToGoBadge(days: daysToGo!),
-          ),
-      ],
+          if (countdownDueAt != null) ...[
+            const SizedBox(height: AppSpacing.space16),
+            _buildCountdownBar(),
+          ],
+        ],
+      ),
     );
   }
 
-  String get _statusLabel {
-    return switch (status) {
-      StatusChipVariant.confirmed => 'Confirmed',
-      StatusChipVariant.pending => 'Pending',
-      StatusChipVariant.cancelled => 'Cancelled',
-      StatusChipVariant.completed => 'Completed',
-    };
-  }
-}
-
-class _DoctorAvatar extends StatelessWidget {
-  const _DoctorAvatar({this.photoUrl});
-
-  final String? photoUrl;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAvatar() {
+    if (doctorInitials != null && doctorInitials!.isNotEmpty) {
+      return Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: doctorGradient ?? const [AppColors.accent, AppColors.primary],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          doctorInitials!,
+          style: AppTextStyles.heading3.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+    }
     return ClipOval(
       child: SizedBox(
         width: 56,
         height: 56,
-        child: photoUrl != null
+        child: doctorPhotoUrl != null && doctorPhotoUrl!.isNotEmpty
             ? Image.network(
-                photoUrl!,
+                doctorPhotoUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder(),
+                errorBuilder: (_, __, ___) => _avatarPlaceholder(),
                 loadingBuilder: (_, child, progress) {
                   if (progress == null) return child;
-                  return _placeholder();
+                  return _avatarPlaceholder();
                 },
               )
-            : _placeholder(),
+            : _avatarPlaceholder(),
       ),
     );
   }
 
-  Widget _placeholder() {
+  Widget _avatarPlaceholder() {
     return Container(
       color: AppColors.divider,
-      child: Icon(
-        Icons.person,
-        size: 28,
-        color: AppColors.textSecondary,
-      ),
+      child: const Icon(Icons.person, size: 28, color: AppColors.textSecondary),
     );
   }
-}
 
-class _DaysToGoBadge extends StatelessWidget {
-  const _DaysToGoBadge({required this.days});
+  Widget _buildStatusChip() {
+    return AppChip(
+      label: switch (status) {
+        StatusChipVariant.confirmed => 'Confirmed',
+        StatusChipVariant.pending => 'Pending',
+        StatusChipVariant.cancelled => 'Cancelled',
+        StatusChipVariant.completed => 'Completed',
+      },
+      type: AppChipType.status,
+      statusVariant: status,
+    );
+  }
 
-  final int days;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCountdownBar() {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space8,
-        vertical: AppSpacing.space4,
+        horizontal: AppSpacing.space16,
+        vertical: AppSpacing.space12,
       ),
       decoration: BoxDecoration(
-        color: AppColors.accent,
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(AppRadius.radiusLG),
-          bottomLeft: Radius.circular(AppRadius.radiusSM),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEFF6FF), Color(0xFFECFDF5)],
         ),
+        borderRadius: BorderRadius.circular(AppRadius.radiusMD),
       ),
-      child: Text(
-        '$days ${days == 1 ? "day" : "days"} to go',
-        style: AppTextStyles.caption.copyWith(color: Colors.white),
+      child: Row(
+        children: [
+          const Icon(Icons.access_time_rounded, size: 18, color: AppColors.accent),
+          const SizedBox(width: AppSpacing.space8),
+          Text(
+            'Starts in',
+            style: AppTextStyles.body2.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.space8),
+          Flexible(
+            child: CountdownBadge(dueAt: countdownDueAt!),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: onDetailsTap,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                Text(
+                  'Details',
+                  style: AppTextStyles.button.copyWith(
+                    color: AppColors.accent,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: AppColors.accent,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -230,37 +248,17 @@ class AppointmentCardSkeleton extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _ShimmerBox(
-                  width: 160,
-                  height: 16,
-                  color: isDark,
-                ),
+                _ShimmerBox(width: 160, height: 16, color: isDark),
                 const SizedBox(height: AppSpacing.space8),
-                _ShimmerBox(
-                  width: 100,
-                  height: 12,
-                  color: isDark,
-                ),
+                _ShimmerBox(width: 100, height: 12, color: isDark),
                 const SizedBox(height: AppSpacing.space8),
-                _ShimmerBox(
-                  width: 140,
-                  height: 12,
-                  color: isDark,
-                ),
+                _ShimmerBox(width: 140, height: 12, color: isDark),
                 const SizedBox(height: AppSpacing.space12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _ShimmerBox(
-                      width: 120,
-                      height: 14,
-                      color: isDark,
-                    ),
-                    _ShimmerBox(
-                      width: 80,
-                      height: 24,
-                      color: isDark,
-                    ),
+                    _ShimmerBox(width: 120, height: 14, color: isDark),
+                    _ShimmerBox(width: 80, height: 24, color: isDark),
                   ],
                 ),
               ],
@@ -274,7 +272,6 @@ class AppointmentCardSkeleton extends StatelessWidget {
 
 class _ShimmerCircle extends StatelessWidget {
   const _ShimmerCircle({required this.size, this.color = false});
-
   final double size;
   final bool color;
 
@@ -292,12 +289,7 @@ class _ShimmerCircle extends StatelessWidget {
 }
 
 class _ShimmerBox extends StatelessWidget {
-  const _ShimmerBox({
-    required this.width,
-    required this.height,
-    this.color = false,
-  });
-
+  const _ShimmerBox({required this.width, required this.height, this.color = false});
   final double width;
   final double height;
   final bool color;

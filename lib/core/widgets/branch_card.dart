@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
@@ -9,29 +10,29 @@ import '../theme/app_text_styles.dart';
 class BranchCard extends StatelessWidget {
   final String name;
   final String address;
-  final String operatingHours;
   final String? distance;
   final bool isSelected;
   final VoidCallback? onTap;
+  final List<Color>? leadingGradient;
+  final String? leadingLabel;
+  final IconData? leadingIcon;
 
   const BranchCard({
     super.key,
     required this.name,
     required this.address,
-    required this.operatingHours,
     this.distance,
     this.isSelected = false,
     this.onTap,
+    this.leadingGradient,
+    this.leadingLabel,
+    this.leadingIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
-    final titleColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.primary;
-    final subtitleColor =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
     final borderColor = isSelected
         ? AppColors.accent
@@ -41,61 +42,120 @@ class BranchCard extends StatelessWidget {
         ? AppColors.accent.withOpacity(isDark ? 0.10 : 0.05)
         : (isDark ? AppColors.surfaceDark : AppColors.surface);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.space16),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-          border: Border.all(color: borderColor, width: borderWidth),
-          boxShadow: AppShadows.shadowLow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        border: Border.all(color: borderColor, width: borderWidth),
+        boxShadow: AppShadows.shadowLow,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
+        child: Row(
           children: [
-            Text(
-              name,
-              style: AppTextStyles.heading3.copyWith(color: titleColor),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: AppSpacing.space8),
-            Row(
-              children: [
-                Icon(Icons.location_on, size: 16, color: subtitleColor),
-                const SizedBox(width: AppSpacing.space4),
-                Expanded(
-                  child: Text(
-                    address,
-                    style:
-                        AppTextStyles.body2.copyWith(color: subtitleColor),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            SizedBox(
+              width: 88,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: leadingGradient ??
+                        const [AppColors.primary, AppColors.primaryLight],
                   ),
                 ),
-              ],
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        leadingIcon ?? Icons.location_on_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      leadingLabel ?? 'Branch',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: AppSpacing.space8),
-            Row(
-              children: [
-                Icon(Icons.access_time, size: 16, color: subtitleColor),
-                const SizedBox(width: AppSpacing.space4),
-                Expanded(
-                  child: Text(
-                    operatingHours,
-                    style:
-                        AppTextStyles.body2.copyWith(color: subtitleColor),
+            const SizedBox(width: AppSpacing.space12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: GestureDetector(
+                  onTap: onTap,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                      ),
+                      if (distance != null && distance!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.directions_walk_rounded,
+                              size: 12,
+                              color: AppColors.accent,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              distance!,
+                              style: AppTextStyles.body2.copyWith(
+                                color: AppColors.accent,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (distance != null && distance!.isNotEmpty)
-                  Text(
-                    distance!,
-                    style:
-                        AppTextStyles.body2.copyWith(color: subtitleColor),
-                  ),
-              ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 8),
+              child: Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),

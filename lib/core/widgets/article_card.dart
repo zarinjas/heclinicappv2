@@ -10,6 +10,7 @@ class ArticleCard extends StatelessWidget {
   const ArticleCard({
     super.key,
     required this.imageUrl,
+    this.placeholderGradient,
     required this.title,
     required this.excerpt,
     required this.author,
@@ -19,6 +20,7 @@ class ArticleCard extends StatelessWidget {
   });
 
   final String imageUrl;
+  final List<Color>? placeholderGradient;
   final String title;
   final String excerpt;
   final String author;
@@ -47,21 +49,16 @@ class ArticleCard extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Image.network(
-                  imageUrl,
-                  height: 140,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 140,
-                    color: isDark ? AppColors.surfaceDark : AppColors.divider,
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 40,
-                      color: secondaryTextColor,
-                    ),
-                  ),
-                ),
+                imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        height: 130,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            _buildPlaceholder(context),
+                      )
+                    : _buildPlaceholder(context),
                 if (categoryLabel != null)
                   Positioned(
                     top: AppSpacing.space8,
@@ -108,7 +105,7 @@ class ArticleCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '$author • $date',
+                        '$author \u2022 $date',
                         style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -120,6 +117,31 @@ class ArticleCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder(BuildContext context) {
+    if (placeholderGradient != null) {
+      return Container(
+        height: 130,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: placeholderGradient!,
+          ),
+        ),
+      );
+    }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      height: 130,
+      color: isDark ? AppColors.surfaceDark : AppColors.divider,
+      child: const Icon(
+        Icons.image_outlined,
+        size: 40,
+        color: AppColors.textSecondary,
       ),
     );
   }

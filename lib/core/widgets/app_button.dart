@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
-import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
-enum AppButtonVariant { primary, secondary, ghost, destructive, whatsapp }
+enum AppButtonVariant { primary, secondary, ghost, destructive, whatsapp, whiteSolid, whiteGhost }
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -127,13 +126,15 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.primary:
         return AppColors.accent;
       case AppButtonVariant.secondary:
-        return Colors.transparent;
       case AppButtonVariant.ghost:
+      case AppButtonVariant.whiteGhost:
         return Colors.transparent;
       case AppButtonVariant.destructive:
         return AppColors.error;
       case AppButtonVariant.whatsapp:
         return AppColors.whatsappGreen;
+      case AppButtonVariant.whiteSolid:
+        return Colors.white;
     }
   }
 
@@ -142,14 +143,15 @@ class AppButton extends StatelessWidget {
     if (isDisabled) return const Color(0xFF9CA3AF);
     switch (variant) {
       case AppButtonVariant.primary:
+      case AppButtonVariant.destructive:
+      case AppButtonVariant.whatsapp:
         return Colors.white;
       case AppButtonVariant.secondary:
-        return AppColors.accent;
       case AppButtonVariant.ghost:
         return AppColors.accent;
-      case AppButtonVariant.destructive:
-        return Colors.white;
-      case AppButtonVariant.whatsapp:
+      case AppButtonVariant.whiteSolid:
+        return AppColors.primary;
+      case AppButtonVariant.whiteGhost:
         return Colors.white;
     }
   }
@@ -160,6 +162,10 @@ class AppButton extends StatelessWidget {
     switch (variant) {
       case AppButtonVariant.secondary:
         return const BorderSide(color: AppColors.accent, width: 1.5);
+      case AppButtonVariant.whiteSolid:
+        return const BorderSide(color: Colors.white, width: 1.5);
+      case AppButtonVariant.whiteGhost:
+        return BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5);
       default:
         return null;
     }

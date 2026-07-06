@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
-import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import 'app_card.dart';
@@ -14,6 +13,8 @@ class DoctorCard extends StatelessWidget {
   const DoctorCard({
     super.key,
     this.photoUrl,
+    this.initials,
+    this.avatarGradient,
     required this.name,
     required this.specialty,
     this.rating,
@@ -24,6 +25,8 @@ class DoctorCard extends StatelessWidget {
   });
 
   final String? photoUrl;
+  final String? initials;
+  final List<Color>? avatarGradient;
   final String name;
   final String specialty;
   final double? rating;
@@ -37,6 +40,8 @@ class DoctorCard extends StatelessWidget {
     return switch (variant) {
       DoctorCardVariant.horizontal => _HorizontalDoctorCard(
           photoUrl: photoUrl,
+          initials: initials,
+          avatarGradient: avatarGradient,
           name: name,
           specialty: specialty,
           rating: rating,
@@ -46,6 +51,8 @@ class DoctorCard extends StatelessWidget {
         ),
       DoctorCardVariant.vertical => _VerticalDoctorCard(
           photoUrl: photoUrl,
+          initials: initials,
+          avatarGradient: avatarGradient,
           name: name,
           specialty: specialty,
           rating: rating,
@@ -60,6 +67,8 @@ class DoctorCard extends StatelessWidget {
 class _HorizontalDoctorCard extends StatelessWidget {
   const _HorizontalDoctorCard({
     this.photoUrl,
+    this.initials,
+    this.avatarGradient,
     required this.name,
     required this.specialty,
     this.rating,
@@ -69,6 +78,8 @@ class _HorizontalDoctorCard extends StatelessWidget {
   });
 
   final String? photoUrl;
+  final String? initials;
+  final List<Color>? avatarGradient;
   final String name;
   final String specialty;
   final double? rating;
@@ -99,7 +110,12 @@ class _HorizontalDoctorCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _DoctorAvatar(photoUrl: photoUrl, size: 80),
+              _DoctorAvatar(
+                photoUrl: photoUrl,
+                initials: initials,
+                avatarGradient: avatarGradient,
+                size: 80,
+              ),
               const SizedBox(height: AppSpacing.space12),
               Text(
                 name,
@@ -151,6 +167,8 @@ class _HorizontalDoctorCard extends StatelessWidget {
 class _VerticalDoctorCard extends StatelessWidget {
   const _VerticalDoctorCard({
     this.photoUrl,
+    this.initials,
+    this.avatarGradient,
     required this.name,
     required this.specialty,
     this.rating,
@@ -160,6 +178,8 @@ class _VerticalDoctorCard extends StatelessWidget {
   });
 
   final String? photoUrl;
+  final String? initials;
+  final List<Color>? avatarGradient;
   final String name;
   final String specialty;
   final double? rating;
@@ -188,7 +208,12 @@ class _VerticalDoctorCard extends StatelessWidget {
             : null,
         child: Row(
         children: [
-          _DoctorAvatar(photoUrl: photoUrl, size: 72),
+          _DoctorAvatar(
+            photoUrl: photoUrl,
+            initials: initials,
+            avatarGradient: avatarGradient,
+            size: 72,
+          ),
           const SizedBox(width: AppSpacing.space16),
           Expanded(
             child: Column(
@@ -245,13 +270,42 @@ class _VerticalDoctorCard extends StatelessWidget {
 }
 
 class _DoctorAvatar extends StatelessWidget {
-  const _DoctorAvatar({this.photoUrl, required this.size});
+  const _DoctorAvatar({
+    this.photoUrl,
+    this.initials,
+    this.avatarGradient,
+    required this.size,
+  });
 
   final String? photoUrl;
+  final String? initials;
+  final List<Color>? avatarGradient;
   final double size;
 
   @override
   Widget build(BuildContext context) {
+    if (initials != null && initials!.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: avatarGradient ?? const [AppColors.accent, AppColors.primary],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          initials!,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            fontFamilyFallback: ['sans-serif'],
+          ),
+        ),
+      );
+    }
     return ClipOval(
       child: SizedBox(
         width: size,
