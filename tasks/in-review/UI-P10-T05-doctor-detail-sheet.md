@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-06 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -114,16 +114,22 @@ Build the Doctor Detail Bottom Sheet — a reusable `AppBottomSheet` variant tha
 > Filled in by the Developer after implementation.
 
 ### What Was Done
-{To be filled by developer}
+Created `lib/features/doctors/doctor_detail_sheet.dart` — V2 Doctor Detail Bottom Sheet (137 lines). AppBottomSheet variant with: CircleAvatar (50px radius, network image with person fallback), doctor name (heading3, centered), specialty (body2, secondary), branch name (caption, secondary), About section (bg card with heading3 + body1 bio text), Book Appointment primary button (full width). Static show() method wraps AppBottomSheet.show(). Parameterized — accepts name, specialty, branchName, bio, photoUrl, onBookAppointment. Dark mode fully supported. All design tokens used.
 
 ### Files Changed
-- {To be filled by developer}
+- `lib/features/doctors/doctor_detail_sheet.dart` — Created new Doctor Detail Bottom Sheet (137 lines)
 
 ### Decisions Made During Implementation
-{To be filled by developer}
+- CircleAvatar fallback uses person icon when no photoUrl provided
+- About section uses dedicated Container with surface background for visual separation
+- Book Appointment button full width at bottom of sheet
+- Static show() method mirrors AppBottomSheet.show() entry point pattern
+- flutter analyze not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
-{To be filled by developer}
+- Navigation from Book Appointment button not wired (Phase 12 GoRouter)
+- Photo loading error state not specifically handled (falls through to person icon)
+- No loading state (data passed by caller, already loaded)
 
 ---
 

@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-06 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -112,16 +112,23 @@ Build the Article Detail screen — displays a single article with hero featured
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{To be filled by developer}
+Created `lib/features/content/article_detail_screen.dart` — V2 Article Detail screen (244 lines). Single scrollable article view with: featured image (240px, full width), title (heading2), author + date (body2, secondary), and scrollable rich text content rendered from HTML body (simple parser for p/h3 tags). Share button in app bar trailing (SnackBar placeholder since share_plus not available). Skeleton shimmer while loading (image rect + text bars). AppErrorState with retry. AppAppBar.sub with "Article" title. Dark mode fully supported. All design tokens used.
 
 ### Files Changed
-- {To be filled by developer}
+- `lib/features/content/article_detail_screen.dart` — Created new screen (244 lines)
 
 ### Decisions Made During Implementation
-{To be filled by developer}
+- Simple HTML parser (_parseSimpleHtml) extracts p and h3 tags; avoids full HTML renderer dependency
+- Share uses SnackBar placeholder (share_plus unavailable); full share integration deferred
+- _ArticleDetailData and _HtmlPart are file-private helper classes
+- Mock article data with 5-tip article on heart health
+- flutter analyze not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
-{To be filled by developer}
+- Data is hardcoded placeholder (article fetched by slug not yet wired)
+- Share button uses SnackBar placeholder (share_plus not in pubspec)
+- Full HTML rendering (tables, images, links) not implemented — only p/h3 tags parsed
+- Navigation route not registered in GoRouter (Phase 12)
 
 ---
 

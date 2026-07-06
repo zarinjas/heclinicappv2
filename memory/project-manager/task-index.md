@@ -166,11 +166,11 @@ Last Updated: 2026-07-06 (UI Epic Phase 10 tasks created)
 | UI-P9-T01 | my-points-screen | Epic UI — Phase 9 | Step 9.1 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P9-T02 | redeem-points-sheet | Epic UI — Phase 9 | Step 9.2 | Flutter | flutter-developer | DONE | 2026-07-05 |
 | UI-P9-T03 | redemption-code-modal | Epic UI — Phase 9 | Step 9.3 | Flutter | flutter-developer | DONE | 2026-07-05 |
-| UI-P10-T01 | articles-list-screen | Epic UI — Phase 10 | Step 10.1 | Flutter | flutter-developer | IN-PROGRESS | — |
-| UI-P10-T02 | article-detail-screen | Epic UI — Phase 10 | Step 10.2 | Flutter | flutter-developer | IN-PROGRESS | — |
-| UI-P10-T03 | videos-list-screen | Epic UI — Phase 10 | Step 10.3 | Flutter | flutter-developer | IN-PROGRESS | — |
-| UI-P10-T04 | service-packages-screen | Epic UI — Phase 10 | Step 10.4 | Flutter | flutter-developer | IN-PROGRESS | — |
-| UI-P10-T05 | doctor-detail-sheet | Epic UI — Phase 10 | Step 10.5 | Flutter | flutter-developer | IN-PROGRESS | — |
+| UI-P10-T01 | articles-list-screen | Epic UI — Phase 10 | Step 10.1 | Flutter | flutter-developer | IN-REVIEW | — |
+| UI-P10-T02 | article-detail-screen | Epic UI — Phase 10 | Step 10.2 | Flutter | flutter-developer | IN-REVIEW | — |
+| UI-P10-T03 | videos-list-screen | Epic UI — Phase 10 | Step 10.3 | Flutter | flutter-developer | IN-REVIEW | — |
+| UI-P10-T04 | service-packages-screen | Epic UI — Phase 10 | Step 10.4 | Flutter | flutter-developer | IN-REVIEW | — |
+| UI-P10-T05 | doctor-detail-sheet | Epic UI — Phase 10 | Step 10.5 | Flutter | flutter-developer | IN-REVIEW | — |
 | UI-P10-T06 | all-doctors-list-screen | Epic UI — Phase 10 | Step 10.6 | Flutter | flutter-developer | BACKLOG | — |
 | UI-P10-T07 | branch-detail-screen | Epic UI — Phase 10 | Step 10.7 | Flutter | flutter-developer | BACKLOG | — |
 

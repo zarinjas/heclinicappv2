@@ -11,7 +11,7 @@
 | Type | Flutter |
 | Assigned To | flutter-developer |
 | Assigned Date | 2026-07-06 |
-| Status | IN-PROGRESS |
+| Status | IN-REVIEW |
 | Parallel | YES |
 | Depends On | N/A |
 | Blocked Reason | N/A |
@@ -118,16 +118,23 @@ Build the Videos List screen — the full list of health videos accessible from 
 > Leave blank until implementation is complete.
 
 ### What Was Done
-{To be filled by developer}
+Created `lib/features/content/videos_list_screen.dart` — V2 Videos List screen (194 lines). 2-column GridView of VideoCard components (6 mock videos). Each card: 16:9 thumbnail with play icon overlay, title (body2, 2 lines), TikTok author handle (caption). Tap opens TikTok URL via url_launcher (external app/browser). Skeleton grid (2×3) during load. AppEmptyState.noVideos() when zero videos. AppErrorState with retry. RefreshIndicator pull-to-refresh. AppAppBar.sub with "Videos" title. Dark mode fully supported. All design tokens used.
 
 ### Files Changed
-- {To be filled by developer}
+- `lib/features/content/videos_list_screen.dart` — Created new screen (194 lines)
 
 ### Decisions Made During Implementation
-{To be filled by developer}
+- Hardcoded mock data (6 videos) since CMS API not yet connected
+- url_launcher availablity confirmed in pubspec.yaml
+- Skeleton uses manual shimmer containers (VideoCardSkeleton from component not used for grid layout consistency)
+- _VideoData is file-private helper class
+- flutter analyze not available on this runner — code follows exact same patterns as existing approved V2 screens
 
 ### Known Limitations
-{To be filled by developer}
+- Data is hardcoded placeholder (CMS API connection pending backend deployment)
+- Pagination not implemented (mock data only)
+- Navigation route not registered in GoRouter (Phase 12)
+- Error state for url_launcher failure uses SnackBar; dedicated error UI not shown
 
 ---
 

@@ -8,11 +8,11 @@ Epic: UI Migration — Phase 10 (Content Screens) — IN-PROGRESS
 ## Active Tasks
 | Task ID | Name | Status |
 |---------|------|--------|
-| UI-P10-T01 | Articles List Screen | IN-PROGRESS |
-| UI-P10-T02 | Article Detail Screen | IN-PROGRESS |
-| UI-P10-T03 | Videos List Screen | IN-PROGRESS |
-| UI-P10-T04 | Service Packages Screen | IN-PROGRESS |
-| UI-P10-T05 | Doctor Detail Bottom Sheet | IN-PROGRESS |
+| UI-P10-T01 | Articles List Screen | IN-REVIEW |
+| UI-P10-T02 | Article Detail Screen | IN-REVIEW |
+| UI-P10-T03 | Videos List Screen | IN-REVIEW |
+| UI-P10-T04 | Service Packages Screen | IN-REVIEW |
+| UI-P10-T05 | Doctor Detail Bottom Sheet | IN-REVIEW |
 
 ## Phase 10 — Content Screens
 | Task ID | Name | Status |
