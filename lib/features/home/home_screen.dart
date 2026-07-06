@@ -798,7 +798,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox.shrink()
           else
             SizedBox(
-              height: 210,
+              height: 290,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: titles.length,

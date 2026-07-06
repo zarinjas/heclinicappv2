@@ -90,5 +90,9 @@ Go to your device's settings, enable notifications, and never miss an important 
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

@@ -3,6 +3,7 @@ cloud_firestore=/Users/user/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.9/
 cloud_firestore_web=/Users/user/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.9/
 cloud_functions=/Users/user/.pub-cache/hosted/pub.dev/cloud_functions-5.5.2/
 cloud_functions_web=/Users/user/.pub-cache/hosted/pub.dev/cloud_functions_web-4.11.2/
+connectivity_plus=/Users/user/.pub-cache/hosted/pub.dev/connectivity_plus-7.2.0/
 file_picker=/Users/user/.pub-cache/hosted/pub.dev/file_picker-10.1.9/
 file_selector_linux=/Users/user/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.3+2/
 file_selector_macos=/Users/user/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.4+4/

@@ -140,6 +140,18 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "connectivity_plus",
+      "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/connectivity_plus-7.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "connectivity_plus_platform_interface",
+      "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/connectivity_plus_platform_interface-2.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "cross_file",
       "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/cross_file-0.3.5",
       "packageUri": "lib/",
@@ -360,6 +372,12 @@
       "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/fixnum-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "fl_chart",
+      "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/fl_chart-0.68.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "flutter",
@@ -718,6 +736,12 @@
     {
       "name": "nested",
       "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "nm",
+      "rootUri": "file:///Users/user/.pub-cache/hosted/pub.dev/nm-0.5.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -1238,7 +1262,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2026-06-28T14:17:01.427326Z",
+  "generated": "2026-07-05T20:18:18.621402Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///Users/user/flutter",

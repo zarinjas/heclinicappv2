@@ -228,8 +228,8 @@ class _NavBarPageState extends State<NavBarPage> {
     final tabs = {
       'HomepageNew': HomeScreen(),
       'myBookingPage': AppointmentsScreenWidget(),
-      'health': ReportsWidget(id: null),
-      'notificationPage': NotificationPageWidget(),
+      'health': HealthScreen(),
+      'notificationPage': NotificationsScreen(),
       'Profile': ProfileWidget(),
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);

@@ -2270,7 +2270,7 @@ class GetPatientDocumentsCall {
       }
       return ApiManager.instance.makeApiCall(
         callName: 'GetPatientDocuments',
-        apiUrl: '$baseUrl/v2/patients/${patientId}/documents',
+        apiUrl: '$baseUrl/patients/${patientId}/documents',
         callType: ApiCallType.GET,
         headers: {
           'Authorization': 'Bearer ${FFAppState().tokenauth}',
