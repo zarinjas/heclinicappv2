@@ -143,6 +143,54 @@ const _kVideos = <_VideoData>[
   ),
 ];
 
+const _kDoctors = <_DoctorData>[
+  _DoctorData(
+    name: 'Dr. Sarah Lim',
+    specialty: 'Cardiologist',
+    initials: 'SL',
+    gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)],
+  ),
+  _DoctorData(
+    name: 'Dr. Tan Wei Ming',
+    specialty: 'Dermatologist',
+    initials: 'TW',
+    gradient: [Color(0xFFF5A623), Color(0xFFF54636)],
+  ),
+  _DoctorData(
+    name: 'Dr. Wong Mei Ling',
+    specialty: 'Pediatrician',
+    initials: 'WM',
+    gradient: [Color(0xFF27F5A3), Color(0xFF2868F5)],
+  ),
+  _DoctorData(
+    name: 'Dr. Ahmad Rizal',
+    specialty: 'General Practitioner',
+    initials: 'AR',
+    gradient: [Color(0xFF2868F5), Color(0xFF131C3C)],
+  ),
+];
+
+const _kBranches = <_BranchData>[
+  _BranchData(
+    name: 'TTDI Clinic',
+    address: 'Jalan Burhanuddin Helmi',
+    distance: '1.2 km',
+    gradient: [Color(0xFF131C3C), Color(0xFF1D2B5F)],
+  ),
+  _BranchData(
+    name: 'Bangsar Village',
+    address: 'Jalan Telawi 3',
+    distance: '4.8 km',
+    gradient: [Color(0xFF3B8DFF), Color(0xFF2868F5)],
+  ),
+  _BranchData(
+    name: 'Petaling Jaya',
+    address: 'Jalan Sultan, PJ State',
+    distance: '6.5 km',
+    gradient: [Color(0xFF1D2B5F), Color(0xFF3B8DFF)],
+  ),
+];
+
 // ============================================================================
 // DATA MODELS
 // ============================================================================
@@ -227,6 +275,32 @@ class _VideoData {
   });
 }
 
+class _DoctorData {
+  final String name;
+  final String specialty;
+  final String initials;
+  final List<Color> gradient;
+  const _DoctorData({
+    required this.name,
+    required this.specialty,
+    required this.initials,
+    required this.gradient,
+  });
+}
+
+class _BranchData {
+  final String name;
+  final String address;
+  final String distance;
+  final List<Color> gradient;
+  const _BranchData({
+    required this.name,
+    required this.address,
+    required this.distance,
+    required this.gradient,
+  });
+}
+
 // ============================================================================
 // PROTOTYPE SCREEN
 // ============================================================================
@@ -276,14 +350,24 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
                     .fadeIn(duration: 400.ms, delay: 400.ms)
                     .slideY(begin: 0.05, end: 0),
                 const SizedBox(height: AppSpacing.space32),
-                const _ArticlesSection()
+                const _DoctorsSection()
                     .animate()
                     .fadeIn(duration: 400.ms, delay: 500.ms)
+                    .slideY(begin: 0.05, end: 0),
+                const SizedBox(height: AppSpacing.space24),
+                const _BranchesSection()
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 600.ms)
+                    .slideY(begin: 0.05, end: 0),
+                const SizedBox(height: AppSpacing.space32),
+                const _ArticlesSection()
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 700.ms)
                     .slideY(begin: 0.05, end: 0),
                 const SizedBox(height: AppSpacing.space32),
                 const _VideosSection()
                     .animate()
-                    .fadeIn(duration: 400.ms, delay: 600.ms)
+                    .fadeIn(duration: 400.ms, delay: 800.ms)
                     .slideY(begin: 0.05, end: 0),
               ],
             ),
@@ -334,16 +418,36 @@ class _TopHeader extends StatelessWidget {
         bottom: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.space20,
+            AppSpacing.space12,
             AppSpacing.space16,
-            AppSpacing.space20,
+            AppSpacing.space16,
             AppSpacing.space24,
           ),
           child: Row(
             children: [
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius:
+                      BorderRadius.circular(AppRadius.radiusFull),
+                  child: InkWell(
+                    borderRadius:
+                        BorderRadius.circular(AppRadius.radiusFull),
+                    onTap: () {},
+                    child: const Icon(
+                      Icons.menu_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.space8),
               Container(
-                width: 48,
-                height: 48,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
@@ -357,26 +461,43 @@ class _TopHeader extends StatelessWidget {
                   style: AppTextStyles.heading3.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
+                    fontSize: 14,
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.space12),
+              const SizedBox(width: AppSpacing.space8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Good morning',
-                      style: AppTextStyles.body2.copyWith(
-                        color: Colors.white70,
-                      ),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.medical_services_rounded,
+                          color: AppColors.accent,
+                          size: 13,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'He Clinic',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _kUserName,
-                      style: AppTextStyles.heading2.copyWith(
+                      'Good morning, $_kUserName',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.heading3.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -683,43 +804,42 @@ class _QuickActionTileState extends State<_QuickActionTile> {
         duration: const Duration(milliseconds: 150),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.space16,
-            horizontal: AppSpacing.space8,
+            vertical: AppSpacing.space12,
+            horizontal: AppSpacing.space4,
           ),
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-            border: Border.all(color: AppColors.divider),
-            boxShadow: AppShadows.shadowLow,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
-                  color: widget.action.tint.withValues(alpha: 0.12),
+                  color: widget.action.tint.withValues(alpha: 0.10),
                   borderRadius:
-                      BorderRadius.circular(AppRadius.radiusFull),
+                      BorderRadius.circular(AppRadius.radiusSM),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   widget.action.icon,
                   color: widget.action.tint,
-                  size: 22,
+                  size: 20,
                 ),
               ),
-              const SizedBox(height: AppSpacing.space8),
+              const SizedBox(height: AppSpacing.space4),
               Text(
                 widget.action.label,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
+                style: GoogleFonts.plusJakartaSans(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 11,
+                  fontSize: 9,
+                  height: 1.2,
                 ),
               ),
             ],
@@ -1474,7 +1594,7 @@ class _VideosSection extends StatelessWidget {
               crossAxisCount: 2,
               crossAxisSpacing: AppSpacing.space12,
               mainAxisSpacing: AppSpacing.space12,
-              childAspectRatio: 0.82,
+              childAspectRatio: 0.50,
             ),
             itemBuilder: (_, i) => _VideoCard(data: _kVideos[i]),
           ),
@@ -1503,7 +1623,7 @@ class _VideoCard extends StatelessWidget {
           Stack(
             children: [
               AspectRatio(
-                aspectRatio: 16 / 10,
+                aspectRatio: 9 / 16,
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -1515,6 +1635,40 @@ class _VideoCard extends StatelessWidget {
                       topLeft: Radius.circular(AppRadius.radiusLG),
                       topRight: Radius.circular(AppRadius.radiusLG),
                     ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: AppSpacing.space8,
+                left: AppSpacing.space8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    borderRadius:
+                        BorderRadius.circular(AppRadius.radiusSM),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.music_note_rounded,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        size: 10,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        'TikTok',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -1587,6 +1741,242 @@ class _VideoCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// OUR DOCTORS (horizontal scroll — circle avatar cards)
+// ============================================================================
+
+class _DoctorsSection extends StatelessWidget {
+  const _DoctorsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
+          child: _SectionHeader(
+            title: 'Our Doctors',
+            onSeeAll: () {},
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space12),
+        SizedBox(
+          height: 148,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.space20),
+            itemCount: _kDoctors.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(width: AppSpacing.space12),
+            itemBuilder: (_, i) => SizedBox(
+              width: 120,
+              child: _DoctorCard(data: _kDoctors[i]),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DoctorCard extends StatelessWidget {
+  final _DoctorData data;
+  const _DoctorCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.space16,
+        horizontal: AppSpacing.space12,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        border: Border.all(color: AppColors.divider),
+        boxShadow: AppShadows.shadowLow,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: data.gradient,
+              ),
+              boxShadow: AppShadows.shadowLow,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              data.initials,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.space8),
+          Text(
+            data.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            data.specialty,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CLINIC BRANCHES (horizontal scroll — location cards)
+// ============================================================================
+
+class _BranchesSection extends StatelessWidget {
+  const _BranchesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
+          child: _SectionHeader(
+            title: 'Our Clinics',
+            onSeeAll: () {},
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space12),
+        SizedBox(
+          height: 96,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.space20),
+            itemCount: _kBranches.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(width: AppSpacing.space12),
+            itemBuilder: (_, i) => SizedBox(
+              width: 200,
+              child: _BranchCard(data: _kBranches[i]),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BranchCard extends StatelessWidget {
+  final _BranchData data;
+  const _BranchCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.space12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        border: Border.all(color: AppColors.divider),
+        boxShadow: AppShadows.shadowLow,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: data.gradient,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.location_on_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.space12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  data.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  data.address,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: 10,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  data.distance,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(
+            Icons.chevron_right_rounded,
+            size: 18,
+            color: AppColors.textSecondary,
           ),
         ],
       ),
