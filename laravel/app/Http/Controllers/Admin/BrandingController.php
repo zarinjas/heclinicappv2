@@ -34,10 +34,10 @@ class BrandingController extends Controller
             'app_short_name' => 'required|string|max:10',
             'tagline' => 'nullable|string|max:200',
             'primary_color' => 'nullable|string|max:7',
-            'logo' => 'nullable|image|mimes:png,svg,jpg|max:2048',
-            'splash_logo' => 'nullable|image|mimes:png,svg,jpg|max:2048',
-            'login_logo' => 'nullable|image|mimes:png,svg,jpg|max:2048',
-            'appbar_logo' => 'nullable|image|mimes:png,svg,jpg|max:2048',
+            'logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
+            'splash_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
+            'login_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
+            'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
         ]);
 
@@ -46,16 +46,33 @@ class BrandingController extends Controller
         $this->saveSetting('branding_tagline', $validated['tagline'] ?? '');
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
 
-        foreach (['logo', 'splash_logo', 'login_logo', 'appbar_logo', 'favicon'] as $field) {
+        $imageFields = [
+            'logo' => 'branding_logo_url',
+            'splash_logo' => 'branding_splash_logo_url',
+            'login_logo' => 'branding_login_logo_url',
+            'appbar_logo' => 'branding_appbar_logo_url',
+            'favicon' => 'branding_favicon_url',
+        ];
+
+        foreach ($imageFields as $field => $key) {
             if ($request->hasFile($field)) {
+                // Delete old file if exists
+                $oldUrl = Setting::where('key', $key)->value('value');
+                if ($oldUrl) {
+                    $oldPath = str_replace('/storage/', '', parse_url($oldUrl, PHP_URL_PATH));
+                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+
                 $path = $request->file($field)->store('branding', 'public');
-                $url = Storage::url($path);
-                $this->saveSetting("branding_{$field}_url", $url);
+                $url = Storage::disk('public')->url($path);
+                $this->saveSetting($key, $url);
             }
         }
 
         return redirect()->route('admin.branding')
-            ->with('success', 'Branding updated successfully.');
+            ->with('success', 'Branding updated successfully. Clear your app cache or restart the app to see changes.');
     }
 
     private function saveSetting(string $key, string $value): void
