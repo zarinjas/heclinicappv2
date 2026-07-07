@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/app_colors.dart';
 import 'branding_api.dart';
 
 // ============================================================================
@@ -16,6 +18,7 @@ class AppBranding {
   final String? appBarLogoUrl;
   final String? tagline;
   final String? primaryColorHex;
+  final String? splashBgColorHex;
 
   const AppBranding({
     required this.appName,
@@ -26,6 +29,7 @@ class AppBranding {
     this.appBarLogoUrl,
     this.tagline,
     this.primaryColorHex,
+    this.splashBgColorHex,
   });
 
   factory AppBranding.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,7 @@ class AppBranding {
       appBarLogoUrl: json['appbar_logo_url'] as String?,
       tagline: json['tagline'] as String?,
       primaryColorHex: json['primary_color'] as String?,
+      splashBgColorHex: json['splash_bg_color'] as String?,
     );
   }
 
@@ -50,6 +55,7 @@ class AppBranding {
     'appbar_logo_url': appBarLogoUrl,
     'tagline': tagline,
     'primary_color': primaryColorHex,
+    'splash_bg_color': splashBgColorHex,
   };
 
   // Default bundled fallback — never null
@@ -117,6 +123,21 @@ class BrandingService {
   String? get splashLogoUrl => branding.splashLogoUrl;
   String? get loginLogoUrl => branding.loginLogoUrl;
   String? get appBarLogoUrl => branding.appBarLogoUrl;
+  Color get splashBgColor {
+    if (branding.splashBgColorHex != null) {
+      final hex = branding.splashBgColorHex!.replaceFirst('#', '');
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      }
+    }
+    if (branding.primaryColorHex != null) {
+      final hex = branding.primaryColorHex!.replaceFirst('#', '');
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      }
+    }
+    return AppColors.primary;
+  }
 
   // ── Refresh from API ──
 

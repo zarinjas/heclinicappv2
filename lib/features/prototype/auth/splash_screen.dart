@@ -44,46 +44,64 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final branding = BrandingService.instance;
+    final bgColor = branding.splashBgColor;
+    final splashUrl = branding.splashLogoUrl;
+    final hasGif = splashUrl != null && splashUrl.isNotEmpty;
+
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: bgColor,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.accent,
-                      Color(0xFF27F5A3),
-                    ],
+              if (hasGif)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+                  child: Image.network(
+                    splashUrl!,
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => _buildFallbackLogo(),
                   ),
-                  borderRadius: BorderRadius.circular(AppRadius.radiusSM),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  BrandingService.instance.appShortName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
+                )
+              else
+                _buildFallbackLogo(),
               const SizedBox(height: 24),
               Text(
-                BrandingService.instance.tagline,
+                branding.tagline,
                 style: AppTextStyles.body1.copyWith(
                   color: Colors.white.withValues(alpha: 0.6),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackLogo() {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.accent, Color(0xFF27F5A3)],
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        BrandingService.instance.appShortName,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
         ),
       ),
     );

@@ -17,6 +17,7 @@ class BrandingController extends Controller
             'app_short_name' => Setting::where('key', 'branding_app_short_name')->value('value') ?? 'HE',
             'tagline' => Setting::where('key', 'branding_tagline')->value('value') ?? 'Your Health, Simplified',
             'primary_color' => Setting::where('key', 'branding_primary_color')->value('value') ?? '#131C3C',
+            'splash_bg_color' => Setting::where('key', 'branding_splash_bg_color')->value('value') ?? '#131C3C',
             'logo_url' => Setting::where('key', 'branding_logo_url')->value('value'),
             'splash_logo_url' => Setting::where('key', 'branding_splash_logo_url')->value('value'),
             'login_logo_url' => Setting::where('key', 'branding_login_logo_url')->value('value'),
@@ -34,8 +35,9 @@ class BrandingController extends Controller
             'app_short_name' => 'required|string|max:10',
             'tagline' => 'nullable|string|max:200',
             'primary_color' => 'nullable|string|max:7',
-            'logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
-            'splash_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
+            'splash_bg_color' => 'nullable|string|max:7',
+            'logo' => 'nullable|image|mimes:png,svg,jpg,webp,gif|max:2048',
+            'splash_logo' => 'nullable|image|mimes:png,svg,jpg,webp,gif|max:5120',
             'login_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
@@ -45,6 +47,7 @@ class BrandingController extends Controller
         $this->saveSetting('branding_app_short_name', $validated['app_short_name']);
         $this->saveSetting('branding_tagline', $validated['tagline'] ?? '');
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
+        $this->saveSetting('branding_splash_bg_color', $validated['splash_bg_color'] ?? '#131C3C');
 
         $imageFields = [
             'logo' => 'branding_logo_url',

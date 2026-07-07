@@ -42,6 +42,12 @@
                     <input type="color" name="primary_color" value="{{ old('primary_color', $branding['primary_color']) }}"
                            class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Splash Background Color</label>
+                    <input type="color" name="splash_bg_color" value="{{ old('splash_bg_color', $branding['splash_bg_color'] ?? '#131C3C') }}"
+                           class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-1">Background color for the splash screen (supports GIF animation)</p>
+                </div>
             </div>
         </div>
 
