@@ -15,11 +15,12 @@ import 'branding_service.dart';
 
 class BrandingApi {
   Future<AppBranding?> fetchBranding({int timeoutSeconds = 5}) async {
-    // Try production URL first, fall back to localhost for dev
+    // Try localhost first (dev), fall back to production URL
     final urls = [
-      '${EnvConfig.laravelBaseUrl}/v2/config/branding',
       'http://localhost:8080/api/v2/config/branding',
-      'http://127.0.0.1:8000/api/v2/config/branding',
+      'http://127.0.0.1:8080/api/v2/config/branding',
+      'http://localhost:8000/api/v2/config/branding',
+      '${EnvConfig.laravelBaseUrl}/v2/config/branding',
     ];
 
     for (final url in urls) {

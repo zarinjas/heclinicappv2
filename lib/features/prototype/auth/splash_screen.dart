@@ -16,6 +16,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final Animation<double> _fadeAnimation;
+  bool _ready = false;
 
   @override
   void initState() {
@@ -27,6 +28,16 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeIn),
     );
+
+    _loadBranding();
+  }
+
+  Future<void> _loadBranding() async {
+    // Wait for branding service to fetch from API
+    await BrandingService.instance.init();
+
+    if (!mounted) return;
+    setState(() => _ready = true);
     _animController.forward();
 
     Future.delayed(const Duration(seconds: 2), () {
@@ -46,41 +57,55 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final branding = BrandingService.instance;
     final bgColor = branding.splashBgColor;
-    final splashUrl = branding.splashLogoUrl;
-    final hasGif = splashUrl != null && splashUrl.isNotEmpty;
 
     return Scaffold(
       backgroundColor: bgColor,
       body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (hasGif)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.radiusMD),
-                  child: Image.network(
-                    splashUrl!,
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => _buildFallbackLogo(),
-                  ),
-                )
-              else
-                _buildFallbackLogo(),
-              const SizedBox(height: 24),
-              Text(
-                branding.tagline,
-                style: AppTextStyles.body1.copyWith(
-                  color: Colors.white.withValues(alpha: 0.6),
+        child: _ready
+            ? FadeTransition(
+                opacity: _fadeAnimation,
+                child: _buildContent(branding),
+              )
+            : const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
                 ),
               ),
-            ],
+      ),
+    );
+  }
+
+  Widget _buildContent(BrandingService branding) {
+    final splashUrl = branding.splashLogoUrl;
+    final hasGif = splashUrl != null && splashUrl.isNotEmpty;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (hasGif)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+              child: Image.network(
+              splashUrl,
+              width: 120,
+              height: 120,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => _buildFallbackLogo(),
+            ),
+          )
+        else
+          _buildFallbackLogo(),
+        const SizedBox(height: 24),
+        Text(
+          branding.tagline,
+          style: AppTextStyles.body1.copyWith(
+            color: Colors.white.withValues(alpha: 0.6),
           ),
         ),
-      ),
+      ],
     );
   }
 

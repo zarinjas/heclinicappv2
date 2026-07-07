@@ -78,30 +78,41 @@ class BrandingService {
 
   static const _cacheKey = 'branding_cache';
   static const _cacheTimestampKey = 'branding_cache_timestamp';
-  static const _cacheDuration = Duration(hours: 24);
+  static const _cacheDuration = Duration(minutes: 5);
 
   AppBranding? _cached;
   bool _initialised = false;
+  Completer<void>? _initCompleter;
   final BrandingApi _api = BrandingApi();
 
   // ── Initialization ──
 
+  /// Start loading branding. If already started, returns existing future.
+  /// Callers can await this to ensure branding data is ready.
   Future<void> init() async {
     if (_initialised) return;
+    if (_initCompleter != null) return _initCompleter!.future;
 
-    _cached = await _loadFromCache();
+    _initCompleter = Completer<void>();
 
+    // Try API first (fast 2s timeout when server is on same machine)
     try {
-      final remote = await _api.fetchBranding(timeoutSeconds: 5);
+      final remote = await _api.fetchBranding(timeoutSeconds: 2);
       if (remote != null) {
         _cached = remote;
         await _saveToCache(remote);
+        _initialised = true;
+        _initCompleter!.complete();
+        return;
       }
     } catch (_) {
-      // Silent — fall back to cache or bundled defaults
+      // API failed — will try cache
     }
 
+    // Fall back to cache
+    _cached = await _loadFromCache();
     _initialised = true;
+    _initCompleter!.complete();
   }
 
   void initWith(AppBranding branding) {
