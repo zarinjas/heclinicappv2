@@ -82,7 +82,7 @@
                         <p class="text-sm font-medium text-[#0F1B3D]">{{ $info['label'] }}</p>
                         <p class="text-xs text-gray-500">{{ $info['desc'] }}</p>
                     </div>
-                    <input type="file" name="{{ $field }}" accept="image/png,image/svg+xml,image/jpeg"
+                    <input type="file" name="{{ $field }}" accept="image/png,image/svg+xml,image/jpeg,image/gif,image/webp"
                            class="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
                 </div>
                 @endforeach
