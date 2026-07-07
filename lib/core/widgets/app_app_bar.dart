@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../services/branding_service.dart';
 
 class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AppAppBar._({
@@ -35,7 +36,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 const SizedBox(width: AppSpacing.space8),
                 Text(
-                  'He Clinic',
+                  BrandingService.instance.appName,
                   style: AppTextStyles.heading3.copyWith(
                     color: Colors.white,
                   ),

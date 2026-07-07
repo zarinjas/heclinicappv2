@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_spacing.dart';
+import '/core/services/branding_service.dart';
 import '/core/widgets/floating_bottom_nav.dart';
 import '/core/widgets/home_header.dart';
 
@@ -200,7 +201,7 @@ class _PrototypeShellState extends State<PrototypeShell> {
             const Divider(indent: 16, endIndent: 16),
             _drawerItem(
               icon: Icons.info_outline,
-              label: 'About He Clinic',
+              label: 'About ${BrandingService.instance.appName}',
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/clinic-info');

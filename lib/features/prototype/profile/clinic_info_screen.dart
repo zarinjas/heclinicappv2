@@ -4,6 +4,7 @@ import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
 import '/core/theme/app_text_styles.dart';
+import '/core/services/branding_service.dart';
 
 class ClinicInfoScreen extends StatelessWidget {
   const ClinicInfoScreen({super.key});
@@ -17,7 +18,7 @@ class ClinicInfoScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('He Clinic Info'),
+        title: Text('${BrandingService.instance.appShortName} Clinic Info'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -39,14 +40,14 @@ class ClinicInfoScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'About He Medical Clinic',
+                    'About ${BrandingService.instance.appName}',
                     style: AppTextStyles.heading2.copyWith(
                       color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.space8),
                   Text(
-                    'Founded in 2015, He Medical Clinic has grown from a '
+                    'Founded in 2015, ${BrandingService.instance.appName} has grown from a '
                     'single practice in Taman Tun Dr Ismail into a trusted '
                     'healthcare provider with three branches across the '
                     'Klang Valley. Our team of experienced doctors and '

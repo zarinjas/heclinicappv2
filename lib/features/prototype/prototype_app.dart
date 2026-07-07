@@ -10,6 +10,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_text_styles.dart';
 
+import '/core/services/branding_service.dart';
+
 import 'auth/forgot_email_screen.dart';
 import 'auth/forgot_newpassword_screen.dart';
 import 'auth/forgot_otp_screen.dart';
@@ -47,6 +49,7 @@ import 'prototype_shell.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  BrandingService.instance.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

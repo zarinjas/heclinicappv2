@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../services/branding_service.dart';
 import 'notification_bell.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -113,9 +114,9 @@ class HomeHeader extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppRadius.radiusSM),
                           ),
                           alignment: Alignment.center,
-                          child: const Text(
-                            'HE',
-                            style: TextStyle(
+                          child: Text(
+                            BrandingService.instance.appShortName,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -126,7 +127,7 @@ class HomeHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'He Medical Clinic',
+                          BrandingService.instance.appName,
                           style: GoogleFonts.plusJakartaSans(
                             color: Colors.white.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w700,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/services/branding_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -65,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 alignment: Alignment.center,
                 child: const Text(
-                  'HE',
+                  BrandingService.instance.appShortName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 22,
@@ -76,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 24),
               Text(
-                'Your Health, Simplified',
+                BrandingService.instance.tagline,
                 style: AppTextStyles.body1.copyWith(
                   color: Colors.white.withValues(alpha: 0.6),
                 ),

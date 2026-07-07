@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/services/branding_service.dart';
 import '../../../core/widgets/app_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -45,9 +46,9 @@ class WelcomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.radiusSM),
                 ),
                 alignment: Alignment.center,
-                child: const Text(
-                  'HE',
-                  style: TextStyle(
+                child: Text(
+                  BrandingService.instance.appShortName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -56,8 +57,8 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.space24),
-              const Text(
-                'He Medical Clinic',
+              Text(
+                BrandingService.instance.appName,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/services/branding_service.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_input.dart';
 
@@ -68,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    'HE',
+                    BrandingService.instance.appShortName,
                     style: AppTextStyles.heading2.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -78,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: AppSpacing.space12),
               Text(
-                'He Medical Clinic',
+                BrandingService.instance.appName,
                 style: AppTextStyles.heading3.copyWith(
                   color: AppColors.primary,
                 ),
