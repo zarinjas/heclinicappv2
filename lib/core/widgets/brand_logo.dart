@@ -6,10 +6,8 @@ import '../theme/app_colors.dart';
 // ============================================================================
 // APP LOGO — Branding-aware, cached, with white-label support
 //
-// Usage:
-//   BrandLogo(size: 64)           — default gradient pill with initials
-//   BrandLogo.splash()            — large splash screen logo
-//   BrandLogo.appBar()            — small inline logo for app bars
+// URL fallback: if original URL fails, automatically tries replacing
+// localhost ↔ host IP so images work regardless of simulator network.
 // ============================================================================
 
 class BrandLogo extends StatelessWidget {
@@ -22,7 +20,6 @@ class BrandLogo extends StatelessWidget {
   });
 
   factory BrandLogo.splash() => const BrandLogo(size: 80, showLabel: true);
-
   factory BrandLogo.appBar() => const BrandLogo(size: 20, showLabel: false);
 
   final double size;
@@ -38,22 +35,13 @@ class BrandLogo extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Logo image (from API) or fallback gradient pill
         if (logoUrl != null && logoUrl.isNotEmpty)
           ClipRRect(
             borderRadius: BorderRadius.circular(size * 0.25),
-            child: Image.network(
-              logoUrl,
-              width: size,
-              height: size,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _buildFallback(),
-            ),
+            child: _tryImageUrl(logoUrl, 0),
           )
         else
           _buildFallback(),
-
-        // Optional label — app name
         if (showLabel) ...[
           SizedBox(height: size * 0.15),
           Text(
@@ -68,6 +56,27 @@ class BrandLogo extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _tryImageUrl(String? url, int attempt) {
+    if (url == null || attempt >= 3) {
+      return _buildFallback();
+    }
+
+    return Image.network(
+      url,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) {
+        // Try next URL variant on failure
+        final nextUrl = _alternateUrl(url);
+        if (nextUrl != null && nextUrl != url) {
+          return _tryImageUrl(nextUrl, attempt + 1);
+        }
+        return _buildFallback();
+      },
     );
   }
 
@@ -91,5 +100,16 @@ class BrandLogo extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Try replacing localhost ↔ 192.168.x.x when loading fails
+  static String? _alternateUrl(String url) {
+    if (url.contains('localhost')) {
+      return url.replaceFirst('localhost', '192.168.0.103');
+    }
+    if (url.contains('192.168.0.103')) {
+      return url.replaceFirst('192.168.0.103', 'localhost');
+    }
+    return null;
   }
 }

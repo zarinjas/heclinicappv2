@@ -80,21 +80,15 @@ class _SplashScreenState extends State<SplashScreen>
 
   Widget _buildContent(BrandingService branding) {
     final splashUrl = branding.splashLogoUrl;
-    final hasGif = splashUrl != null && splashUrl.isNotEmpty;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (hasGif)
+        if (splashUrl != null && splashUrl.isNotEmpty)
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.radiusMD),
-              child: Image.network(
-              splashUrl,
-              width: 120,
-              height: 120,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _buildFallbackLogo(),
-            ),
+            // ignore: unnecessary_non_null_assertion
+            child: _brandImage(splashUrl!, 0, 120),
           )
         else
           _buildFallbackLogo(),
@@ -107,6 +101,33 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       ],
     );
+  }
+
+  Widget _brandImage(String url, int attempt, double size) {
+    if (attempt >= 3) return _buildFallbackLogo();
+    return Image.network(
+      url,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) {
+        final next = _alternateUrl(url);
+        if (next != null && next != url) {
+          return _brandImage(next, attempt + 1, size);
+        }
+        return _buildFallbackLogo();
+      },
+    );
+  }
+
+  static String? _alternateUrl(String url) {
+    if (url.contains('localhost')) {
+      return url.replaceFirst('localhost', '192.168.0.103');
+    }
+    if (url.contains('192.168.0.103')) {
+      return url.replaceFirst('192.168.0.103', 'localhost');
+    }
+    return null;
   }
 
   Widget _buildFallbackLogo() {
