@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "serve": "php -c php-dev.ini artisan serve --port=8080"
+        "serve": "php -c php-dev.ini artisan serve --host=0.0.0.0 --port=8080"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
