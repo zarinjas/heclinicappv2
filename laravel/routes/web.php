@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsArticleController;
@@ -58,5 +59,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::resource('videos', CmsVideoController::class);
             Route::post('videos/fetch-info', [CmsVideoController::class, 'fetchInfo'])->name('videos.fetch-info');
         });
+
+        Route::get('branding', [BrandingController::class, 'index'])->name('branding');
+        Route::post('branding', [BrandingController::class, 'update'])->name('branding.update');
     });
 });

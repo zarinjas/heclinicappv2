@@ -1,54 +1,43 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../env_config.dart';
 import 'branding_service.dart';
 
 // ============================================================================
-// BRANDING API — MOCK LAYER
+// BRANDING API — REQUEST LAYER
 //
-// Replace fetchBranding() with real HTTP call to Admin Panel API:
-//   GET /api/v2/config/branding
+// Fetches branding from Laravel Admin Panel API.
+// Falls back to bundled mock data when offline.
 //
-// Response shape:
-//   {
-//     "app_name": "He Medical Clinic",
-//     "app_short_name": "HE",
-//     "logo_url": "https://cdn.example.com/logo.png",
-//     "splash_logo_url": "https://cdn.example.com/splash.png",
-//     "login_logo_url": "https://cdn.example.com/login_logo.png",
-//     "appbar_logo_url": "https://cdn.example.com/appbar.png",
-//     "tagline": "Your Health, Simplified",
-//     "primary_color": "#131C3C"
-//   }
+// API: GET /api/v2/config/branding (public, no auth required)
 // ============================================================================
 
 class BrandingApi {
-  // When connected to real API, replace this with HTTP client call.
-  // The service gracefully falls back to cache/bundled assets on failure.
-
   Future<AppBranding?> fetchBranding({int timeoutSeconds = 5}) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Try production URL first, fall back to localhost for dev
+    final urls = [
+      '${EnvConfig.laravelBaseUrl}/v2/config/branding',
+      'http://localhost:8080/api/v2/config/branding',
+      'http://127.0.0.1:8000/api/v2/config/branding',
+    ];
 
-    // ═══════════════════════════════════════════
-    // TODO: Replace with real API call:
-    //
-    // final response = await http.get(
-    //   Uri.parse('${EnvConfig.apiBaseUrl}/api/v2/config/branding'),
-    //   headers: {'Authorization': 'Bearer $token'},
-    // ).timeout(Duration(seconds: timeoutSeconds));
-    //
-    // if (response.statusCode == 200) {
-    //   return AppBranding.fromJson(jsonDecode(response.body));
-    // }
-    // return null;
-    // ═══════════════════════════════════════════
+    for (final url in urls) {
+      try {
+        final response = await http
+            .get(Uri.parse(url))
+            .timeout(Duration(seconds: timeoutSeconds));
 
-    // Return mock branding — in production this comes from Admin Panel
-    return const AppBranding(
-      appName: 'He Medical Clinic',
-      appShortName: 'HE',
-      tagline: 'Your Health, Simplified',
-      primaryColorHex: '#131C3C',
-      // logoUrl etc. would be set by admin panel
-    );
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body) as Map<String, dynamic>;
+          return AppBranding.fromJson(data);
+        }
+      } catch (_) {
+        continue; // Try next URL
+      }
+    }
+
+    // All URLs failed — return null to use cache/fallback
+    return null;
   }
 }
