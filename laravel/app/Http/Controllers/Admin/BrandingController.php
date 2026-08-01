@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -101,7 +102,7 @@ class BrandingController extends Controller
 
         foreach ($textFields as $field => $key) {
             if ($request->has($field)) {
-                $this->saveSetting($key, $request->input($field));
+                $this->saveSetting($key, (string) ($request->input($field) ?? ''));
             }
         }
 
@@ -130,7 +131,7 @@ class BrandingController extends Controller
                     $url = Storage::disk('public')->url($path);
                     $this->saveSetting($key, $url);
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Branding upload failed', [
+                    Log::warning('Branding upload failed', [
                         'field' => $field,
                         'error' => $e->getMessage(),
                     ]);
