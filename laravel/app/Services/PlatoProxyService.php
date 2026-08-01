@@ -110,6 +110,57 @@ final class PlatoProxyService
         });
     }
 
+    /**
+     * Redeem or validate a voucher code against the configured Plato path.
+     * If no voucher path is configured, returns a "not configured" error so
+     * the caller can fall back to display-only behaviour.
+     */
+    public function voucherRedeem(string $code, array $extra = []): array
+    {
+        $path = $this->voucherPath();
+
+        if (empty($path)) {
+            return [
+                'error' => true,
+                'code' => 501,
+                'message' => 'Plato voucher endpoint is not configured.',
+                'status' => 501,
+                'headers' => [],
+            ];
+        }
+
+        $url = rtrim($this->baseUrl(), '/').'/'.ltrim($path, '/');
+
+        try {
+            $response = Http::timeout($this->timeout())
+                ->withToken($this->token())
+                ->acceptJson()
+                ->asJson()
+                ->post($url, array_merge($extra, ['code' => $code]));
+
+            return $this->buildResponse($response);
+        } catch (ConnectionException $e) {
+            $this->logError('POST', $url, $e->getMessage());
+
+            return [
+                'error' => true,
+                'code' => 502,
+                'message' => 'Unable to connect to Plato API.',
+                'detail' => $e->getMessage(),
+                'status' => 502,
+                'headers' => [],
+            ];
+        }
+    }
+
+    public function voucherPath(): ?string
+    {
+        return (string) $this->cachedSetting('plato:voucher_path', function () {
+            return Setting::where('key', 'plato_voucher_path')->value('value')
+                ?: config('plato.voucher_path');
+        }) ?: null;
+    }
+
     public function clearSettingsCache(): void
     {
         foreach ([
@@ -118,6 +169,7 @@ final class PlatoProxyService
             'plato:timeout',
             'plato:cache_enabled',
             'plato:proxy_rate_limit',
+            'plato:voucher_path',
         ] as $key) {
             Cache::forget($key);
         }

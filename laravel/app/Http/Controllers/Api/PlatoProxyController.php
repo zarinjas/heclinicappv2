@@ -56,6 +56,43 @@ final class PlatoProxyController extends Controller
     }
 
     /**
+     * Redeem / validate a voucher code via the configured Plato endpoint.
+     */
+    public function voucherRedeem(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+        ]);
+
+        $key = 'plato-voucher:'.($request->ip() ?? 'unknown');
+
+        if (RateLimiter::tooManyAttempts($key, $this->service->proxyRateLimit())) {
+            return response()->json([
+                'error' => true,
+                'code' => 429,
+                'message' => 'Too many requests. Please slow down.',
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
+        RateLimiter::hit($key, 60);
+
+        $result = $this->service->voucherRedeem($request->input('code'), $request->except(['code']));
+
+        $response = response()->json(
+            $result['data'] ?? $result,
+            $result['status'] ?? 200
+        );
+
+        if (! empty($result['headers'])) {
+            foreach ($result['headers'] as $name => $value) {
+                $response->header($name, $value);
+            }
+        }
+
+        return $response;
+    }
+
+    /**
      * Health check for the proxy layer — does NOT proxy to Plato.
      */
     public function health(): JsonResponse

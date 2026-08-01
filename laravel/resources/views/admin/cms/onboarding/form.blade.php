@@ -7,12 +7,28 @@
 @section('content')
     <form method="POST"
           action="{{ $isEdit ? route('admin.cms.onboarding.update', $slide) : route('admin.cms.onboarding.store') }}"
+          enctype="multipart/form-data"
           class="max-w-2xl">
         @csrf
         @if ($isEdit) @method('PUT') @endif
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
             <div class="p-6 space-y-6">
+                <div>
+                    <label for="image" class="block text-sm font-medium text-[#0F1B3D] mb-1">Slide Image</label>
+                    <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp"
+                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('image') border-red-300 @enderror">
+                    <p class="mt-1 text-xs text-gray-400">Optional. Max 5MB. JPEG, PNG, or WebP.</p>
+                    @error('image') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+
+                    @if ($isEdit && $slide->image_url)
+                        <div class="mt-3">
+                            <p class="text-xs text-gray-400 mb-1">Current image:</p>
+                            <img src="{{ $slide->image_url }}" alt="" class="w-64 h-auto rounded-lg border border-gray-200">
+                        </div>
+                    @endif
+                </div>
+
                 <div>
                     <label for="title" class="block text-sm font-medium text-[#0F1B3D] mb-1">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" id="title" value="{{ old('title', $slide->title) }}"
@@ -42,12 +58,6 @@
                                class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none"
                                placeholder="#27F5A3">
                     </div>
-                </div>
-
-                <div>
-                    <label for="sort_order" class="block text-sm font-medium text-[#0F1B3D] mb-1">Sort Order</label>
-                    <input type="number" name="sort_order" id="sort_order" value="{{ old('sort_order', $slide->sort_order ?? 0) }}" min="0"
-                           class="w-32 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
                 </div>
 
                 <label class="inline-flex items-center gap-2 cursor-pointer">

@@ -6,7 +6,6 @@ class HeroBanner {
   final String title;
   final String? linkUrl;
   final String? buttonText;
-  final int sortOrder;
 
   const HeroBanner({
     required this.id,
@@ -14,7 +13,6 @@ class HeroBanner {
     required this.title,
     this.linkUrl,
     this.buttonText,
-    required this.sortOrder,
   });
 
   factory HeroBanner.fromJson(Map<String, dynamic> json) {
@@ -24,7 +22,6 @@ class HeroBanner {
       title: json['title'] as String? ?? '',
       linkUrl: json['link_url'] as String?,
       buttonText: json['button_text'] as String?,
-      sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
 
@@ -34,7 +31,6 @@ class HeroBanner {
     'title': title,
     'link_url': linkUrl,
     'button_text': buttonText,
-    'sort_order': sortOrder,
   };
 
   static const fallbackList = <HeroBanner>[
@@ -43,21 +39,18 @@ class HeroBanner {
       imageUrl: '',
       title: 'Book your annual\nhealth check today',
       linkUrl: null,
-      sortOrder: 1,
     ),
     HeroBanner(
       id: 2,
       imageUrl: '',
       title: 'Telehealth consultation\nin minutes',
       linkUrl: null,
-      sortOrder: 2,
     ),
     HeroBanner(
       id: 3,
       imageUrl: '',
       title: 'Earn points on every\nclinic visit',
       linkUrl: null,
-      sortOrder: 3,
     ),
   ];
 

@@ -20,8 +20,11 @@ class StoreCmsPromotionRequest extends FormRequest
             'cta_text' => ['nullable', 'string', 'max:100'],
             'cta_link' => ['nullable', 'url', 'max:500'],
             'promo_code' => ['nullable', 'string', 'max:50'],
+            'valid_from' => ['nullable', 'date'],
+            'valid_until' => ['nullable', 'date', 'after_or_equal:valid_from'],
+            'usage_limit' => ['nullable', 'integer', 'min:1'],
+            'code_unique' => ['nullable', 'boolean'],
             'is_active' => ['boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

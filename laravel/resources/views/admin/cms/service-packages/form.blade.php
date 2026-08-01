@@ -76,22 +76,6 @@
                 </div>
 
                 <div>
-                    <label for="sort_order" class="block text-sm font-medium text-[#0F1B3D] mb-1">Sort Order</label>
-                    <input
-                        type="number"
-                        name="sort_order"
-                        id="sort_order"
-                        value="{{ old('sort_order', $package->sort_order ?? 0) }}"
-                        min="0"
-                        class="w-32 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('sort_order') border-red-300 @enderror"
-                    >
-                    <p class="mt-1 text-xs text-gray-400">Lower numbers appear first in the package list.</p>
-                    @error('sort_order')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input
                             type="hidden"

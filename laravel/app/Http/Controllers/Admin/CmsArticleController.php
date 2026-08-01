@@ -18,7 +18,6 @@ class CmsArticleController extends Controller
         $query = CmsArticle::query()
             ->with('categoryRelation')
             ->orderByDesc('is_featured')
-            ->orderBy('sort_order')
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
@@ -36,7 +35,7 @@ class CmsArticleController extends Controller
 
     public function create(): View
     {
-        $categories = CmsArticleCategory::where('status', 'active')->orderBy('sort_order')->orderBy('name')->get();
+        $categories = CmsArticleCategory::where('status', 'active')->orderBy('created_at', 'desc')->orderBy('name')->get();
 
         return view('admin.cms.articles.form', ['article' => new CmsArticle, 'categories' => $categories]);
     }
@@ -52,7 +51,6 @@ class CmsArticleController extends Controller
 
         $this->syncCategory($data);
 
-        $data['sort_order'] = $data['sort_order'] ?? (int) CmsArticle::max('sort_order') + 1;
         $data['created_by'] = auth()->id();
 
         if ($request->input('status') === 'published' && empty($data['published_at'])) {
@@ -68,7 +66,7 @@ class CmsArticleController extends Controller
 
     public function edit(CmsArticle $article): View
     {
-        $categories = CmsArticleCategory::where('status', 'active')->orderBy('sort_order')->orderBy('name')->get();
+        $categories = CmsArticleCategory::where('status', 'active')->orderBy('created_at', 'desc')->orderBy('name')->get();
 
         return view('admin.cms.articles.form', compact('article', 'categories'));
     }
@@ -88,8 +86,6 @@ class CmsArticleController extends Controller
         }
 
         $this->syncCategory($data);
-
-        $data['sort_order'] = $data['sort_order'] ?? $article->sort_order;
 
         if ($request->input('status') === 'published' && ! $article->published_at) {
             $data['published_at'] = now();

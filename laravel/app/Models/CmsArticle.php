@@ -19,7 +19,6 @@ class CmsArticle extends Model
         'is_featured',
         'author_name',
         'status',
-        'sort_order',
         'published_at',
         'created_by',
     ];
@@ -27,7 +26,6 @@ class CmsArticle extends Model
     protected function casts(): array
     {
         return [
-            'sort_order' => 'integer',
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];

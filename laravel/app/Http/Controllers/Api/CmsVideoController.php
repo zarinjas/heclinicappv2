@@ -16,7 +16,6 @@ class CmsVideoController extends Controller
 
         $query = CmsVideo::query()
             ->where('status', 'published')
-            ->orderBy('sort_order')
             ->orderBy('published_at', 'desc');
 
         $paginator = $query->paginate($limit, ['*'], 'page', $page);

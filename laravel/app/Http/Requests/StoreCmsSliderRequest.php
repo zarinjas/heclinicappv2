@@ -20,7 +20,6 @@ class StoreCmsSliderRequest extends FormRequest
             'link_url' => ['nullable', 'url', 'max:500'],
             'button_text' => ['nullable', 'string', 'max:100'],
             'is_active' => ['boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

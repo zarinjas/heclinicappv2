@@ -25,7 +25,6 @@ class StoreCmsArticleRequest extends FormRequest
             'is_featured' => ['nullable', 'boolean'],
             'author_name' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', 'in:draft,published'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
             'published_at' => ['nullable', 'date'],
         ];
     }

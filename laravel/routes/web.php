@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\PlatoSettingsController;
 use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
@@ -90,5 +91,6 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('settings/plato/test', [PlatoSettingsController::class, 'testConnection'])->name('settings.plato.test');
         Route::get('settings/system', [SystemSettingsController::class, 'index'])->name('settings.system');
         Route::post('settings/system', [SystemSettingsController::class, 'update'])->name('settings.system.update');
+        Route::resource('users', UserController::class);
     });
 });

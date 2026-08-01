@@ -12,7 +12,6 @@ class CmsSliderController extends Controller
     {
         $sliders = CmsSlider::query()
             ->where('is_active', true)
-            ->orderBy('sort_order')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (CmsSlider $slider) => [
@@ -21,7 +20,6 @@ class CmsSliderController extends Controller
                 'title' => $slider->title,
                 'link_url' => $slider->link_url,
                 'button_text' => $slider->button_text,
-                'sort_order' => $slider->sort_order,
             ]);
 
         return response()->json($sliders);

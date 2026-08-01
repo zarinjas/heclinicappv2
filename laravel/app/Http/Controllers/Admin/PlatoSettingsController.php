@@ -21,6 +21,7 @@ class PlatoSettingsController extends Controller
             'timeout' => $this->getSetting('plato_timeout', config('plato.timeout', 30)),
             'cache_enabled' => $this->getSetting('plato_cache_enabled', config('plato.cache.enabled') ? '1' : '0'),
             'proxy_rate_limit' => $this->getSetting('plato_proxy_rate_limit', config('plato.proxy_rate_limit', 60)),
+            'voucher_path' => $this->getSetting('plato_voucher_path', config('plato.voucher_path')),
             'token_configured' => Setting::where('key', 'plato_api_token')->exists(),
         ];
 
@@ -35,12 +36,14 @@ class PlatoSettingsController extends Controller
             'plato_timeout' => 'required|integer|min:1|max:300',
             'plato_cache_enabled' => 'nullable|boolean',
             'plato_proxy_rate_limit' => 'required|integer|min:1|max:600',
+            'plato_voucher_path' => ['nullable', 'string', 'max:255'],
         ]);
 
         $this->saveSetting('plato_base_url', $validated['plato_base_url']);
         $this->saveSetting('plato_timeout', (string) $validated['plato_timeout']);
         $this->saveSetting('plato_cache_enabled', $request->boolean('plato_cache_enabled') ? '1' : '0');
         $this->saveSetting('plato_proxy_rate_limit', (string) $validated['plato_proxy_rate_limit']);
+        $this->saveSetting('plato_voucher_path', $validated['plato_voucher_path'] ?? '');
 
         if (! empty($validated['plato_api_token'])) {
             $this->saveSetting('plato_api_token', Crypt::encryptString($validated['plato_api_token']));

@@ -13,14 +13,12 @@ class CmsSlider extends Model
         'link_url',
         'button_text',
         'is_active',
-        'sort_order',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
         ];
     }
 

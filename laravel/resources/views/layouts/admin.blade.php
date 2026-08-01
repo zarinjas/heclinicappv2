@@ -3,13 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') — He Clinic Admin</title>
+    @php
+        $adminBranding = [
+            'logo_url' => \App\Models\Setting::where('key', 'branding_logo_url')->value('value'),
+            'favicon_url' => \App\Models\Setting::where('key', 'branding_favicon_url')->value('value'),
+            'app_name' => \App\Models\Setting::where('key', 'branding_app_name')->value('value') ?? 'He Clinic',
+            'short_name' => \App\Models\Setting::where('key', 'branding_app_short_name')->value('value') ?? 'HE',
+            'primary_color' => \App\Models\Setting::where('key', 'branding_primary_color')->value('value') ?? '#131C3C',
+        ];
+    @endphp
+    <title>@yield('title', 'Dashboard') — {{ $adminBranding['app_name'] }} Admin</title>
+    @if ($adminBranding['favicon_url'])
+        <link rel="icon" type="image/png" href="{{ $adminBranding['favicon_url'] }}">
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#F8F9FC] min-h-screen flex">
     <aside class="w-64 bg-[#0F1B3D] text-white min-h-screen flex-shrink-0 flex flex-col">
         <div class="p-6 border-b border-[#1e2d52]">
-            <h1 class="text-lg font-bold">He Clinic</h1>
+            @if ($adminBranding['logo_url'])
+                <img src="{{ $adminBranding['logo_url'] }}" alt="{{ $adminBranding['app_name'] }}" class="h-10 object-contain mb-1">
+            @else
+                <h1 class="text-lg font-bold">{{ $adminBranding['app_name'] }}</h1>
+            @endif
             <p class="text-xs text-gray-400 mt-1">Admin Panel</p>
         </div>
 
@@ -120,16 +136,16 @@
             <a href="{{ route('admin.cms.sliders.index') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                       {{ request()->routeIs('admin.cms.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}"
-               onclick="event.preventDefault(); toggleCmsSubmenu()">
+               onclick="event.preventDefault(); toggleContentSubmenu()">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                 </svg>
-                CMS
-                <svg id="cms-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                Content
+                <svg id="content-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
             </a>
-            <div id="cms-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.*') ? '' : 'hidden' }}">
+            <div id="content-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') ? '' : 'hidden' }}">
                 <a href="{{ route('admin.cms.sliders.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
                           {{ request()->routeIs('admin.cms.sliders.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
@@ -154,47 +170,88 @@
                     </svg>
                     Articles
                 </a>
-                    <a href="{{ route('admin.cms.article-categories.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
-                              {{ request()->routeIs('admin.cms.article-categories.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                        </svg>
-                        Categories
-                    </a>
-                    <a href="{{ route('admin.cms.promotions.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
-                              {{ request()->routeIs('admin.cms.promotions.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
-                        </svg>
-                        Promotions
-                    </a>
-                    <a href="{{ route('admin.cms.service-packages.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
-                              {{ request()->routeIs('admin.cms.service-packages.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
-                        Service Packages
-                    </a>
-                    <a href="{{ route('admin.cms.onboarding.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
-                              {{ request()->routeIs('admin.cms.onboarding.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Onboarding
-                    </a>
-                    <a href="{{ route('admin.cms.legal.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
-                              {{ request()->routeIs('admin.cms.legal.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Legal Pages
-                    </a>
+                <a href="{{ route('admin.cms.article-categories.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.article-categories.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                    </svg>
+                    Categories
+                </a>
             </div>
+
+            <a href="{{ route('admin.cms.promotions.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      {{ request()->routeIs('admin.cms.promotions.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}"
+               onclick="event.preventDefault(); toggleOffersSubmenu()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                </svg>
+                Offers & Vouchers
+                <svg id="offers-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.promotions.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+            <div id="offers-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.promotions.*') ? '' : 'hidden' }}">
+                <a href="{{ route('admin.cms.promotions.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.promotions.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                    </svg>
+                    Promotions / Vouchers
+                </a>
+            </div>
+
+            <a href="{{ route('admin.cms.service-packages.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      {{ request()->routeIs('admin.cms.service-packages.*') || request()->routeIs('admin.cms.onboarding.*') || request()->routeIs('admin.cms.legal.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}"
+               onclick="event.preventDefault(); toggleSetupSubmenu()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                Setup
+                <svg id="setup-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.service-packages.*') || request()->routeIs('admin.cms.onboarding.*') || request()->routeIs('admin.cms.legal.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+            <div id="setup-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.service-packages.*') || request()->routeIs('admin.cms.onboarding.*') || request()->routeIs('admin.cms.legal.*') ? '' : 'hidden' }}">
+                <a href="{{ route('admin.cms.service-packages.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.service-packages.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    Service Packages
+                </a>
+                <a href="{{ route('admin.cms.onboarding.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.onboarding.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Onboarding
+                </a>
+                <a href="{{ route('admin.cms.legal.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.legal.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Legal Pages
+                </a>
+            </div>
+
+            @if (auth()->user()?->isSuperAdmin())
+                <a href="{{ route('admin.users.index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                          {{ request()->routeIs('admin.users.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    Users
+                </a>
+            @endif
 
             <a href="{{ route('admin.branding') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
@@ -205,25 +262,27 @@
                 Branding
             </a>
 
-            <a href="{{ route('admin.settings.system') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                      {{ request()->routeIs('admin.settings.system') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                System Settings
-            </a>
+            @if (auth()->user()?->isSuperAdmin())
+                <a href="{{ route('admin.settings.system') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                          {{ request()->routeIs('admin.settings.system') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    System Settings
+                </a>
 
-            <a href="{{ route('admin.settings.plato') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                      {{ request()->routeIs('admin.settings.plato') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Plato Settings
-            </a>
+                <a href="{{ route('admin.settings.plato') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                          {{ request()->routeIs('admin.settings.plato') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Plato Settings
+                </a>
+            @endif
         </nav>
 
         <div class="p-4 border-t border-[#1e2d52]">
@@ -270,9 +329,21 @@
             submenu.classList.toggle('hidden');
             chevron.classList.toggle('rotate-90');
         }
-        function toggleCmsSubmenu() {
-            const submenu = document.getElementById('cms-submenu');
-            const chevron = document.getElementById('cms-chevron');
+        function toggleContentSubmenu() {
+            const submenu = document.getElementById('content-submenu');
+            const chevron = document.getElementById('content-chevron');
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-90');
+        }
+        function toggleOffersSubmenu() {
+            const submenu = document.getElementById('offers-submenu');
+            const chevron = document.getElementById('offers-chevron');
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-90');
+        }
+        function toggleSetupSubmenu() {
+            const submenu = document.getElementById('setup-submenu');
+            const chevron = document.getElementById('setup-chevron');
             submenu.classList.toggle('hidden');
             chevron.classList.toggle('rotate-90');
         }

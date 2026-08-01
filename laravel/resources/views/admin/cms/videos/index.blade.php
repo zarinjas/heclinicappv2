@@ -63,7 +63,6 @@
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Title</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">TikTok Author</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Published</th>
-                            <th class="text-left px-6 py-3 font-medium text-gray-500">Sort</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Status</th>
                             <th class="text-right px-6 py-3 font-medium text-gray-500">Actions</th>
                         </tr>
@@ -87,7 +86,6 @@
                                 <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
                                     {{ $video->published_at ? $video->published_at->format('d M Y') : '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-gray-500">{{ $video->sort_order }}</td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $video->status === 'published' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $video->status === 'published' ? 'bg-green-500' : 'bg-yellow-500' }}"></span>

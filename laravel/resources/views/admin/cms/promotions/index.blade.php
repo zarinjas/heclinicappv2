@@ -53,7 +53,7 @@
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Title</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">CTA</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Promo Code</th>
-                            <th class="text-left px-6 py-3 font-medium text-gray-500">Sort Order</th>
+                            <th class="text-left px-6 py-3 font-medium text-gray-500">Valid</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Status</th>
                             <th class="text-right px-6 py-3 font-medium text-gray-500">Actions</th>
                         </tr>
@@ -82,7 +82,18 @@
                                         <span class="text-gray-400">—</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-gray-500">{{ $promotion->sort_order }}</td>
+                                <td class="px-6 py-4 text-gray-500">
+                                    @if ($promotion->valid_from || $promotion->valid_until)
+                                        <span class="text-xs">
+                                            {{ $promotion->valid_from?->format('d M') ?: '—' }} – {{ $promotion->valid_until?->format('d M') ?: '∞' }}
+                                        </span>
+                                        @if ($promotion->usage_limit)
+                                            <br><span class="text-xs text-gray-400">Max {{ $promotion->usage_limit }} uses</span>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400">—</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $promotion->is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $promotion->is_active ? 'bg-green-500' : 'bg-gray-400' }}"></span>

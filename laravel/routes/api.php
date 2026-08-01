@@ -84,6 +84,9 @@ Route::get('/v2/config/branding', function () {
 });
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('/v2/plato/voucher/redeem', [PlatoProxyController::class, 'voucherRedeem'])
+        ->name('plato.voucher.redeem');
+
     Route::any('/v2/plato/{path}', [PlatoProxyController::class, 'proxy'])
         ->where('path', '.*')
         ->name('plato.proxy');

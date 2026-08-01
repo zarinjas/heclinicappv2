@@ -14,15 +14,21 @@ class CmsPromotion extends Model
         'cta_text',
         'cta_link',
         'promo_code',
+        'valid_from',
+        'valid_until',
+        'usage_limit',
+        'code_unique',
         'is_active',
-        'sort_order',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
+            'code_unique' => 'boolean',
+            'valid_from' => 'date',
+            'valid_until' => 'date',
+            'usage_limit' => 'integer',
         ];
     }
 

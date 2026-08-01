@@ -20,7 +20,6 @@ class StoreCmsVideoRequest extends FormRequest
             'thumbnail_url' => ['required', 'string', 'max:500'],
             'tiktok_author' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', 'in:draft,published'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
             'published_at' => ['nullable', 'date'],
         ];
     }

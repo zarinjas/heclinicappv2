@@ -94,19 +94,91 @@
                         @enderror
                     </div>
 
+                <div>
+                    <label for="promo_code" class="block text-sm font-medium text-[#0F1B3D] mb-1">Voucher / Promo Code</label>
+                    <input
+                        type="text"
+                        name="promo_code"
+                        id="promo_code"
+                        value="{{ old('promo_code', $promotion->promo_code) }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('promo_code') border-red-300 @enderror"
+                        placeholder="e.g. BASIC99"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Code shown to users to redeem at the clinic. Leave empty if this is a display-only offer.</p>
+                    @error('promo_code')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="promo_code" class="block text-sm font-medium text-[#0F1B3D] mb-1">Promo Code</label>
+                        <label for="valid_from" class="block text-sm font-medium text-[#0F1B3D] mb-1">Valid From</label>
                         <input
-                            type="text"
-                            name="promo_code"
-                            id="promo_code"
-                            value="{{ old('promo_code', $promotion->promo_code) }}"
-                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('promo_code') border-red-300 @enderror"
-                            placeholder="e.g. BASIC99"
+                            type="date"
+                            name="valid_from"
+                            id="valid_from"
+                            value="{{ old('valid_from', $promotion->valid_from?->toDateString()) }}"
+                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('valid_from') border-red-300 @enderror"
                         >
-                        @error('promo_code')
+                        <p class="mt-1 text-xs text-gray-400">Optional. Offer only shows from this date.</p>
+                        @error('valid_from')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <div>
+                        <label for="valid_until" class="block text-sm font-medium text-[#0F1B3D] mb-1">Valid Until</label>
+                        <input
+                            type="date"
+                            name="valid_until"
+                            id="valid_until"
+                            value="{{ old('valid_until', $promotion->valid_until?->toDateString()) }}"
+                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('valid_until') border-red-300 @enderror"
+                        >
+                        <p class="mt-1 text-xs text-gray-400">Optional. Offer hidden after this date.</p>
+                        @error('valid_until')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="usage_limit" class="block text-sm font-medium text-[#0F1B3D] mb-1">Usage Limit</label>
+                        <input
+                            type="number"
+                            name="usage_limit"
+                            id="usage_limit"
+                            value="{{ old('usage_limit', $promotion->usage_limit) }}"
+                            min="1"
+                            class="w-40 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('usage_limit') border-red-300 @enderror"
+                            placeholder="Unlimited"
+                        >
+                        <p class="mt-1 text-xs text-gray-400">Optional. How many times this voucher can be used. Empty = unlimited.</p>
+                        @error('usage_limit')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="inline-flex items-center gap-2 cursor-pointer pt-6">
+                            <input
+                                type="hidden"
+                                name="code_unique"
+                                value="0"
+                            >
+                            <input
+                                type="checkbox"
+                                name="code_unique"
+                                id="code_unique"
+                                value="1"
+                                {{ old('code_unique', $promotion->code_unique ?? false) ? 'checked' : '' }}
+                                class="w-4 h-4 text-[#00C9A7] border-gray-300 rounded focus:ring-[#00C9A7]"
+                            >
+                            <span class="text-sm font-medium text-[#0F1B3D]">Unique code per redemption</span>
+                        </label>
+                        <p class="mt-1 text-xs text-gray-400 ml-6">When enabled, each redemption must use a unique code (validated against Plato).</p>
                     </div>
                 </div>
 
@@ -122,22 +194,6 @@
                     >
                     <p class="mt-1 text-xs text-gray-400">Optional. Where the user goes when they tap the CTA button.</p>
                     @error('cta_link')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="sort_order" class="block text-sm font-medium text-[#0F1B3D] mb-1">Sort Order</label>
-                    <input
-                        type="number"
-                        name="sort_order"
-                        id="sort_order"
-                        value="{{ old('sort_order', $promotion->sort_order ?? 0) }}"
-                        min="0"
-                        class="w-32 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('sort_order') border-red-300 @enderror"
-                    >
-                    <p class="mt-1 text-xs text-gray-400">Lower numbers appear first.</p>
-                    @error('sort_order')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

@@ -6,17 +6,17 @@ class OnboardingSlide {
   final int id;
   final String title;
   final String subtitle;
+  final String? imageUrl;
   final String gradientStartHex;
   final String gradientEndHex;
-  final int sortOrder;
 
   const OnboardingSlide({
     required this.id,
     required this.title,
     required this.subtitle,
+    this.imageUrl,
     required this.gradientStartHex,
     required this.gradientEndHex,
-    required this.sortOrder,
   });
 
   factory OnboardingSlide.fromJson(Map<String, dynamic> json) {
@@ -24,9 +24,9 @@ class OnboardingSlide {
       id: json['id'] as int? ?? 0,
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
+      imageUrl: json['image'] as String?,
       gradientStartHex: json['gradient_start'] as String? ?? '#3B8DFF',
       gradientEndHex: json['gradient_end'] as String? ?? '#27F5A3',
-      sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
 
@@ -34,9 +34,9 @@ class OnboardingSlide {
     'id': id,
     'title': title,
     'subtitle': subtitle,
+    'image': imageUrl,
     'gradient_start': gradientStartHex,
     'gradient_end': gradientEndHex,
-    'sort_order': sortOrder,
   };
 
   Color get gradientStart => _parseHex(gradientStartHex);
@@ -53,17 +53,17 @@ class OnboardingSlide {
     OnboardingSlide(
       id: 1, title: 'Your Health, Simplified',
       subtitle: 'Book appointments and track your health in one place',
-      gradientStartHex: '#3B8DFF', gradientEndHex: '#27F5A3', sortOrder: 1,
+      gradientStartHex: '#3B8DFF', gradientEndHex: '#27F5A3',
     ),
     OnboardingSlide(
       id: 2, title: 'Book in Minutes',
       subtitle: 'See real available slots and connect with your doctor instantly',
-      gradientStartHex: '#131C3C', gradientEndHex: '#1D2B5F', sortOrder: 2,
+      gradientStartHex: '#131C3C', gradientEndHex: '#1D2B5F',
     ),
     OnboardingSlide(
       id: 3, title: 'Stay in the Loop',
       subtitle: 'Get instant updates on your appointments and health records',
-      gradientStartHex: '#2868F5', gradientEndHex: '#3B8DFF', sortOrder: 3,
+      gradientStartHex: '#2868F5', gradientEndHex: '#3B8DFF',
     ),
   ];
 }

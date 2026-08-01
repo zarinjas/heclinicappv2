@@ -5,14 +5,12 @@ class ServicePackage {
   final String name;
   final String description;
   final String? imageUrl;
-  final int sortOrder;
 
   const ServicePackage({
     required this.id,
     required this.name,
     required this.description,
     this.imageUrl,
-    required this.sortOrder,
   });
 
   factory ServicePackage.fromJson(Map<String, dynamic> json) {
@@ -21,7 +19,6 @@ class ServicePackage {
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
       imageUrl: json['image'] as String?,
-      sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
 
@@ -30,7 +27,6 @@ class ServicePackage {
     'name': name,
     'description': description,
     'image': imageUrl,
-    'sort_order': sortOrder,
   };
 
   String get price {
@@ -63,28 +59,24 @@ class ServicePackage {
       name: 'Pemeriksaan Kesihatan Asas',
       description:
           'Pemeriksaan fizikal lengkap, ujian darah, ujian air kencing, dan konsultasi doktor.',
-      sortOrder: 1,
     ),
     ServicePackage(
       id: 2,
       name: 'Pemeriksaan Kesihatan Komprehensif',
       description:
           'Termasuk ujian darah lengkap, ujian fungsi hati & buah pinggang, ECG, X-Ray dada, dan konsultasi.',
-      sortOrder: 2,
     ),
     ServicePackage(
       id: 3,
       name: 'Pakej Vaksinasi',
       description:
           'Vaksinasi Influenza, Hepatitis B, Tetanus, dan konsultasi vaksinasi.',
-      sortOrder: 3,
     ),
     ServicePackage(
       id: 4,
       name: 'Pakej Saringan Wanita',
       description:
           'Pap Smear, ultrasound pelvis, pemeriksaan payudara, dan konsultasi pakar.',
-      sortOrder: 4,
     ),
   ];
 }

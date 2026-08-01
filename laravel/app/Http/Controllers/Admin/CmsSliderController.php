@@ -14,7 +14,7 @@ class CmsSliderController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = CmsSlider::query()->orderBy('sort_order')->orderBy('created_at', 'desc');
+        $query = CmsSlider::query()->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
             $query->where('is_active', $request->boolean('status'));
@@ -39,7 +39,6 @@ class CmsSliderController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? 0;
 
         CmsSlider::create($data);
 
@@ -67,7 +66,6 @@ class CmsSliderController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? $slider->sort_order;
 
         $slider->update($data);
 

@@ -14,7 +14,7 @@ class CmsServicePackageController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = CmsServicePackage::query()->orderBy('sort_order')->orderBy('created_at', 'desc');
+        $query = CmsServicePackage::query()->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
             $query->where('is_active', $request->boolean('status'));
@@ -39,7 +39,6 @@ class CmsServicePackageController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? 0;
 
         CmsServicePackage::create($data);
 
@@ -67,7 +66,6 @@ class CmsServicePackageController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? $service_package->sort_order;
 
         $service_package->update($data);
 

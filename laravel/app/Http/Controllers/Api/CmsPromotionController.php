@@ -10,9 +10,16 @@ class CmsPromotionController extends Controller
 {
     public function index(): JsonResponse
     {
+        $today = now()->format('Y-m-d');
+
         $promotions = CmsPromotion::query()
             ->where('is_active', true)
-            ->orderBy('sort_order')
+            ->where(function ($q) use ($today) {
+                $q->whereNull('valid_from')->orWhereDate('valid_from', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('valid_until')->orWhereDate('valid_until', '>=', $today);
+            })
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (CmsPromotion $promotion) => [
@@ -23,7 +30,10 @@ class CmsPromotionController extends Controller
                 'cta_text' => $promotion->cta_text,
                 'cta_link' => $promotion->cta_link,
                 'promo_code' => $promotion->promo_code,
-                'sort_order' => $promotion->sort_order,
+                'valid_from' => $promotion->valid_from?->toDateString(),
+                'valid_until' => $promotion->valid_until?->toDateString(),
+                'usage_limit' => $promotion->usage_limit,
+                'code_unique' => $promotion->code_unique,
             ]);
 
         return response()->json($promotions);

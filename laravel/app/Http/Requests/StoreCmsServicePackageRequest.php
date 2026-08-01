@@ -19,7 +19,6 @@ class StoreCmsServicePackageRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'image' => [$this->isMethod('put') ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'is_active' => ['boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

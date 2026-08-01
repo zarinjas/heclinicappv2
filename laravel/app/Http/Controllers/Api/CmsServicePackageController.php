@@ -12,7 +12,6 @@ class CmsServicePackageController extends Controller
     {
         $packages = CmsServicePackage::query()
             ->where('is_active', true)
-            ->orderBy('sort_order')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (CmsServicePackage $package) => [
@@ -20,7 +19,6 @@ class CmsServicePackageController extends Controller
                 'name' => $package->name,
                 'description' => $package->description,
                 'image' => $package->image_url,
-                'sort_order' => $package->sort_order,
             ]);
 
         return response()->json($packages);

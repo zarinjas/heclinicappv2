@@ -8,7 +8,10 @@ class Promotion {
   final String? ctaText;
   final String? ctaLink;
   final String? promoCode;
-  final int sortOrder;
+  final String? validFrom;
+  final String? validUntil;
+  final int? usageLimit;
+  final bool codeUnique;
 
   const Promotion({
     required this.id,
@@ -18,7 +21,10 @@ class Promotion {
     this.ctaText,
     this.ctaLink,
     this.promoCode,
-    required this.sortOrder,
+    this.validFrom,
+    this.validUntil,
+    this.usageLimit,
+    this.codeUnique = false,
   });
 
   factory Promotion.fromJson(Map<String, dynamic> json) {
@@ -30,7 +36,10 @@ class Promotion {
       ctaText: json['cta_text'] as String?,
       ctaLink: json['cta_link'] as String?,
       promoCode: json['promo_code'] as String?,
-      sortOrder: json['sort_order'] as int? ?? 0,
+      validFrom: json['valid_from'] as String?,
+      validUntil: json['valid_until'] as String?,
+      usageLimit: json['usage_limit'] as int?,
+      codeUnique: json['code_unique'] as bool? ?? false,
     );
   }
 
@@ -42,7 +51,10 @@ class Promotion {
     'cta_text': ctaText,
     'cta_link': ctaLink,
     'promo_code': promoCode,
-    'sort_order': sortOrder,
+    'valid_from': validFrom,
+    'valid_until': validUntil,
+    'usage_limit': usageLimit,
+    'code_unique': codeUnique,
   };
 
   List<Color> get placeholderGradient {
@@ -63,7 +75,6 @@ class Promotion {
       ctaText: 'RM 99',
       ctaLink: null,
       promoCode: 'BASIC99',
-      sortOrder: 1,
     ),
     Promotion(
       id: 2,
@@ -72,7 +83,6 @@ class Promotion {
       ctaText: 'RM 299',
       ctaLink: null,
       promoCode: 'PREMIUM299',
-      sortOrder: 2,
     ),
     Promotion(
       id: 3,
@@ -81,7 +91,6 @@ class Promotion {
       ctaText: 'RM 199',
       ctaLink: null,
       promoCode: 'VAKSIN199',
-      sortOrder: 3,
     ),
     Promotion(
       id: 4,
@@ -90,7 +99,6 @@ class Promotion {
       ctaText: 'RM 249',
       ctaLink: null,
       promoCode: 'WANITA249',
-      sortOrder: 4,
     ),
   ];
 }

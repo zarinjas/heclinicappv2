@@ -14,7 +14,7 @@ class CmsPromotionController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = CmsPromotion::query()->orderBy('sort_order')->orderBy('created_at', 'desc');
+        $query = CmsPromotion::query()->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
             $query->where('is_active', $request->boolean('status'));
@@ -39,7 +39,7 @@ class CmsPromotionController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['code_unique'] = $request->boolean('code_unique');
 
         CmsPromotion::create($data);
 
@@ -67,7 +67,7 @@ class CmsPromotionController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
-        $data['sort_order'] = $data['sort_order'] ?? $promotion->sort_order;
+        $data['code_unique'] = $request->boolean('code_unique');
 
         $promotion->update($data);
 

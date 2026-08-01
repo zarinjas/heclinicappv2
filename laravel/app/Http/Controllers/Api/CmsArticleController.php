@@ -18,7 +18,6 @@ class CmsArticleController extends Controller
         $query = CmsArticle::query()
             ->where('status', 'published')
             ->orderByDesc('is_featured')
-            ->orderBy('sort_order')
             ->orderBy('published_at', 'desc');
 
         if ($request->filled('featured') && filter_var($request->input('featured'), FILTER_VALIDATE_BOOLEAN)) {
@@ -60,7 +59,7 @@ class CmsArticleController extends Controller
         $categories = CmsArticleCategory::query()
             ->where('status', 'active')
             ->whereHas('articles', fn ($q) => $q->where('status', 'published'))
-            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
 

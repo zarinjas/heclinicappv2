@@ -10,15 +10,12 @@ class CmsArticleCategory extends Model
     protected $fillable = [
         'name',
         'slug',
-        'sort_order',
         'status',
     ];
 
     protected function casts(): array
     {
-        return [
-            'sort_order' => 'integer',
-        ];
+        return [];
     }
 
     public function articles()

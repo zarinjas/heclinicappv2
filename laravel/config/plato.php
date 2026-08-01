@@ -30,4 +30,17 @@ return [
 
     'proxy_rate_limit' => env('PLATO_PROXY_RATE_LIMIT', 60),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Voucher / Redemption
+    |--------------------------------------------------------------------------
+    |
+    | Path within the Plato API used to validate/redeem a voucher code.
+    | Leave null if Plato does not provide a voucher endpoint — the CMS
+    | voucher is then display-only. Configure when Plato supports it.
+    |
+    */
+
+    'voucher_path' => env('PLATO_VOUCHER_PATH'),
+
 ];

@@ -12,7 +12,6 @@ class CmsVideo extends Model
         'thumbnail_url',
         'tiktok_author',
         'status',
-        'sort_order',
         'published_at',
         'created_by',
     ];
@@ -20,7 +19,6 @@ class CmsVideo extends Model
     protected function casts(): array
     {
         return [
-            'sort_order' => 'integer',
             'published_at' => 'datetime',
         ];
     }

@@ -54,7 +54,6 @@
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Title</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Button</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Link URL</th>
-                            <th class="text-left px-6 py-3 font-medium text-gray-500">Sort Order</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Status</th>
                             <th class="text-right px-6 py-3 font-medium text-gray-500">Actions</th>
                         </tr>
@@ -82,7 +81,6 @@
                                         —
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-gray-500">{{ $slider->sort_order }}</td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $slider->is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $slider->is_active ? 'bg-green-500' : 'bg-gray-400' }}"></span>

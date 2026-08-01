@@ -58,6 +58,20 @@
                 <span class="text-sm text-gray-700">Enable response caching (reduces Plato API usage)</span>
             </label>
 
+            <div>
+                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Voucher Redemption Path</label>
+                <input type="text" name="plato_voucher_path" value="{{ old('plato_voucher_path', $settings['voucher_path']) }}"
+                       placeholder="e.g. voucher/redeem"
+                       class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">
+                <p class="mt-1 text-xs text-gray-400">
+                    Optional. Path within the Plato API used to validate/redeem a voucher code.
+                    Leave empty if Plato has no voucher endpoint — CMS vouchers are then display-only.
+                    Mobile app posts <code class="text-xs bg-gray-100 px-1 py-0.5 rounded">{ code: ... }</code> to
+                    <code class="text-xs bg-gray-100 px-1 py-0.5 rounded">/v2/plato/voucher/redeem</code>.
+                </p>
+                @error('plato_voucher_path') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
             <div class="flex items-center gap-3 pt-2">
                 <button type="submit"
                         class="px-6 py-3 bg-[#00C9A7] text-white rounded-xl font-medium text-sm hover:bg-[#00b897] transition-colors">

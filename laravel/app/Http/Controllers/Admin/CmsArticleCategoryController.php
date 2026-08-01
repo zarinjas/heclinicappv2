@@ -15,7 +15,7 @@ class CmsArticleCategoryController extends Controller
     {
         $categories = CmsArticleCategory::query()
             ->withCount('articles')
-            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
             ->orderBy('name')
             ->paginate(15);
 
@@ -30,8 +30,6 @@ class CmsArticleCategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validateData($request);
-
-        $data['sort_order'] = $data['sort_order'] ?? (int) CmsArticleCategory::max('sort_order') + 1;
 
         CmsArticleCategory::create($data);
 
@@ -48,7 +46,6 @@ class CmsArticleCategoryController extends Controller
     public function update(Request $request, CmsArticleCategory $category): RedirectResponse
     {
         $data = $this->validateData($request);
-        $data['sort_order'] = $data['sort_order'] ?? $category->sort_order;
 
         $category->update($data);
 
@@ -76,10 +73,9 @@ class CmsArticleCategoryController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'slug' => ['nullable', 'string', 'max:255'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
             'status' => ['nullable', 'in:active,inactive'],
         ]);
 
-        return $request->only(['name', 'slug', 'sort_order', 'status']);
+        return $request->only(['name', 'slug', 'status']);
     }
 }

@@ -15,7 +15,7 @@ class CmsVideoController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = CmsVideo::query()->orderBy('sort_order')->orderBy('created_at', 'desc');
+        $query = CmsVideo::query()->orderBy('created_at', 'desc');
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -57,7 +57,6 @@ class CmsVideoController extends Controller
     public function store(StoreCmsVideoRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['sort_order'] = $data['sort_order'] ?? (int) CmsVideo::max('sort_order') + 1;
         $data['created_by'] = auth()->id();
 
         if ($request->input('status') === 'published' && empty($data['published_at'])) {
@@ -94,7 +93,6 @@ class CmsVideoController extends Controller
 
         $created = 0;
         $skipped = [];
-        $sortOrder = (int) CmsVideo::max('sort_order') + 1;
 
         foreach ($urls as $url) {
             if (! filter_var($url, FILTER_VALIDATE_URL) || ! str_contains($url, 'tiktok.com')) {
@@ -123,7 +121,6 @@ class CmsVideoController extends Controller
                 'thumbnail_url' => $info['thumbnail_url'],
                 'tiktok_author' => $info['author_name'],
                 'status' => $status,
-                'sort_order' => $sortOrder++,
                 'published_at' => $status === 'published' ? now() : null,
                 'created_by' => auth()->id(),
             ]);
@@ -156,7 +153,6 @@ class CmsVideoController extends Controller
     public function update(StoreCmsVideoRequest $request, CmsVideo $video): RedirectResponse
     {
         $data = $request->validated();
-        $data['sort_order'] = $data['sort_order'] ?? $video->sort_order;
 
         if ($request->input('status') === 'published' && ! $video->published_at) {
             $data['published_at'] = now();

@@ -86,6 +86,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     itemBuilder: (context, index) {
                       final slide = _slides[index];
+                      final hasImage = slide.imageUrl != null &&
+                          slide.imageUrl!.isNotEmpty;
                       return Column(
                         children: [
                           Expanded(
@@ -102,6 +104,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ],
                                 ),
                               ),
+                              clipBehavior: Clip.antiAlias,
+                              child: hasImage
+                                  ? Image.network(
+                                      slide.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          const SizedBox.shrink(),
+                                    )
+                                  : null,
                             ),
                           ),
                           Expanded(

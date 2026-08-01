@@ -11,10 +11,10 @@ class StoreCmsOnboardingSlideRequest extends FormRequest
         return [
             'title'          => ['required', 'string', 'max:255'],
             'subtitle'       => ['nullable', 'string', 'max:500'],
+            'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'gradient_start' => ['nullable', 'string', 'max:9'],
             'gradient_end'   => ['nullable', 'string', 'max:9'],
             'is_active'      => ['boolean'],
-            'sort_order'     => ['nullable', 'integer', 'min:0'],
         ];
     }
 }
