@@ -10,14 +10,16 @@ import '../theme/app_text_styles.dart';
 class GradientHeroSlide {
   final String title;
   final String subtitle;
-  final String cta;
+  final String? imageUrl;
+  final String? cta;
   final List<Color> gradient;
   final VoidCallback? onTap;
 
   const GradientHeroSlide({
     required this.title,
     required this.subtitle,
-    required this.cta,
+    this.imageUrl,
+    this.cta,
     required this.gradient,
     this.onTap,
   });
@@ -102,103 +104,139 @@ class _GradientHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: slide.gradient,
+    final hasImage = slide.imageUrl != null && slide.imageUrl!.isNotEmpty;
+
+    return GestureDetector(
+      onTap: slide.onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: slide.gradient,
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.radius2XL),
+          boxShadow: AppShadows.shadowMid,
         ),
-        borderRadius: BorderRadius.circular(AppRadius.radius2XL),
-        boxShadow: AppShadows.shadowMid,
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -30,
-            top: -30,
-            child: Container(
-              width: 160,
-              height: 160,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.08),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (hasImage)
+              Image.network(
+                slide.imageUrl!,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const SizedBox.shrink();
+                },
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(),
               ),
-            ),
-          ),
-          Positioned(
-            right: 40,
-            bottom: -40,
-            child: Container(
-              width: 120,
-              height: 120,
+            Container(
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.space20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      slide.title,
-                      style: AppTextStyles.heading2.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.space8),
-                    Text(
-                      slide.subtitle,
-                      style: AppTextStyles.body2.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
-                    ),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: hasImage ? 0.45 : 0),
+                    Colors.black.withValues(alpha: hasImage ? 0.15 : 0),
+                    Colors.transparent,
                   ],
                 ),
-                GestureDetector(
-                  onTap: slide.onTap,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.space16,
-                      vertical: AppSpacing.space8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.radiusFull),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          slide.cta,
-                          style: AppTextStyles.button.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 16,
-                          color: AppColors.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 40,
+              bottom: -40,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.06),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.space20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slide.title,
+                        style: AppTextStyles.heading2.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.space8),
+                      Text(
+                        slide.subtitle,
+                        style: AppTextStyles.body2.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (slide.cta != null && slide.cta!.isNotEmpty)
+                    _buildCtaButton(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCtaButton() {
+    return GestureDetector(
+      onTap: slide.onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space16,
+          vertical: AppSpacing.space8,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              slide.cta!,
+              style: AppTextStyles.button.copyWith(
+                color: AppColors.primary,
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(width: 6),
+            const Icon(
+              Icons.arrow_forward_rounded,
+              size: 16,
+              color: AppColors.primary,
+            ),
+          ],
+        ),
       ),
     );
   }

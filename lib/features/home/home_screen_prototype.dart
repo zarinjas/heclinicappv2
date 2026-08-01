@@ -9,6 +9,7 @@ import '/core/services/branch_service.dart';
 import '/core/services/article_service.dart';
 import '/core/services/video_service.dart';
 import '/core/services/models/hero_banner.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 import '/core/services/models/doctor.dart';
 import '/core/services/models/branch.dart';
 import '/core/services/models/article.dart';
@@ -92,8 +93,12 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
                   slides: _heroBanners.map((b) => GradientHeroSlide(
                     title: b.title,
                     subtitle: b.subtitle,
-                    cta: b.cta,
+                    imageUrl: b.imageUrl,
+                    cta: b.buttonText,
                     gradient: b.gradient,
+                    onTap: b.linkUrl != null && b.linkUrl!.isNotEmpty
+                        ? () => launchURL(b.linkUrl!)
+                        : null,
                   )).toList(),
                 )
                     .animate()

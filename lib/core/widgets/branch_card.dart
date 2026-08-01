@@ -110,10 +110,11 @@ class _VerticalBranchCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: double.infinity,
-              height: 100,
-              child: _buildVerticalImage(),
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                child: _buildVerticalImage(),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.space12),
@@ -145,6 +146,7 @@ class _VerticalBranchCard extends StatelessWidget {
       return Image.network(
         imageUrl!,
         fit: BoxFit.cover,
+        width: double.infinity,
         errorBuilder: (_, __, ___) => _buildVerticalGradient(),
       );
     }

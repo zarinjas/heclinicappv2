@@ -5,6 +5,7 @@ class HeroBanner {
   final String imageUrl;
   final String title;
   final String? linkUrl;
+  final String? buttonText;
   final int sortOrder;
 
   const HeroBanner({
@@ -12,6 +13,7 @@ class HeroBanner {
     required this.imageUrl,
     required this.title,
     this.linkUrl,
+    this.buttonText,
     required this.sortOrder,
   });
 
@@ -21,6 +23,7 @@ class HeroBanner {
       imageUrl: json['image'] as String? ?? '',
       title: json['title'] as String? ?? '',
       linkUrl: json['link_url'] as String?,
+      buttonText: json['button_text'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
@@ -30,6 +33,7 @@ class HeroBanner {
     'image': imageUrl,
     'title': title,
     'link_url': linkUrl,
+    'button_text': buttonText,
     'sort_order': sortOrder,
   };
 

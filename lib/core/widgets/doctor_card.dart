@@ -109,7 +109,7 @@ class _HorizontalDoctorCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.space8),
             Text(
               name,
-              style: AppTextStyles.body1.copyWith(
+              style: AppTextStyles.body2.copyWith(
                 color: primaryTextColor,
                 fontWeight: FontWeight.w600,
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
@@ -37,6 +38,7 @@ import '/core/widgets/mini_article_card.dart';
 import '/core/widgets/section_header.dart';
 import '/core/widgets/video_card.dart';
 import '/components/doctor_detail_sheet.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -286,8 +288,12 @@ class _HomeScreenState extends State<HomeScreen> {
         slides: _heroes.map((b) => GradientHeroSlide(
           title: b.title,
           subtitle: b.subtitle,
-          cta: b.cta,
+          imageUrl: b.imageUrl,
+          cta: b.buttonText,
           gradient: b.gradient,
+          onTap: b.linkUrl != null && b.linkUrl!.isNotEmpty
+              ? () => launchUrl(Uri.parse(b.linkUrl!))
+              : null,
         )).toList(),
       ),
     );
