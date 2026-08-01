@@ -47,11 +47,10 @@ jobs:
         run: >
           ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}
-          "cd /home/hemedicalapps.com/heclinic-laravel &&
-           chown -R hemed2668:hemed2668 . &&
-           composer install --no-dev --optimize-autoloader --no-interaction &&
-           php artisan migrate --force --no-interaction || true &&
-           (php artisan storage:link || true) &&
-           php artisan config:clear &&
-           php artisan cache:clear &&
-           chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage"
+           "cd /home/hemedicalapps.com/heclinic-laravel &&
+            chown -R hemed2668:hemed2668 . &&
+            composer install --no-dev --optimize-autoloader --no-interaction &&
+            php artisan migrate --force --no-interaction || true &&
+            (php artisan storage:link || true) &&
+            php artisan optimize:clear &&
+            chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage"
