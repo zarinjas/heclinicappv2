@@ -254,8 +254,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 _buildHeroSection(isDark),
                 _buildQuickActions(isDark),
-                _buildAppointmentSection(isDark),
                 _buildLoyaltySection(isDark),
+                _buildAppointmentSection(isDark),
                 _buildVouchersSection(isDark),
                 _buildDoctorsSection(isDark),
                 _buildBranchesSection(isDark),
@@ -418,14 +418,13 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const LoyaltyCardSkeleton(),
       );
     }
-    // Hidden when patient has no loyalty account yet (per ui-migration-plan).
-    if (_loyaltyErr || _loyaltyBalance <= 0) {
-      return const SizedBox.shrink();
-    }
+    // Always show the card — even when the patient has no balance yet.
+    // On API error, fall back to 0 points so the section still renders.
+    final balance = _loyaltyErr ? 0 : _loyaltyBalance;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: LoyaltyCard(
-        pointsBalance: _loyaltyBalance,
+        pointsBalance: balance,
         showTier: false,
         showProgress: false,
         onRedeem: () => context.pushNamed('/my-points'),
