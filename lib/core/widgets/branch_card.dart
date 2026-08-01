@@ -7,6 +7,8 @@ import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
+enum BranchCardVariant { vertical, horizontal }
+
 class BranchCard extends StatelessWidget {
   final String name;
   final String address;
@@ -17,9 +19,170 @@ class BranchCard extends StatelessWidget {
   final String? leadingLabel;
   final IconData? leadingIcon;
   final String? imageUrl;
+  final BranchCardVariant variant;
 
   const BranchCard({
     super.key,
+    required this.name,
+    required this.address,
+    this.distance,
+    this.isSelected = false,
+    this.onTap,
+    this.leadingGradient,
+    this.leadingLabel,
+    this.leadingIcon,
+    this.imageUrl,
+    this.variant = BranchCardVariant.vertical,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (variant == BranchCardVariant.horizontal) {
+      return _HorizontalBranchCard(
+        name: name,
+        address: address,
+        distance: distance,
+        isSelected: isSelected,
+        onTap: onTap,
+        leadingGradient: leadingGradient,
+        leadingLabel: leadingLabel,
+        leadingIcon: leadingIcon,
+        imageUrl: imageUrl,
+      );
+    }
+    return _VerticalBranchCard(
+      name: name,
+      address: address,
+      isSelected: isSelected,
+      onTap: onTap,
+      imageUrl: imageUrl,
+      leadingGradient: leadingGradient,
+      leadingIcon: leadingIcon,
+      leadingLabel: leadingLabel,
+    );
+  }
+}
+
+class _VerticalBranchCard extends StatelessWidget {
+  final String name;
+  final String address;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  final String? imageUrl;
+  final List<Color>? leadingGradient;
+  final IconData? leadingIcon;
+  final String? leadingLabel;
+
+  const _VerticalBranchCard({
+    required this.name,
+    required this.address,
+    this.isSelected = false,
+    this.onTap,
+    this.imageUrl,
+    this.leadingGradient,
+    this.leadingIcon,
+    this.leadingLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isSelected
+        ? AppColors.accent
+        : (isDark ? AppColors.dividerDark : AppColors.divider);
+    final borderWidth = isSelected ? 1.5 : 1.0;
+    final bgColor = isSelected
+        ? AppColors.accent.withValues(alpha: isDark ? 0.10 : 0.05)
+        : (isDark ? AppColors.surfaceDark : AppColors.surface);
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 160,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+          border: Border.all(color: borderColor, width: borderWidth),
+          boxShadow: AppShadows.shadowLow,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 100,
+              child: _buildVerticalImage(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.space12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerticalImage() {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return Image.network(
+        imageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildVerticalGradient(),
+      );
+    }
+    return _buildVerticalGradient();
+  }
+
+  Widget _buildVerticalGradient() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: leadingGradient ??
+              const [AppColors.primary, AppColors.primaryLight],
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        leadingIcon ?? Icons.location_on_rounded,
+        color: Colors.white,
+        size: 28,
+      ),
+    );
+  }
+}
+
+class _HorizontalBranchCard extends StatelessWidget {
+  final String name;
+  final String address;
+  final String? distance;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  final List<Color>? leadingGradient;
+  final String? leadingLabel;
+  final IconData? leadingIcon;
+  final String? imageUrl;
+
+  const _HorizontalBranchCard({
     required this.name,
     required this.address,
     this.distance,

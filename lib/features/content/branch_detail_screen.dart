@@ -49,7 +49,7 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppAppBar.sub(title: _branch?.name ?? 'Branch', onBack: () {}),
+      appBar: AppAppBar.sub(title: _branch?.name ?? 'Branch'),
       body: _branch == null
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

@@ -24,7 +24,7 @@ class _BiometricScreenState extends State<BiometricScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: 'Biometric Login', onBack: () {}),
+      appBar: AppAppBar.sub(title: 'Biometric Login'),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

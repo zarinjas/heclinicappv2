@@ -139,7 +139,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Article',
-        onBack: () {},
         trailing: IconButton(
           onPressed: _article != null ? _shareArticle : null,
           icon: Icon(

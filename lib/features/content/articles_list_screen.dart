@@ -104,7 +104,6 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Health Tips',
-        onBack: () {},
       ),
       body: _buildBody(isDark),
     );

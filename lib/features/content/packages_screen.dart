@@ -158,7 +158,6 @@ class _PackagesScreenState extends State<PackagesScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Service Packages',
-        onBack: () {},
       ),
       body: _buildBody(isDark),
     );

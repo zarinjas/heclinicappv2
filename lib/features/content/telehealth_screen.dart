@@ -41,7 +41,7 @@ class _TelehealthScreenState extends State<TelehealthScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: 'Telehealth', onBack: () {}),
+      appBar: AppAppBar.sub(title: 'Telehealth'),
       body: _loading ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

@@ -29,7 +29,6 @@ class _HealthScreenState extends State<HealthScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Health',
-        onBack: () {},
       ),
       body: Column(
         children: [

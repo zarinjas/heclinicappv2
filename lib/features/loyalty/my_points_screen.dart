@@ -165,7 +165,7 @@ class _MyPointsScreenState extends State<MyPointsScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: 'My Points', onBack: () {}),
+      appBar: AppAppBar.sub(title: 'My Points'),
       body: _loading
           ? _buildLoading()
           : _error

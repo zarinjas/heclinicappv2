@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../services/branding_service.dart';
+import '../../flutter_flow/nav/nav.dart';
 
 class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AppAppBar._({
@@ -106,7 +107,13 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
             size: 20,
             color: AppColors.primary,
           ),
-          onPressed: onBack ?? () {},
+          onPressed: onBack ??
+              () {
+                final context = appNavigatorKey.currentContext;
+                if (context != null) {
+                  Navigator.of(context).maybePop();
+                }
+              },
         ),
       ),
       titleWidget: Text(

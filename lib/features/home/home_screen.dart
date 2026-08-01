@@ -575,11 +575,11 @@ class _HomeScreenState extends State<HomeScreen> {
           SectionHeader(title: 'Our Doctors', onSeeAll: () => context.pushNamed('/doctors-list')),
           const SizedBox(height: 12),
           SizedBox(
-            height: 210,
+            height: 150,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _doctors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, __) => const SizedBox(width: 16),
               itemBuilder: (_, i) {
                 final d = _doctors[i];
                 return SizedBox(
@@ -611,26 +611,24 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(title: 'Our Clinics', onSeeAll: () => context.pushNamed('/branch-detail')),
+          SectionHeader(title: 'Our Branch', onSeeAll: () => context.pushNamed('/branch-detail')),
           const SizedBox(height: 12),
           SizedBox(
-            height: 110,
+            height: 150,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _branches.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (_, i) {
                 final b = _branches[i];
-                return SizedBox(
-                  width: 240,
-                  child: BranchCard(
-                    name: b.name,
-                    address: b.address,
-                    imageUrl: b.imageUrl,
-                    leadingGradient: b.leadingGradient,
-                    leadingLabel: 'Clinic',
-                    onTap: () => context.pushNamed('/branch-detail'),
-                  ),
+                return BranchCard(
+                  name: b.name,
+                  address: b.address,
+                  imageUrl: b.imageUrl,
+                  leadingGradient: b.leadingGradient,
+                  leadingLabel: 'Branch',
+                  variant: BranchCardVariant.vertical,
+                  onTap: () => context.pushNamed('/branch-detail'),
                 );
               },
             ),

@@ -27,7 +27,7 @@ class _NotificationPrefsScreenState extends State<NotificationPrefsScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: 'Notification Preferences', onBack: () {}),
+      appBar: AppAppBar.sub(title: 'Notification Preferences'),
       body: ListView(
         children: List.generate(_prefs.length, (i) {
           final p = _prefs[i];

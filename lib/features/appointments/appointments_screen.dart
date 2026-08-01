@@ -199,7 +199,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Appointments',
-        onBack: () {},
       ),
       body: _isLoading
           ? _buildSkeleton()

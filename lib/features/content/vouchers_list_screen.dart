@@ -40,7 +40,6 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Offers & Vouchers',
-        onBack: () {},
         trailing: TextButton.icon(
           onPressed: () => context.pushNamed('/my-vouchers'),
           icon: const Icon(Icons.confirmation_num_outlined, size: 18),

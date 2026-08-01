@@ -48,7 +48,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppAppBar.sub(title: 'Our Doctors', onBack: () {}),
+      appBar: AppAppBar.sub(title: 'Our Doctors'),
       body: Column(
         children: [
           Padding(

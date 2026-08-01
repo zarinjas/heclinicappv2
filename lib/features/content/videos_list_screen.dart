@@ -128,7 +128,6 @@ class _VideosListScreenState extends State<VideosListScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Videos',
-        onBack: () {},
       ),
       body: _buildBody(isDark),
     );

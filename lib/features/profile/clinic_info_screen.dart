@@ -40,7 +40,7 @@ class _ClinicInfoScreenState extends State<ClinicInfoScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: '${BrandingService.instance.appShortName} Info', onBack: () {}),
+      appBar: AppAppBar.sub(title: '${BrandingService.instance.appShortName} Info'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

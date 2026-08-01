@@ -17,7 +17,7 @@ class MyVouchersScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         backgroundColor: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
-        appBar: AppAppBar.sub(title: 'My Vouchers', onBack: () {}),
+        appBar: AppAppBar.sub(title: 'My Vouchers'),
         body: Column(
           children: [
             TabBar(

@@ -39,7 +39,7 @@ class _TermsScreenState extends State<TermsScreen> {
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: AppAppBar.sub(title: _page.title, onBack: () {}),
+      appBar: AppAppBar.sub(title: _page.title),
       body: _loading ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

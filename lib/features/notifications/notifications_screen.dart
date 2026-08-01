@@ -145,7 +145,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Notifications',
-        onBack: () {},
         trailing: _markingAllRead
             ? const SizedBox(
                 width: 24,
