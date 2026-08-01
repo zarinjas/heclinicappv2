@@ -37,6 +37,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::resource('doctors', DoctorController::class);
         Route::post('doctors/sync', [DoctorController::class, 'syncFromPlato'])->name('doctors.sync');
         Route::resource('patients', PatientController::class)->only(['index', 'show']);
+        Route::post('patients/{patient}/metadata', [PatientController::class, 'updateMetadata'])
+            ->name('patients.metadata');
         Route::post('patients/{patient}/documents', [PatientController::class, 'uploadDocument'])
             ->name('patients.documents.upload');
         Route::delete('patients/{patient}/documents/{filename}', [PatientController::class, 'deleteDocument'])

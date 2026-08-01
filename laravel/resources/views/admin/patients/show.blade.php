@@ -230,5 +230,87 @@
                 @endif
             </div>
         </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-[#0F1B3D] mb-1">Admin Notes</h3>
+                <p class="text-sm text-gray-500 mb-4">Internal notes, tags, and status visible to staff only. Not shown in the mobile app.</p>
+
+                @if (!empty($metadata?->status) || !empty($metadata?->tags))
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        @if (!empty($metadata->status))
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $metadata->status === 'vip' ? 'bg-amber-100 text-amber-700' : ($metadata->status === 'blocked' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600') }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $metadata->status === 'vip' ? 'bg-amber-500' : ($metadata->status === 'blocked' ? 'bg-red-500' : 'bg-gray-400') }}"></span>
+                                {{ ucfirst($metadata->status) }}
+                            </span>
+                        @endif
+                        @foreach (($metadata?->tags ?? []) as $tag)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#00C9A7]/10 text-[#00C9A7]">
+                                {{ $tag }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form action="{{ route('admin.patients.metadata', request()->route('patient')) }}" method="POST">
+                    @csrf
+                    <div class="space-y-4">
+                        <div>
+                            <label for="notes" class="block text-sm font-medium text-[#0F1B3D] mb-1">Notes</label>
+                            <textarea
+                                name="notes"
+                                id="notes"
+                                rows="3"
+                                class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('notes') border-red-300 @enderror"
+                                placeholder="Internal notes about this patient..."
+                            >{{ old('notes', $metadata?->notes) }}</textarea>
+                            @error('notes')
+                                <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tags" class="block text-sm font-medium text-[#0F1B3D] mb-1">Tags</label>
+                                <input
+                                    type="text"
+                                    name="tags"
+                                    id="tags"
+                                    value="{{ old('tags', implode(', ', $metadata?->tags ?? [])) }}"
+                                    class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('tags') border-red-300 @enderror"
+                                    placeholder="e.g. VIP, Follow-up, Walk-in"
+                                >
+                                <p class="mt-1 text-xs text-gray-400">Comma-separated values.</p>
+                                @error('tags')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-[#0F1B3D] mb-1">Status</label>
+                                <select
+                                    name="status"
+                                    id="status"
+                                    class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('status') border-red-300 @enderror"
+                                >
+                                    <option value="">— No status —</option>
+                                    <option value="normal" {{ old('status', $metadata?->status) === 'normal' ? 'selected' : '' }}>Normal</option>
+                                    <option value="vip" {{ old('status', $metadata?->status) === 'vip' ? 'selected' : '' }}>VIP</option>
+                                    <option value="blocked" {{ old('status', $metadata?->status) === 'blocked' ? 'selected' : '' }}>Blocked</option>
+                                </select>
+                                @error('status')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                                class="px-6 py-2.5 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors">
+                            Save Notes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 @endsection

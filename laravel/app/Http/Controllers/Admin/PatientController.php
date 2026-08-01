@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PatientMetadata;
 use App\Services\NotificationService;
 use App\Services\PatientDocumentService;
 use App\Services\PlatoProxyService;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class PatientController extends Controller
 {
@@ -34,9 +36,9 @@ class PatientController extends Controller
 
         $patientsData = [];
 
-        if (!isset($response['error']) && isset($response['data'])) {
+        if (! isset($response['error']) && isset($response['data'])) {
             $patientsData = $response['data'];
-            if (!is_array($patientsData)) {
+            if (! is_array($patientsData)) {
                 $patientsData = [];
             }
         }
@@ -72,7 +74,7 @@ class PatientController extends Controller
 
         $patient = [];
 
-        if (!isset($response['error']) && isset($response['data'])) {
+        if (! isset($response['error']) && isset($response['data'])) {
             $patient = is_array($response['data']) ? $response['data'] : (array) $response['data'];
         }
 
@@ -90,7 +92,37 @@ class PatientController extends Controller
 
         $documents = app(PatientDocumentService::class)->list($id);
 
-        return view('admin.patients.show', compact('patient', 'vitalsCount', 'documents'));
+        $metadata = PatientMetadata::where('patient_plato_uid', $id)->first();
+
+        return view('admin.patients.show', compact('patient', 'vitalsCount', 'documents', 'metadata'));
+    }
+
+    public function updateMetadata(Request $request, string $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'notes' => ['nullable', 'string', 'max:5000'],
+            'tags' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'in:normal,vip,blocked'],
+        ]);
+
+        $tags = collect(explode(',', $validated['tags'] ?? ''))
+            ->map(fn (string $tag) => trim($tag))
+            ->filter(fn (string $tag) => $tag !== '')
+            ->values();
+
+        PatientMetadata::updateOrCreate(
+            ['patient_plato_uid' => $id],
+            [
+                'notes' => $validated['notes'] ?? null,
+                'tags' => $tags->isEmpty() ? null : $tags->toArray(),
+                'status' => $validated['status'] ?? null,
+                'updated_by' => $request->user()->id,
+            ]
+        );
+
+        return redirect()
+            ->route('admin.patients.show', $id)
+            ->with('success', 'Patient notes updated successfully.');
     }
 
     public function uploadDocument(Request $request, string $id): RedirectResponse
@@ -110,7 +142,7 @@ class PatientController extends Controller
             $filename = $request->file('document')->getClientOriginalName();
             app(NotificationService::class)->sendDocumentUploadedNotification($id, $filename);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::channel('plato')->warning('Document upload notification failed', [
+            Log::channel('plato')->warning('Document upload notification failed', [
                 'patient_plato_id' => $id,
                 'error' => $e->getMessage(),
             ]);
