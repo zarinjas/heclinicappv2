@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CmsOnboardingSlideController as ApiCmsOnboardingSli
 use App\Http\Controllers\Api\CmsLegalPageController as ApiCmsLegalPageController;
 use App\Http\Controllers\Api\BranchConfigController;
 use App\Http\Controllers\Api\DoctorConfigController;
+use App\Http\Controllers\Api\LoyaltyController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use Illuminate\Http\Request;
@@ -35,6 +36,20 @@ Route::prefix('v2/auth')->name('auth.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
+
+// ─── Mobile Loyalty Points (protected) ──────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/v2/loyalty/balance', [LoyaltyController::class, 'balance'])
+        ->name('loyalty.balance');
+    Route::get('/v2/loyalty/transactions', [LoyaltyController::class, 'transactions'])
+        ->name('loyalty.transactions');
+    Route::post('/v2/loyalty/redeem', [LoyaltyController::class, 'redeem'])
+        ->name('loyalty.redeem');
+});
+
+// ─── Loyalty webhook (public, secret-gated via header) ──────────────────────
+Route::post('/v2/loyalty/webhook', [LoyaltyController::class, 'webhook'])
+    ->name('loyalty.webhook');
 
 Route::get('/v2/plato/health', [PlatoProxyController::class, 'health'])
     ->name('plato.health');

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/api_requests/loyalty_api.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_spacing.dart';
 import '/core/theme/app_text_styles.dart';
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _articleLoaded = false;
   bool _videoLoaded = false;
   bool _promoLoaded = false;
+  bool _loyaltyLoaded = false;
 
   bool _heroErr = false;
   bool _apptErr = false;
@@ -60,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _branchErr = false;
   bool _articleErr = false;
   bool _videoErr = false;
+  bool _loyaltyErr = false;
 
   List<HeroBanner> _heroes = HeroBanner.fallbackList;
   List<Doctor> _doctors = Doctor.fallbackList;
@@ -67,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Article> _articles = Article.fallbackList;
   List<Video> _videos = Video.fallbackList;
   List<Promotion> _promos = Promotion.fallbackList;
+
+  int _loyaltyBalance = 0;
 
   dynamic _apptResponse;
 
@@ -86,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadArticles(),
       _loadVideos(),
       _loadPromotions(),
+      _loadLoyalty(),
     ]);
     if (mounted) setState(() {});
   }
@@ -117,6 +123,25 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (_) {
       if (mounted) setState(() { _apptLoaded = true; _apptErr = true; });
+    }
+  }
+
+  Future<void> _loadLoyalty() async {
+    try {
+      final id = FFAppState().idplato;
+      if (id.isEmpty) {
+        if (mounted) setState(() => _loyaltyLoaded = true);
+        return;
+      }
+      final response = await LoyaltyApi.getLoyaltyBalanceCall.call();
+      if (mounted) setState(() {
+        _loyaltyBalance = GetLoyaltyBalanceCall.balance(response.jsonBody) ?? 0;
+        _loyaltyLoaded = true;
+        _loyaltyErr = !(response.succeeded &&
+            (GetLoyaltyBalanceCall.status(response.jsonBody) == true));
+      });
+    } catch (_) {
+      if (mounted) setState(() { _loyaltyLoaded = true; _loyaltyErr = true; });
     }
   }
 
@@ -387,14 +412,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLoyaltySection(bool isDark) {
+    if (!_loyaltyLoaded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: const LoyaltyCardSkeleton(),
+      );
+    }
+    // Hidden when patient has no loyalty account yet (per ui-migration-plan).
+    if (_loyaltyErr || _loyaltyBalance <= 0) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: LoyaltyCard(
-        pointsBalance: 2450,
-        tier: LoyaltyTier.gold,
-        showProgress: true,
-        progressValue: 2450 / 3000,
-        progressLabel: '550 pts to Platinum tier',
+        pointsBalance: _loyaltyBalance,
+        showTier: false,
+        showProgress: false,
         onRedeem: () => context.pushNamed('/my-points'),
         onViewHistory: () => context.pushNamed('/my-points'),
       ),

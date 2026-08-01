@@ -670,22 +670,63 @@ app.get("/api/v2/plato/letter", (req, res) => {
 });
 
 app.get("/api/v2/plato/invoice", (req, res) => {
-  res.json([
-    {
-      invoice: 1001,
-      item: [
-        { name: "Paracetamol 500mg", dosage: "1 tab TDS", category: "Medicine", inventory: "INV-001", redemptions: 1, given_id: "G001", invoice_id: "INV-1001-001" },
-        { name: "Vitamin C", dosage: "1 tab OD", category: "Supplement", inventory: "INV-002", redemptions: 0, given_id: "G001", invoice_id: "INV-1001-002" },
-      ],
-    },
-    {
-      invoice: 1002,
-      item: [
-        { name: "Amoxicillin", dosage: "500mg TDS", category: "Medicine", inventory: "INV-003", redemptions: 1, given_id: "G001", invoice_id: "INV-1002-001" },
-      ],
-    },
-  ]);
+  const { patient_id } = req.query;
+  const filtered = mockInvoices.filter((inv) => !patient_id || inv.patient_id === patient_id);
+  res.json(filtered);
 });
+
+app.get("/api/v2/plato/invoice/:id", (req, res) => {
+  const invoice = mockInvoices.find((inv) => inv._id === req.params.id);
+  if (!invoice) {
+    return res.status(404).json({ message: "Invoice not found" });
+  }
+  res.json(invoice);
+});
+
+app.post("/api/v2/plato/invoice/finalize", (req, res) => {
+  console.log(`[FINALIZE_INVOICE]`, req.body);
+  res.json({ success: true, message: "Invoice finalized", invoice_id: req.body.invoice_id || "inv_mock_1003" });
+});
+
+const mockInvoices = [
+  {
+    _id: "inv_1001",
+    invoice: 1001,
+    invoice_id: "INV-1001",
+    invoice_total: 150.0,
+    patient_id: "pat_test_001",
+    status: "paid",
+    created_on: "2025-06-15",
+    item: [
+      { name: "Paracetamol 500mg", dosage: "1 tab TDS", category: "Medicine", inventory: "INV-001", redemptions: 1, given_id: "G001", invoice_id: "INV-1001-001" },
+      { name: "Vitamin C", dosage: "1 tab OD", category: "Supplement", inventory: "INV-002", redemptions: 0, given_id: "G001", invoice_id: "INV-1001-002" },
+    ],
+  },
+  {
+    _id: "inv_1002",
+    invoice: 1002,
+    invoice_id: "INV-1002",
+    invoice_total: 85.5,
+    patient_id: "pat_test_001",
+    status: "paid",
+    created_on: "2025-06-20",
+    item: [
+      { name: "Amoxicillin", dosage: "500mg TDS", category: "Medicine", inventory: "INV-003", redemptions: 1, given_id: "G001", invoice_id: "INV-1002-001" },
+    ],
+  },
+  {
+    _id: "inv_1003",
+    invoice: 1003,
+    invoice_id: "INV-1003",
+    invoice_total: 40.0,
+    patient_id: "pat_test_001",
+    status: "draft",
+    created_on: "2025-06-22",
+    item: [
+      { name: "Vitamin B12", dosage: "1 tab OD", category: "Supplement", inventory: "INV-004", redemptions: 0, given_id: "G001", invoice_id: "INV-1003-001" },
+    ],
+  },
+];
 
 app.get("/api/v2/plato/queue/status", (req, res) => {
   res.json({

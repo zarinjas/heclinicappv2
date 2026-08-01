@@ -20,6 +20,7 @@ class LoyaltyCard extends StatelessWidget {
     this.progressValue = 0,
     this.progressLabel,
     this.nextTierLabel,
+    this.showTier = true,
   });
 
   final int pointsBalance;
@@ -31,6 +32,7 @@ class LoyaltyCard extends StatelessWidget {
   final double progressValue;
   final String? progressLabel;
   final String? nextTierLabel;
+  final bool showTier;
 
   @override
   Widget build(BuildContext context) {
@@ -78,9 +80,11 @@ class LoyaltyCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: showTier
+                    ? MainAxisAlignment.spaceBetween
+                    : MainAxisAlignment.end,
                 children: [
-                  _TierBadge(tier: tier),
+                  if (showTier) _TierBadge(tier: tier),
                   Container(
                     width: 40,
                     height: 40,
