@@ -69,8 +69,24 @@
                         class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('link_url') border-red-300 @enderror"
                         placeholder="https://example.com/page"
                     >
-                    <p class="mt-1 text-xs text-gray-400">Where the user goes when they tap the slider. Leave empty for no action.</p>
+                    <p class="mt-1 text-xs text-gray-400">Where the user goes when they tap the slider or button. Leave empty for no action.</p>
                     @error('link_url')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="button_text" class="block text-sm font-medium text-[#0F1B3D] mb-1">Button Text</label>
+                    <input
+                        type="text"
+                        name="button_text"
+                        id="button_text"
+                        value="{{ old('button_text', $slider->button_text) }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('button_text') border-red-300 @enderror"
+                        placeholder="e.g. Book Now"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Optional. Shown as a button on the slide. Leave empty for no button.</p>
+                    @error('button_text')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                 </div>

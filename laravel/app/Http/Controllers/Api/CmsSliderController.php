@@ -20,6 +20,7 @@ class CmsSliderController extends Controller
                 'image' => $slider->image_url,
                 'title' => $slider->title,
                 'link_url' => $slider->link_url,
+                'button_text' => $slider->button_text,
                 'sort_order' => $slider->sort_order,
             ]);
 

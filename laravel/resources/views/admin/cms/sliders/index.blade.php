@@ -52,6 +52,7 @@
                         <tr class="bg-gray-50 border-b border-gray-100">
                             <th class="text-left px-6 py-3 font-medium text-gray-500 w-20">Preview</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Title</th>
+                            <th class="text-left px-6 py-3 font-medium text-gray-500">Button</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Link URL</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Sort Order</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Status</th>
@@ -73,6 +74,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 font-medium text-[#0F1B3D]">{{ $slider->title ?: '—' }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ $slider->button_text ?: '—' }}</td>
                                 <td class="px-6 py-4 text-gray-500">
                                     @if ($slider->link_url)
                                         <a href="{{ $slider->link_url }}" target="_blank" class="text-[#00C9A7] hover:underline truncate block max-w-[200px]">{{ $slider->link_url }}</a>

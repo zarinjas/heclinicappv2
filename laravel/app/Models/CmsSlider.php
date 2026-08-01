@@ -11,6 +11,7 @@ class CmsSlider extends Model
         'image',
         'title',
         'link_url',
+        'button_text',
         'is_active',
         'sort_order',
     ];

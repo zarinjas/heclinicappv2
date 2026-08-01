@@ -18,6 +18,7 @@ class StoreCmsSliderRequest extends FormRequest
             'image' => [$this->isMethod('put') ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'title' => ['nullable', 'string', 'max:255'],
             'link_url' => ['nullable', 'url', 'max:500'],
+            'button_text' => ['nullable', 'string', 'max:100'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];

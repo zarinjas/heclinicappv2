@@ -1,6 +1,7 @@
 name: Deploy Laravel to hemedicalapps.com
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop
