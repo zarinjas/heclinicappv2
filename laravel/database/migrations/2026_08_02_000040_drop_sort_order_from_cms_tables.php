@@ -19,8 +19,10 @@ return new class extends Migration
     public function up(): void
     {
         foreach (self::TABLES as $table) {
+            if (! Schema::hasColumn($table, 'sort_order')) {
+                continue;
+            }
             Schema::table($table, function (Blueprint $blueprint) {
-                $blueprint->dropIndex(['sort_order']);
                 $blueprint->dropColumn('sort_order');
             });
         }
@@ -29,9 +31,11 @@ return new class extends Migration
     public function down(): void
     {
         foreach (self::TABLES as $table) {
+            if (Schema::hasColumn($table, 'sort_order')) {
+                continue;
+            }
             Schema::table($table, function (Blueprint $blueprint) {
                 $blueprint->integer('sort_order')->default(0);
-                $blueprint->index('sort_order');
             });
         }
     }
