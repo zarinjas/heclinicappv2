@@ -104,18 +104,25 @@ class BrandingController extends Controller
 
         foreach ($imageFields as $field => $key) {
             if ($request->hasFile($field)) {
-                // Delete old file if exists
-                $oldUrl = Setting::where('key', $key)->value('value');
-                if ($oldUrl) {
-                    $oldPath = str_replace('/storage/', '', parse_url($oldUrl, PHP_URL_PATH));
-                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
-                        Storage::disk('public')->delete($oldPath);
+                try {
+                    // Delete old file if exists
+                    $oldUrl = Setting::where('key', $key)->value('value');
+                    if ($oldUrl) {
+                        $oldPath = str_replace('/storage/', '', parse_url($oldUrl, PHP_URL_PATH));
+                        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                            Storage::disk('public')->delete($oldPath);
+                        }
                     }
-                }
 
-                $path = $request->file($field)->store('branding', 'public');
-                $url = Storage::disk('public')->url($path);
-                $this->saveSetting($key, $url);
+                    $path = $request->file($field)->store('branding', 'public');
+                    $url = Storage::disk('public')->url($path);
+                    $this->saveSetting($key, $url);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Branding upload failed', [
+                        'field' => $field,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         }
 
