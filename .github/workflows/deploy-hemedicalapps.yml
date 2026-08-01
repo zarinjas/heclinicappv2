@@ -37,7 +37,7 @@ jobs:
           --exclude 'vendor/' --exclude 'node_modules/'
           --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*'
           --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*'
-          --exclude 'bootstrap/cache/*' --exclude 'public/storage'
+          --exclude 'bootstrap/cache/*' --exclude 'public/storage' --exclude 'public/build/'
           -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
           laravel/
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/hemedicalapps.com/heclinic-laravel/
