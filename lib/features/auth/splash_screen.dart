@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/branding_service.dart';
+import '../../core/widgets/app_loader.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -42,68 +43,74 @@ class _SplashScreenState extends State<SplashScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: Center(
-        child: _ready
-            ? _buildContent(branding)
-            : const SizedBox(
-                width: 32,
-                height: 32,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
-                ),
-              ),
-      ),
+      body: _ready
+          ? _buildContent(branding)
+          : const Center(child: AppLoader(size: 64, color: Colors.white70)),
     );
   }
 
   Widget _buildContent(BrandingService branding) {
     final splashUrl = branding.splashLogoUrl;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (splashUrl != null && splashUrl.isNotEmpty)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.radiusMD),
-            child: _brandImage(splashUrl!, 0, 120),
-          )
-              .animate()
-              .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-              .scale(
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1.0, 1.0),
-                duration: 800.ms,
-                curve: Curves.easeOut,
-              )
-        else
-          _buildFallbackLogo(),
-        const SizedBox(height: 24),
-        Text(
-          branding.tagline,
-          style: AppTextStyles.body1.copyWith(
-            color: Colors.white.withValues(alpha: 0.6),
-          ),
-        ).animate().fadeIn(
-              duration: 600.ms,
-              delay: 400.ms,
-              curve: Curves.easeOut,
+    return SafeArea(
+      child: Column(
+        children: [
+          // 70% — image / splash GIF
+          Expanded(
+            flex: 7,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: splashUrl != null && splashUrl.isNotEmpty
+                    ? _brandImage(splashUrl!, 0)
+                        .animate()
+                        .fadeIn(duration: 800.ms, curve: Curves.easeOut)
+                        .scale(
+                          begin: const Offset(0.85, 0.85),
+                          end: const Offset(1.0, 1.0),
+                          duration: 800.ms,
+                          curve: Curves.easeOut,
+                        )
+                    : _buildFallbackLogo(),
+              ),
             ),
-      ],
+          ),
+          // 30% — text
+          Expanded(
+            flex: 3,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  branding.tagline,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.body1.copyWith(
+                    color: Colors.white.withValues(alpha: 0.7),
+                  ),
+                ).animate().fadeIn(
+                      duration: 600.ms,
+                      delay: 400.ms,
+                      curve: Curves.easeOut,
+                    ),
+              ],
+            ),
+          ),
+          SizedBox(height: bottomPadding + 8),
+        ],
+      ),
     );
   }
 
-  Widget _brandImage(String url, int attempt, double size) {
+  Widget _brandImage(String url, int attempt) {
     if (attempt >= 3) return _buildFallbackLogo();
     return Image.network(
       url,
-      width: size,
-      height: size,
       fit: BoxFit.contain,
       errorBuilder: (_, __, ___) {
         final next = _alternateUrl(url);
         if (next != null && next != url) {
-          return _brandImage(next, attempt + 1, size);
+          return _brandImage(next, attempt + 1);
         }
         return _buildFallbackLogo();
       },
@@ -122,20 +129,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Widget _buildFallbackLogo() {
     return Container(
-      width: 60,
-      height: 60,
+      width: 120,
+      height: 120,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.accent, Color(0xFF27F5A3)],
         ),
-        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+        borderRadius: BorderRadius.circular(AppRadius.radiusMD),
       ),
       alignment: Alignment.center,
       child: Text(
         BrandingService.instance.appShortName,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 22,
+          fontSize: 36,
           fontWeight: FontWeight.w800,
           letterSpacing: 1.2,
         ),

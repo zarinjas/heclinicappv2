@@ -7,6 +7,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/services/legal_service.dart';
 import '../../core/services/models/legal_page.dart';
 import '../../core/widgets/app_app_bar.dart';
+import '../../core/widgets/app_loader.dart';
 
 class TermsScreen extends StatefulWidget {
   const TermsScreen({super.key});
@@ -40,7 +41,7 @@ class _TermsScreenState extends State<TermsScreen> {
     return Scaffold(
       backgroundColor: bg,
       appBar: AppAppBar.sub(title: _page.title),
-      body: _loading ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+      body: _loading ? const Center(child: AppLoader()) : SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(_page.title, style: AppTextStyles.heading2.copyWith(color: tc)),

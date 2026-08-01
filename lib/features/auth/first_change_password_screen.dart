@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
-import '../../backend/api_requests/api_calls.dart';
+import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -49,15 +49,16 @@ class _FirstChangePasswordScreenState extends State<FirstChangePasswordScreen> {
 
     try {
       final appState = FFAppState();
-      final result =
-          await MedicalAppsApiGroup.firsttimechangepasswordCall.call(
-        authorization: 'Bearer ${appState.tokenauth}',
+      final result = await HeclinicAuthApi.changePasswordFirstCall.call(
+        token: appState.tokenauth,
         newPassword: _newPasswordController.text,
       );
 
       if (!mounted) return;
 
-      if (result.succeeded) {
+      if (result.succeeded && (ChangePasswordFirstCall.status(result.jsonBody) == true)) {
+        final newToken = ChangePasswordFirstCall.token(result.jsonBody) ?? '';
+        if (newToken.isNotEmpty) appState.tokenauth = newToken;
         if (mounted) {
           appState.passwordChanged = true;
           await AppDialog.success(
@@ -67,16 +68,19 @@ class _FirstChangePasswordScreenState extends State<FirstChangePasswordScreen> {
             buttonLabel: 'Continue',
             onDone: () {
               if (mounted) {
-                context.go('/mainPage');
+                context.go('/');
               }
             },
           );
         }
       } else {
+        final message = ChangePasswordFirstCall.message(result.jsonBody);
         setState(() {
-          _apiError = result.bodyText.isNotEmpty
-              ? result.bodyText
-              : 'Failed to change password. Please try again.';
+          _apiError = (message != null && message.isNotEmpty)
+              ? message
+              : (result.bodyText.isNotEmpty
+                  ? result.bodyText
+                  : 'Failed to change password. Please try again.');
         });
       }
     } catch (e) {

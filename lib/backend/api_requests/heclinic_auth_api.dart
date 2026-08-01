@@ -14,10 +14,13 @@ class HeclinicAuthApi {
   static final CheckPhoneCall checkPhoneCall = CheckPhoneCall();
   static final RegisterCall registerCall = RegisterCall();
   static final LoginCall loginCall = LoginCall();
+  static final SocialLoginCall socialLoginCall = SocialLoginCall();
   static final LogoutCall logoutCall = LogoutCall();
   static final ForgotPasswordCall forgotPasswordCall = ForgotPasswordCall();
+  static final ClaimAccountCall claimAccountCall = ClaimAccountCall();
   static final VerifyOtpCall verifyOtpCall = VerifyOtpCall();
   static final ResetPasswordCall resetPasswordCall = ResetPasswordCall();
+  static final ChangePasswordFirstCall changePasswordFirstCall = ChangePasswordFirstCall();
 }
 
 // ---------------------------------------------------------------------------
@@ -205,6 +208,50 @@ class LoginCall {
 }
 
 // ---------------------------------------------------------------------------
+// POST /v2/auth/social-login
+// provider: 'google' | 'apple', id_token verified server-side.
+// ---------------------------------------------------------------------------
+class SocialLoginCall {
+  Future<ApiCallResponse> call({
+    String? provider = '',
+    String? idToken = '',
+    String? email = '',
+    String? name = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicSocialLogin',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/social-login',
+      callType: ApiCallType.POST,
+      headers: {'Accept': 'application/json'},
+      params: {
+        'provider': provider,
+        'id_token': idToken,
+        'email': email,
+        'name': name,
+      },
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? token(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.token'''));
+  static String? idplato(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.idplato'''));
+  static String? name(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.name'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
 // POST /v2/auth/logout   (requires Bearer token)
 // ---------------------------------------------------------------------------
 class LogoutCall {
@@ -253,6 +300,75 @@ class ForgotPasswordCall {
 
   static bool? status(dynamic response) =>
       castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/claim-account
+// For existing Plato patients without an app account yet. Sends an OTP.
+// ---------------------------------------------------------------------------
+class ClaimAccountCall {
+  Future<ApiCallResponse> call({String? identifier = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicClaimAccount',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/claim-account',
+      callType: ApiCallType.POST,
+      headers: {'Accept': 'application/json'},
+      params: {'identifier': identifier},
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+  static String? channel(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.channel'''));
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/change-password-first
+// Protected. Sets a fresh password on first login (temporary password).
+// ---------------------------------------------------------------------------
+class ChangePasswordFirstCall {
+  Future<ApiCallResponse> call({
+    String? token = '',
+    String? newPassword = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicChangePasswordFirst',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/change-password-first',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {
+        'new_password': newPassword,
+        'new_password_confirmation': newPassword,
+      },
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? token(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.token'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
 }

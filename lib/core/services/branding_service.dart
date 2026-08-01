@@ -16,8 +16,10 @@ class AppBranding {
   final String? splashLogoUrl;
   final String? loginLogoUrl;
   final String? appBarLogoUrl;
+  final String? loadingGifUrl;
   final String? tagline;
   final String? primaryColorHex;
+  final String? accentColorHex;
   final String? splashBgColorHex;
 
   const AppBranding({
@@ -27,8 +29,10 @@ class AppBranding {
     this.splashLogoUrl,
     this.loginLogoUrl,
     this.appBarLogoUrl,
+    this.loadingGifUrl,
     this.tagline,
     this.primaryColorHex,
+    this.accentColorHex,
     this.splashBgColorHex,
   });
 
@@ -40,8 +44,10 @@ class AppBranding {
       splashLogoUrl: json['splash_logo_url'] as String?,
       loginLogoUrl: json['login_logo_url'] as String?,
       appBarLogoUrl: json['appbar_logo_url'] as String?,
+      loadingGifUrl: json['loading_gif_url'] as String?,
       tagline: json['tagline'] as String?,
       primaryColorHex: json['primary_color'] as String?,
+      accentColorHex: json['accent_color'] as String?,
       splashBgColorHex: json['splash_bg_color'] as String?,
     );
   }
@@ -53,8 +59,10 @@ class AppBranding {
     'splash_logo_url': splashLogoUrl,
     'login_logo_url': loginLogoUrl,
     'appbar_logo_url': appBarLogoUrl,
+    'loading_gif_url': loadingGifUrl,
     'tagline': tagline,
     'primary_color': primaryColorHex,
+    'accent_color': accentColorHex,
     'splash_bg_color': splashBgColorHex,
   };
 
@@ -64,6 +72,7 @@ class AppBranding {
     appShortName: 'HE',
     tagline: 'Your Health, Simplified',
     primaryColorHex: '#131C3C',
+    accentColorHex: '#3B8DFF',
   );
 }
 
@@ -134,6 +143,28 @@ class BrandingService {
   String? get splashLogoUrl => branding.splashLogoUrl;
   String? get loginLogoUrl => branding.loginLogoUrl;
   String? get appBarLogoUrl => branding.appBarLogoUrl;
+  String? get loadingGifUrl => branding.loadingGifUrl;
+
+  /// Branding primary color (navy default) — used to theme the whole app.
+  Color get primaryColor {
+    final hex = branding.primaryColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return AppColors.primary;
+  }
+
+  /// Branding accent color (blue default) — used for buttons & highlights.
+  Color get accentColor {
+    final hex = branding.accentColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return AppColors.accent;
+  }
+
   Color get splashBgColor {
     if (branding.splashBgColorHex != null) {
       final hex = branding.splashBgColorHex!.replaceFirst('#', '');
@@ -141,13 +172,7 @@ class BrandingService {
         return Color(int.parse('FF$hex', radix: 16));
       }
     }
-    if (branding.primaryColorHex != null) {
-      final hex = branding.primaryColorHex!.replaceFirst('#', '');
-      if (hex.length == 6) {
-        return Color(int.parse('FF$hex', radix: 16));
-      }
-    }
-    return AppColors.primary;
+    return primaryColor;
   }
 
   // ── Refresh from API ──

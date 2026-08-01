@@ -9,6 +9,7 @@ import '../../core/services/telehealth_service.dart';
 import '../../core/services/models/telehealth_config.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
+import '../../core/widgets/app_loader.dart';
 
 class TelehealthScreen extends StatefulWidget {
   const TelehealthScreen({super.key});
@@ -42,7 +43,7 @@ class _TelehealthScreenState extends State<TelehealthScreen> {
     return Scaffold(
       backgroundColor: bg,
       appBar: AppAppBar.sub(title: 'Telehealth'),
-      body: _loading ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(
+      body: _loading ? const Center(child: AppLoader()) : SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

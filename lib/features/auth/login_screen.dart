@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../app_state.dart';
 import '../../backend/api_requests/heclinic_auth_api.dart';
@@ -93,6 +96,92 @@ class _LoginScreenState extends State<LoginScreen> {
             LoginCall.idplato(response?.jsonBody) ?? '';
         final name =
             LoginCall.name(response?.jsonBody) ?? '';
+        final passwordChangedAt =
+            LoginCall.passwordChangedAt(response?.jsonBody);
+
+        appState.tokenauth = token;
+        appState.idplato = idplato;
+        appState.name = name;
+        appState.isLoggedIn = true;
+        appState.update(() {});
+
+        if (mounted) {
+          // First login with a temporary password → force a password change.
+          final mustChange =
+              passwordChangedAt == null || passwordChangedAt.isEmpty;
+          if (mustChange) {
+            context.go('/firstChangePassword');
+          } else {
+            context.go('/');
+          }
+        }
+      } else {
+        setState(() => _showError = true);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _showError = true);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _retry() => setState(() => _showError = false);
+
+  bool get _isAppleSupported {
+    if (kIsWeb) return true;
+    return defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  Future<void> _socialLogin(String provider) async {
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+    });
+
+    try {
+      String? idToken;
+      String? email;
+      String? name;
+
+      if (provider == 'google') {
+        final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+        final account = await googleSignIn.signIn();
+        if (account == null) return; // user cancelled
+        final auth = await account.authentication;
+        idToken = auth.idToken;
+        email = account.email;
+        name = account.displayName;
+      } else if (provider == 'apple') {
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
+        idToken = credential.identityToken;
+        email = credential.email;
+        final given = credential.givenName ?? '';
+        final family = credential.familyName ?? '';
+        name = [given, family].where((s) => s.isNotEmpty).join(' ');
+      }
+
+      if (idToken == null || idToken.isEmpty) return;
+
+      final response = await HeclinicAuthApi.socialLoginCall.call(
+        provider: provider,
+        idToken: idToken,
+        email: email ?? '',
+        name: name ?? '',
+      );
+
+      if (!mounted) return;
+
+      if ((response?.succeeded ?? false) &&
+          (SocialLoginCall.status(response?.jsonBody) == true)) {
+        final appState = FFAppState();
+        final token = SocialLoginCall.token(response?.jsonBody) ?? '';
+        final idplato = SocialLoginCall.idplato(response?.jsonBody) ?? '';
+        final name = SocialLoginCall.name(response?.jsonBody) ?? '';
 
         appState.tokenauth = token;
         appState.idplato = idplato;
@@ -110,8 +199,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
-  void _retry() => setState(() => _showError = false);
 
   @override
   Widget build(BuildContext context) {
@@ -343,28 +430,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       _SocialButton(
                         icon: Icons.g_mobiledata_rounded,
                         label: 'Continue with Google',
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Coming soon'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
+                        onPressed: _isLoading ? null : () => _socialLogin('google'),
                       ),
-                      const SizedBox(height: AppSpacing.space12),
-                      _SocialButton(
-                        icon: Icons.apple,
-                        label: 'Continue with Apple',
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Coming soon'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      ),
+                      if (_isAppleSupported) ...[
+                        const SizedBox(height: AppSpacing.space12),
+                        _SocialButton(
+                          icon: Icons.apple,
+                          label: 'Continue with Apple',
+                          onPressed: _isLoading
+                              ? null
+                              : () => _socialLogin('apple'),
+                        ),
+                      ],
                       const SizedBox(height: AppSpacing.space24),
                       GestureDetector(
                         onTap: () {
@@ -401,6 +478,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.space32),
+                      AppButton.secondary(
+                        label: 'Create Account',
+                        onPressed: _isLoading
+                            ? null
+                            : () => context.go('/registerStep1'),
+                      ),
+                      const SizedBox(height: AppSpacing.space16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -411,7 +495,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => context.go('/registerStep1'),
+                            onTap: _isLoading
+                                ? null
+                                : () => context.go('/registerStep1'),
                             child: Text(
                               'Register',
                               style: AppTextStyles.body2.copyWith(
@@ -421,6 +507,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: AppSpacing.space16),
+                      GestureDetector(
+                        onTap: _isLoading ? null : () => context.go('/claimAccount'),
+                        child: Text(
+                          'Already a patient? Verify my account',
+                          style: AppTextStyles.body2.copyWith(
+                            color: secondaryTextColor,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.space24),
                     ],
@@ -480,18 +577,21 @@ class _SocialButton extends StatelessWidget {
 
   final IconData icon;
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDisabled = onPressed == null;
     return Container(
       height: 52,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.radiusXL),
         border: Border.all(
-          color: isDark ? AppColors.dividerDark : AppColors.inputBorder,
+          color: isDisabled
+              ? AppColors.divider
+              : (isDark ? AppColors.dividerDark : AppColors.inputBorder),
           width: 1.5,
         ),
       ),

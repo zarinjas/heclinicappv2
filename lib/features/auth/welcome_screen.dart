@@ -17,19 +17,22 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final primary = BrandingService.instance.primaryColor;
+    final primaryLight = Color.lerp(
+        primary, Colors.white, 0.15) ?? AppColors.primaryLight;
 
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: primary,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primary,
-              AppColors.primaryLight,
+              primary,
+              primaryLight,
             ],
           ),
         ),
@@ -96,6 +99,16 @@ class WelcomeScreen extends StatelessWidget {
                       label: 'Create Account',
                       variant: AppButtonVariant.whiteGhost,
                       onPressed: () => context.go('/registerStep1'),
+                    ),
+                    const SizedBox(height: AppSpacing.space12),
+                    TextButton(
+                      onPressed: () => context.go('/claimAccount'),
+                      child: Text(
+                        'Already a patient? Verify my account',
+                        style: AppTextStyles.button.copyWith(
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
                     ),
                   ],
                 ),

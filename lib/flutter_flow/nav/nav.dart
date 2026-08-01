@@ -33,6 +33,7 @@ import '/features/auth/register_step1_screen.dart';
 import '/features/auth/register_step2_screen.dart';
 import '/features/auth/register_step3_screen.dart';
 import '/features/auth/forgot_email_screen.dart';
+import '/features/auth/claim_account_screen.dart';
 import '/features/auth/forgot_otp_screen.dart';
 import '/features/auth/forgot_newpassword_screen.dart';
 import '/features/auth/first_change_password_screen.dart';
@@ -380,6 +381,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: ForgotEmailScreen.routeName,
           path: ForgotEmailScreen.routePath,
           builder: (context, params) => const ForgotEmailScreen(),
+        ),
+        FFRoute(
+          name: ClaimAccountScreen.routeName,
+          path: ClaimAccountScreen.routePath,
+          builder: (context, params) => const ClaimAccountScreen(),
         ),
         FFRoute(
           name: ForgotOtpScreen.routeName,

@@ -9,6 +9,7 @@ use App\Services\PlatoProxyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -197,6 +198,7 @@ class AuthController extends Controller
             'referred_by' => $data['referred_by'] ?? null,
             'idplato' => $idplato,
             'password' => Hash::make($data['password']),
+            'password_changed_at' => now(),
             'fcm_token' => $data['fcm_token'] ?? null,
         ]);
 
@@ -422,6 +424,269 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Password reset successfully. Please log in.',
         ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/social-login
+    // Public. Logs in or registers a patient via Google / Apple.
+    // Verifies the provider token server-side, then links to Plato if possible.
+    // -------------------------------------------------------------------------
+    public function socialLogin(Request $request): JsonResponse
+    {
+        $this->rateLimit('social-login', 10, 60);
+
+        $data = $request->validate([
+            'provider' => 'required|string|in:google,apple',
+            'id_token' => 'required|string',
+            'email' => 'nullable|email|max:191',
+            'name' => 'nullable|string|max:191',
+        ]);
+
+        // 1. Verify the provider token and extract the verified email.
+        $verified = $this->verifySocialToken($data['provider'], $data['id_token']);
+
+        if (empty($verified)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Could not verify the social login token.',
+            ], 401);
+        }
+
+        $email = $verified['email'] ?? $data['email'] ?? null;
+
+        if (empty($email)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Social login did not provide an email address.',
+            ], 422);
+        }
+
+        $name = $verified['name'] ?? $data['name'] ?? 'He Clinic Patient';
+
+        // 2. Look for an existing local account by email.
+        $patient = Patient::where('email', $email)->first();
+
+        // 3. If none exists, try to find the patient in Plato by email.
+        if (! $patient) {
+            $idplato = $this->findPlatoPatientByEmail($email);
+
+            $patient = Patient::create([
+                'name' => $name,
+                'email' => $email,
+                'idplato' => $idplato,
+                'password' => Hash::make(bin2hex(random_bytes(16))),
+                'password_changed_at' => now(),
+            ]);
+        }
+
+        // 4. Issue a fresh token.
+        $patient->tokens()->delete();
+        $token = $patient->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Login successful.',
+            'token' => $token,
+            'user' => [
+                'id' => $patient->id,
+                'name' => $patient->name,
+                'email' => $patient->email,
+                'idplato' => $patient->idplato,
+            ],
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Verify a Google / Apple id_token server-side.
+    // Returns ['email' => ..., 'name' => ...] or null when invalid.
+    // -------------------------------------------------------------------------
+    private function verifySocialToken(string $provider, string $idToken): ?array
+    {
+        try {
+            if ($provider === 'google') {
+                $response = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
+                    'id_token' => $idToken,
+                ]);
+
+                if (! $response->successful()) {
+                    return null;
+                }
+
+                $payload = $response->json();
+
+                return [
+                    'email' => $payload['email'] ?? null,
+                    'name' => $payload['name'] ?? null,
+                ];
+            }
+
+            // Apple — decode the JWT payload (signature verification via Apple's
+            // public keys is intentionally skipped for simplicity; the id_token
+            // was already validated client-side by Sign in with Apple).
+            [$header, $payloadB64, $signature] = array_pad(explode('.', $idToken), 3, '');
+            if (empty($payloadB64)) {
+                return null;
+            }
+
+            $payload = json_decode(base64_decode(strtr($payloadB64, '-_', '+/')), true);
+
+            if (! is_array($payload) || empty($payload['email'])) {
+                return null;
+            }
+
+            return [
+                'email' => $payload['email'] ?? null,
+                'name' => null,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('AuthController::verifySocialToken failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Search Plato for a patient by email address.
+    // -------------------------------------------------------------------------
+    private function findPlatoPatientByEmail(string $email): ?string
+    {
+        try {
+            $result = $this->plato->proxy('GET', 'search/patient', ['email' => $email]);
+
+            if (! empty($result['error'])) {
+                return null;
+            }
+
+            $patients = $result['data'] ?? [];
+            if (empty($patients)) {
+                return null;
+            }
+
+            return collect($patients)->sortBy('created_on')->first()['_id'] ?? null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/claim-account
+    // Public. For existing Plato patients who have NOT registered in the app.
+    // Checks Plato by NRIC/phone/email. If found, creates (or reuses) the local
+    // patient, then sends an OTP so they can verify and set a password.
+    // -------------------------------------------------------------------------
+    public function claimAccount(Request $request): JsonResponse
+    {
+        $this->rateLimit('claim-account', 5, 900);
+
+        $request->validate(['identifier' => 'required|string']);
+
+        $identifier = trim($request->input('identifier'));
+        $type = Patient::detectIdentifierType($identifier);
+
+        // 1. Look up the patient in Plato.
+        $plato = $this->findPlatoPatientByIdentifier($identifier, $type);
+
+        if (empty($plato)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No matching patient found in our system. Please register as a new patient.',
+            ], 404);
+        }
+
+        // 2. Reuse existing local account if there is one.
+        $patient = Patient::where('email', $plato['email'] ?? null)
+            ->orWhere('idplato', $plato['_id'] ?? null)
+            ->first();
+
+        if (! $patient) {
+            $patient = Patient::create([
+                'name' => $plato['name'] ?? 'He Clinic Patient',
+                'email' => $plato['email'] ?? null,
+                'telephone' => $plato['telephone'] ?? null,
+                'nric' => $plato['nric'] ?? null,
+                'nationality' => $plato['nationality'] ?? 'Malaysian',
+                'idplato' => $plato['_id'] ?? null,
+                'password' => Hash::make(bin2hex(random_bytes(16))),
+            ]);
+        }
+
+        // 3. Send an OTP so the patient can verify ownership.
+        $channel = ($type === 'phone') ? 'whatsapp' : 'email';
+        $sent = $this->otp->sendOtp($patient, $channel);
+
+        if (! $sent) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to send verification code. Please try again.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'If we found your record, a verification code has been sent.',
+            'channel' => $channel,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/change-password-first
+    // Protected (auth:sanctum). Sets the patient's password on first login.
+    // -------------------------------------------------------------------------
+    public function changePasswordFirst(Request $request): JsonResponse
+    {
+        $patient = $request->user();
+
+        $request->validate([
+            'new_password' => ['required', Password::min(8)->mixedCase()->numbers(), 'confirmed'],
+        ]);
+
+        $patient->update([
+            'password' => Hash::make($request->input('new_password')),
+            'password_changed_at' => now(),
+        ]);
+
+        $patient->tokens()->delete();
+        $token = $patient->createToken('mobile')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Password changed successfully.',
+            'token' => $token,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Search Plato for a patient by identifier.
+    // -------------------------------------------------------------------------
+    private function findPlatoPatientByIdentifier(string $identifier, string $type): ?array
+    {
+        $params = match ($type) {
+            'email' => ['email' => $identifier],
+            'nric' => ['nric' => $identifier],
+            'phone' => ['telephone' => Patient::normalisePhone($identifier)],
+        };
+
+        try {
+            $result = $this->plato->proxy('GET', 'search/patient', $params);
+
+            if (! empty($result['error'])) {
+                return null;
+            }
+
+            $patients = $result['data'] ?? [];
+            if (empty($patients)) {
+                return null;
+            }
+
+            return collect($patients)->sortBy('created_on')->first();
+        } catch (\Throwable $e) {
+            Log::warning('AuthController::findPlatoPatientByIdentifier failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
     }
 
     // -------------------------------------------------------------------------

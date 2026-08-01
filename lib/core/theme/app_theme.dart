@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/branding_service.dart';
 import 'app_colors.dart';
 import 'app_radius.dart';
 import 'app_shadows.dart';
@@ -8,20 +9,26 @@ import 'app_text_styles.dart';
 class AppTheme {
   AppTheme._();
 
+  /// Colors resolved from branding settings (fall back to defaults).
+  static Color get _primary =>
+      BrandingService.instance.primaryColor;
+  static Color get _accent =>
+      BrandingService.instance.accentColor;
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.scaffoldBg,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
+      colorScheme: ColorScheme.light(
+        primary: _primary,
         onPrimary: Colors.white,
-        secondary: AppColors.accent,
+        secondary: _accent,
         onSecondary: Colors.white,
         error: AppColors.error,
         onError: Colors.white,
         surface: AppColors.surface,
-        onSurface: AppColors.primary,
+        onSurface: _primary,
       ),
       textTheme: TextTheme(
         displayLarge: AppTextStyles.heading1,
@@ -33,15 +40,15 @@ class AppTheme {
         labelLarge: AppTextStyles.button,
         titleMedium: AppTextStyles.label,
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
+      appBarTheme: AppBarTheme(
+        backgroundColor: _primary,
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.primary,
-        selectedItemColor: AppColors.accent,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: _primary,
+        selectedItemColor: _accent,
         unselectedItemColor: Colors.white70,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
@@ -56,7 +63,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.chipFilterDefaultBg,
-        selectedColor: AppColors.accent,
+        selectedColor: _accent,
         labelStyle: AppTextStyles.label,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.radiusSM),
@@ -65,7 +72,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accent,
+          backgroundColor: _accent,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
@@ -101,7 +108,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.radiusMD),
           borderSide: const BorderSide(color: AppColors.inputBorderError, width: 1.5),
         ),
-        labelStyle: AppTextStyles.label.copyWith(color: AppColors.primary),
+        labelStyle: AppTextStyles.label.copyWith(color: _primary),
         hintStyle: AppTextStyles.body1.copyWith(color: AppColors.textSecondary),
         errorStyle: AppTextStyles.body2.copyWith(color: AppColors.error),
         helperStyle: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
@@ -115,10 +122,10 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.scaffoldBgDark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
+      colorScheme: ColorScheme.dark(
+        primary: _primary,
         onPrimary: Colors.white,
-        secondary: AppColors.accent,
+        secondary: _accent,
         onSecondary: Colors.white,
         error: AppColors.error,
         onError: Colors.white,
@@ -151,15 +158,15 @@ class AppTheme {
           color: AppColors.textPrimaryDark,
         ),
       ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
+      appBarTheme: AppBarTheme(
+        backgroundColor: _primary,
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.primary,
-        selectedItemColor: AppColors.accent,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: _primary,
+        selectedItemColor: _accent,
         unselectedItemColor: Colors.white54,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
@@ -174,7 +181,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.chipFilterDefaultBg,
-        selectedColor: AppColors.accent,
+        selectedColor: _accent,
         labelStyle: AppTextStyles.label.copyWith(
           color: AppColors.textPrimaryDark,
         ),
@@ -185,7 +192,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accent,
+          backgroundColor: _accent,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(

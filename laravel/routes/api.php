@@ -27,7 +27,9 @@ Route::prefix('v2/auth')->name('auth.')->group(function () {
     Route::get('/check-phone',     [AuthController::class, 'checkPhone'])->name('check-phone');
     Route::post('/register',        [AuthController::class, 'register'])->name('register');
     Route::post('/login',           [AuthController::class, 'login'])->name('login');
+    Route::post('/social-login',    [AuthController::class, 'socialLogin'])->name('social-login');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+    Route::post('/claim-account',    [AuthController::class, 'claimAccount'])->name('claim-account');
     Route::post('/verify-otp',      [AuthController::class, 'verifyOtp'])->name('verify-otp');
     Route::post('/reset-password',  [AuthController::class, 'resetPassword'])->name('reset-password');
 });
@@ -35,6 +37,8 @@ Route::prefix('v2/auth')->name('auth.')->group(function () {
 // ─── Mobile Patient Auth (protected) ─────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::post('/v2/auth/change-password-first', [AuthController::class, 'changePasswordFirst'])
+        ->name('auth.change-password-first');
 });
 
 // ─── Mobile Loyalty Points (protected) ──────────────────────────────────────
@@ -61,11 +65,13 @@ Route::get('/v2/config/branding', function () {
         'branding_app_short_name',
         'branding_tagline',
         'branding_primary_color',
+        'branding_accent_color',
         'branding_splash_bg_color',
         'branding_logo_url',
         'branding_splash_logo_url',
         'branding_login_logo_url',
         'branding_appbar_logo_url',
+        'branding_loading_gif_url',
         'branding_favicon_url',
     ])->pluck('value', 'key');
 
@@ -74,11 +80,13 @@ Route::get('/v2/config/branding', function () {
         'app_short_name' => $settings['branding_app_short_name'] ?? 'HE',
         'tagline' => $settings['branding_tagline'] ?? 'Your Health, Simplified',
         'primary_color' => $settings['branding_primary_color'] ?? '#131C3C',
+        'accent_color' => $settings['branding_accent_color'] ?? '#3B8DFF',
         'splash_bg_color' => $settings['branding_splash_bg_color'] ?? '#131C3C',
         'logo_url' => $settings['branding_logo_url'] ?? null,
         'splash_logo_url' => $settings['branding_splash_logo_url'] ?? null,
         'login_logo_url' => $settings['branding_login_logo_url'] ?? null,
         'appbar_logo_url' => $settings['branding_appbar_logo_url'] ?? null,
+        'loading_gif_url' => $settings['branding_loading_gif_url'] ?? null,
         'favicon_url' => $settings['branding_favicon_url'] ?? null,
     ]);
 });

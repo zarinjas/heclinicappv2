@@ -126,6 +126,11 @@ class _MyAppState extends State<MyApp> {
       () => _appStateNotifier.stopShowingSplashImage(),
     );
 
+    // Rebuild theme once branding (primary/accent/loading GIF) is loaded.
+    BrandingService.instance.init().then((_) {
+      if (mounted) safeSetState(() {});
+    });
+
     _registerApiInterceptor();
   }
 
@@ -262,6 +267,8 @@ class _NavBarPageState extends State<NavBarPage> {
     };
     final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
     final unreadCount = FFAppState().coutnnotif;
+    final primaryColor = BrandingService.instance.primaryColor;
+    final accentColor = BrandingService.instance.accentColor;
 
     return Scaffold(
       resizeToAvoidBottomInset: !widget.disableResizeToAvoidBottomInset,
@@ -272,8 +279,8 @@ class _NavBarPageState extends State<NavBarPage> {
           _currentPage = null;
           _currentPageName = tabs.keys.toList()[i];
         }),
-        backgroundColor: AppColors.primary,
-        selectedItemColor: AppColors.accent,
+        backgroundColor: primaryColor,
+        selectedItemColor: accentColor,
         unselectedItemColor: const Color(0x80FFFFFF),
         showSelectedLabels: true,
         showUnselectedLabels: true,

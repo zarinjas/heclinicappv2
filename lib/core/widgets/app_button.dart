@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/branding_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_text_styles.dart';
@@ -124,7 +125,7 @@ class AppButton extends StatelessWidget {
     if (isDisabled) return const Color(0xFFE5E7EB);
     switch (variant) {
       case AppButtonVariant.primary:
-        return AppColors.accent;
+        return BrandingService.instance.accentColor;
       case AppButtonVariant.secondary:
       case AppButtonVariant.ghost:
       case AppButtonVariant.whiteGhost:
@@ -148,9 +149,9 @@ class AppButton extends StatelessWidget {
         return Colors.white;
       case AppButtonVariant.secondary:
       case AppButtonVariant.ghost:
-        return AppColors.accent;
+        return BrandingService.instance.accentColor;
       case AppButtonVariant.whiteSolid:
-        return AppColors.primary;
+        return BrandingService.instance.primaryColor;
       case AppButtonVariant.whiteGhost:
         return Colors.white;
     }
@@ -161,7 +162,7 @@ class AppButton extends StatelessWidget {
     if (isDisabled) return null;
     switch (variant) {
       case AppButtonVariant.secondary:
-        return const BorderSide(color: AppColors.accent, width: 1.5);
+        return BorderSide(color: BrandingService.instance.accentColor, width: 1.5);
       case AppButtonVariant.whiteSolid:
         return const BorderSide(color: Colors.white, width: 1.5);
       case AppButtonVariant.whiteGhost:

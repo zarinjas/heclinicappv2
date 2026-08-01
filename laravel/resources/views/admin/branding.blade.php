@@ -41,6 +41,13 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Primary Color (hex)</label>
                     <input type="color" name="primary_color" value="{{ old('primary_color', $branding['primary_color']) }}"
                            class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-1">Main theme color (navy blue default). Applied to app bar, headers, and primary elements.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Accent Color (hex)</label>
+                    <input type="color" name="accent_color" value="{{ old('accent_color', $branding['accent_color']) }}"
+                           class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-1">Accent color for buttons and highlights (blue default).</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Splash Background Color</label>
@@ -66,6 +73,8 @@
                                           'url' => $branding['login_logo_url'] ?? null],
                         'appbar_logo' => ['label' => 'App Bar Logo', 'desc' => 'Small logo in the top app bar',
                                            'url' => $branding['appbar_logo_url'] ?? null],
+                        'loading_gif' => ['label' => 'Loading GIF', 'desc' => 'Animated GIF shown on every loading screen (splash + in-app loaders)',
+                                          'url' => $branding['loading_gif_url'] ?? null],
                         'favicon' => ['label' => 'Favicon (browser tab icon)', 'desc' => 'Favicon for the admin panel',
                                       'url' => $branding['favicon_url'] ?? null],
                     ];
@@ -73,16 +82,19 @@
 
                 @foreach($logoFields as $field => $info)
                 <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                    @if($info['url'])
-                    <img src="{{ $info['url'] }}" alt="{{ $info['label'] }}" class="w-10 h-10 object-contain rounded">
-                    @else
-                    <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">No</div>
-                    @endif
+                    <div id="preview-{{ $field }}" class="w-16 h-16 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                        @if($info['url'])
+                        <img src="{{ $info['url'] }}" alt="{{ $info['label'] }}" class="w-full h-full object-contain">
+                        @else
+                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
+                        @endif
+                    </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-[#0F1B3D]">{{ $info['label'] }}</p>
                         <p class="text-xs text-gray-500">{{ $info['desc'] }}</p>
                     </div>
                     <input type="file" name="{{ $field }}" accept="image/png,image/svg+xml,image/jpeg,image/gif,image/webp"
+                           onchange="previewImage(event, '{{ $field }}')"
                            class="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
                 </div>
                 @endforeach
@@ -179,6 +191,7 @@
         </div>
 
         <div class="flex justify-end mt-6">
+            <button type="submit"
                     class="px-6 py-3 bg-[#00C9A7] text-white rounded-xl font-medium text-sm hover:bg-[#00b897] transition-colors">
                 Save Settings
             </button>
@@ -186,3 +199,22 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function previewImage(event, field) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById('preview-' + field);
+            if (preview) {
+                preview.innerHTML =
+                    '<img src="' + e.target.result + '" alt="Preview" class="w-full h-full object-contain">';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+@endpush

@@ -17,11 +17,13 @@ class BrandingController extends Controller
             'app_short_name' => Setting::where('key', 'branding_app_short_name')->value('value') ?? 'HE',
             'tagline' => Setting::where('key', 'branding_tagline')->value('value') ?? 'Your Health, Simplified',
             'primary_color' => Setting::where('key', 'branding_primary_color')->value('value') ?? '#131C3C',
+            'accent_color' => Setting::where('key', 'branding_accent_color')->value('value') ?? '#3B8DFF',
             'splash_bg_color' => Setting::where('key', 'branding_splash_bg_color')->value('value') ?? '#131C3C',
             'logo_url' => Setting::where('key', 'branding_logo_url')->value('value'),
             'splash_logo_url' => Setting::where('key', 'branding_splash_logo_url')->value('value'),
             'login_logo_url' => Setting::where('key', 'branding_login_logo_url')->value('value'),
             'appbar_logo_url' => Setting::where('key', 'branding_appbar_logo_url')->value('value'),
+            'loading_gif_url' => Setting::where('key', 'branding_loading_gif_url')->value('value'),
             'favicon_url' => Setting::where('key', 'branding_favicon_url')->value('value'),
             'telehealth_title' => Setting::where('key', 'telehealth_title')->value('value') ?? 'Telehealth Consultation',
             'telehealth_description' => Setting::where('key', 'telehealth_description')->value('value') ?? '',
@@ -45,11 +47,13 @@ class BrandingController extends Controller
             'app_short_name' => 'required|string|max:10',
             'tagline' => 'nullable|string|max:200',
             'primary_color' => 'nullable|string|max:7',
+            'accent_color' => 'nullable|string|max:7',
             'splash_bg_color' => 'nullable|string|max:7',
             'logo' => 'nullable|image|mimes:png,svg,jpg,webp,gif|max:2048',
             'splash_logo' => 'nullable|image|mimes:png,svg,jpg,webp,gif|max:5120',
             'login_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
+            'loading_gif' => 'nullable|image|mimes:gif,webp,png|max:10240',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
             'telehealth_title' => 'nullable|string|max:255',
             'telehealth_description' => 'nullable|string|max:1000',
@@ -67,6 +71,7 @@ class BrandingController extends Controller
         $this->saveSetting('branding_app_short_name', $validated['app_short_name']);
         $this->saveSetting('branding_tagline', $validated['tagline'] ?? '');
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
+        $this->saveSetting('branding_accent_color', $validated['accent_color'] ?? '#3B8DFF');
         $this->saveSetting('branding_splash_bg_color', $validated['splash_bg_color'] ?? '#131C3C');
 
         $textFields = [
@@ -93,6 +98,7 @@ class BrandingController extends Controller
             'splash_logo' => 'branding_splash_logo_url',
             'login_logo' => 'branding_login_logo_url',
             'appbar_logo' => 'branding_appbar_logo_url',
+            'loading_gif' => 'branding_loading_gif_url',
             'favicon' => 'branding_favicon_url',
         ];
 

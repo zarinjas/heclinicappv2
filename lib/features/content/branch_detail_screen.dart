@@ -9,6 +9,7 @@ import '../../core/services/branch_service.dart';
 import '../../core/services/models/branch.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
+import '../../core/widgets/app_loader.dart';
 
 class BranchDetailScreen extends StatefulWidget {
   final String? branchName;
@@ -51,7 +52,7 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(title: _branch?.name ?? 'Branch'),
       body: _branch == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: AppLoader())
           : SingleChildScrollView(
               child: Column(
                 children: [
