@@ -7,6 +7,7 @@ use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Models\Branch;
 use App\Models\Doctor;
+use App\Services\PlatoSyncService;
 use App\Traits\BranchScoped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,8 +27,8 @@ class DoctorController extends Controller
             $search = $request->string('search')->trim();
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('specialty', 'like', "%{$search}%")
-                  ->orWhere('plato_facility_id', 'like', "%{$search}%");
+                    ->orWhere('specialty', 'like', "%{$search}%")
+                    ->orWhere('plato_facility_id', 'like', "%{$search}%");
             });
         }
 
@@ -49,6 +50,19 @@ class DoctorController extends Controller
         $branches = Branch::where('is_active', true)->orderBy('name')->get();
 
         return view('admin.doctors.index', compact('doctors', 'branches'));
+    }
+
+    public function syncFromPlato(PlatoSyncService $sync): RedirectResponse
+    {
+        $result = $sync->syncAll();
+
+        $message = $result['success']
+            ? $result['message']." Branches: {$result['branches_created']} created, {$result['branches_updated']} updated. Doctors: {$result['doctors_created']} created, {$result['doctors_updated']} updated."
+            : $result['message'];
+
+        return redirect()
+            ->route('admin.doctors.index')
+            ->with($result['success'] ? 'success' : 'error', $message);
     }
 
     public function create(): View

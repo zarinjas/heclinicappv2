@@ -23,6 +23,7 @@ class StoreBranchRequest extends FormRequest
             'google_maps_link' => ['nullable', 'url', 'max:500'],
             'plato_facility_id' => ['nullable', 'string', 'max:100', 'unique:branches,plato_facility_id'],
             'is_active' => ['boolean'],
+            'is_visible_in_app' => ['boolean'],
         ];
     }
 

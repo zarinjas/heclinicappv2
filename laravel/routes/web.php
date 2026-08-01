@@ -33,7 +33,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('branches', BranchController::class);
+        Route::post('branches/sync', [BranchController::class, 'syncFromPlato'])->name('branches.sync');
         Route::resource('doctors', DoctorController::class);
+        Route::post('doctors/sync', [DoctorController::class, 'syncFromPlato'])->name('doctors.sync');
         Route::resource('patients', PatientController::class)->only(['index', 'show']);
         Route::post('patients/{patient}/documents', [PatientController::class, 'uploadDocument'])
             ->name('patients.documents.upload');

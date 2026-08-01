@@ -17,6 +17,7 @@ class Branch extends Model
         'google_maps_link',
         'plato_facility_id',
         'is_active',
+        'is_visible_in_app',
     ];
 
     protected function casts(): array
@@ -24,6 +25,7 @@ class Branch extends Model
         return [
             'operating_hours' => 'array',
             'is_active' => 'boolean',
+            'is_visible_in_app' => 'boolean',
         ];
     }
 

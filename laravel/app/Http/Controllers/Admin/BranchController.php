@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use App\Models\Branch;
+use App\Services\PlatoSyncService;
 use App\Traits\BranchScoped;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,9 +26,13 @@ class BranchController extends Controller
             $search = $request->string('search')->trim();
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('plato_facility_id', 'like', "%{$search}%");
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('plato_facility_id', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->has('visible')) {
+            $query->where('is_visible_in_app', $request->boolean('visible'));
         }
 
         if ($request->filled('sort') && $request->filled('direction')) {
@@ -39,6 +44,19 @@ class BranchController extends Controller
         $branches = $query->paginate(10)->withQueryString();
 
         return view('admin.branches.index', compact('branches'));
+    }
+
+    public function syncFromPlato(PlatoSyncService $sync): RedirectResponse
+    {
+        $result = $sync->syncAll();
+
+        $message = $result['success']
+            ? $result['message']." Branches: {$result['branches_created']} created, {$result['branches_updated']} updated. Doctors: {$result['doctors_created']} created, {$result['doctors_updated']} updated."
+            : $result['message'];
+
+        return redirect()
+            ->route('admin.branches.index')
+            ->with($result['success'] ? 'success' : 'error', $message);
     }
 
     public function create(): View
@@ -55,6 +73,7 @@ class BranchController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
+        $data['is_visible_in_app'] = $request->boolean('is_visible_in_app');
 
         Branch::create($data);
 
@@ -87,6 +106,7 @@ class BranchController extends Controller
         }
 
         $data['is_active'] = $request->boolean('is_active');
+        $data['is_visible_in_app'] = $request->boolean('is_visible_in_app');
 
         $branch->update($data);
 

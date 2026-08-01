@@ -21,8 +21,9 @@ class UpdateBranchRequest extends FormRequest
             'image' => ['nullable'],
             'operating_hours' => ['nullable'],
             'google_maps_link' => ['nullable', 'url', 'max:500'],
-            'plato_facility_id' => ['nullable', 'string', 'max:100', 'unique:branches,plato_facility_id,' . $this->branch?->id],
+            'plato_facility_id' => ['nullable', 'string', 'max:100', 'unique:branches,plato_facility_id,'.$this->branch?->id],
             'is_active' => ['boolean'],
+            'is_visible_in_app' => ['boolean'],
         ];
     }
 

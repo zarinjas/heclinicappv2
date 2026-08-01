@@ -13,6 +13,7 @@ class BranchConfigController extends Controller
     {
         $branches = Branch::query()
             ->where('is_active', true)
+            ->where('is_visible_in_app', true)
             ->orderBy('name')
             ->get()
             ->map(fn (Branch $branch) => [

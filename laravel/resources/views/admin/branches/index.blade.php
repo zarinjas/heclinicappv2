@@ -31,6 +31,34 @@
             </svg>
             Add Branch
         </a>
+
+        <form method="POST" action="{{ route('admin.branches.sync') }}" class="inline">
+            @csrf
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#0F1B3D] rounded-lg hover:bg-[#1e2d52] transition-colors whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Sync from Plato
+            </button>
+        </form>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+        <a href="{{ route('admin.branches.index', array_merge(request()->except('visible'), ['visible' => '1'])) }}"
+           class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors {{ request('visible') === '1' ? 'bg-[#00C9A7] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+            Visible in App
+        </a>
+        <a href="{{ route('admin.branches.index', array_merge(request()->except('visible'), ['visible' => '0'])) }}"
+           class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors {{ request()->has('visible') && request('visible') === '0' ? 'bg-[#00C9A7] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+            Hidden from App
+        </a>
+        @if (request()->has('visible'))
+            <a href="{{ route('admin.branches.index', request()->except('visible')) }}"
+               class="px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                Clear filter
+            </a>
+        @endif
     </div>
 
     @if ($branches->isEmpty())
@@ -68,6 +96,7 @@
                             <th class="text-left px-6 py-3 font-medium text-gray-500">WhatsApp</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Plato Facility ID</th>
                             <th class="text-left px-6 py-3 font-medium text-gray-500">Status</th>
+                            <th class="text-left px-6 py-3 font-medium text-gray-500">Visible in App</th>
                             <th class="text-right px-6 py-3 font-medium text-gray-500">Actions</th>
                         </tr>
                     </thead>
@@ -82,6 +111,14 @@
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $branch->is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $branch->is_active ? 'bg-green-500' : 'bg-gray-400' }}"></span>
                                         {{ $branch->is_active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $branch->is_visible_in_app ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-500' }}">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $branch->is_visible_in_app ? 'M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' : 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18' }}"/>
+                                        </svg>
+                                        {{ $branch->is_visible_in_app ? 'Visible' : 'Hidden' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">

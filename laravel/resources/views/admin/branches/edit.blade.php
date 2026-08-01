@@ -154,6 +154,26 @@
                     </label>
                     <p class="mt-1 text-xs text-gray-400 ml-6">Inactive branches are hidden from the mobile app branch selector.</p>
                 </div>
+
+                <div>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="hidden"
+                            name="is_visible_in_app"
+                            value="0"
+                        >
+                        <input
+                            type="checkbox"
+                            name="is_visible_in_app"
+                            id="is_visible_in_app"
+                            value="1"
+                            {{ old('is_visible_in_app', $branch->is_visible_in_app) ? 'checked' : '' }}
+                            class="w-4 h-4 text-[#00C9A7] border-gray-300 rounded focus:ring-[#00C9A7]"
+                        >
+                        <span class="text-sm font-medium text-[#0F1B3D]">Visible in App</span>
+                    </label>
+                    <p class="mt-1 text-xs text-gray-400 ml-6">Controls whether this branch appears in the mobile app. Separate from the Active toggle.</p>
+                </div>
             </div>
 
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl flex items-center gap-3">
