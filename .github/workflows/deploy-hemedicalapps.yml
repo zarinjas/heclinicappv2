@@ -1,0 +1,56 @@
+name: Deploy Laravel to hemedicalapps.com
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'laravel/**'
+
+concurrency:
+  group: hemedicalapps-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Laravel via rsync
+        run: >
+          rsync -avz --delete
+          --exclude '.env' --exclude '.env.*'
+          --exclude 'vendor/' --exclude 'node_modules/'
+          --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*'
+          --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*'
+          --exclude 'bootstrap/cache/*' --exclude 'public/storage'
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          laravel/
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/hemedicalapps.com/heclinic-laravel/
+
+      - name: Post-deploy Laravel commands
+        run: >
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
+          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+          "cd /home/hemedicalapps.com/heclinic-laravel &&
+           chown -R hemed2668:hemed2668 . &&
+           composer install --no-dev --optimize-autoloader --no-interaction &&
+           php artisan migrate --force --no-interaction || true &&
+           (php artisan storage:link || true) &&
+           php artisan config:clear &&
+           php artisan cache:clear &&
+           chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage"
