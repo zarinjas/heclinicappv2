@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -22,18 +21,18 @@ import '/core/services/models/hero_banner.dart';
 import '/core/services/models/video.dart';
 import '/core/services/models/promotion.dart';
 import '/core/widgets/app_app_bar.dart';
-import '/core/widgets/app_card.dart';
 import '/core/widgets/app_chip.dart';
 import '/core/widgets/app_empty_state.dart';
 
 import '/core/widgets/app_skeleton.dart';
 import '/core/widgets/appointment_card.dart';
-import '/core/widgets/article_card.dart';
 import '/core/widgets/branch_card.dart';
 import '/core/widgets/compact_quick_actions.dart';
 import '/core/widgets/doctor_card.dart';
+import '/core/widgets/featured_article_banner.dart';
 import '/core/widgets/gradient_hero_slider.dart';
 import '/core/widgets/loyalty_card.dart';
+import '/core/widgets/mini_article_card.dart';
 import '/core/widgets/section_header.dart';
 import '/core/widgets/video_card.dart';
 import '/components/doctor_detail_sheet.dart';
@@ -618,19 +617,16 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SectionHeader(title: 'Health Articles', onSeeAll: () => context.pushNamed('/articlesList')),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 296,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3,
-                itemBuilder: (_, i) => SizedBox(
-                  width: 220,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: AppSkeleton.articleCard(),
-                  ),
-                ),
-              ),
+            AppSkeleton.articleCard(),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: AppSkeleton.articleCard()),
+                const SizedBox(width: 12),
+                Expanded(child: AppSkeleton.articleCard()),
+                const SizedBox(width: 12),
+                Expanded(child: AppSkeleton.articleCard()),
+              ],
             ),
           ],
         ),
@@ -638,7 +634,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (_articleErr || _articles.isEmpty) return const SizedBox.shrink();
 
-    final items = _articles.take(3).toList();
+    final featured = _articles.firstWhere(
+      (a) => a.isFeatured,
+      orElse: () => _articles.first,
+    );
+    final rest = _articles.where((a) => a.slug != featured.slug).take(3).toList();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Column(
@@ -646,33 +647,44 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           SectionHeader(title: 'Health Articles', onSeeAll: () => context.pushNamed('/articlesList')),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 296,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) {
-                final a = items[i];
-                return SizedBox(
-                  width: 220,
-                  child: ArticleCard(
-                    imageUrl: a.featuredImage ?? '',
-                    placeholderGradient: a.placeholderGradient,
-                    title: a.title,
-                    excerpt: a.excerpt,
-                    author: a.authorName ?? '',
-                    date: a.dateDisplay,
-                    categoryLabel: a.category,
-                    onTap: () => context.pushNamed(
-                      '/articleDetail',
-                      queryParameters: {'articleSlug': a.slug},
-                    ),
-                  ),
-                );
-              },
+          FeaturedArticleBanner(
+            imageUrl: featured.featuredImage ?? '',
+            placeholderGradient: featured.placeholderGradient,
+            title: featured.title,
+            excerpt: featured.excerpt,
+            category: featured.category,
+            author: featured.authorName,
+            date: featured.dateDisplay,
+            onTap: () => context.pushNamed(
+              '/articleDetail',
+              queryParameters: {'articleSlug': featured.slug},
             ),
           ),
+          if (rest.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rest
+                  .map((a) => Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            right: a == rest.last ? 0 : AppSpacing.space8,
+                          ),
+                          child: MiniArticleCard(
+                            imageUrl: a.featuredImage ?? '',
+                            placeholderGradient: a.placeholderGradient,
+                            title: a.title,
+                            category: a.category,
+                            onTap: () => context.pushNamed(
+                              '/articleDetail',
+                              queryParameters: {'articleSlug': a.slug},
+                            ),
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ],
         ],
       ),
     );

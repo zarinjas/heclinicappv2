@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsArticleController;
+use App\Http\Controllers\Admin\CmsArticleCategoryController;
 use App\Http\Controllers\Admin\CmsLegalPageController;
 use App\Http\Controllers\Admin\CmsOnboardingSlideController;
 use App\Http\Controllers\Admin\CmsPromotionController;
@@ -69,6 +70,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::resource('sliders', CmsSliderController::class);
             Route::resource('service-packages', CmsServicePackageController::class);
             Route::resource('articles', CmsArticleController::class);
+            Route::resource('article-categories', CmsArticleCategoryController::class);
             Route::get('videos/bulk', [CmsVideoController::class, 'bulk'])->name('videos.bulk');
             Route::post('videos/bulk-store', [CmsVideoController::class, 'bulkStore'])->name('videos.bulk-store');
             Route::resource('videos', CmsVideoController::class);

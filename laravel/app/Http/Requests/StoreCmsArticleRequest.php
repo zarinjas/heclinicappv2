@@ -21,6 +21,8 @@ class StoreCmsArticleRequest extends FormRequest
             'excerpt' => ['nullable', 'string'],
             'featured_image' => [$this->isMethod('put') ? 'nullable' : 'nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'category' => ['nullable', 'string', 'max:100'],
+            'category_id' => ['nullable', 'integer', 'exists:cms_article_categories,id'],
+            'is_featured' => ['nullable', 'boolean'],
             'author_name' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', 'in:draft,published'],
             'sort_order' => ['nullable', 'integer', 'min:0'],

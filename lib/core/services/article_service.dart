@@ -23,6 +23,29 @@ class ArticleService {
     return Article.fallbackBySlug(slug);
   }
 
+  List<Article> get featuredArticles => _base.data
+      .where((a) => a.isFeatured)
+      .toList();
+
+  List<Article> articlesByCategory(String category) {
+    if (category.isEmpty) return _base.data;
+    final lower = category.toLowerCase();
+    return _base.data
+        .where((a) => a.category != null && a.category!.toLowerCase() == lower)
+        .toList();
+  }
+
+  List<String> get categories {
+    final seen = <String>{};
+    final result = <String>[];
+    for (final a in _base.data) {
+      if (a.category != null && a.category!.isNotEmpty && seen.add(a.category!)) {
+        result.add(a.category!);
+      }
+    }
+    return result;
+  }
+
   List<Article> get healthTips => _base.data
       .where((a) =>
           a.category != null &&
@@ -59,6 +82,21 @@ class ArticleService {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  List<String> _remoteCategories = const [];
+
+  List<String> get remoteCategories => _remoteCategories.isNotEmpty
+      ? _remoteCategories
+      : categories;
+
+  Future<void> refreshCategories() async {
+    try {
+      final names = await CmsApi.fetchArticleCategories();
+      _remoteCategories = names;
+    } catch (_) {
+      _remoteCategories = const [];
     }
   }
 

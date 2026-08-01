@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_text_styles.dart';
 import '../../core/services/article_service.dart';
 import '../../core/services/models/article.dart';
 import '../../core/widgets/app_app_bar.dart';
@@ -25,6 +27,8 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
   bool _hasError = false;
   String _errorMessage = '';
   List<Article> _articles = [];
+  List<String> _categories = [];
+  String _selectedCategory = '';
 
   @override
   void initState() {
@@ -41,10 +45,12 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
     try {
       final service = ArticleService.instance;
       await service.refresh();
+      await service.refreshCategories();
 
       if (mounted) {
         setState(() {
           _articles = service.articles;
+          _categories = service.remoteCategories;
           _isLoading = false;
         });
       }
@@ -55,9 +61,18 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
           _hasError = true;
           _errorMessage = e.toString();
           _articles = Article.fallbackList;
+          _categories = ArticleService.instance.categories;
         });
       }
     }
+  }
+
+  List<Article> get _filtered {
+    if (_selectedCategory.isEmpty) return _articles;
+    return _articles
+        .where((a) =>
+            a.category != null && a.category!.toLowerCase() == _selectedCategory.toLowerCase())
+        .toList();
   }
 
   Widget _buildSkeleton() {
@@ -119,9 +134,12 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
       onRefresh: _loadArticles,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
-        itemCount: _articles.length,
+        itemCount: (_categories.length > 1 ? 1 : 0) + _filtered.length,
         itemBuilder: (context, index) {
-          final article = _articles[index];
+          if (_categories.length > 1 && index == 0) {
+            return _buildCategoryChips();
+          }
+          final article = _filtered[index - (_categories.length > 1 ? 1 : 0)];
           return Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.space16,
@@ -136,12 +154,57 @@ class _ArticlesListScreenState extends State<ArticlesListScreen> {
               date: article.dateDisplay,
               categoryLabel: article.category,
               onTap: () => context.pushNamed(
-                'ArticleDetailPageWidget',
-                queryParameters: {'slug': article.slug},
+                '/articleDetail',
+                queryParameters: {'articleSlug': article.slug},
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+
+    final labels = ['All', ..._categories];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
+      child: SizedBox(
+        height: 36,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space16),
+          itemCount: labels.length,
+          separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.space8),
+          itemBuilder: (context, i) {
+            final isSelected = (i == 0 && _selectedCategory.isEmpty) ||
+                (i > 0 && _categories[i - 1].toLowerCase() == _selectedCategory.toLowerCase());
+            return ChoiceChip(
+              label: Text(labels[i]),
+              selected: isSelected,
+              onSelected: (_) {
+                setState(() {
+                  _selectedCategory = i == 0 ? '' : _categories[i - 1];
+                });
+              },
+              labelStyle: AppTextStyles.label.copyWith(
+                color: isSelected ? Colors.white : textColor,
+              ),
+              selectedColor: AppColors.accent,
+              backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+              side: BorderSide(
+                color: isDark ? AppColors.dividerDark : AppColors.divider,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space4),
+              showCheckmark: false,
+            );
+          },
+        ),
       ),
     );
   }

@@ -338,10 +338,15 @@ const mockServicePackages = [
 ];
 
 const mockCmsArticles = [
-  { id: 1, title: "5 Tips for a Healthy Heart", slug: "healthy-heart-tips", body: "<p>Maintaining heart health is crucial for overall well-being. Here are 5 tips to keep your heart healthy: regular exercise, balanced diet, stress management, adequate sleep, and regular check-ups.</p><p>Heart disease is one of the leading causes of death worldwide, but many cases are preventable with lifestyle changes.</p>", excerpt: "Maintaining heart health is crucial for overall well-being...", featured_image: "https://placehold.co/800x400/EF4444/FFFFFF?text=Heart+Health", category: "Health Tips", author_name: "Dr. Ahmad", status: "published", sort_order: 1, published_at: "2025-06-15 08:00:00" },
-  { id: 2, title: "Understanding Your Blood Test Results", slug: "blood-test-results", body: "<p>Blood tests can reveal a lot about your health. This guide explains common markers: complete blood count, lipid profile, blood glucose, liver function, and kidney function.</p><p>Understanding your results helps you take proactive steps toward better health.</p>", excerpt: "Blood tests can reveal a lot about your health...", featured_image: "https://placehold.co/800x400/3B82F6/FFFFFF?text=Blood+Test", category: "Education", author_name: "Dr. Sarah", status: "published", sort_order: 2, published_at: "2025-06-10 10:00:00" },
-  { id: 3, title: "When to See a Doctor: Warning Signs", slug: "warning-signs", body: "<p>Knowing when to seek medical help is important. Warning signs include: persistent fever, unexplained weight loss, chest pain, shortness of breath, and unusual bleeding.</p><p>Don't ignore these signs — early detection saves lives.</p>", excerpt: "Knowing when to seek medical help is important...", featured_image: "https://placehold.co/800x400/F59E0B/FFFFFF?text=Warning+Signs", category: "Health Tips", author_name: "Dr. Lim", status: "published", sort_order: 3, published_at: "2025-06-05 09:00:00" },
-  { id: 4, title: "Vaccination Guide for Adults", slug: "adult-vaccination", body: "<p>Vaccines aren't just for children. Adults need boosters and specific vaccines too: influenza, Tdap, shingles, pneumococcal, and HPV.</p><p>Consult your doctor about which vaccines are right for you based on your age and health conditions.</p>", excerpt: "Vaccines aren't just for children...", featured_image: "https://placehold.co/800x400/8B5CF6/FFFFFF?text=Vaccination", category: "Education", author_name: "Dr. Ahmad", status: "published", sort_order: 4, published_at: "2025-05-28 11:00:00" },
+  { id: 1, title: "5 Tips for a Healthy Heart", slug: "healthy-heart-tips", body: "<p>Maintaining heart health is crucial for overall well-being. Here are 5 tips to keep your heart healthy: regular exercise, balanced diet, stress management, adequate sleep, and regular check-ups.</p><p>Heart disease is one of the leading causes of death worldwide, but many cases are preventable with lifestyle changes.</p>", excerpt: "Maintaining heart health is crucial for overall well-being...", featured_image: "https://placehold.co/800x400/EF4444/FFFFFF?text=Heart+Health", category: "Health Tips", category_id: 1, is_featured: true, author_name: "Dr. Ahmad", status: "published", sort_order: 1, published_at: "2025-06-15 08:00:00" },
+  { id: 2, title: "Understanding Your Blood Test Results", slug: "blood-test-results", body: "<p>Blood tests can reveal a lot about your health. This guide explains common markers: complete blood count, lipid profile, blood glucose, liver function, and kidney function.</p><p>Understanding your results helps you take proactive steps toward better health.</p>", excerpt: "Blood tests can reveal a lot about your health...", featured_image: "https://placehold.co/800x400/3B82F6/FFFFFF?text=Blood+Test", category: "Education", category_id: 2, is_featured: false, author_name: "Dr. Sarah", status: "published", sort_order: 2, published_at: "2025-06-10 10:00:00" },
+  { id: 3, title: "When to See a Doctor: Warning Signs", slug: "warning-signs", body: "<p>Knowing when to seek medical help is important. Warning signs include: persistent fever, unexplained weight loss, chest pain, shortness of breath, and unusual bleeding.</p><p>Don't ignore these signs — early detection saves lives.</p>", excerpt: "Knowing when to seek medical help is important...", featured_image: "https://placehold.co/800x400/F59E0B/FFFFFF?text=Warning+Signs", category: "Health Tips", category_id: 1, is_featured: false, author_name: "Dr. Lim", status: "published", sort_order: 3, published_at: "2025-06-05 09:00:00" },
+  { id: 4, title: "Vaccination Guide for Adults", slug: "adult-vaccination", body: "<p>Vaccines aren't just for children. Adults need boosters and specific vaccines too: influenza, Tdap, shingles, pneumococcal, and HPV.</p><p>Consult your doctor about which vaccines are right for you based on your age and health conditions.</p>", excerpt: "Vaccines aren't just for children...", featured_image: "https://placehold.co/800x400/8B5CF6/FFFFFF?text=Vaccination", category: "Education", category_id: 2, is_featured: false, author_name: "Dr. Ahmad", status: "published", sort_order: 4, published_at: "2025-05-28 11:00:00" },
+];
+
+const mockCmsArticleCategories = [
+  { id: 1, name: "Health Tips", slug: "health-tips", sort_order: 1, status: "active" },
+  { id: 2, name: "Education", slug: "education", sort_order: 2, status: "active" },
 ];
 
 const mockCmsVideos = [
@@ -378,12 +383,24 @@ app.get("/api/v2/cms/articles", (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const page = parseInt(req.query.page) || 1;
   console.log(`[CMS] GET articles page=${page} limit=${limit}`);
-  const filtered = mockCmsArticles.filter(a => a.status === 'published');
+  let filtered = mockCmsArticles.filter(a => a.status === 'published');
+  if (req.query.featured === 'true' || req.query.featured === '1') {
+    filtered = filtered.filter(a => a.is_featured);
+  }
+  if (req.query.category) {
+    filtered = filtered.filter(a => a.category === req.query.category);
+  }
+  filtered = filtered.sort((a, b) => (b.is_featured - a.is_featured) || (a.sort_order - b.sort_order));
   const total = filtered.length;
   const lastPage = Math.ceil(total / limit);
   const start = (page - 1) * limit;
   const data = filtered.slice(start, start + limit);
   res.json({ data, total, current_page: page, lastPage, per_page: limit });
+});
+
+app.get("/api/v2/cms/article-categories", (req, res) => {
+  console.log(`[CMS] GET article categories`);
+  res.json(mockCmsArticleCategories.filter(c => c.status === 'active'));
 });
 
 app.get("/api/v2/cms/articles/:slug", (req, res) => {

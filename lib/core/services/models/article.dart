@@ -10,6 +10,7 @@ class Article {
   final String? category;
   final String? authorName;
   final String? publishedAt;
+  final bool isFeatured;
 
   const Article({
     required this.id,
@@ -21,6 +22,7 @@ class Article {
     this.category,
     this.authorName,
     this.publishedAt,
+    this.isFeatured = false,
   });
 
   factory Article.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class Article {
       category: json['category'] as String?,
       authorName: json['author_name'] as String?,
       publishedAt: json['published_at'] as String?,
+      isFeatured: json['is_featured'] == true || json['is_featured'] == 1,
     );
   }
 
@@ -47,6 +50,7 @@ class Article {
     'category': category,
     'author_name': authorName,
     'published_at': publishedAt,
+    'is_featured': isFeatured,
   };
 
   String get dateDisplay {

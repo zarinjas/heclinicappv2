@@ -70,8 +70,17 @@ class CmsApi {
   static Future<CmsArticleListResponse> fetchArticles({
     int limit = 10,
     int page = 1,
+    String? category,
+    bool? featured,
   }) async {
-    final body = await _fetch('cms/articles?limit=$limit&page=$page');
+    final query = StringBuffer('cms/articles?limit=$limit&page=$page');
+    if (category != null && category.isNotEmpty) {
+      query.write('&category=${Uri.encodeQueryComponent(category)}');
+    }
+    if (featured == true) {
+      query.write('&featured=true');
+    }
+    final body = await _fetch(query.toString());
     final json = jsonDecode(body) as Map<String, dynamic>;
     return CmsArticleListResponse.fromJson(json);
   }
@@ -81,6 +90,16 @@ class CmsApi {
     final json = jsonDecode(body) as Map<String, dynamic>;
     if (json['error'] == true) return null;
     return Article.fromJson(json);
+  }
+
+  static Future<List<String>> fetchArticleCategories() async {
+    final body = await _fetch('cms/article-categories');
+    final list = jsonDecode(body) as List<dynamic>;
+    return list
+        .map((e) => e is Map<String, dynamic> ? e['name'] as String? : null)
+        .whereType<String>()
+        .where((n) => n.isNotEmpty)
+        .toList();
   }
 
   // ── Videos ──

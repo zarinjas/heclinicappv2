@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
@@ -9,6 +10,9 @@ import '../../core/services/cms_api.dart';
 import '../../core/services/models/article.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_error_state.dart';
+import '../../core/widgets/article_card.dart';
+import '../../core/widgets/html_content_view.dart';
+import '../../core/widgets/section_header.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   const ArticleDetailScreen({super.key, this.articleTitle, this.articleSlug});
@@ -205,6 +209,24 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (article.category != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.space8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.space8,
+                        vertical: AppSpacing.space4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+                      ),
+                      child: Text(
+                        article.category!,
+                        style: AppTextStyles.caption.copyWith(color: AppColors.accent),
+                      ),
+                    ),
+                  ),
                 Text(
                   article.title,
                   style: AppTextStyles.heading2.copyWith(color: titleColor),
@@ -215,67 +237,82 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
                 ),
                 const SizedBox(height: AppSpacing.space16),
-                _buildHtmlContent(article.body, bodyTextColor),
+                HtmlContentView(
+                  html: article.body,
+                  textColor: bodyTextColor,
+                ),
               ],
+            ),
+          ),
+          _buildSuggestedArticles(isDark),
+          const SizedBox(height: AppSpacing.space24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestedArticles(bool isDark) {
+    if (_article == null) return const SizedBox.shrink();
+
+    final current = _article!;
+    final suggested = ArticleService.instance.articles
+        .where((a) => a.slug != current.slug)
+        .toList();
+    suggested.sort((a, b) {
+      final aMatch = a.category != null &&
+          a.category!.toLowerCase() == (current.category ?? '').toLowerCase();
+      final bMatch = b.category != null &&
+          b.category!.toLowerCase() == (current.category ?? '').toLowerCase();
+      if (aMatch != bMatch) return aMatch ? -1 : 1;
+      return 0;
+    });
+    final items = suggested.take(6).toList();
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.space16,
+        AppSpacing.space8,
+        AppSpacing.space16,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(
+            title: 'Suggested for you',
+            onSeeAll: () => context.pushNamed('/articlesList'),
+          ),
+          const SizedBox(height: AppSpacing.space12),
+          SizedBox(
+            height: 296,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.space12),
+              itemBuilder: (_, i) {
+                final a = items[i];
+                return SizedBox(
+                  width: 220,
+                  child: ArticleCard(
+                    imageUrl: a.featuredImage ?? '',
+                    placeholderGradient: a.placeholderGradient,
+                    title: a.title,
+                    excerpt: a.excerpt,
+                    author: a.authorName ?? '',
+                    date: a.dateDisplay,
+                    categoryLabel: a.category,
+                    onTap: () => context.pushNamed(
+                      '/articleDetail',
+                      queryParameters: {'articleSlug': a.slug},
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildHtmlContent(String html, Color textColor) {
-    final parts = _parseSimpleHtml(html);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: parts.map((part) {
-        switch (part.type) {
-          case _HtmlPartType.paragraph:
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.space12),
-              child: Text(
-                part.text,
-                style: AppTextStyles.body1.copyWith(
-                  color: textColor,
-                  height: 1.6,
-                ),
-              ),
-            );
-          case _HtmlPartType.heading:
-            return Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.space12, bottom: AppSpacing.space8),
-              child: Text(
-                part.text,
-                style: AppTextStyles.heading3.copyWith(
-                  color: textColor,
-                  height: 1.4,
-                ),
-              ),
-            );
-        }
-      }).toList(),
-    );
-  }
-
-  List<_HtmlPart> _parseSimpleHtml(String html) {
-    final parts = <_HtmlPart>[];
-    final regex = RegExp(r'<(h3|p)>(.*?)</\1>', dotAll: true);
-    for (final match in regex.allMatches(html)) {
-      final tag = match.group(1)!;
-      final text = match.group(2)!.replaceAll(RegExp(r'<[^>]+>'), '').trim();
-      parts.add(_HtmlPart(
-        type: tag == 'h3' ? _HtmlPartType.heading : _HtmlPartType.paragraph,
-        text: text,
-      ));
-    }
-    return parts;
-  }
-}
-
-enum _HtmlPartType { paragraph, heading }
-
-class _HtmlPart {
-  final _HtmlPartType type;
-  final String text;
-  _HtmlPart({required this.type, required this.text});
 }

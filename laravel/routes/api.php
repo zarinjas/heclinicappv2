@@ -90,9 +90,10 @@ Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])
 
 Route::get('/v2/cms/articles', [ApiCmsArticleController::class, 'index'])
     ->name('cms.articles');
+Route::get('/v2/cms/article-categories', [ApiCmsArticleController::class, 'categories'])
+    ->name('cms.articles.categories');
 Route::get('/v2/cms/articles/{slug}', [ApiCmsArticleController::class, 'show'])
     ->name('cms.articles.show');
-
 Route::get('/v2/cms/sliders', [ApiCmsSliderController::class, 'index'])
     ->name('cms.sliders');
 

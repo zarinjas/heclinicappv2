@@ -15,6 +15,8 @@ class CmsArticle extends Model
         'excerpt',
         'featured_image',
         'category',
+        'category_id',
+        'is_featured',
         'author_name',
         'status',
         'sort_order',
@@ -26,8 +28,14 @@ class CmsArticle extends Model
     {
         return [
             'sort_order' => 'integer',
+            'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    public function categoryRelation()
+    {
+        return $this->belongsTo(CmsArticleCategory::class, 'category_id');
     }
 
     public function getFeaturedImageUrlAttribute(): ?string
