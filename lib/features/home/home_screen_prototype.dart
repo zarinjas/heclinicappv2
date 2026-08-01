@@ -3,6 +3,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_spacing.dart';
+import '/core/services/hero_service.dart';
+import '/core/services/doctor_service.dart';
+import '/core/services/branch_service.dart';
+import '/core/services/article_service.dart';
+import '/core/services/video_service.dart';
+import '/core/services/models/hero_banner.dart';
+import '/core/services/models/doctor.dart';
+import '/core/services/models/branch.dart';
+import '/core/services/models/article.dart';
+import '/core/services/models/video.dart';
 import '/core/widgets/appointment_card.dart';
 import '/core/widgets/app_chip.dart';
 import '/core/widgets/article_card.dart';
@@ -27,6 +37,38 @@ class HomeScreenPrototype extends StatefulWidget {
 class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   int _navIndex = 0;
 
+  List<HeroBanner> _heroBanners = HeroBanner.fallbackList;
+  List<Doctor> _doctors = Doctor.fallbackList;
+  List<Branch> _branches = Branch.fallbackList;
+  List<Article> _articles = Article.fallbackList;
+  List<Video> _videos = Video.fallbackList;
+
+  @override
+  void initState() {
+    super.initState();
+    _initServices();
+  }
+
+  Future<void> _initServices() async {
+    await Future.wait([
+      HeroService.instance.init(),
+      DoctorService.instance.init(),
+      BranchService.instance.init(),
+      ArticleService.instance.init(),
+      VideoService.instance.init(),
+    ]);
+
+    if (mounted) {
+      setState(() {
+        _heroBanners = HeroService.instance.banners;
+        _doctors = DoctorService.instance.doctors;
+        _branches = BranchService.instance.branches;
+        _articles = ArticleService.instance.articles;
+        _videos = VideoService.instance.videos;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +88,14 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
                   notificationCount: 3,
                 ),
                 const SizedBox(height: AppSpacing.space24),
-                GradientHeroSlider(slides: kHeroSlides)
+                GradientHeroSlider(
+                  slides: _heroBanners.map((b) => GradientHeroSlide(
+                    title: b.title,
+                    subtitle: b.subtitle,
+                    cta: b.cta,
+                    gradient: b.gradient,
+                  )).toList(),
+                )
                     .animate()
                     .fadeIn(duration: 400.ms, delay: 100.ms)
                     .slideY(begin: 0.05, end: 0),
@@ -86,15 +135,16 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
                       const SectionHeader(title: 'Upcoming Appointment'),
                       const SizedBox(height: AppSpacing.space12),
                       AppointmentCard(
-                        doctorInitials: kDoctorInitials,
-                        doctorGradient: kDoctorGradient,
-                        doctorName: 'Dr. Ahmad Rizal',
-                        specialty: 'General Practitioner',
-                        branchName: 'TTDI Branch',
-                        date: '14 Jul 2025',
+                        doctorPhotoUrl: _doctors.isNotEmpty ? _doctors.first.photoUrl : null,
+                        doctorInitials: _doctors.isNotEmpty ? _doctors.first.initials : '?',
+                        doctorGradient: _doctors.isNotEmpty ? _doctors.first.avatarGradient : const [AppColors.accent, AppColors.primary],
+                        doctorName: _doctors.isNotEmpty ? _doctors.first.name : 'No doctor available',
+                        specialty: _doctors.isNotEmpty ? _doctors.first.specialty : '',
+                        branchName: _branches.isNotEmpty ? _branches.first.name : 'No branch',
+                        date: '${DateTime.now().add(const Duration(days: 2)).day} Jul ${DateTime.now().year}',
                         time: '10:30 AM',
                         status: StatusChipVariant.confirmed,
-                        countdownDueAt: kUpcomingAt,
+                        countdownDueAt: DateTime.now().add(const Duration(days: 2, hours: 14, minutes: 32)),
                       ),
                     ],
                   ),
@@ -161,32 +211,7 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   }
 
   Widget _buildDoctorsSection() {
-    const doctors = [
-      _DoctorInfo(
-        name: 'Dr. Sarah Lim',
-        specialty: 'Cardiologist',
-        initials: 'SL',
-        gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)],
-      ),
-      _DoctorInfo(
-        name: 'Dr. Tan Wei Ming',
-        specialty: 'Dermatologist',
-        initials: 'TW',
-        gradient: [Color(0xFFF5A623), Color(0xFFF54636)],
-      ),
-      _DoctorInfo(
-        name: 'Dr. Wong Mei Ling',
-        specialty: 'Pediatrician',
-        initials: 'WM',
-        gradient: [Color(0xFF27F5A3), Color(0xFF2868F5)],
-      ),
-      _DoctorInfo(
-        name: 'Dr. Ahmad Rizal',
-        specialty: 'General Practitioner',
-        initials: 'AR',
-        gradient: [Color(0xFF2868F5), Color(0xFF131C3C)],
-      ),
-    ];
+    final doctors = _doctors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +222,7 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
         ),
         const SizedBox(height: AppSpacing.space12),
         SizedBox(
-          height: 148,
+          height: 200,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
@@ -208,8 +233,9 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
               return SizedBox(
                 width: 120,
                 child: DoctorCard(
+                  photoUrl: d.photoUrl,
                   initials: d.initials,
-                  avatarGradient: d.gradient,
+                  avatarGradient: d.avatarGradient,
                   name: d.name,
                   specialty: d.specialty,
                   variant: DoctorCardVariant.horizontal,
@@ -223,14 +249,7 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   }
 
   Widget _buildBranchesSection() {
-    const branches = [
-      (name: 'TTDI Clinic', address: 'Jalan Burhanuddin Helmi', distance: '1.2 km',
-       gradient: [Color(0xFF131C3C), Color(0xFF1D2B5F)]),
-      (name: 'Bangsar Village', address: 'Jalan Telawi 3', distance: '4.8 km',
-       gradient: [Color(0xFF3B8DFF), Color(0xFF2868F5)]),
-      (name: 'Petaling Jaya', address: 'Jalan Sultan, PJ State', distance: '6.5 km',
-       gradient: [Color(0xFF1D2B5F), Color(0xFF3B8DFF)]),
-    ];
+    final branches = _branches;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,8 +273,8 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
                 child: BranchCard(
                   name: b.name,
                   address: b.address,
-                  distance: b.distance,
-                  leadingGradient: b.gradient,
+                  imageUrl: b.imageUrl,
+                  leadingGradient: b.leadingGradient,
                   leadingLabel: 'Clinic',
                 ),
               );
@@ -267,32 +286,7 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   }
 
   Widget _buildArticlesSection() {
-    const articles = [
-      (
-        category: 'Wellness',
-        title: '10 habits for a healthier heart',
-        excerpt: 'Small daily changes that protect your cardiovascular system.',
-        author: 'Dr. Sarah Lim',
-        readTime: '4 min read',
-        gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)],
-      ),
-      (
-        category: 'Nutrition',
-        title: 'Mediterranean diet, simplified',
-        excerpt: 'A practical starter guide for busy adults living in KL.',
-        author: 'Chef Aina Yusof',
-        readTime: '6 min read',
-        gradient: [Color(0xFFF5A623), Color(0xFFF54636)],
-      ),
-      (
-        category: 'Mental Health',
-        title: 'Sleep and stress: the loop',
-        excerpt: 'Why poor sleep amplifies anxiety and how to break the cycle.',
-        author: 'Dr. Kavita Menon',
-        readTime: '5 min read',
-        gradient: [Color(0xFF2868F5), Color(0xFF131C3C)],
-      ),
-    ];
+    final articles = _articles.take(3).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,12 +308,12 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
               return SizedBox(
                 width: 220,
                 child: ArticleCard(
-                  imageUrl: '',
-                  placeholderGradient: a.gradient,
+                  imageUrl: a.featuredImage ?? '',
+                  placeholderGradient: a.placeholderGradient,
                   title: a.title,
                   excerpt: a.excerpt,
-                  author: a.author,
-                  date: a.readTime,
+                  author: a.authorName ?? '',
+                  date: a.dateDisplay,
                   categoryLabel: a.category,
                 ),
               );
@@ -331,32 +325,7 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   }
 
   Widget _buildVideosSection() {
-    const videos = [
-      (
-        title: 'Understanding your blood pressure numbers',
-        handle: '@heclinic',
-        duration: '2:14',
-        gradient: [Color(0xFF3B8DFF), Color(0xFF131C3C)],
-      ),
-      (
-        title: '5-minute morning stretch routine',
-        handle: '@heclinic',
-        duration: '4:52',
-        gradient: [Color(0xFF27F5A3), Color(0xFF2868F5)],
-      ),
-      (
-        title: 'What to expect at your first visit',
-        handle: '@heclinic',
-        duration: '1:48',
-        gradient: [Color(0xFFF5A623), Color(0xFFF54636)],
-      ),
-      (
-        title: 'Healthy meal prep, KL edition',
-        handle: '@heclinic',
-        duration: '3:21',
-        gradient: [Color(0xFF1D2B5F), Color(0xFF3B8DFF)],
-      ),
-    ];
+    final videos = _videos.take(4).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
@@ -378,11 +347,10 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
             itemBuilder: (_, i) {
               final v = videos[i];
               return VideoCard(
-                thumbnailUrl: '',
-                placeholderGradient: v.gradient,
+                thumbnailUrl: v.thumbnailUrl ?? '',
+                placeholderGradient: v.placeholderGradient,
                 title: v.title,
-                author: v.handle,
-                durationLabel: v.duration,
+                author: v.author,
                 videoAspectRatio: 9 / 16,
                 platformLabel: 'TikTok',
               );
@@ -394,15 +362,3 @@ class _HomeScreenPrototypeState extends State<HomeScreenPrototype> {
   }
 }
 
-class _DoctorInfo {
-  final String name;
-  final String specialty;
-  final String initials;
-  final List<Color> gradient;
-  const _DoctorInfo({
-    required this.name,
-    required this.specialty,
-    required this.initials,
-    required this.gradient,
-  });
-}

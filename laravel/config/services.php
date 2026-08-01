@@ -40,4 +40,15 @@ return [
         'base_url' => env('PLATO_BASE_URL', 'https://clinic.platomedical.com/api/hemedclinic'),
     ],
 
+    // OTP delivery channel: 'email' (Resend) | 'whatsapp' (OneSender)
+    'otp' => [
+        'channel' => env('OTP_CHANNEL', 'email'),
+    ],
+
+    'onesender' => [
+        'url' => env('ONESENDER_URL'),
+        'key' => env('ONESENDER_KEY'),
+        'clinic_whatsapp' => env('ONESENDER_CLINIC_WHATSAPP', '601167208860'),
+    ],
+
 ];

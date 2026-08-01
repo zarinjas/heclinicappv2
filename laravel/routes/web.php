@@ -1,18 +1,22 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\BranchController;
+use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsArticleController;
-use App\Http\Controllers\Admin\CmsSliderController;
+use App\Http\Controllers\Admin\CmsLegalPageController;
+use App\Http\Controllers\Admin\CmsOnboardingSlideController;
+use App\Http\Controllers\Admin\CmsPromotionController;
 use App\Http\Controllers\Admin\CmsServicePackageController;
+use App\Http\Controllers\Admin\CmsSliderController;
 use App\Http\Controllers\Admin\CmsVideoController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
-use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\PlatoSettingsController;
 use App\Http\Controllers\Admin\WhatsAppController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,9 +62,18 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::resource('articles', CmsArticleController::class);
             Route::resource('videos', CmsVideoController::class);
             Route::post('videos/fetch-info', [CmsVideoController::class, 'fetchInfo'])->name('videos.fetch-info');
+            Route::resource('promotions', CmsPromotionController::class);
+            Route::resource('onboarding', CmsOnboardingSlideController::class);
+            Route::resource('legal', CmsLegalPageController::class);
         });
 
         Route::get('branding', [BrandingController::class, 'index'])->name('branding');
         Route::post('branding', [BrandingController::class, 'update'])->name('branding.update');
+    });
+
+    Route::middleware(['auth', 'role:super_admin'])->group(function (): void {
+        Route::get('settings/plato', [PlatoSettingsController::class, 'index'])->name('settings.plato');
+        Route::post('settings/plato', [PlatoSettingsController::class, 'update'])->name('settings.plato.update');
+        Route::post('settings/plato/test', [PlatoSettingsController::class, 'testConnection'])->name('settings.plato.test');
     });
 });

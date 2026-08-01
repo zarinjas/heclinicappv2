@@ -5,10 +5,12 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_shadows.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/services/package_service.dart';
+import '../../core/services/models/service_package.dart';
 import '../../core/widgets/app_app_bar.dart';
+import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
-import '../../core/widgets/app_skeleton.dart';
 
 class PackagesScreen extends StatefulWidget {
   const PackagesScreen({super.key});
@@ -23,26 +25,29 @@ class _PackagesScreenState extends State<PackagesScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
-  final List<_PackageData> _packages = [];
+  List<ServicePackage> _packages = [];
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _loadPackages();
   }
 
-  Future<void> _loadInitialData() async {
+  Future<void> _loadPackages() async {
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      _packages.clear();
-      _packages.addAll(_generateMockPackages());
+      final service = PackageService.instance;
+      await service.refresh();
+
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _packages = service.packages;
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -50,38 +55,10 @@ class _PackagesScreenState extends State<PackagesScreen> {
           _isLoading = false;
           _hasError = true;
           _errorMessage = e.toString();
+          _packages = ServicePackage.fallbackList;
         });
       }
     }
-  }
-
-  List<_PackageData> _generateMockPackages() {
-    return [
-      _PackageData(
-        name: 'Pemeriksaan Kesihatan Asas',
-        description: 'Pemeriksaan fizikal lengkap, ujian darah, ujian air kencing, dan konsultasi doktor.',
-        price: 'RM 99',
-        imageUrl: 'https://via.placeholder.com/400x180/3B8DFF/FFFFFF?text=Pemeriksaan+Asas',
-      ),
-      _PackageData(
-        name: 'Pemeriksaan Kesihatan Komprehensif',
-        description: 'Termasuk ujian darah lengkap, ujian fungsi hati & buah pinggang, ECG, X-Ray dada, dan konsultasi.',
-        price: 'RM 299',
-        imageUrl: 'https://via.placeholder.com/400x180/27F5A3/131C3C?text=Pemeriksaan+Komprehensif',
-      ),
-      _PackageData(
-        name: 'Pakej Vaksinasi',
-        description: 'Vaksinasi Influenza, Hepatitis B, Tetanus, dan konsultasi vaksinasi.',
-        price: 'RM 199',
-        imageUrl: 'https://via.placeholder.com/400x180/F5A623/131C3C?text=Pakej+Vaksinasi',
-      ),
-      _PackageData(
-        name: 'Pakej Saringan Wanita',
-        description: 'Pap Smear, ultrasound pelvis, pemeriksaan payudara, dan konsultasi pakar.',
-        price: 'RM 249',
-        imageUrl: 'https://via.placeholder.com/400x180/F54636/FFFFFF?text=Saringan+Wanita',
-      ),
-    ];
   }
 
   Widget _buildSkeleton() {
@@ -100,7 +77,7 @@ class _PackagesScreenState extends State<PackagesScreen> {
           decoration: BoxDecoration(
             color: isDark ? AppColors.surfaceDark : AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-            boxShadow: [AppShadows.shadowLow],
+            boxShadow: AppShadows.shadowLow,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,17 +169,17 @@ class _PackagesScreenState extends State<PackagesScreen> {
       return _buildSkeleton();
     }
 
-    if (_hasError) {
+    if (_hasError && _packages.isEmpty) {
       return AppErrorState(
         title: 'Could not load packages',
         subtitle: _errorMessage,
-        onRetry: _loadInitialData,
+        onRetry: _loadPackages,
       );
     }
 
     if (_packages.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _loadInitialData,
+        onRefresh: _loadPackages,
         child: ListView(children: [_buildEmpty()]),
       );
     }
@@ -211,12 +188,13 @@ class _PackagesScreenState extends State<PackagesScreen> {
     final secondaryTextColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
     return RefreshIndicator(
-      onRefresh: _loadInitialData,
+      onRefresh: _loadPackages,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
         itemCount: _packages.length,
         itemBuilder: (context, index) {
           final pkg = _packages[index];
+          final imageUrl = pkg.imageUrl;
           return Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.space16,
@@ -226,30 +204,44 @@ class _PackagesScreenState extends State<PackagesScreen> {
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceDark : AppColors.surface,
                 borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-                boxShadow: [AppShadows.shadowLow],
+                boxShadow: AppShadows.shadowLow,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(AppRadius.radiusLG),
-                      topRight: Radius.circular(AppRadius.radiusLG),
-                    ),
-                    child: Image.network(
-                      pkg.imageUrl,
-                      height: 140,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        height: 140,
-                        color: isDark ? AppColors.surfaceDark : AppColors.divider,
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 40,
-                          color: secondaryTextColor,
-                        ),
+                  Container(
+                    height: 100,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: pkg.placeholderGradient,
                       ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(AppRadius.radiusLG),
+                        topRight: Radius.circular(AppRadius.radiusLG),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(AppSpacing.space16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pkg.name,
+                          style: AppTextStyles.heading2.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.space4),
+                        Text(
+                          pkg.price,
+                          style: AppTextStyles.heading3.copyWith(
+                            color: Colors.white.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -258,20 +250,26 @@ class _PackagesScreenState extends State<PackagesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          pkg.name,
-                          style: AppTextStyles.heading3.copyWith(color: titleColor),
+                          'Includes:',
+                          style: AppTextStyles.label.copyWith(
+                            color: secondaryTextColor,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.space8),
                         Text(
                           pkg.description,
-                          style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.body1.copyWith(
+                            color: titleColor,
+                          ),
                         ),
-                        const SizedBox(height: AppSpacing.space12),
-                        Text(
-                          pkg.price,
-                          style: AppTextStyles.heading2.copyWith(color: AppColors.accent),
+                        const SizedBox(height: AppSpacing.space16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: AppButton.ghost(
+                            label: 'Learn More',
+                            onPressed: () {},
+                            isFullWidth: true,
+                          ),
                         ),
                       ],
                     ),
@@ -284,18 +282,4 @@ class _PackagesScreenState extends State<PackagesScreen> {
       ),
     );
   }
-}
-
-class _PackageData {
-  final String name;
-  final String description;
-  final String price;
-  final String imageUrl;
-
-  _PackageData({
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.imageUrl,
-  });
 }

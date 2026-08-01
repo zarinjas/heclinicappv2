@@ -5,6 +5,16 @@ import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
 import '/core/theme/app_text_styles.dart';
+import '/core/services/hero_service.dart';
+import '/core/services/doctor_service.dart';
+import '/core/services/branch_service.dart';
+import '/core/services/article_service.dart';
+import '/core/services/video_service.dart';
+import '/core/services/models/hero_banner.dart';
+import '/core/services/models/doctor.dart';
+import '/core/services/models/branch.dart';
+import '/core/services/models/article.dart';
+import '/core/services/models/video.dart';
 import '/core/widgets/appointment_card.dart';
 import '/core/widgets/app_chip.dart';
 import '/core/widgets/article_card.dart';
@@ -16,16 +26,52 @@ import '/core/widgets/loyalty_card.dart';
 import '/core/widgets/section_header.dart';
 import '/core/widgets/video_card.dart';
 
-class HomeScreenContent extends StatelessWidget {
+class HomeScreenContent extends StatefulWidget {
   final void Function(String route) onNavigate;
   const HomeScreenContent({super.key, required this.onNavigate});
+
+  @override
+  State<HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<HomeScreenContent> {
+  List<HeroBanner> _heroBanners = HeroBanner.fallbackList;
+  List<Doctor> _doctors = Doctor.fallbackList;
+  List<Branch> _branches = Branch.fallbackList;
+  List<Article> _articles = Article.fallbackList;
+  List<Video> _videos = Video.fallbackList;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    if (!mounted) return;
+    setState(() {
+      _heroBanners = HeroService.instance.banners;
+      _doctors = DoctorService.instance.doctors;
+      _branches = BranchService.instance.branches;
+      _articles = ArticleService.instance.articles;
+      _videos = VideoService.instance.videos;
+    });
+    debugPrint('[HomeScreen] loaded ${_doctors.length} doctors, ${_branches.length} branches');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GradientHeroSlider(slides: kHeroSlides)
+        GradientHeroSlider(
+          slides: _heroBanners.map((b) => GradientHeroSlide(
+            title: b.title,
+            subtitle: b.subtitle,
+            cta: b.cta,
+            gradient: b.gradient,
+          )).toList(),
+        )
             .animate()
             .fadeIn(duration: 400.ms, delay: 100.ms)
             .slideY(begin: 0.05, end: 0),
@@ -35,25 +81,25 @@ class HomeScreenContent extends StatelessWidget {
             icon: Icons.event_available_outlined,
             label: 'Book Visit',
             tint: const Color(0xFF3B8DFF),
-            onTap: () => onNavigate('/booking-branch'),
+            onTap: () => widget.onNavigate('/booking-branch'),
           ),
           CompactQuickAction(
             icon: Icons.folder_open_outlined,
             label: 'Records',
             tint: const Color(0xFF27F5A3),
-            onTap: () => onNavigate('/my-bookings'),
+            onTap: () => widget.onNavigate('/my-bookings'),
           ),
           CompactQuickAction(
             icon: Icons.video_call_outlined,
             label: 'Telehealth',
             tint: const Color(0xFFF5A623),
-            onTap: () => onNavigate('/telehealth'),
+            onTap: () => widget.onNavigate('/telehealth'),
           ),
           CompactQuickAction(
             icon: Icons.medical_information_outlined,
             label: 'Packages',
             tint: const Color(0xFF2868F5),
-            onTap: () => onNavigate('/packages'),
+            onTap: () => widget.onNavigate('/packages'),
           ),
         ])
             .animate()
@@ -67,21 +113,22 @@ class HomeScreenContent extends StatelessWidget {
             children: [
               SectionHeader(
                 title: 'Upcoming Appointment',
-                onSeeAll: () => onNavigate('/my-bookings'),
+                onSeeAll: () => widget.onNavigate('/my-bookings'),
               ),
               const SizedBox(height: AppSpacing.space12),
               AppointmentCard(
-                doctorInitials: 'AR',
-                doctorGradient: const [Color(0xFF2868F5), Color(0xFF131C3C)],
-                doctorName: 'Dr. Ahmad Rizal',
-                specialty: 'General Practitioner',
-                branchName: 'TTDI Branch',
-                date: '14 Jul 2025',
+                doctorPhotoUrl: _doctors.isNotEmpty ? _doctors.first.photoUrl : null,
+                doctorInitials: _doctors.isNotEmpty ? _doctors.first.initials : '?',
+                doctorGradient: _doctors.isNotEmpty ? _doctors.first.avatarGradient : const [AppColors.accent, AppColors.primary],
+                doctorName: _doctors.isNotEmpty ? _doctors.first.name : 'No doctor available',
+                specialty: _doctors.isNotEmpty ? _doctors.first.specialty : '',
+                branchName: _branches.isNotEmpty ? _branches.first.name : 'No branch',
+                date: '${DateTime.now().add(const Duration(days: 2)).day} Jul ${DateTime.now().year}',
                 time: '10:30 AM',
                 status: StatusChipVariant.confirmed,
                 countdownDueAt: DateTime.now().add(const Duration(days: 2, hours: 14, minutes: 32)),
-                onTap: () => onNavigate('/appointment-detail'),
-                onDetailsTap: () => onNavigate('/appointment-detail'),
+                onTap: () => widget.onNavigate('/appointment-detail'),
+                onDetailsTap: () => widget.onNavigate('/appointment-detail'),
                 onAddToCalendar: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -106,35 +153,35 @@ class HomeScreenContent extends StatelessWidget {
             showProgress: true,
             progressValue: 2450 / 3000,
             progressLabel: '550 pts to Platinum tier',
-            onRedeem: () => onNavigate('/my-points'),
-            onViewHistory: () => onNavigate('/my-points'),
+            onRedeem: () => widget.onNavigate('/my-points'),
+            onViewHistory: () => widget.onNavigate('/my-points'),
           ),
         )
             .animate()
             .fadeIn(duration: 400.ms, delay: 400.ms)
             .slideY(begin: 0.05, end: 0),
         const SizedBox(height: AppSpacing.space32),
-        _buildVouchersSection(context, onNavigate)
+        _buildVouchersSection(context, widget.onNavigate)
             .animate()
             .fadeIn(duration: 400.ms, delay: 450.ms)
             .slideY(begin: 0.05, end: 0),
         const SizedBox(height: AppSpacing.space32),
-        _buildDoctorsSection(onNavigate)
+        _buildDoctorsSection(widget.onNavigate)
             .animate()
             .fadeIn(duration: 400.ms, delay: 500.ms)
             .slideY(begin: 0.05, end: 0),
         const SizedBox(height: AppSpacing.space24),
-        _buildBranchesSection(onNavigate)
+        _buildBranchesSection(widget.onNavigate)
             .animate()
             .fadeIn(duration: 400.ms, delay: 600.ms)
             .slideY(begin: 0.05, end: 0),
         const SizedBox(height: AppSpacing.space32),
-        _buildArticlesSection(onNavigate)
+        _buildArticlesSection(widget.onNavigate)
             .animate()
             .fadeIn(duration: 400.ms, delay: 700.ms)
             .slideY(begin: 0.05, end: 0),
         const SizedBox(height: AppSpacing.space32),
-        _buildVideosSection(onNavigate)
+        _buildVideosSection(widget.onNavigate)
             .animate()
             .fadeIn(duration: 400.ms, delay: 800.ms)
             .slideY(begin: 0.05, end: 0),
@@ -142,39 +189,8 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static const kHeroSlides = <GradientHeroSlide>[
-    GradientHeroSlide(
-      title: 'Book your annual\nhealth check today',
-      subtitle: 'Comprehensive screening from RM 199',
-      cta: 'Book Now',
-      gradient: [Color(0xFF131C3C), Color(0xFF3B8DFF)],
-    ),
-    GradientHeroSlide(
-      title: 'Telehealth consultation\nin minutes',
-      subtitle: 'Connect with a doctor from home',
-      cta: 'Start Now',
-      gradient: [Color(0xFF2868F5), Color(0xFF27F5A3)],
-    ),
-    GradientHeroSlide(
-      title: 'Earn points on every\nclinic visit',
-      subtitle: 'Redeem for discounts and rewards',
-      cta: 'Learn More',
-      gradient: [Color(0xFF1D2B5F), Color(0xFFF5A623)],
-    ),
-  ];
-
-  static Widget _buildDoctorsSection(void Function(String) nav) {
-    const doctors = [
-      (name: 'Dr. Sarah Lim', specialty: 'Cardiologist', initials: 'SL',
-       gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)]),
-      (name: 'Dr. Tan Wei Ming', specialty: 'Dermatologist', initials: 'TW',
-       gradient: [Color(0xFFF5A623), Color(0xFFF54636)]),
-      (name: 'Dr. Wong Mei Ling', specialty: 'Pediatrician', initials: 'WM',
-       gradient: [Color(0xFF27F5A3), Color(0xFF2868F5)]),
-      (name: 'Dr. Ahmad Rizal', specialty: 'GP', initials: 'AR',
-       gradient: [Color(0xFF2868F5), Color(0xFF131C3C)]),
-    ];
-
+  Widget _buildDoctorsSection(void Function(String) nav) {
+    final doctors = _doctors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -184,7 +200,7 @@ class HomeScreenContent extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.space12),
         SizedBox(
-          height: 180,
+          height: 210,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
@@ -195,8 +211,9 @@ class HomeScreenContent extends StatelessWidget {
               return SizedBox(
                 width: 120,
                 child: DoctorCard(
+                  photoUrl: d.photoUrl,
                   initials: d.initials,
-                  avatarGradient: d.gradient,
+                  avatarGradient: d.avatarGradient,
                   name: d.name,
                   specialty: d.specialty,
                   variant: DoctorCardVariant.horizontal,
@@ -210,16 +227,8 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static Widget _buildBranchesSection(void Function(String) nav) {
-    const branches = [
-      (name: 'TTDI Clinic', address: 'Jalan Burhanuddin Helmi', distance: '1.2 km',
-       gradient: [Color(0xFF131C3C), Color(0xFF1D2B5F)]),
-      (name: 'Bangsar Village', address: 'Jalan Telawi 3', distance: '4.8 km',
-       gradient: [Color(0xFF3B8DFF), Color(0xFF2868F5)]),
-      (name: 'Petaling Jaya', address: 'Jalan Sultan', distance: '6.5 km',
-       gradient: [Color(0xFF1D2B5F), Color(0xFF3B8DFF)]),
-    ];
-
+  Widget _buildBranchesSection(void Function(String) nav) {
+    final branches = _branches;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -242,8 +251,8 @@ class HomeScreenContent extends StatelessWidget {
                 child: BranchCard(
                   name: b.name,
                   address: b.address,
-                  distance: b.distance,
-                  leadingGradient: b.gradient,
+                  imageUrl: b.imageUrl,
+                  leadingGradient: b.leadingGradient,
                   leadingLabel: 'Clinic',
                   onTap: () => nav('/branch-detail'),
                 ),
@@ -255,22 +264,8 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static Widget _buildArticlesSection(void Function(String) nav) {
-    const articles = [
-      (category: 'Wellness', title: '10 habits for a healthier heart',
-       excerpt: 'Small daily changes that protect your cardiovascular system.',
-       author: 'Dr. Sarah Lim', readTime: '4 min read',
-       gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)]),
-      (category: 'Nutrition', title: 'Mediterranean diet, simplified',
-       excerpt: 'A practical starter guide for busy adults living in KL.',
-       author: 'Chef Aina Yusof', readTime: '6 min read',
-       gradient: [Color(0xFFF5A623), Color(0xFFF54636)]),
-      (category: 'Mental Health', title: 'Sleep and stress: the loop',
-       excerpt: 'Why poor sleep amplifies anxiety and how to break the cycle.',
-       author: 'Dr. Kavita Menon', readTime: '5 min read',
-       gradient: [Color(0xFF2868F5), Color(0xFF131C3C)]),
-    ];
-
+  Widget _buildArticlesSection(void Function(String) nav) {
+    final articles = _articles.take(3).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -291,12 +286,12 @@ class HomeScreenContent extends StatelessWidget {
               return SizedBox(
                 width: 220,
                 child: ArticleCard(
-                  imageUrl: '',
-                  placeholderGradient: a.gradient,
+                  imageUrl: a.featuredImage ?? '',
+                  placeholderGradient: a.placeholderGradient,
                   title: a.title,
                   excerpt: a.excerpt,
-                  author: a.author,
-                  date: a.readTime,
+                  author: a.authorName ?? '',
+                  date: a.dateDisplay,
                   categoryLabel: a.category,
                   onTap: () => nav('/article-detail'),
                 ),
@@ -308,18 +303,8 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static Widget _buildVideosSection(void Function(String) nav) {
-    const videos = [
-      (title: 'Understanding your blood pressure', handle: '@heclinic', duration: '2:14',
-       gradient: [Color(0xFF3B8DFF), Color(0xFF131C3C)]),
-      (title: '5-minute morning stretch routine', handle: '@heclinic', duration: '4:52',
-       gradient: [Color(0xFF27F5A3), Color(0xFF2868F5)]),
-      (title: 'What to expect at your first visit', handle: '@heclinic', duration: '1:48',
-       gradient: [Color(0xFFF5A623), Color(0xFFF54636)]),
-      (title: 'Healthy meal prep, KL edition', handle: '@heclinic', duration: '3:21',
-       gradient: [Color(0xFF1D2B5F), Color(0xFF3B8DFF)]),
-    ];
-
+  Widget _buildVideosSection(void Function(String) nav) {
+    final videos = _videos.take(4).toList();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space20),
       child: Column(
@@ -340,11 +325,10 @@ class HomeScreenContent extends StatelessWidget {
             itemBuilder: (_, i) {
               final v = videos[i];
               return VideoCard(
-                thumbnailUrl: '',
-                placeholderGradient: v.gradient,
+                thumbnailUrl: v.thumbnailUrl ?? '',
+                placeholderGradient: v.placeholderGradient,
                 title: v.title,
-                author: v.handle,
-                durationLabel: v.duration,
+                author: v.author,
                 videoAspectRatio: 9 / 16,
                 platformLabel: 'TikTok',
                 onTap: () => nav('/videos-list'),
@@ -356,7 +340,7 @@ class HomeScreenContent extends StatelessWidget {
     );
   }
 
-  static Widget _buildVouchersSection(BuildContext context, void Function(String) nav) {
+  Widget _buildVouchersSection(BuildContext context, void Function(String) nav) {
     const vouchers = [
       (discount: 'RM 30 OFF', title: 'Basic Health Screening', expiry: '3 days left',
        gradient: [Color(0xFF3B8DFF), Color(0xFF27F5A3)], isLimited: true),

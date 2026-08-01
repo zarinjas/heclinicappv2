@@ -36,13 +36,17 @@ final class NotificationService
         );
 
         if (in_array('push', $selectedChannels, true)) {
+            $patientId = $this->resolvePatientId($appointment);
             $this->sendPush($title, $body, [
                 'parameter_data' => json_encode([
                     'appointment_id' => $appointment->id,
                     'plato_appointment_id' => $appointment->plato_appointment_id,
+                    'patient_plato_id' => $patientId,
                 ]),
-                'initial_page_name' => 'Appointments',
+                'initial_page_name' => 'MyBookingPage',
                 'target_audience' => 'All',
+                'type' => 'appointment_confirmed',
+                'patient_ids' => $patientId !== null ? [$patientId] : [],
             ]);
         }
 
@@ -165,13 +169,17 @@ final class NotificationService
         $channels = ['push', 'in_app'];
 
         if (in_array('push', $channels, true)) {
+            $patientId = $this->resolvePatientId($appointment);
             $this->sendPush($title, $body, [
                 'parameter_data' => json_encode([
                     'appointment_id' => $appointment->id,
                     'plato_appointment_id' => $appointment->plato_appointment_id,
+                    'patient_plato_id' => $patientId,
                 ]),
-                'initial_page_name' => 'Appointments',
+                'initial_page_name' => 'MyBookingPage',
                 'target_audience' => 'All',
+                'type' => 'appointment_reminder',
+                'patient_ids' => $patientId !== null ? [$patientId] : [],
             ]);
         }
 
@@ -209,8 +217,10 @@ final class NotificationService
                     'filename' => $filename,
                     'patient_plato_id' => $patientPlatoId,
                 ]),
-                'initial_page_name' => 'Health',
+                'initial_page_name' => 'Reports',
                 'target_audience' => 'All',
+                'type' => 'document_uploaded',
+                'patient_ids' => [$patientPlatoId],
             ]);
         }
 
@@ -225,6 +235,70 @@ final class NotificationService
             'target_type' => 'patient',
             'target_ids' => [$patientPlatoId],
             'channels' => $channels,
+            'status' => 'sent',
+            'sent_at' => now(),
+        ]);
+    }
+
+    public function sendManualNotification(NotificationLog $log): void
+    {
+        $channels = $log->channels ?? [];
+        $targetType = $log->target_type;
+        $targetIds = $log->target_ids ?? [];
+
+        $patientId = null;
+        if ($targetType === 'specific_patient' && ! empty($log->target_ids)) {
+            $patientId = $this->resolvePatientIdByTerm((string) $log->target_ids[0]);
+        }
+
+        if (in_array('push', $channels, true)) {
+            if ($targetType === 'specific_patient' && $patientId === null) {
+                Log::channel('plato')->warning('Manual push skipped — could not resolve specific patient', [
+                    'notification_log_id' => $log->id,
+                    'term' => $log->target_ids[0] ?? null,
+                ]);
+            } else {
+                $pushData = [
+                    'parameter_data' => json_encode(['patient_id' => $patientId]),
+                    'initial_page_name' => 'notificationPage',
+                    'target_audience' => 'All',
+                    'type' => 'manual',
+                ];
+
+                if ($targetType === 'branch') {
+                    $pushData['branch_ids'] = $targetIds;
+                } elseif ($targetType === 'doctor') {
+                    $pushData['doctor_ids'] = $targetIds;
+                } elseif ($targetType === 'appointment_date_range') {
+                    $pushData['target_date_range'] = [
+                        'from' => $log->target_date_from?->format('Y-m-d'),
+                        'to' => $log->target_date_to?->format('Y-m-d'),
+                    ];
+                } elseif ($patientId !== null) {
+                    $pushData['patient_ids'] = [$patientId];
+                }
+
+                $this->sendPush($log->title, $log->body, $pushData);
+            }
+        }
+
+        if (in_array('email', $channels, true)) {
+            if ($patientId !== null) {
+                $recipientEmail = $this->resolvePatientEmailById($patientId);
+                $this->sendManualEmailNotification($log->title, $log->body, $recipientEmail, $log->image_url);
+            } else {
+                Log::channel('plato')->warning('Manual email notification skipped — target is not a single patient', [
+                    'notification_log_id' => $log->id,
+                    'target_type' => $targetType,
+                ]);
+            }
+        }
+
+        if (in_array('in_app', $channels, true)) {
+            $this->writeInAppNotify($log->title, $log->body, 'profile', 'manual', $patientId);
+        }
+
+        $log->update([
             'status' => 'sent',
             'sent_at' => now(),
         ]);
@@ -285,6 +359,99 @@ final class NotificationService
         }
     }
 
+    private function resolvePatientId(Appointment $appointment): ?string
+    {
+        if (! empty($appointment->patient_plato_id)) {
+            return $appointment->patient_plato_id;
+        }
+
+        $platoResponse = $appointment->plato_response ?? [];
+
+        if (! is_array($platoResponse)) {
+            return null;
+        }
+
+        $patientId = $platoResponse['data']['patient_id'] ?? $platoResponse['patient_id'] ?? null;
+
+        if (is_array($patientId)) {
+            $patientId = $patientId['id'] ?? $patientId['_id'] ?? null;
+        }
+
+        return $patientId !== null ? (string) $patientId : null;
+    }
+
+    private function resolvePatientIdByTerm(string $term): ?string
+    {
+        $term = trim($term);
+
+        if ($term === '') {
+            return null;
+        }
+
+        $query = ['current_page' => 1];
+
+        if (preg_match('/^\d{12}$/', $term)) {
+            $query['ic'] = $term;
+        } else {
+            $query['name'] = $term;
+        }
+
+        try {
+            $result = $this->platoProxy->proxy('GET', 'patient', $query);
+            $patients = $this->extractPatients($result);
+
+            foreach ($patients as $patient) {
+                if (! empty($patient['_id'])) {
+                    return (string) $patient['_id'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::channel('plato')->warning('Failed to resolve patient id from Plato', [
+                'term' => $term,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return null;
+    }
+
+    private function resolvePatientEmailById(string $patientId): ?string
+    {
+        try {
+            $result = $this->platoProxy->proxy('GET', "patient/{$patientId}");
+
+            $patient = $result['data'] ?? [];
+
+            if (is_array($patient) && ! empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
+                return $patient['email'];
+            }
+        } catch (\Exception $e) {
+            Log::channel('plato')->warning('Failed to resolve patient email by id from Plato', [
+                'patient_id' => $patientId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return null;
+    }
+
+    private function extractPatients(array $result): array
+    {
+        if (! empty($result['data']) && is_array($result['data'])) {
+            return $result['data'];
+        }
+
+        if (! empty($result['patients']) && is_array($result['patients'])) {
+            return $result['patients'];
+        }
+
+        if (! empty($result[0]) && is_array($result)) {
+            return $result;
+        }
+
+        return [];
+    }
+
     private function resolvePatientEmailForAppointment(Appointment $appointment): ?string
     {
         if (empty($appointment->patient_nric) && empty($appointment->patient_name)) {
@@ -305,16 +472,7 @@ final class NotificationService
             }
 
             $result = $this->platoProxy->proxy('GET', 'patient', $query);
-
-            if (!empty($result['data']) && is_array($result['data'])) {
-                $patients = $result['data'];
-            } elseif (!empty($result['patients']) && is_array($result['patients'])) {
-                $patients = $result['patients'];
-            } elseif (is_array($result) && !empty($result[0])) {
-                $patients = $result;
-            } else {
-                $patients = [];
-            }
+            $patients = $this->extractPatients($result);
 
             foreach ($patients as $patient) {
                 if (!empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {

@@ -10,7 +10,7 @@ import '/auth/base_auth_user_provider.dart';
 
 import '/backend/push_notifications/push_notifications_handler.dart'
     show PushNotificationsHandler;
-import '/main.dart';
+import '/features/shell/main_shell.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/lat_lng.dart';
 import '/flutter_flow/place.dart';
@@ -23,6 +23,35 @@ import '/pages/booking/doctor_selection_screen.dart';
 import '/pages/booking/date_time_slot_screen.dart';
 import '/pages/booking/confirmation_screen.dart';
 import '/pages/appointments/appointments_screen.dart';
+
+// New features/auth screens
+import '/features/auth/splash_screen.dart';
+import '/features/auth/onboarding_screen.dart';
+import '/features/auth/welcome_screen.dart';
+import '/features/auth/login_screen.dart';
+import '/features/auth/register_step1_screen.dart';
+import '/features/auth/register_step2_screen.dart';
+import '/features/auth/register_step3_screen.dart';
+import '/features/auth/forgot_email_screen.dart';
+import '/features/auth/forgot_otp_screen.dart';
+import '/features/auth/forgot_newpassword_screen.dart';
+import '/features/auth/first_change_password_screen.dart';
+import '/features/content/articles_list_screen.dart';
+import '/features/content/article_detail_screen.dart';
+import '/features/content/videos_list_screen.dart';
+import '/features/content/packages_screen.dart';
+import '/features/content/doctors_list_screen.dart';
+import '/features/content/branch_detail_screen.dart';
+import '/features/content/telehealth_screen.dart';
+import '/features/content/vouchers_list_screen.dart';
+import '/features/content/my_vouchers_screen.dart';
+import '/features/loyalty/my_points_screen.dart';
+import '/features/loyalty/redeem_points_sheet.dart';
+import '/features/profile/biometric_screen.dart';
+import '/features/profile/clinic_info_screen.dart';
+import '/features/profile/privacy_screen.dart';
+import '/features/profile/terms_screen.dart';
+import '/features/profile/notification_prefs_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -91,13 +120,13 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
       errorBuilder: (context, state) =>
-          appStateNotifier.loggedIn ? NavBarPage() : SplashScreenWidget(),
+          appStateNotifier.loggedIn ? const MainShell() : const SplashScreen(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
           builder: (context, _) =>
-              appStateNotifier.loggedIn ? NavBarPage() : SplashScreenWidget(),
+              appStateNotifier.loggedIn ? const MainShell() : const SplashScreen(),
         ),
         FFRoute(
           name: ArticleDetailPageWidget.routeName,
@@ -126,15 +155,10 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
-          name: LoginPageWidget.routeName,
-          path: LoginPageWidget.routePath,
-          builder: (context, params) => LoginPageWidget(),
-        ),
-        FFRoute(
           name: BookingPageWidget.routeName,
           path: BookingPageWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'myBookingPage')
+              ? const MainShell(initialTab: 'myBookingPage')
               : BookingPageWidget(
                   cas: params.getParam(
                     'cas',
@@ -164,7 +188,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: AppointmentsScreenWidget.routeName,
           path: AppointmentsScreenWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'myBookingPage')
+              ? const MainShell(initialTab: 'myBookingPage')
               : const AppointmentsScreenWidget(),
         ),
         FFRoute(
@@ -177,21 +201,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: PaymentHistoryScreenWidget.routePath,
           builder: (context, params) => const PaymentHistoryScreenWidget(),
         ),
-        FFRoute(
-          name: RegisterPageWidget.routeName,
-          path: RegisterPageWidget.routePath,
-          builder: (context, params) => RegisterPageWidget(),
-        ),
-        FFRoute(
-          name: OnBoardingWidget.routeName,
-          path: OnBoardingWidget.routePath,
-          builder: (context, params) => OnBoardingWidget(),
-        ),
+
 
         FFRoute(
           name: SplashScreenWidget.routeName,
           path: SplashScreenWidget.routePath,
-          builder: (context, params) => SplashScreenWidget(),
+          builder: (context, params) => const SplashScreen(),
         ),
         FFRoute(
           name: AllDoctorWidget.routeName,
@@ -212,7 +227,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: ReportsWidget.routeName,
           path: ReportsWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'health')
+              ? const MainShell(initialTab: 'health')
               : ReportsWidget(
                   id: params.getParam(
                     'id',
@@ -224,7 +239,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: HomepageNewWidget.routeName,
           path: HomepageNewWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'HomepageNew')
+              ? const MainShell(initialTab: 'HomepageNew')
               : HomepageNewWidget(),
         ),
         FFRoute(
@@ -277,7 +292,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: NotificationPageWidget.routeName,
           path: NotificationPageWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'notificationPage')
+              ? const MainShell(initialTab: 'notificationPage')
               : NotificationPageWidget(),
         ),
         FFRoute(
@@ -291,21 +306,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => BiometricSetupPageWidget(),
         ),
         FFRoute(
-          name: ForgotPasswordWidget.routeName,
-          path: ForgotPasswordWidget.routePath,
-          builder: (context, params) => ForgotPasswordWidget(),
-        ),
-        FFRoute(
           name: ProfileWidget.routeName,
           path: ProfileWidget.routePath,
           builder: (context, params) => params.isEmpty
-              ? NavBarPage(initialPage: 'Profile')
+              ? const MainShell(initialTab: 'Profile')
               : ProfileWidget(),
-        ),
-        FFRoute(
-          name: OnBoardingNewWidget.routeName,
-          path: OnBoardingNewWidget.routePath,
-          builder: (context, params) => OnBoardingNewWidget(),
         ),
         FFRoute(
           name: HemedInfoCopyWidget.routeName,
@@ -333,6 +338,137 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: BookingConfirmationScreenWidget.routePath,
           builder: (context, params) =>
               const BookingConfirmationScreenWidget(),
+        ),
+
+        // ── New features/auth routes ────────────────────────────────────────
+        FFRoute(
+          name: SplashScreen.routeName,
+          path: SplashScreen.routePath,
+          builder: (context, params) => const SplashScreen(),
+        ),
+        FFRoute(
+          name: OnboardingScreen.routeName,
+          path: OnboardingScreen.routePath,
+          builder: (context, params) => const OnboardingScreen(),
+        ),
+        FFRoute(
+          name: WelcomeScreen.routeName,
+          path: WelcomeScreen.routePath,
+          builder: (context, params) => const WelcomeScreen(),
+        ),
+        FFRoute(
+          name: LoginScreen.routeName,
+          path: LoginScreen.routePath,
+          builder: (context, params) => const LoginScreen(),
+        ),
+        FFRoute(
+          name: RegisterStep1Screen.routeName,
+          path: RegisterStep1Screen.routePath,
+          builder: (context, params) => const RegisterStep1Screen(),
+        ),
+        FFRoute(
+          name: RegisterStep2Screen.routeName,
+          path: RegisterStep2Screen.routePath,
+          builder: (context, params) => const RegisterStep2Screen(),
+        ),
+        FFRoute(
+          name: RegisterStep3Screen.routeName,
+          path: RegisterStep3Screen.routePath,
+          builder: (context, params) => const RegisterStep3Screen(),
+        ),
+        FFRoute(
+          name: ForgotEmailScreen.routeName,
+          path: ForgotEmailScreen.routePath,
+          builder: (context, params) => const ForgotEmailScreen(),
+        ),
+        FFRoute(
+          name: ForgotOtpScreen.routeName,
+          path: ForgotOtpScreen.routePath,
+          builder: (context, params) => const ForgotOtpScreen(),
+        ),
+        FFRoute(
+          name: FirstChangePasswordScreen.routeName,
+          path: FirstChangePasswordScreen.routePath,
+          builder: (context, params) => const FirstChangePasswordScreen(),
+        ),
+
+        // ── Content screens ──────────────────────────────────────────────
+        FFRoute(
+          name: '/articlesList',
+          path: '/articlesList',
+          builder: (context, params) => const ArticlesListScreen(),
+        ),
+        FFRoute(
+          name: '/articleDetail',
+          path: '/articleDetail',
+          builder: (context, params) => ArticleDetailScreen(
+            articleSlug: params.getParam('articleSlug', ParamType.String) as String?,
+          ),
+        ),
+        FFRoute(
+          name: '/videosList',
+          path: '/videosList',
+          builder: (context, params) => const VideosListScreen(),
+        ),
+        FFRoute(
+          name: '/packages',
+          path: '/packages',
+          builder: (context, params) => const PackagesScreen(),
+        ),
+        FFRoute(
+          name: '/doctors-list',
+          path: '/doctors-list',
+          builder: (context, params) => const DoctorsListScreen(),
+        ),
+        FFRoute(
+          name: '/branch-detail',
+          path: '/branch-detail',
+          builder: (context, params) => const BranchDetailScreen(),
+        ),
+        FFRoute(
+          name: '/telehealth',
+          path: '/telehealth',
+          builder: (context, params) => const TelehealthScreen(),
+        ),
+        FFRoute(
+          name: '/vouchers',
+          path: '/vouchers',
+          builder: (context, params) => const VouchersListScreen(),
+        ),
+        FFRoute(
+          name: '/my-vouchers',
+          path: '/my-vouchers',
+          builder: (context, params) => const MyVouchersScreen(),
+        ),
+        FFRoute(
+          name: '/my-points',
+          path: '/my-points',
+          builder: (context, params) => const MyPointsScreen(),
+        ),
+        FFRoute(
+          name: '/biometric',
+          path: '/biometric',
+          builder: (context, params) => const BiometricScreen(),
+        ),
+        FFRoute(
+          name: '/clinic-info',
+          path: '/clinic-info',
+          builder: (context, params) => const ClinicInfoScreen(),
+        ),
+        FFRoute(
+          name: '/privacy',
+          path: '/privacy',
+          builder: (context, params) => const PrivacyScreen(),
+        ),
+        FFRoute(
+          name: '/terms',
+          path: '/terms',
+          builder: (context, params) => const TermsScreen(),
+        ),
+        FFRoute(
+          name: '/notification-prefs',
+          path: '/notification-prefs',
+          builder: (context, params) => const NotificationPrefsScreen(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
-import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
 class OtpInputRow extends StatefulWidget {
@@ -116,33 +115,31 @@ class _OtpInputRowState extends State<OtpInputRow> {
     widget.onChanged?.call(_digits.join());
   }
 
-  Color _borderColor(bool isFocused) {
-    if (widget.hasError) return AppColors.error;
-    if (isFocused) return AppColors.accent;
-    return AppColors.inputBorder;
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final boxBg = isDark ? AppColors.surfaceDark : AppColors.surface;
     final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(widget.length, (index) {
-        return SizedBox(
-          width: 48,
-          height: 52,
-          child: KeyboardListener(
-            focusNode: FocusNode(),
-            onKeyEvent: (event) => _onKeyEvent(event, index),
-            child: TextField(
-              controller: _controllers[index],
-              focusNode: _focusNodes[index],
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              maxLength: 1,
+    return AutofillGroup(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(widget.length, (index) {
+          return SizedBox(
+            width: 48,
+            height: 52,
+            child: KeyboardListener(
+              focusNode: FocusNode(),
+              onKeyEvent: (event) => _onKeyEvent(event, index),
+              child: TextField(
+                controller: _controllers[index],
+                focusNode: _focusNodes[index],
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                autofillHints: index == 0
+                    ? const [AutofillHints.oneTimeCode]
+                    : null,
+                maxLength: 1,
               decoration: InputDecoration(
                 counterText: '',
                 filled: true,
@@ -175,7 +172,8 @@ class _OtpInputRowState extends State<OtpInputRow> {
             ),
           ),
         );
-      }),
+        }),
+      ),
     );
   }
 }

@@ -94,9 +94,7 @@ class _HorizontalDoctorCard extends StatelessWidget {
     final secondaryTextColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
-    return SizedBox(
-      width: 160,
-      child: GestureDetector(
+    return GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.space16),
@@ -159,8 +157,7 @@ class _HorizontalDoctorCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -284,6 +281,30 @@ class _DoctorAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasPhoto = photoUrl != null && photoUrl!.isNotEmpty;
+
+    if (hasPhoto) {
+      return ClipOval(
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Image.network(
+            photoUrl!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _initialsFallback(),
+            loadingBuilder: (_, child, progress) {
+              if (progress == null) return child;
+              return _initialsFallback();
+            },
+          ),
+        ),
+      );
+    }
+
+    return _initialsFallback();
+  }
+
+  Widget _initialsFallback() {
     if (initials != null && initials!.isNotEmpty) {
       return Container(
         width: size,
@@ -306,23 +327,7 @@ class _DoctorAvatar extends StatelessWidget {
         ),
       );
     }
-    return ClipOval(
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: photoUrl != null && photoUrl!.isNotEmpty
-            ? Image.network(
-                photoUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder(),
-                loadingBuilder: (_, child, progress) {
-                  if (progress == null) return child;
-                  return _placeholder();
-                },
-              )
-            : _placeholder(),
-      ),
-    );
+    return _placeholder();
   }
 
   Widget _placeholder() {

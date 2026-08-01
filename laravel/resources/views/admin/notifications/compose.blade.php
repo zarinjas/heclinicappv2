@@ -7,6 +7,7 @@
 @section('content')
     <form method="POST" action="{{ route('admin.notifications.send') }}" class="max-w-2xl">
         @csrf
+        <input type="hidden" name="intent" id="intent" value="draft">
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
             <div class="p-6 space-y-6">
@@ -224,7 +225,13 @@
 
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl flex items-center gap-3">
                 <button type="submit"
+                        onclick="document.getElementById('intent').value='send'"
                         class="px-6 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors">
+                    Send Now
+                </button>
+                <button type="submit"
+                        onclick="document.getElementById('intent').value='draft'"
+                        class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     Save Draft
                 </button>
                 <a href="{{ route('admin.dashboard') }}"

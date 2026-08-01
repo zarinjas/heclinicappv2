@@ -43,6 +43,7 @@ class NotificationController extends Controller
             'target_patient' => 'nullable|string|max:255',
             'channels' => 'required|array|min:1',
             'channels.*' => 'in:push,email,in_app',
+            'intent' => 'required|string|in:draft,send',
         ], [
             'channels.required' => 'Please select at least one delivery channel.',
             'channels.min' => 'Please select at least one delivery channel.',
@@ -57,7 +58,9 @@ class NotificationController extends Controller
             $targetIds = $validated['target_ids'] ?? null;
         }
 
-        NotificationLog::create([
+        $status = $validated['intent'] === 'send' ? 'sent' : 'draft';
+
+        $log = NotificationLog::create([
             'type' => 'manual',
             'title' => $validated['title'],
             'body' => $validated['body'],
@@ -67,8 +70,29 @@ class NotificationController extends Controller
             'target_date_from' => $validated['target_date_from'] ?? null,
             'target_date_to' => $validated['target_date_to'] ?? null,
             'channels' => $validated['channels'],
-            'status' => 'draft',
+            'status' => $status,
+            'sent_at' => $status === 'sent' ? now() : null,
         ]);
+
+        if ($validated['intent'] === 'send') {
+            try {
+                app(\App\Services\NotificationService::class)->sendManualNotification($log);
+
+                return redirect()
+                    ->route('admin.notifications.compose')
+                    ->with('success', 'Notification sent successfully.');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::channel('plato')->warning('Manual notification dispatch failed', [
+                    'notification_log_id' => $log->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Notification saved as draft but sending failed. Please try again.');
+            }
+        }
 
         return redirect()
             ->route('admin.notifications.compose')

@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
 use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
 use App\Http\Controllers\Api\CmsVideoController as ApiCmsVideoController;
+use App\Http\Controllers\Api\CmsPromotionController as ApiCmsPromotionController;
+use App\Http\Controllers\Api\CmsOnboardingSlideController as ApiCmsOnboardingSlideController;
+use App\Http\Controllers\Api\CmsLegalPageController as ApiCmsLegalPageController;
 use App\Http\Controllers\Api\BranchConfigController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\PatientDocumentController;
@@ -20,6 +23,7 @@ Route::get('/user', function (Request $request) {
 // ─── Mobile Patient Auth (public) ────────────────────────────────────────────
 Route::prefix('v2/auth')->name('auth.')->group(function () {
     Route::get('/check-nric',       [AuthController::class, 'checkNric'])->name('check-nric');
+    Route::get('/check-phone',     [AuthController::class, 'checkPhone'])->name('check-phone');
     Route::post('/register',        [AuthController::class, 'register'])->name('register');
     Route::post('/login',           [AuthController::class, 'login'])->name('login');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
@@ -69,15 +73,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->where('path', '.*')
         ->name('plato.proxy');
 
-    Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])
-        ->name('config.doctors');
-
     Route::post('/v2/admin/appointments', [AppointmentController::class, 'store'])
         ->name('admin.appointments.store');
 
     Route::get('/v2/patients/{id}/documents', [PatientDocumentController::class, 'index'])
         ->name('patients.documents');
 });
+
+Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])
+    ->name('config.doctors');
 
 Route::get('/v2/cms/articles', [ApiCmsArticleController::class, 'index'])
     ->name('cms.articles');
@@ -92,6 +96,51 @@ Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, '
 
 Route::get('/v2/cms/videos', [ApiCmsVideoController::class, 'index'])
     ->name('cms.videos');
+
+Route::get('/v2/cms/promotions', [ApiCmsPromotionController::class, 'index'])
+    ->name('cms.promotions');
+
+Route::get('/v2/cms/onboarding-slides', [ApiCmsOnboardingSlideController::class, 'index'])
+    ->name('cms.onboarding');
+
+Route::get('/v2/cms/legal/{slug}', [ApiCmsLegalPageController::class, 'show'])
+    ->name('cms.legal.show');
+
+Route::get('/v2/config/telehealth', function () {
+    $settings = \App\Models\Setting::whereIn('key', [
+        'telehealth_title',
+        'telehealth_description',
+        'telehealth_features',
+        'telehealth_whatsapp',
+        'telehealth_price',
+        'telehealth_hours',
+        'telehealth_button_label',
+    ])->pluck('value', 'key');
+
+    return response()->json([
+        'title'            => $settings['telehealth_title'] ?? 'Telehealth Consultation',
+        'description'      => $settings['telehealth_description'] ?? 'Speak with a doctor from the comfort of your home.',
+        'features'         => json_decode($settings['telehealth_features'] ?? '[]', true),
+        'whatsapp_number'  => $settings['telehealth_whatsapp'] ?? '60136254528',
+        'price'            => $settings['telehealth_price'] ?? 'RM 30 per 15-minute consultation',
+        'hours_text'       => $settings['telehealth_hours'] ?? 'Available Monday - Friday, 8am - 8pm',
+        'button_label'     => $settings['telehealth_button_label'] ?? 'Start WhatsApp Consultation',
+    ]);
+})->name('config.telehealth');
+
+Route::get('/v2/config/clinic-info', function () {
+    $settings = \App\Models\Setting::whereIn('key', [
+        'clinic_about_text',
+        'clinic_operating_hours',
+        'clinic_contact_email',
+    ])->pluck('value', 'key');
+
+    return response()->json([
+        'about_text'       => $settings['clinic_about_text'] ?? '',
+        'operating_hours'  => json_decode($settings['clinic_operating_hours'] ?? '[]', true),
+        'contact_email'    => $settings['clinic_contact_email'] ?? 'info@heclinic.com',
+    ]);
+})->name('config.clinic-info');
 
 Route::get('/v2/config/branches', [BranchConfigController::class, 'index'])
     ->name('config.branches');

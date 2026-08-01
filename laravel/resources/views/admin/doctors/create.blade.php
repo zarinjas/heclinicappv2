@@ -102,11 +102,10 @@
                         name="bio"
                         id="bio"
                         rows="4"
-                        maxlength="500"
                         class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('bio') border-red-300 @enderror"
                         placeholder="Brief biography or professional background..."
                     >{{ old('bio') }}</textarea>
-                    <p class="mt-1 text-xs text-gray-400"><span id="bio-chars">0</span>/500 characters</p>
+                    <p class="mt-1 text-xs text-gray-400">Write the doctor's biography and professional background.</p>
                     @error('bio')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror

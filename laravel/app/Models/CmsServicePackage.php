@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class CmsServicePackage extends Model
 {
@@ -27,6 +28,6 @@ class CmsServicePackage extends Model
         if (! $this->image) {
             return null;
         }
-        return asset('storage/' . $this->image);
+        return Storage::disk('public')->url($this->image);
     }
 }

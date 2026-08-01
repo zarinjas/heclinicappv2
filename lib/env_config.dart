@@ -8,12 +8,12 @@ class EnvConfig {
 
   static const String platomBaseUrl = String.fromEnvironment(
     'PLATOM_URL',
-    defaultValue: 'https://heclinic.cyberoket.cloud/api/v2/plato',
+    defaultValue: 'https://hemedicalapps.com/api/v2/plato',
   );
 
   static const String laravelBaseUrl = String.fromEnvironment(
     'LARAVEL_API_URL',
-    defaultValue: 'https://heclinic.cyberoket.cloud/api',
+    defaultValue: 'https://hemedicalapps.com/api',
   );
 
   static const String wordpressBaseUrl = String.fromEnvironment(

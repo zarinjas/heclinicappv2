@@ -23,9 +23,9 @@ final class PlatoProxyController extends Controller
      */
     public function proxy(Request $request, string $path): JsonResponse
     {
-        $key = 'plato-proxy:' . ($request->ip() ?? 'unknown');
+        $key = 'plato-proxy:'.($request->ip() ?? 'unknown');
 
-        if (RateLimiter::tooManyAttempts($key, (int) config('plato.proxy_rate_limit', 60))) {
+        if (RateLimiter::tooManyAttempts($key, $this->service->proxyRateLimit())) {
             return response()->json([
                 'error' => true,
                 'code' => 429,

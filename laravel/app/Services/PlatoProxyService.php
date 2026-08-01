@@ -2,30 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\Setting;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 final class PlatoProxyService
 {
-    private string $baseUrl;
-    private string $token;
-    private int $timeout;
-    private bool $logRequests;
-
-    public function __construct()
-    {
-        $this->baseUrl = config('plato.base_url');
-        $this->token = config('plato.api_token');
-        $this->timeout = (int) config('plato.timeout', 30);
-        $this->logRequests = (bool) config('plato.log_requests', true);
-    }
-
     public function proxy(string $method, string $path, array $query = [], array $body = []): array
     {
-        $url = rtrim($this->baseUrl, '/') . '/' . ltrim($path, '/');
+        $url = rtrim($this->baseUrl(), '/').'/'.ltrim($path, '/');
 
         $this->logRequest($method, $url, $query, $body);
 
@@ -40,8 +29,8 @@ final class PlatoProxyService
         }
 
         try {
-            $http = Http::timeout($this->timeout)
-                ->withToken($this->token)
+            $http = Http::timeout($this->timeout())
+                ->withToken($this->token())
                 ->acceptJson()
                 ->asJson();
 
@@ -87,16 +76,17 @@ final class PlatoProxyService
 
     public function healthCheck(): array
     {
-        $tokenConfigured = ! empty($this->token);
+        $token = $this->token();
+        $tokenConfigured = ! empty($token);
         $platoConnected = false;
-        $baseUrl = $this->baseUrl;
+        $baseUrl = $this->baseUrl();
 
         if ($tokenConfigured) {
             try {
                 $response = Http::timeout(10)
-                    ->withToken($this->token)
+                    ->withToken($token)
                     ->acceptJson()
-                    ->get(rtrim($this->baseUrl, '/') . '/facility', ['current_page' => 1]);
+                    ->get(rtrim($baseUrl, '/').'/facility', ['current_page' => 1]);
 
                 $platoConnected = $response->successful();
             } catch (\Exception $e) {
@@ -110,6 +100,66 @@ final class PlatoProxyService
             'token_configured' => $tokenConfigured,
             'base_url' => $baseUrl,
         ];
+    }
+
+    public function proxyRateLimit(): int
+    {
+        return (int) $this->cachedSetting('plato:proxy_rate_limit', function () {
+            return Setting::where('key', 'plato_proxy_rate_limit')->value('value')
+                ?? config('plato.proxy_rate_limit', 60);
+        });
+    }
+
+    public function clearSettingsCache(): void
+    {
+        foreach ([
+            'plato:api_token',
+            'plato:base_url',
+            'plato:timeout',
+            'plato:cache_enabled',
+            'plato:proxy_rate_limit',
+        ] as $key) {
+            Cache::forget($key);
+        }
+    }
+
+    private function token(): string
+    {
+        return (string) $this->cachedSetting('plato:api_token', function () {
+            $stored = Setting::where('key', 'plato_api_token')->value('value');
+
+            return $stored ? Crypt::decryptString($stored) : (string) config('plato.api_token');
+        });
+    }
+
+    private function baseUrl(): string
+    {
+        return (string) $this->cachedSetting('plato:base_url', function () {
+            return Setting::where('key', 'plato_base_url')->value('value')
+                ?? config('plato.base_url');
+        });
+    }
+
+    private function timeout(): int
+    {
+        return (int) $this->cachedSetting('plato:timeout', function () {
+            return Setting::where('key', 'plato_timeout')->value('value')
+                ?? config('plato.timeout', 30);
+        });
+    }
+
+    private function cacheEnabled(): bool
+    {
+        return (bool) $this->cachedSetting('plato:cache_enabled', function () {
+            $stored = Setting::where('key', 'plato_cache_enabled')->value('value');
+
+            return $stored !== null ? $stored === '1' : (bool) config('plato.cache.enabled', true);
+        });
+    }
+
+    private function cachedSetting(string $cacheKey, callable $resolver): mixed
+    {
+        return Cache::remember($cacheKey, 300, $resolver);
     }
 
     private function buildResponse(Response $response): array
@@ -176,7 +226,7 @@ final class PlatoProxyService
 
     private function getCacheTtl(string $path): ?int
     {
-        if (! config('plato.cache.enabled')) {
+        if (! $this->cacheEnabled()) {
             return null;
         }
 
@@ -199,12 +249,12 @@ final class PlatoProxyService
     {
         $payload = json_encode(['method' => $method, 'url' => $url, 'query' => $query, 'body' => $body]);
 
-        return 'plato_proxy:' . md5($payload);
+        return 'plato_proxy:'.md5($payload);
     }
 
     private function logRequest(string $method, string $url, array $query, array $body): void
     {
-        if (! $this->logRequests) {
+        if (! config('plato.log_requests', true)) {
             return;
         }
 
@@ -218,7 +268,7 @@ final class PlatoProxyService
 
     private function logError(string $method, string $url, string $message): void
     {
-        if (! $this->logRequests) {
+        if (! config('plato.log_requests', true)) {
             return;
         }
 

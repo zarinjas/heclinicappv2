@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Doctor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 final class DoctorConfigController extends Controller
 {
@@ -39,7 +40,7 @@ final class DoctorConfigController extends Controller
             'name' => $doctor->name,
             'specialty' => $doctor->specialty,
             'bio' => $doctor->bio,
-            'photo' => $doctor->photo ? asset('storage/' . $doctor->photo) : null,
+            'photo' => $doctor->photo ? Storage::disk('public')->url($doctor->photo) : null,
             'is_visible_in_app' => $doctor->is_visible_in_app,
             'branch_id' => $doctor->branch?->plato_facility_id,
             'branch_name' => $doctor->branch?->name,

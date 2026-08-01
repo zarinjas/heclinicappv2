@@ -16,6 +16,7 @@ class BranchCard extends StatelessWidget {
   final List<Color>? leadingGradient;
   final String? leadingLabel;
   final IconData? leadingIcon;
+  final String? imageUrl;
 
   const BranchCard({
     super.key,
@@ -27,6 +28,7 @@ class BranchCard extends StatelessWidget {
     this.leadingGradient,
     this.leadingLabel,
     this.leadingIcon,
+    this.imageUrl,
   });
 
   @override
@@ -58,46 +60,7 @@ class BranchCard extends StatelessWidget {
             children: [
               SizedBox(
                 width: 88,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: leadingGradient ??
-                          const [AppColors.primary, AppColors.primaryLight],
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          leadingIcon ?? Icons.location_on_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        leadingLabel ?? 'Branch',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 8,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: _buildLeading(),
               ),
               const SizedBox(width: AppSpacing.space12),
               Expanded(
@@ -162,6 +125,62 @@ class BranchCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLeading() {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return Image.network(
+        imageUrl!,
+        fit: BoxFit.cover,
+        width: 88,
+        height: double.infinity,
+        errorBuilder: (_, __, ___) => _buildLeadingGradient(),
+      );
+    }
+    return _buildLeadingGradient();
+  }
+
+  Widget _buildLeadingGradient() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: leadingGradient ??
+              const [AppColors.primary, AppColors.primaryLight],
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              leadingIcon ?? Icons.location_on_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            leadingLabel ?? 'Branch',
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
       ),
     );
   }

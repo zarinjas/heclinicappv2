@@ -62,41 +62,59 @@ class AppointmentCard extends StatelessWidget {
           GestureDetector(
             onTap: onTap,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildAvatar(),
                 const SizedBox(width: AppSpacing.space12),
                 Expanded(
-                  child: Column(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        doctorName,
-                        style: AppTextStyles.heading3.copyWith(color: primaryTextColor),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              doctorName,
+                              style: AppTextStyles.heading3.copyWith(color: primaryTextColor),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              specialty,
+                              style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: AppSpacing.space4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  size: 14,
+                                  color: secondaryTextColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    branchName,
+                                    style: AppTextStyles.body2.copyWith(color: secondaryTextColor, fontSize: 11),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        specialty,
-                        style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                      ),
-                      const SizedBox(height: AppSpacing.space4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: secondaryTextColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            branchName,
-                            style: AppTextStyles.body2.copyWith(color: secondaryTextColor, fontSize: 11),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(width: AppSpacing.space8),
+                      _buildStatusChip(),
                     ],
                   ),
                 ),
-                _buildStatusChip(),
               ],
             ),
           ),
@@ -206,32 +224,46 @@ class AppointmentCard extends StatelessWidget {
         children: [
           const Icon(Icons.access_time_rounded, size: 18, color: AppColors.accent),
           const SizedBox(width: AppSpacing.space8),
-          Text(
-            'Starts in',
-            style: AppTextStyles.body2.copyWith(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    'Starts in',
+                    style: AppTextStyles.body2.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.space8),
+                Flexible(
+                  flex: 2,
+                  child: CountdownBadge(dueAt: countdownDueAt!),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: AppSpacing.space8),
-          Flexible(
-            child: CountdownBadge(dueAt: countdownDueAt!),
-          ),
-          const Spacer(),
           GestureDetector(
             onTap: onDetailsTap,
             behavior: HitTestBehavior.opaque,
-            child: Row(
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Details',
-                  style: AppTextStyles.button.copyWith(
+                  style: TextStyle(
                     color: AppColors.accent,
                     fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamilyFallback: ['sans-serif'],
                   ),
                 ),
-                const SizedBox(width: 2),
-                const Icon(
+                SizedBox(width: 2),
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
                   color: AppColors.accent,

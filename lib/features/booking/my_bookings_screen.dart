@@ -29,6 +29,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   bool _hasError = false;
   int _currentPage = 1;
   bool _hasMorePages = true;
+  int _currentTab = 0;
 
   @override
   void initState() {
@@ -70,36 +71,27 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       if (response.succeeded) {
         final titles =
             GetAppointmentUpcomingCall.title(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final starts =
             GetAppointmentUpcomingCall.start(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final statuss =
             GetAppointmentUpcomingCall.status(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final dpnames = GetAppointmentUpcomingCall.doctorname(
-                response.jsonBody)
-            ?.toList() ??
-            [];
+                response.jsonBody)?.toList() ?? [];
         final dpbranches =
             GetAppointmentUpcomingCall.branch(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
 
         final items = <AppointmentItem>[];
         for (int i = 0; i < titles.length; i++) {
           items.add(AppointmentItem(
             title: titles[i],
-            doctorName:
-                dpnames.length > i ? dpnames[i] : '',
-            branch:
-                dpbranches.length > i ? dpbranches[i] : '',
+            doctorName: dpnames.length > i ? dpnames[i] : '',
+            branch: dpbranches.length > i ? dpbranches[i] : '',
             date: starts.length > i ? starts[i] : '',
-            status:
-                statuss.length > i ? statuss[i] : '',
+            status: statuss.length > i ? statuss[i] : '',
           ));
         }
 
@@ -129,7 +121,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     setState(() => _isLoadingMore = true);
 
     try {
-      final nextPage = _currentPage + 1;
       final response = await GetAppointmentUpcomingCall.call(
         patientId: FFAppState().idplato,
       );
@@ -137,43 +128,34 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       if (response.succeeded) {
         final titles =
             GetAppointmentUpcomingCall.title(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final starts =
             GetAppointmentUpcomingCall.start(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final statuss =
             GetAppointmentUpcomingCall.status(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
         final dpnames = GetAppointmentUpcomingCall.doctorname(
-                response.jsonBody)
-            ?.toList() ??
-            [];
+                response.jsonBody)?.toList() ?? [];
         final dpbranches =
             GetAppointmentUpcomingCall.branch(response.jsonBody)
-                    ?.toList() ??
-                [];
+                    ?.toList() ?? [];
 
         final newItems = <AppointmentItem>[];
         for (int i = 0; i < titles.length; i++) {
           newItems.add(AppointmentItem(
             title: titles[i],
-            doctorName:
-                dpnames.length > i ? dpnames[i] : '',
-            branch:
-                dpbranches.length > i ? dpbranches[i] : '',
+            doctorName: dpnames.length > i ? dpnames[i] : '',
+            branch: dpbranches.length > i ? dpbranches[i] : '',
             date: starts.length > i ? starts[i] : '',
-            status:
-                statuss.length > i ? statuss[i] : '',
+            status: statuss.length > i ? statuss[i] : '',
           ));
         }
 
         if (mounted) {
           setState(() {
             _appointments.addAll(newItems);
-            _currentPage = nextPage;
+            _currentPage++;
             _hasMorePages = newItems.length >= _pageSize;
             _isLoadingMore = false;
           });
@@ -183,9 +165,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() {
-          _isLoadingMore = false;
-        });
+        setState(() => _isLoadingMore = false);
       }
     }
   }
@@ -193,25 +173,18 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   StatusChipVariant _parseStatus(String? status) {
     if (status == null) return StatusChipVariant.pending;
     switch (status.toLowerCase()) {
-      case 'confirmed':
-        return StatusChipVariant.confirmed;
-      case 'pending':
-        return StatusChipVariant.pending;
-      case 'cancelled':
-      case 'canceled':
-        return StatusChipVariant.cancelled;
-      case 'completed':
-        return StatusChipVariant.completed;
-      default:
-        return StatusChipVariant.pending;
+      case 'confirmed':  return StatusChipVariant.confirmed;
+      case 'pending':    return StatusChipVariant.pending;
+      case 'cancelled':  case 'canceled': return StatusChipVariant.cancelled;
+      case 'completed':  return StatusChipVariant.completed;
+      default:           return StatusChipVariant.pending;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor =
-        isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
+    final bgColor = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -219,17 +192,52 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         title: 'My Bookings',
         onBack: () => Navigator.of(context).pop(),
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          _buildFilterChips(isDark),
+          Expanded(child: _buildBody()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: AppChip(
+              label: 'Upcoming',
+              type: AppChipType.filter,
+              isSelected: _currentTab == 0,
+              onTap: () {
+                if (_currentTab != 0) setState(() => _currentTab = 0);
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: AppChip(
+              label: 'Past',
+              type: AppChipType.filter,
+              isSelected: _currentTab == 1,
+              onTap: () {
+                if (_currentTab != 1) setState(() => _currentTab = 1);
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
       return ListView.separated(
-        padding: const EdgeInsets.all(AppSpacing.space16),
+        padding: const EdgeInsets.all(16),
         itemCount: 5,
-        separatorBuilder: (_, __) =>
-            const SizedBox(height: AppSpacing.space12),
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, i) => AppSkeleton.appointmentCard(),
       );
     }
@@ -242,10 +250,18 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       );
     }
 
+    if (_currentTab == 1) {
+      return AppEmptyState(
+        icon: Icons.event_busy,
+        title: 'No past appointments',
+        subtitle: 'Your completed appointments will appear here',
+      );
+    }
+
     if (_appointments.isEmpty) {
       return AppEmptyState(
         icon: Icons.calendar_today,
-        title: 'No appointments yet',
+        title: 'No upcoming appointments',
         subtitle: 'Book your first visit today',
         ctaLabel: 'Book Now',
         onCtaTap: () => Navigator.of(context).pop('book'),
@@ -254,36 +270,26 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space16,
-        vertical: AppSpacing.space8,
-      ),
-      itemCount:
-          _appointments.length + (_isLoadingMore ? 1 : 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: _appointments.length + (_isLoadingMore ? 1 : 0),
       itemBuilder: (_, i) {
         if (i >= _appointments.length) {
           return Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppSpacing.space12,
-            ),
-            child: Center(
-              child: AppSkeleton.appointmentCard(),
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(child: AppSkeleton.appointmentCard()),
           );
         }
 
-        final appointment = _appointments[i];
+        final a = _appointments[i];
         return Padding(
-          padding: const EdgeInsets.only(
-            bottom: AppSpacing.space12,
-          ),
+          padding: const EdgeInsets.only(bottom: 12),
           child: AppointmentCard(
-            doctorName: appointment.doctorName,
+            doctorName: a.doctorName,
             specialty: '',
-            branchName: appointment.branch,
-            date: appointment.date,
+            branchName: a.branch,
+            date: a.date,
             time: '',
-            status: _parseStatus(appointment.status),
+            status: _parseStatus(a.status),
             onTap: () {},
           ),
         );

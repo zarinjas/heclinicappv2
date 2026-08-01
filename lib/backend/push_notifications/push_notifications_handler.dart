@@ -49,15 +49,29 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
     safeSetState(() => _loading = true);
     try {
       final notifType = message.data['type'] as String?;
-      if (notifType == 'appointment_confirmed') {
+      if (notifType == 'appointment_confirmed' ||
+          notifType == 'appointment_reminder') {
         _incrementNotifBadge();
-        final targetPage = message.data['initialPageName'] as String? ??
-            'MyBookingPage';
-        if (mounted) {
-          context.pushNamed(targetPage);
-        } else {
-          appNavigatorKey.currentContext?.pushNamed(targetPage);
-        }
+        _navigateToPage(context, 'MyBookingPage');
+        return;
+      }
+
+      if (notifType == 'document_uploaded') {
+        _incrementNotifBadge();
+        final parameterData = getInitialParameterData(message.data);
+        final patientId = getParameter<String>(parameterData, 'patient_plato_id') ??
+            FFAppState().idplato;
+        _navigateToPage(
+          context,
+          'Reports',
+          queryParameters: {'id': patientId},
+        );
+        return;
+      }
+
+      if (notifType == 'manual') {
+        _incrementNotifBadge();
+        _navigateToPage(context, 'notificationPage');
         return;
       }
 
@@ -100,6 +114,24 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
       FFAppState().update(() {
         FFAppState().coutnnotif = '1';
       });
+    }
+  }
+
+  void _navigateToPage(
+    BuildContext? pageContext,
+    String routeName, {
+    Map<String, String>? queryParameters,
+  }) {
+    final nav = (mounted && pageContext != null)
+        ? pageContext
+        : appNavigatorKey.currentContext;
+    if (nav == null) {
+      return;
+    }
+    if (queryParameters != null) {
+      nav.pushNamed(routeName, queryParameters: queryParameters);
+    } else {
+      nav.pushNamed(routeName);
     }
   }
 

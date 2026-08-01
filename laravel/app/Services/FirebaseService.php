@@ -83,6 +83,13 @@ final class FirebaseService
             $userRefs = [];
         }
 
+        $patientIds = $notificationData['patient_ids'] ?? [];
+        if (is_string($patientIds) && $patientIds !== '') {
+            $patientIds = array_map('trim', explode(',', $patientIds));
+        } elseif (!is_array($patientIds)) {
+            $patientIds = [];
+        }
+
         $branchIds = $notificationData['branch_ids'] ?? [];
         if (!is_array($branchIds)) {
             $branchIds = [];
@@ -106,7 +113,9 @@ final class FirebaseService
             'parameter_data' => $notificationData['parameter_data'] ?? '',
             'target_audience' => $notificationData['target_audience'] ?? 'All',
             'initial_page_name' => $notificationData['initial_page_name'] ?? 'Appointments',
+            'type' => $notificationData['type'] ?? 'manual',
             'user_refs' => $userRefs,
+            'patient_ids' => $patientIds,
             'branch_ids' => $branchIds,
             'doctor_ids' => $doctorIds,
             'target_date_range' => $targetDateRange,

@@ -23,6 +23,16 @@ class BrandingController extends Controller
             'login_logo_url' => Setting::where('key', 'branding_login_logo_url')->value('value'),
             'appbar_logo_url' => Setting::where('key', 'branding_appbar_logo_url')->value('value'),
             'favicon_url' => Setting::where('key', 'branding_favicon_url')->value('value'),
+            'telehealth_title' => Setting::where('key', 'telehealth_title')->value('value') ?? 'Telehealth Consultation',
+            'telehealth_description' => Setting::where('key', 'telehealth_description')->value('value') ?? '',
+            'telehealth_features' => Setting::where('key', 'telehealth_features')->value('value') ?? '[]',
+            'telehealth_whatsapp' => Setting::where('key', 'telehealth_whatsapp')->value('value') ?? '60136254528',
+            'telehealth_price' => Setting::where('key', 'telehealth_price')->value('value') ?? 'RM 30 per 15-minute consultation',
+            'telehealth_hours' => Setting::where('key', 'telehealth_hours')->value('value') ?? '',
+            'telehealth_button_label' => Setting::where('key', 'telehealth_button_label')->value('value') ?? 'Start WhatsApp Consultation',
+            'clinic_about_text' => Setting::where('key', 'clinic_about_text')->value('value') ?? '',
+            'clinic_operating_hours' => Setting::where('key', 'clinic_operating_hours')->value('value') ?? '[]',
+            'clinic_contact_email' => Setting::where('key', 'clinic_contact_email')->value('value') ?? 'info@heclinic.com',
         ];
 
         return view('admin.branding', compact('branding'));
@@ -41,6 +51,16 @@ class BrandingController extends Controller
             'login_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
+            'telehealth_title' => 'nullable|string|max:255',
+            'telehealth_description' => 'nullable|string|max:1000',
+            'telehealth_features' => 'nullable|string|max:2000',
+            'telehealth_whatsapp' => 'nullable|string|max:20',
+            'telehealth_price' => 'nullable|string|max:100',
+            'telehealth_hours' => 'nullable|string|max:255',
+            'telehealth_button_label' => 'nullable|string|max:100',
+            'clinic_about_text' => 'nullable|string|max:2000',
+            'clinic_operating_hours' => 'nullable|string|max:2000',
+            'clinic_contact_email' => 'nullable|email|max:255',
         ]);
 
         $this->saveSetting('branding_app_name', $validated['app_name']);
@@ -48,6 +68,25 @@ class BrandingController extends Controller
         $this->saveSetting('branding_tagline', $validated['tagline'] ?? '');
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
         $this->saveSetting('branding_splash_bg_color', $validated['splash_bg_color'] ?? '#131C3C');
+
+        $textFields = [
+            'telehealth_title' => 'telehealth_title',
+            'telehealth_description' => 'telehealth_description',
+            'telehealth_features' => 'telehealth_features',
+            'telehealth_whatsapp' => 'telehealth_whatsapp',
+            'telehealth_price' => 'telehealth_price',
+            'telehealth_hours' => 'telehealth_hours',
+            'telehealth_button_label' => 'telehealth_button_label',
+            'clinic_about_text' => 'clinic_about_text',
+            'clinic_operating_hours' => 'clinic_operating_hours',
+            'clinic_contact_email' => 'clinic_contact_email',
+        ];
+
+        foreach ($textFields as $field => $key) {
+            if ($request->has($field)) {
+                $this->saveSetting($key, $request->input($field));
+            }
+        }
 
         $imageFields = [
             'logo' => 'branding_logo_url',

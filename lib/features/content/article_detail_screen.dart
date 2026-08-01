@@ -4,9 +4,11 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/services/article_service.dart';
+import '../../core/services/cms_api.dart';
+import '../../core/services/models/article.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_error_state.dart';
-import '../../core/widgets/app_skeleton.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   const ArticleDetailScreen({super.key, this.articleTitle, this.articleSlug});
@@ -25,7 +27,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   bool _hasError = false;
   String _errorMessage = '';
 
-  _ArticleDetailData? _article;
+  Article? _article;
 
   @override
   void initState() {
@@ -40,36 +42,19 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     });
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      _article = _ArticleDetailData(
-        title: widget.articleTitle ?? '5 Tips Kesihatan Jantung Yang Perlu Anda Tahu',
-        featuredImageUrl: 'https://via.placeholder.com/800x400/3B8DFF/FFFFFF?text=Kesihatan+Jantung',
-        author: 'Dr. Ahmad Rizal',
-        publishedDate: '15 Jun 2026',
-        htmlContent: '''<p>Jantung adalah organ paling penting dalam badan manusia. 
-Ia bertanggungjawab mengepam darah ke seluruh tubuh, membekalkan oksigen dan nutrisi kepada setiap sel.</p>
+      Article? article;
+      if (widget.articleSlug != null && widget.articleSlug!.isNotEmpty) {
+        article = await CmsApi.fetchArticleBySlug(widget.articleSlug!);
+      }
+      article ??= ArticleService.instance.articles.isNotEmpty
+          ? ArticleService.instance.articles.first
+          : Article.fallbackList.first;
 
-<p>Penyakit jantung adalah pembunuh nombor satu di Malaysia. Namun, banyak kes boleh dicegah dengan amalan gaya hidup sihat.</p>
-
-<h3>1. Pemakanan Seimbang</h3>
-<p>Kurangkan pengambilan garam, gula, dan lemak tepu. Perbanyakkan sayuran hijau, buah-buahan segar, dan bijirin penuh.</p>
-
-<h3>2. Senaman Berkala</h3>
-<p>Lakukan senaman sekurang-kurangnya 30 minit sehari, 5 kali seminggu. Berjalan kaki, berenang, atau berbasikal adalah pilihan yang baik.</p>
-
-<h3>3. Berhenti Merokok</h3>
-<p>Merokok merosakkan saluran darah dan meningkatkan risiko serangan jantung. Berhenti merokok boleh mengurangkan risiko sebanyak 50% dalam masa setahun.</p>
-
-<h3>4. Kawal Tekanan Darah</h3>
-<p>Periksa tekanan darah secara berkala. Tekanan darah tinggi sering tiada simptom tetapi boleh menyebabkan kerosakan serius.</p>
-
-<h3>5. Dapatkan Pemeriksaan Berkala</h3>
-<p>Lawati doktor untuk pemeriksaan kesihatan tahunan. Pengesanan awal menyelamatkan nyawa.</p>
-
-<p>Jaga jantung anda — ia satu-satunya yang anda ada. Untuk sebarang pertanyaan, hubungi He Clinic di talian 03-1234 5678.</p>''',
-      );
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _article = article;
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -77,6 +62,7 @@ Ia bertanggungjawab mengepam darah ke seluruh tubuh, membekalkan oksigen dan nut
           _isLoading = false;
           _hasError = true;
           _errorMessage = e.toString();
+          _article = Article.fallbackList.first;
         });
       }
     }
@@ -167,7 +153,7 @@ Ia bertanggungjawab mengepam darah ke seluruh tubuh, membekalkan oksigen dan nut
       return _buildSkeleton();
     }
 
-    if (_hasError) {
+    if (_hasError && _article == null) {
       return AppErrorState(
         title: 'Could not load article',
         subtitle: _errorMessage,
@@ -179,28 +165,41 @@ Ia bertanggungjawab mengepam darah ke seluruh tubuh, membekalkan oksigen dan nut
     final titleColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     final secondaryTextColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     final bodyTextColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final imageUrl = article.featuredImage ?? '';
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            child: Image.network(
-              article.featuredImageUrl,
-              height: 240,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+          if (imageUrl.isNotEmpty)
+            ClipRRect(
+              child: Image.network(
+                imageUrl,
                 height: 240,
-                color: isDark ? AppColors.surfaceDark : AppColors.divider,
-                child: Icon(
-                  Icons.image_outlined,
-                  size: 48,
-                  color: secondaryTextColor,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 240,
+                  color: isDark ? AppColors.surfaceDark : AppColors.divider,
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: 48,
+                    color: secondaryTextColor,
+                  ),
+                ),
+              ),
+            )
+          else
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: article.placeholderGradient,
                 ),
               ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.space16),
             child: Column(
@@ -212,11 +211,11 @@ Ia bertanggungjawab mengepam darah ke seluruh tubuh, membekalkan oksigen dan nut
                 ),
                 const SizedBox(height: AppSpacing.space8),
                 Text(
-                  '${article.author} • ${article.publishedDate}',
+                  '${article.authorName ?? ''}${article.dateDisplay.isNotEmpty ? ' • ${article.dateDisplay}' : ''}',
                   style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
                 ),
                 const SizedBox(height: AppSpacing.space16),
-                _buildHtmlContent(article.htmlContent, bodyTextColor),
+                _buildHtmlContent(article.body, bodyTextColor),
               ],
             ),
           ),
@@ -279,20 +278,4 @@ class _HtmlPart {
   final _HtmlPartType type;
   final String text;
   _HtmlPart({required this.type, required this.text});
-}
-
-class _ArticleDetailData {
-  final String title;
-  final String featuredImageUrl;
-  final String author;
-  final String publishedDate;
-  final String htmlContent;
-
-  _ArticleDetailData({
-    required this.title,
-    required this.featuredImageUrl,
-    required this.author,
-    required this.publishedDate,
-    required this.htmlContent,
-  });
 }

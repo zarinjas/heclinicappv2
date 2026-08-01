@@ -19,6 +19,18 @@ import 'index.dart';
 import 'backend/api_requests/api_interceptor.dart';
 import 'theme/app_theme.dart';
 
+import 'core/services/article_service.dart';
+import 'core/services/video_service.dart';
+import 'core/services/hero_service.dart';
+import 'core/services/doctor_service.dart';
+import 'core/services/branch_service.dart';
+import 'core/services/package_service.dart';
+import 'core/services/promotion_service.dart';
+import 'core/services/branding_service.dart';
+import 'core/services/onboarding_service.dart';
+import 'core/services/telehealth_service.dart';
+import 'core/services/legal_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GoRouter.optionURLReflectsImperativeAPIs = true;
@@ -32,8 +44,24 @@ void main() async {
   await actions.setupFCMForegroundHandler();
   // End initial custom actions code
 
-  final appState = FFAppState(); // Initialize FFAppState
+  final appState = FFAppState();
   await appState.initializePersistedState();
+
+  Future.wait([
+    BrandingService.instance.init(),
+    HeroService.instance.init(),
+    DoctorService.instance.init(),
+    BranchService.instance.init(),
+    ArticleService.instance.init(),
+    VideoService.instance.init(),
+    PackageService.instance.init(),
+    PromotionService.instance.init(),
+    OnboardingService.instance.init(),
+    TelehealthService.instance.init(),
+    LegalService.instance.init(),
+  ]).then((_) {
+    debugPrint('[CMS] Services initialized');
+  });
 
   runApp(ChangeNotifierProvider(
     create: (context) => appState,

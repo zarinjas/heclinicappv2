@@ -248,6 +248,115 @@ class FFAppState extends ChangeNotifier {
   void insertAtIndexInDefaultprovider(int index, String value) {
     defaultprovider.insert(index, value);
   }
+
+  // ── New auth flow fields ──────────────────────────────────────────────────
+
+  // Register: identity step data (Step 1)
+  String _registerNric = '';
+  String get registerNric => _registerNric;
+  set registerNric(String value) {
+    _registerNric = value;
+  }
+
+  String _registerNricType = '';
+  String get registerNricType => _registerNricType;
+  set registerNricType(String value) {
+    _registerNricType = value;
+  }
+
+  // Whether the user is registering anonymously (no NRIC/passport)
+  bool _registerAnonymous = false;
+  bool get registerAnonymous => _registerAnonymous;
+  set registerAnonymous(bool value) {
+    _registerAnonymous = value;
+  }
+
+  // Plato ID resolved during NRIC check (walk-in patient linking)
+  String _registerIdplato = '';
+  String get registerIdplato => _registerIdplato;
+  set registerIdplato(String value) {
+    _registerIdplato = value;
+  }
+
+  // Register: personal info step data (Step 2)
+  String _registerName = '';
+  String get registerName => _registerName;
+  set registerName(String value) {
+    _registerName = value;
+  }
+
+  String _registerPhone = '';
+  String get registerPhone => _registerPhone;
+  set registerPhone(String value) {
+    _registerPhone = value;
+  }
+
+  String _registerDob = '';
+  String get registerDob => _registerDob;
+  set registerDob(String value) {
+    _registerDob = value;
+  }
+
+  String _registerSex = 'Male';
+  String get registerSex => _registerSex;
+  set registerSex(String value) {
+    _registerSex = value;
+  }
+
+  String _registerNationality = '';
+  String get registerNationality => _registerNationality;
+  set registerNationality(String value) {
+    _registerNationality = value;
+  }
+
+  String _registerPassword = '';
+  String get registerPassword => _registerPassword;
+  set registerPassword(String value) {
+    _registerPassword = value;
+  }
+
+  String _registerAllergies = '';
+  String get registerAllergies => _registerAllergies;
+  set registerAllergies(String value) {
+    _registerAllergies = value;
+  }
+
+  // Forgot password: identifier passed between screens
+  String _resetIdentifier = '';
+  String get resetIdentifier => _resetIdentifier;
+  set resetIdentifier(String value) {
+    _resetIdentifier = value;
+  }
+
+  // Forgot password: reset token returned after OTP verification
+  String _resetToken = '';
+  String get resetToken => _resetToken;
+  set resetToken(String value) {
+    _resetToken = value;
+  }
+
+  /// Clear all register temp state (call after successful register or cancel)
+  void clearRegisterState() {
+    _registerNric = '';
+    _registerNricType = '';
+    _registerAnonymous = false;
+    _registerIdplato = '';
+    _registerName = '';
+    _registerEmail = '';
+    _registerPhone = '';
+    _registerDob = '';
+    _registerSex = 'Male';
+    _registerNationality = '';
+    _registerPassword = '';
+    _registerAllergies = '';
+    _phonefield = '';
+  }
+
+  /// Clear forgot password temp state
+  void clearResetState() {
+    _resetIdentifier = '';
+    _resetToken = '';
+  }
 }
 
 void _safeInit(Function() initializeField) {

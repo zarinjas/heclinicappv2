@@ -83,7 +83,9 @@ async function sendPushNotifications(snapshot) {
   const parameterData = notificationData.parameter_data || "";
   const targetAudience = notificationData.target_audience || "";
   const initialPageName = notificationData.initial_page_name || "";
+  const type = notificationData.type || "manual";
   const userRefsData = notificationData.user_refs || [];
+  const patientIds = notificationData.patient_ids || [];
   const branchIds = notificationData.branch_ids || [];
   const doctorIds = notificationData.doctor_ids || [];
   const targetDateRange = notificationData.target_date_range || null;
@@ -104,18 +106,22 @@ async function sendPushNotifications(snapshot) {
   var tokens = new Set();
   var userRefs = [];
 
-  if (userRefsData && Array.isArray(userRefsData) && userRefsData.length > 0) {
-    userRefs = userRefsData;
-  } else if (typeof userRefsData === "string" && userRefsData.trim() !== "") {
-    userRefs = userRefsData.trim().split(",").map((r) => r.trim()).filter((r) => r);
-  }
+  if (patientIds.length > 0) {
+    tokens = await resolveTokensByPatientIds(patientIds);
+  } else {
+    if (userRefsData && Array.isArray(userRefsData) && userRefsData.length > 0) {
+      userRefs = userRefsData;
+    } else if (typeof userRefsData === "string" && userRefsData.trim() !== "") {
+      userRefs = userRefsData.trim().split(",").map((r) => r.trim()).filter((r) => r);
+    }
 
-  if (branchIds.length > 0) {
-    userRefs = await resolveUserRefsByBranchIds(branchIds);
-  } else if (doctorIds.length > 0) {
-    userRefs = await resolveUserRefsByDoctorIds(doctorIds);
-  } else if (targetDateRange) {
-    userRefs = await resolveUserRefsByDateRange(targetDateRange);
+    if (branchIds.length > 0) {
+      userRefs = await resolveUserRefsByBranchIds(branchIds);
+    } else if (doctorIds.length > 0) {
+      userRefs = await resolveUserRefsByDoctorIds(doctorIds);
+    } else if (targetDateRange) {
+      userRefs = await resolveUserRefsByDateRange(targetDateRange);
+    }
   }
 
   if (userRefs.length > 0) {
@@ -167,6 +173,7 @@ async function sendPushNotifications(snapshot) {
       data: {
         initialPageName,
         parameterData,
+        type,
       },
       android: {
         notification: {
@@ -194,6 +201,33 @@ async function sendPushNotifications(snapshot) {
   );
 
   await snapshot.ref.update({ status: "succeeded", num_sent: numSent });
+}
+
+async function resolveTokensByPatientIds(patientIds) {
+  var tokens = new Set();
+  if (!patientIds || patientIds.length === 0) {
+    return tokens;
+  }
+  await Promise.all(
+    patientIds.map(async (pid) => {
+      try {
+        const fcmDoc = await firestore.doc(`fcm/${pid}`).get();
+        if (!fcmDoc.exists) {
+          console.log(`No fcm record for patient ${pid}`);
+          return;
+        }
+        const data = fcmDoc.data();
+        const token = (data && data.fcm_token) || "";
+        if (token) {
+          tokens.add(token);
+        }
+      } catch (e) {
+        console.log(`Skipping patient ${pid}: ${e}`);
+      }
+    }),
+  );
+  console.log(`Resolved ${tokens.size} tokens from patient_ids: [${patientIds}]`);
+  return tokens;
 }
 
 async function resolveUserRefsByBranchIds(branchIds) {

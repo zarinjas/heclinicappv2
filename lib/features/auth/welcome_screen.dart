@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/services/branding_service.dart';
 import '../../core/widgets/app_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -14,68 +16,90 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
-    final primaryTextColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.primary;
-    final secondaryTextColor =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
-      backgroundColor: bgColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.space32,
+      backgroundColor: AppColors.primary,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primary,
+              AppColors.primaryLight,
+            ],
           ),
+        ),
+        child: SafeArea(
           child: Column(
             children: [
-              const Spacer(flex: 2),
-              Image.asset(
-                'assets/images/logo.png',
-                width: 100,
-                height: 100,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(
-                    Icons.medical_services,
-                    color: AppColors.accent,
-                    size: 80,
-                  );
-                },
+              const Spacer(),
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppColors.accent,
+                      Color(0xFF27F5A3),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  BrandingService.instance.appShortName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.5,
+                  ),
+                ),
               ),
               const SizedBox(height: AppSpacing.space24),
               Text(
-                'He Clinic',
-                style: AppTextStyles.heading1.copyWith(
-                  color: primaryTextColor,
+                BrandingService.instance.appName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: AppSpacing.space8),
               Text(
-                'Your trusted healthcare partner',
+                BrandingService.instance.tagline,
                 style: AppTextStyles.body1.copyWith(
-                  color: secondaryTextColor,
+                  color: Colors.white.withValues(alpha: 0.7),
                 ),
               ),
-              const SizedBox(height: AppSpacing.space4),
-              Text(
-                'Book appointments, access records, and more.',
-                style: AppTextStyles.body2.copyWith(
-                  color: secondaryTextColor,
+              const Spacer(),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.space24,
+                  0,
+                  AppSpacing.space24,
+                  bottomPadding + AppSpacing.space24,
+                ),
+                child: Column(
+                  children: [
+                    AppButton(
+                      label: 'Log In',
+                      variant: AppButtonVariant.whiteSolid,
+                      onPressed: () => context.go('/login'),
+                    ),
+                    const SizedBox(height: AppSpacing.space16),
+                    AppButton(
+                      label: 'Create Account',
+                      variant: AppButtonVariant.whiteGhost,
+                      onPressed: () => context.go('/registerStep1'),
+                    ),
+                  ],
                 ),
               ),
-              const Spacer(flex: 2),
-              AppButton.primary(
-                label: 'Login',
-                onPressed: () => context.go('/login'),
-              ),
-              const SizedBox(height: AppSpacing.space16),
-              AppButton.secondary(
-                label: 'Create Account',
-                onPressed: () => context.go('/registerStep1'),
-              ),
-              const SizedBox(height: AppSpacing.space48),
             ],
           ),
         ),

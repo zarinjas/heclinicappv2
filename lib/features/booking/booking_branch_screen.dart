@@ -165,8 +165,6 @@ class _BookingBranchScreenState extends State<BookingBranchScreen> {
         return BranchCard(
           name: branch['name']?.toString() ?? '',
           address: branch['address']?.toString() ?? '',
-          operatingHours:
-              branch['operating_hours']?.toString() ?? '',
           isSelected: _selectedIndex == i,
           onTap: () => _onBranchSelected(i),
         );

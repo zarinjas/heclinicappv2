@@ -11,6 +11,12 @@ import '/core/theme/app_colors.dart';
 import '/core/theme/app_text_styles.dart';
 
 import '/core/services/branding_service.dart';
+import '/core/services/hero_service.dart';
+import '/core/services/doctor_service.dart';
+import '/core/services/branch_service.dart';
+import '/core/services/article_service.dart';
+import '/core/services/video_service.dart';
+import '/core/services/package_service.dart';
 
 import 'auth/forgot_email_screen.dart';
 import 'auth/forgot_newpassword_screen.dart';
@@ -49,7 +55,6 @@ import 'prototype_shell.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  BrandingService.instance.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -58,7 +63,19 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const PrototypeApp());
+
+  Future.wait([
+    BrandingService.instance.init(),
+    HeroService.instance.init(),
+    DoctorService.instance.init(),
+    BranchService.instance.init(),
+    ArticleService.instance.init(),
+    VideoService.instance.init(),
+    PackageService.instance.init(),
+  ]).then((_) {
+    debugPrint('[CMS] All services initialized — running app');
+    runApp(const PrototypeApp());
+  });
 }
 
 class PrototypeApp extends StatelessWidget {

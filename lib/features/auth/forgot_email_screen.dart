@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../backend/api_requests/api_calls.dart';
+import '../../app_state.dart';
+import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_input.dart';
@@ -41,28 +41,21 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
     });
 
     try {
-      final result = await MedicalAppsApiGroup.forgotchangeCall.call(
-        telephone: _identifierController.text.trim(),
+      final result = await HeclinicAuthApi.forgotPasswordCall.call(
+        identifier: _identifierController.text.trim(),
       );
 
       if (!mounted) return;
 
-      final status = MedicalAppsApiGroup.forgotchangeCall.status(
-        result.jsonBody,
-      );
-
-      if (status == true) {
-        if (mounted) {
-          context.go('/forgotOtp');
-        }
+      if (result.succeeded && (ForgotPasswordCall.status(result.jsonBody) == true)) {
+        FFAppState().resetIdentifier = _identifierController.text.trim();
+        if (mounted) context.go('/forgotOtp');
       } else {
-        final message = MedicalAppsApiGroup.forgotchangeCall.message(
-          result.jsonBody,
-        );
+        final message = ForgotPasswordCall.message(result.jsonBody);
         setState(() {
           _apiError = message?.isNotEmpty == true
               ? message
-              : 'Unable to send OTP. Please try again.';
+              : 'Unable to send verification code. Please try again.';
         });
       }
     } catch (e) {
@@ -72,19 +65,11 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
         });
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _retry() {
-    setState(() {
-      _apiError = null;
-    });
-  }
+  void _retry() => setState(() => _apiError = null);
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +78,6 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppAppBar.sub(
-        title: 'Forgot Password',
-        onBack: () => context.go('/login'),
-      ),
       body: SafeArea(
         child: _apiError != null
             ? _buildErrorState(isDark)
@@ -107,7 +88,7 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
 
   Widget _buildErrorState(bool isDark) {
     return AppErrorState(
-      title: 'Failed to Send OTP',
+      title: 'Failed to Send Code',
       subtitle: _apiError!,
       onRetry: _retry,
     );
@@ -115,15 +96,22 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
 
   Widget _buildForm(bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space24,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space24),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.space16),
+            IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+              ),
+              onPressed: () => context.go('/login'),
+            ),
+            const SizedBox(height: AppSpacing.space16),
             Text(
               'Reset Your Password',
               style: AppTextStyles.heading1.copyWith(
@@ -132,11 +120,9 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
             ),
             const SizedBox(height: AppSpacing.space8),
             Text(
-              'Enter your email or phone number below. We\'ll send you a code to reset your password.',
+              'Enter your email or phone number. We\'ll send you a verification code.',
               style: AppTextStyles.body1.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondary,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.space32),
@@ -146,6 +132,7 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
               placeholder: 'Enter your email or phone number',
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _sendOtp(),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter your email or phone number';
@@ -158,7 +145,7 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
             ),
             const SizedBox(height: AppSpacing.space32),
             AppButton.primary(
-              label: 'Send OTP',
+              label: 'Send Code',
               onPressed: _sendOtp,
               isLoading: _isLoading,
             ),
@@ -169,18 +156,14 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
                 Text(
                   'Remember your password? ',
                   style: AppTextStyles.body2.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondary,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                   ),
                 ),
                 GestureDetector(
                   onTap: () => context.go('/login'),
                   child: Text(
                     'Login',
-                    style: AppTextStyles.label.copyWith(
-                      color: AppColors.accent,
-                    ),
+                    style: AppTextStyles.label.copyWith(color: AppColors.accent),
                   ),
                 ),
               ],

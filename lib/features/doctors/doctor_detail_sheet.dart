@@ -126,7 +126,7 @@ class DoctorDetailSheet extends StatelessWidget {
             width: double.infinity,
             child: AppButton.primary(
               label: 'Book Appointment',
-              onTap: onBookAppointment ?? () {},
+              onPressed: onBookAppointment ?? () {},
             ),
           ),
         ],

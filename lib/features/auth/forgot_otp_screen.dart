@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../backend/api_requests/api_calls.dart';
+import '../../app_state.dart';
+import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/otp_input_row.dart';
@@ -25,13 +25,14 @@ class ForgotOtpScreen extends StatefulWidget {
 class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
   static const _otpLength = 6;
   static const _countdownSeconds = 60;
+  static const _maxAttempts = 5;
 
-  final _identifierController = TextEditingController();
   bool _isVerifying = false;
   bool _isResending = false;
   bool _hasOtpError = false;
   String? _apiError;
   int _remainingSeconds = _countdownSeconds;
+  int _attemptsLeft = _maxAttempts;
   Timer? _countdownTimer;
   String _otpValue = '';
 
@@ -43,7 +44,6 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
 
   @override
   void dispose() {
-    _identifierController.dispose();
     _countdownTimer?.cancel();
     super.dispose();
   }
@@ -90,19 +90,42 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
     });
 
     try {
-      final result = await MedicalAppsApiGroup.verifyResetCodeCall.call();
+      final appState = FFAppState();
+      final result = await HeclinicAuthApi.verifyOtpCall.call(
+        identifier: appState.resetIdentifier,
+        otp: _otpValue,
+      );
 
       if (!mounted) return;
 
-      if (result.succeeded) {
-        if (mounted) {
-          context.go('/forgotNewPassword');
+      if (result.succeeded && (VerifyOtpCall.status(result.jsonBody) == true)) {
+        final resetToken = VerifyOtpCall.resetToken(result.jsonBody);
+
+        if (resetToken != null && resetToken.isNotEmpty) {
+          appState.resetToken = resetToken;
         }
+
+        if (mounted) context.go('/forgotNewPassword');
       } else {
         setState(() {
+          _attemptsLeft--;
           _hasOtpError = true;
-          _apiError = 'Invalid OTP code. Please try again.';
+
+          if (_attemptsLeft <= 0) {
+            _apiError = 'Too many failed attempts. Please request a new code.';
+          } else {
+            _apiError =
+                'Invalid code. $_attemptsLeft attempt(s) remaining.';
+          }
         });
+
+        if (_attemptsLeft <= 0) {
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) {
+            appState.resetIdentifier = '';
+            context.go('/forgotEmail');
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -112,11 +135,7 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
         });
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isVerifying = false;
-        });
-      }
+      if (mounted) setState(() => _isVerifying = false);
     }
   }
 
@@ -127,26 +146,25 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
     });
 
     try {
-      final result = await MedicalAppsApiGroup.forgotchangeCall.call(
-        telephone: _identifierController.text,
+      final appState = FFAppState();
+      final result = await HeclinicAuthApi.forgotPasswordCall.call(
+        identifier: appState.resetIdentifier,
       );
 
       if (!mounted) return;
 
-      final status = MedicalAppsApiGroup.forgotchangeCall.status(
-        result.jsonBody,
-      );
-
-      if (status == true) {
+      if (result.succeeded && (ForgotPasswordCall.status(result.jsonBody) == true)) {
         _startCountdown();
+        setState(() {
+          _attemptsLeft = _maxAttempts;
+          _hasOtpError = false;
+        });
       } else {
-        final message = MedicalAppsApiGroup.forgotchangeCall.message(
-          result.jsonBody,
-        );
+        final message = ForgotPasswordCall.message(result.jsonBody);
         setState(() {
           _apiError = message?.isNotEmpty == true
               ? message
-              : 'Failed to resend OTP. Please try again.';
+              : 'Failed to resend code. Please try again.';
         });
       }
     } catch (e) {
@@ -156,19 +174,8 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
         });
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isResending = false;
-        });
-      }
+      if (mounted) setState(() => _isResending = false);
     }
-  }
-
-  void _retry() {
-    setState(() {
-      _apiError = null;
-      _hasOtpError = false;
-    });
   }
 
   bool get _canResend => _remainingSeconds <= 0 && !_isResending;
@@ -180,23 +187,18 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppAppBar.sub(
-        title: 'Enter OTP',
-        onBack: () => context.go('/forgotEmail'),
-      ),
       body: SafeArea(
-        child: _apiError != null
-            ? _buildErrorState(isDark)
+        child: _apiError != null && _apiError!.startsWith('Too many')
+            ? _buildLockedState(isDark)
             : _buildForm(isDark),
       ),
     );
   }
 
-  Widget _buildErrorState(bool isDark) {
+  Widget _buildLockedState(bool isDark) {
     return AppErrorState(
-      title: 'OTP Verification Failed',
+      title: 'Verification Locked',
       subtitle: _apiError!,
-      onRetry: _retry,
     );
   }
 
@@ -207,13 +209,23 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
         '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.space24,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: AppSpacing.space32),
+          const SizedBox(height: AppSpacing.space16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+              ),
+              onPressed: () => context.go('/forgotEmail'),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.space16),
           Icon(
             Icons.sms_outlined,
             size: 64,
@@ -229,7 +241,7 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
           ),
           const SizedBox(height: AppSpacing.space8),
           Text(
-            'We\'ve sent a 6-digit code to your phone. Please enter it below.',
+            'We\'ve sent a 6-digit code to your email or WhatsApp. Please enter it below.',
             style: AppTextStyles.body1.copyWith(
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
             ),
@@ -242,19 +254,17 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
             onChanged: _onOtpChanged,
             hasError: _hasOtpError,
           ),
-          if (_hasOtpError) ...[
+          if (_hasOtpError && _apiError != null) ...[
             const SizedBox(height: AppSpacing.space8),
             Text(
-              _apiError ?? 'Invalid OTP code',
-              style: AppTextStyles.body2.copyWith(
-                color: AppColors.error,
-              ),
+              _apiError!,
+              style: AppTextStyles.body2.copyWith(color: AppColors.error),
               textAlign: TextAlign.center,
             ),
           ],
           const SizedBox(height: AppSpacing.space32),
           AppButton.primary(
-            label: 'Verify OTP',
+            label: 'Verify Code',
             onPressed: _otpValue.length == _otpLength ? _verifyOtp : null,
             isLoading: _isVerifying,
           ),
@@ -265,31 +275,36 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
               Text(
                 "Didn't receive the code? ",
                 style: AppTextStyles.body2.copyWith(
-                  color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondary,
+                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                 ),
               ),
               _canResend
                   ? GestureDetector(
                       onTap: _resendOtp,
                       child: Text(
-                        'Resend OTP',
-                        style: AppTextStyles.label.copyWith(
-                          color: AppColors.accent,
-                        ),
+                        'Resend',
+                        style: AppTextStyles.label.copyWith(color: AppColors.accent),
                       ),
                     )
                   : Text(
                       timerText,
                       style: AppTextStyles.label.copyWith(
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondary,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                       ),
                     ),
             ],
           ),
+          if (_isResending) ...[
+            const SizedBox(height: AppSpacing.space16),
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.accent,
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.space32),
         ],
       ),

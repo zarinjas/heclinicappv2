@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CmsArticle extends Model
@@ -34,7 +35,7 @@ class CmsArticle extends Model
         if (! $this->featured_image) {
             return null;
         }
-        return asset('storage/' . $this->featured_image);
+        return Storage::disk('public')->url($this->featured_image);
     }
 
     public function getExcerptAttribute(?string $value): ?string

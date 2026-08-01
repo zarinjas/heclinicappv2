@@ -405,6 +405,18 @@ app.get("/api/v2/cms/videos", (req, res) => {
   res.json({ data, total, current_page: page, lastPage, per_page: limit });
 });
 
+const mockPromotions = [
+  { id: 1, title: "Pakej Kesihatan Asas", description: "Pemeriksaan fizikal lengkap, ujian darah, ujian air kencing, dan konsultasi doktor.", image: "https://placehold.co/400x200/F5A623/131C3C?text=Basic+Check", cta_text: "RM 99", cta_link: "https://heclinic.com/promo/basic", promo_code: "BASIC99", is_active: true, sort_order: 1 },
+  { id: 2, title: "Pakej Kesihatan Premium", description: "Pemeriksaan komprehensif termasuk ECG, X-Ray dada, ujian fungsi hati & buah pinggang.", image: "https://placehold.co/400x200/2868F5/FFFFFF?text=Premium+Check", cta_text: "RM 299", cta_link: "https://heclinic.com/promo/premium", promo_code: "PREMIUM299", is_active: true, sort_order: 2 },
+  { id: 3, title: "Pakej Vaksinasi Dewasa", description: "Vaksinasi Influenza, Hepatitis B, Tetanus sekali dengan konsultasi doktor.", image: "https://placehold.co/400x200/27F5A3/131C3C?text=Vaccination", cta_text: "RM 199", cta_link: "https://heclinic.com/promo/vaccine", promo_code: "VAKSIN199", is_active: true, sort_order: 3 },
+  { id: 4, title: "Saringan Kesihatan Wanita", description: "Pap smear, ultrasound pelvis, pemeriksaan payudara. Pengesanan awal menyelamatkan nyawa.", image: "https://placehold.co/400x200/F54636/FFFFFF?text=Women+Check", cta_text: "RM 249", cta_link: "https://heclinic.com/promo/women", promo_code: "WANITA249", is_active: true, sort_order: 4 },
+];
+
+app.get("/api/v2/cms/promotions", (req, res) => {
+  console.log(`[CMS] GET promotions`);
+  res.json(mockPromotions.filter(p => p.is_active));
+});
+
 // ──────────────────────────────────────────────
 // LARAVEL CONFIG API — /api/v2/config/*
 // ──────────────────────────────────────────────
@@ -412,6 +424,24 @@ app.get("/api/v2/cms/videos", (req, res) => {
 app.get("/api/v2/config/branches", (req, res) => {
   console.log(`[CONFIG] GET branches`);
   res.json(mockBranches.filter(b => b.is_active));
+});
+
+const mockBranding = {
+  app_name: "He Medical Clinic",
+  app_short_name: "HE",
+  tagline: "Your Health, Simplified",
+  primary_color: "#131C3C",
+  splash_bg_color: "#131C3C",
+  logo_url: null,
+  splash_logo_url: null,
+  login_logo_url: null,
+  appbar_logo_url: null,
+  favicon_url: null,
+};
+
+app.get("/api/v2/config/branding", (req, res) => {
+  console.log(`[CONFIG] GET branding`);
+  res.json(mockBranding);
 });
 
 app.get("/api/v2/config/doctors", (req, res) => {

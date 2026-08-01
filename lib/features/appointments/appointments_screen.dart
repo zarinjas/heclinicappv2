@@ -324,7 +324,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         date: _formatDate(appointment.start),
         time: _formatTime(appointment.start),
         status: _parseStatus(true),
-        daysToGo: days > 0 ? days : null,
+        countdownDueAt: days > 0 ? appointment.start : null,
         onTap: () {},
       ),
     );

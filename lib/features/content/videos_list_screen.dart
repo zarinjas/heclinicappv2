@@ -3,11 +3,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_text_styles.dart';
+import '../../core/services/video_service.dart';
+import '../../core/services/models/video.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
-import '../../core/widgets/app_skeleton.dart';
 import '../../core/widgets/video_card.dart';
 
 class VideosListScreen extends StatefulWidget {
@@ -23,26 +23,29 @@ class _VideosListScreenState extends State<VideosListScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
-  final List<_VideoData> _videos = [];
+  List<Video> _videos = [];
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _loadVideos();
   }
 
-  Future<void> _loadInitialData() async {
+  Future<void> _loadVideos() async {
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
-      _videos.clear();
-      _videos.addAll(_generateMockVideos());
+      final service = VideoService.instance;
+      await service.refresh();
+
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _videos = service.videos;
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -50,50 +53,10 @@ class _VideosListScreenState extends State<VideosListScreen> {
           _isLoading = false;
           _hasError = true;
           _errorMessage = e.toString();
+          _videos = Video.fallbackList;
         });
       }
     }
-  }
-
-  List<_VideoData> _generateMockVideos() {
-    return [
-      _VideoData(
-        title: 'Cara Cuci Tangan Dengan Betul',
-        author: '@heclinic_my',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/3B8DFF/FFFFFF?text=Cuci+Tangan',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-      _VideoData(
-        title: '5 Senaman Ringkas Di Pejabat',
-        author: '@dr_ahmad_rizal',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/27F5A3/131C3C?text=Senaman+Pejabat',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-      _VideoData(
-        title: 'Makanan Super Untuk Imuniti',
-        author: '@heclinic_my',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/F5A623/131C3C?text=Makanan+Imuniti',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-      _VideoData(
-        title: 'Kenali Simptom Awal Diabetes',
-        author: '@dr_siti_haliza',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/F54636/FFFFFF?text=Diabetes',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-      _VideoData(
-        title: 'Tips Tidur Berkualiti Malam Ini',
-        author: '@heclinic_my',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/8B7380/FFFFFF?text=Tidur+Berkualiti',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-      _VideoData(
-        title: 'Pemeriksaan Kesihatan Percuma',
-        author: '@heclinic_my',
-        thumbnailUrl: 'https://via.placeholder.com/320x180/3B8DFF/FFFFFF?text=Pemeriksaan+Sihat',
-        tiktokUrl: 'https://www.tiktok.com',
-      ),
-    ];
   }
 
   Future<void> _openVideo(String url) async {
@@ -113,15 +76,15 @@ class _VideosListScreenState extends State<VideosListScreen> {
         crossAxisCount: 2,
         crossAxisSpacing: AppSpacing.space12,
         mainAxisSpacing: AppSpacing.space16,
-        childAspectRatio: 0.7,
-      ),
-      itemCount: 6,
+          childAspectRatio: 0.45,
+        ),
+        itemCount: 6,
       itemBuilder: (_, __) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           AspectRatio(
-            aspectRatio: 16 / 9,
+            aspectRatio: 9 / 16,
             child: Container(
               decoration: BoxDecoration(
                 color: shimmerColor,
@@ -152,7 +115,7 @@ class _VideosListScreenState extends State<VideosListScreen> {
 
   Widget _buildEmpty() {
     return const Center(
-      child: AppEmptyState.noVideos(),
+      child: AppEmptyState.noVideos,
     );
   }
 
@@ -176,56 +139,46 @@ class _VideosListScreenState extends State<VideosListScreen> {
       return _buildSkeleton();
     }
 
-    if (_hasError) {
+    if (_hasError && _videos.isEmpty) {
       return AppErrorState(
         title: 'Could not load videos',
         subtitle: _errorMessage,
-        onRetry: _loadInitialData,
+        onRetry: _loadVideos,
       );
     }
 
     if (_videos.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _loadInitialData,
+        onRefresh: _loadVideos,
         child: ListView(children: [_buildEmpty()]),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: _loadInitialData,
+      onRefresh: _loadVideos,
       child: GridView.builder(
         padding: const EdgeInsets.all(AppSpacing.space16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: AppSpacing.space12,
           mainAxisSpacing: AppSpacing.space16,
-          childAspectRatio: 0.7,
+          childAspectRatio: 0.45,
         ),
         itemCount: _videos.length,
         itemBuilder: (context, index) {
           final video = _videos[index];
           return VideoCard(
-            thumbnailUrl: video.thumbnailUrl,
+            thumbnailUrl: video.thumbnailUrl ?? '',
+            placeholderGradient: video.placeholderGradient,
             title: video.title,
             author: video.author,
+            videoAspectRatio: 9 / 16,
+            platformLabel: 'TikTok',
+            durationLabel: '0:30',
             onTap: () => _openVideo(video.tiktokUrl),
           );
         },
       ),
     );
   }
-}
-
-class _VideoData {
-  final String title;
-  final String author;
-  final String thumbnailUrl;
-  final String tiktokUrl;
-
-  _VideoData({
-    required this.title,
-    required this.author,
-    required this.thumbnailUrl,
-    required this.tiktokUrl,
-  });
 }

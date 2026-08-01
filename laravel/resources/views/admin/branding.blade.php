@@ -106,10 +106,81 @@
             </div>
         </div>
 
-        <div class="flex justify-end">
-            <button type="submit"
+        <!-- Telehealth Settings -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mt-6">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-[#0F1B3D]">Telehealth Configuration</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Title</label>
+                        <input type="text" name="telehealth_title" value="{{ old('telehealth_title', $branding['telehealth_title']) }}"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Price Text</label>
+                        <input type="text" name="telehealth_price" value="{{ old('telehealth_price', $branding['telehealth_price']) }}"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">WhatsApp Number</label>
+                        <input type="text" name="telehealth_whatsapp" value="{{ old('telehealth_whatsapp', $branding['telehealth_whatsapp']) }}"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Hours Text</label>
+                        <input type="text" name="telehealth_hours" value="{{ old('telehealth_hours', $branding['telehealth_hours']) }}"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Button Label</label>
+                        <input type="text" name="telehealth_button_label" value="{{ old('telehealth_button_label', $branding['telehealth_button_label']) }}"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Description</label>
+                    <textarea name="telehealth_description" rows="3"
+                              class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none resize-y">{{ old('telehealth_description', $branding['telehealth_description']) }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Features (JSON array)</label>
+                    <textarea name="telehealth_features" rows="4"
+                              class="w-full px-4 py-2 text-sm font-mono border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none resize-y">{{ old('telehealth_features', $branding['telehealth_features']) }}</textarea>
+                    <p class="mt-1 text-xs text-gray-400">e.g. ["Feature 1", "Feature 2", "Feature 3"]</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clinic Info Settings -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mt-6">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-[#0F1B3D]">Clinic Info</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">About Text</label>
+                    <textarea name="clinic_about_text" rows="3"
+                              class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none resize-y">{{ old('clinic_about_text', $branding['clinic_about_text']) }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Operating Hours (JSON array)</label>
+                    <textarea name="clinic_operating_hours" rows="4"
+                              class="w-full px-4 py-2 text-sm font-mono border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none resize-y">{{ old('clinic_operating_hours', $branding['clinic_operating_hours']) }}</textarea>
+                    <p class="mt-1 text-xs text-gray-400">e.g. ["Mon-Fri: 8am-8pm", "Sat: 8am-4pm", "Sun & PH: Closed"]</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Contact Email</label>
+                    <input type="email" name="clinic_contact_email" value="{{ old('clinic_contact_email', $branding['clinic_contact_email']) }}"
+                           class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none">
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
                     class="px-6 py-3 bg-[#00C9A7] text-white rounded-xl font-medium text-sm hover:bg-[#00b897] transition-colors">
-                Save Branding
+                Save Settings
             </button>
         </div>
     </form>
