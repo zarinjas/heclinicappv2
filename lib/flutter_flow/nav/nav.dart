@@ -79,7 +79,7 @@ class AppStateNotifier extends ChangeNotifier {
   bool notifyOnAuthChange = true;
 
   bool get loading => user == null || showSplashImage;
-  bool get loggedIn => user?.loggedIn ?? false;
+  bool get loggedIn => (user?.loggedIn ?? false) || FFAppState().isLoggedIn;
   bool get initiallyLoggedIn => initialUser?.loggedIn ?? false;
   bool get shouldRedirect => loggedIn && _redirectLocation != null;
 
