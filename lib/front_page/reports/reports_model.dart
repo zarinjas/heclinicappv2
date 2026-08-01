@@ -62,18 +62,24 @@ class HealthRecord {
 }
 
 class PatientDocument {
+  final int id;
   final String name;
   final String url;
   final String uploadedAt;
   final String? adminNote;
   final int sizeBytes;
+  final String? mimeType;
+  final String source;
 
   const PatientDocument({
+    required this.id,
     required this.name,
     required this.url,
     required this.uploadedAt,
     this.adminNote,
     this.sizeBytes = 0,
+    this.mimeType,
+    this.source = 'admin',
   });
 }
 
@@ -105,6 +111,7 @@ class ReportsModel extends FlutterFlowModel<ReportsWidget> {
   List<PatientDocument> documentsList = [];
   bool isLoadingDocuments = false;
   String? documentsError;
+  bool isUploadingDocument = false;
 
   @override
   void initState(BuildContext context) {}

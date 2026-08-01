@@ -2261,29 +2261,26 @@ class GetPatientDocumentsCall {
         : await ModifiedSinceHelper.getLastFetchTimestamp('patient_documents');
 
     final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
-    final response = await PaginationHelper.fetchAllPages((currentPage) {
-      final params = <String, String>{
-        'page': currentPage.toString(),
-      };
-      if (modifiedSince != null) {
-        params['modified_since'] = modifiedSince.toString();
-      }
-      return ApiManager.instance.makeApiCall(
-        callName: 'GetPatientDocuments',
-        apiUrl: '$baseUrl/patients/${patientId}/documents',
-        callType: ApiCallType.GET,
-        headers: {
-          'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        },
-        params: params,
-        returnBody: true,
-        encodeBodyUtf8: false,
-        decodeUtf8: false,
-        cache: false,
-        isStreamingApi: false,
-        alwaysAllowBody: false,
-      );
-    });
+    final params = <String, String>{};
+    if (modifiedSince != null) {
+      params['modified_since'] = modifiedSince.toString();
+    }
+
+    final response = await ApiManager.instance.makeApiCall(
+      callName: 'GetPatientDocuments',
+      apiUrl: '$baseUrl/patients/${patientId}/documents',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: params,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
 
     if (response.succeeded) {
       await ModifiedSinceHelper.setLastFetchTimestamp(
@@ -2294,6 +2291,16 @@ class GetPatientDocumentsCall {
 
     return response;
   }
+
+  static List<int>? ids(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].id''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .whereType<num>()
+          .map((x) => x.toInt())
+          .toList();
 
   static List<String>? names(dynamic response) => (getJsonField(
         response,
@@ -2340,6 +2347,91 @@ class GetPatientDocumentsCall {
           .map((x) => castToType<int>(x))
           .withoutNulls
           .toList();
+  static List<String>? mimeTypes(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].mime_type''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+  static List<String>? sources(dynamic response) => (getJsonField(
+        response,
+        r'''$.documents[:].source''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+}
+
+class UploadPatientDocumentCall {
+  static Future<ApiCallResponse> call({
+    String? patientId = '',
+    FFUploadedFile? document,
+    String? title = '',
+  }) async {
+    final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'UploadPatientDocument',
+      apiUrl: '$baseUrl/patients/${patientId}/documents',
+      callType: ApiCallType.POST,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'Accept': 'application/json',
+      },
+      params: {
+        'document': document,
+        'title': title,
+      },
+      bodyType: BodyType.MULTIPART,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.message''',
+      ));
+}
+
+class DeletePatientDocumentCall {
+  static Future<ApiCallResponse> call({
+    String? patientId = '',
+    int? documentId = 0,
+  }) async {
+    final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'DeletePatientDocument',
+      apiUrl: '$baseUrl/patients/${patientId}/documents/${documentId}',
+      callType: ApiCallType.DELETE,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'Accept': 'application/json',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? message(dynamic response) => castToType<String>(getJsonField(
+        response,
+        r'''$.message''',
+      ));
 }
 
 class GetQueueStatusCall {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app_state.dart';
 import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
@@ -25,6 +26,7 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
   final _identifierController = TextEditingController();
   bool _isLoading = false;
   String? _apiError;
+  int _activeTab = 0; // 0 = Email, 1 = WhatsApp
 
   @override
   void dispose() {
@@ -120,25 +122,91 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
             ),
             const SizedBox(height: AppSpacing.space8),
             Text(
-              'Enter your email or phone number. We\'ll send you a verification code.',
+              'Choose how you\'d like to receive your verification code.',
               style: AppTextStyles.body1.copyWith(
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.space24),
+            Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.inputBgDark : AppColors.divider,
+                borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _activeTab = 0),
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: _activeTab == 0 ? AppColors.accent : Colors.transparent,
+                          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Email',
+                            style: AppTextStyles.label.copyWith(
+                              color: _activeTab == 0 ? Colors.white : (isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _activeTab = 1),
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: _activeTab == 1 ? AppColors.accent : Colors.transparent,
+                          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'WhatsApp',
+                            style: AppTextStyles.label.copyWith(
+                              color: _activeTab == 1 ? Colors.white : (isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space24),
             AppInput(
               controller: _identifierController,
-              label: 'Email or Phone Number',
-              placeholder: 'Enter your email or phone number',
-              keyboardType: TextInputType.emailAddress,
+              label: _activeTab == 0 ? 'Email Address' : 'WhatsApp Number',
+              placeholder: _activeTab == 0
+                  ? 'Enter your email address'
+                  : 'Enter your WhatsApp number',
+              keyboardType: _activeTab == 0
+                  ? TextInputType.emailAddress
+                  : TextInputType.phone,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _sendOtp(),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your email or phone number';
+                  return _activeTab == 0
+                      ? 'Please enter your email address'
+                      : 'Please enter your WhatsApp number';
                 }
-                if (value.trim().length < 5) {
-                  return 'Please enter a valid email or phone number';
+                if (_activeTab == 0) {
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email address';
+                  }
+                } else {
+                  if (value.trim().length < 8) {
+                    return 'Please enter a valid phone number';
+                  }
                 }
                 return null;
               },

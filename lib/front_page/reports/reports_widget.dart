@@ -8,8 +8,10 @@ import '/components/error_state_widget.dart';
 import '/component/alert_report/alert_report_widget.dart';
 import '/theme/app_theme.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 import 'reports_model.dart';
@@ -293,21 +295,27 @@ class _ReportsWidgetState extends State<ReportsWidget>
       }
 
       final body = response.jsonBody;
+      final ids = GetPatientDocumentsCall.ids(body);
       final names = GetPatientDocumentsCall.names(body);
       final urls = GetPatientDocumentsCall.urls(body);
       final uploadedAts = GetPatientDocumentsCall.uploadedAt(body);
       final adminNotes = GetPatientDocumentsCall.adminNotes(body);
       final sizeBytes = GetPatientDocumentsCall.sizeBytes(body);
+      final mimeTypes = GetPatientDocumentsCall.mimeTypes(body);
+      final sources = GetPatientDocumentsCall.sources(body);
 
       final docs = <PatientDocument>[];
       if (names != null) {
         for (var i = 0; i < names.length; i++) {
           docs.add(PatientDocument(
+            id: ids != null && i < ids.length ? ids[i] : 0,
             name: names[i],
             url: i < (urls?.length ?? 0) ? (urls?[i] ?? '') : '',
             uploadedAt: i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
             adminNote: adminNotes != null && i < adminNotes.length ? adminNotes[i] : null,
             sizeBytes: i < (sizeBytes?.length ?? 0) ? (sizeBytes?[i] ?? 0) : 0,
+            mimeType: mimeTypes != null && i < mimeTypes.length ? mimeTypes[i] : null,
+            source: sources != null && i < sources.length ? sources[i] : 'admin',
           ));
         }
       }
@@ -927,6 +935,18 @@ class _ReportsWidgetState extends State<ReportsWidget>
                     ],
                   ),
                 ),
+                if (doc.source == 'patient') ...[
+                  IconButton(
+                    onPressed: () => _onDeleteDocument(doc),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: AppColors.textSecondary,
+                    ),
+                    tooltip: 'Delete',
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
               ],
             ),
           ),
@@ -935,8 +955,267 @@ class _ReportsWidgetState extends State<ReportsWidget>
     );
   }
 
+  Future<void> _onDeleteDocument(PatientDocument doc) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(
+          'Delete document?',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${doc.name}"? This cannot be undone.',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14.0,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(
+              'Delete',
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final patientId = FFAppState().idplato;
+    final response = await DeletePatientDocumentCall.call(
+      patientId: patientId,
+      documentId: doc.id,
+    );
+
+    if (!mounted) return;
+
+    if (response.succeeded) {
+      setState(() {
+        _model.documentsList.removeWhere((d) => d.id == doc.id);
+      });
+      showSnackbar(context, 'Document deleted');
+    } else {
+      showSnackbar(context, 'Failed to delete document');
+    }
+  }
+
+  Future<void> _onUploadDocument() async {
+    if (_model.isUploadingDocument) return;
+
+    final source = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+        ),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.divider,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Upload Document',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
+                title: Text(
+                  'PDF file',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Blood test, MC, lab report...',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.0,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                onTap: () => Navigator.pop(sheetContext, 'file'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_outlined, color: AppColors.accent),
+                title: Text(
+                  'Photo from gallery',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Photo of a report or scan',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12.0,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                onTap: () => Navigator.pop(sheetContext, 'image'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (source == null || !mounted) return;
+
+    FFUploadedFile? file;
+
+    if (source == 'file') {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'],
+        withData: true,
+      );
+      final picked = (result != null && result.files.isNotEmpty)
+          ? result.files.first
+          : null;
+      if (picked == null || picked.bytes == null) return;
+      file = FFUploadedFile(
+        name: picked.name,
+        bytes: picked.bytes,
+        originalFilename: picked.name,
+      );
+    } else if (source == 'image') {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      file = FFUploadedFile(
+        name: picked.name,
+        bytes: bytes,
+        originalFilename: picked.name,
+      );
+    }
+
+    if (file == null || !mounted) return;
+
+    final patientId = FFAppState().idplato;
+
+    setState(() {
+      _model.isUploadingDocument = true;
+    });
+
+    final response = await UploadPatientDocumentCall.call(
+      patientId: patientId,
+      document: file,
+      title: '',
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _model.isUploadingDocument = false;
+    });
+
+    if (response.succeeded) {
+      showSnackbar(context, 'Document uploaded');
+      await _loadDocuments(forceRefresh: true);
+    } else {
+      showSnackbar(context, 'Upload failed');
+    }
+  }
+
   void _onDocumentTap(PatientDocument doc) {
     if (doc.url.isEmpty) return;
+
+    final isImage = doc.mimeType?.startsWith('image/') ?? false;
+
+    if (isImage) {
+      showDialog(
+        context: context,
+        builder: (_) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(AppSpacing.sm),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: AppColors.textInverse),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                child: InteractiveViewer(
+                  child: Image.network(
+                    doc.url,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (_, child, progress) {
+                      if (progress == null) return child;
+                      return Container(
+                        width: MediaQuery.sizeOf(context).width * 0.8,
+                        height: MediaQuery.sizeOf(context).height * 0.6,
+                        color: AppColors.primary,
+                        child: const Center(
+                          child: CircularProgressIndicator(color: AppColors.accent),
+                        ),
+                      );
+                    },
+                    errorBuilder: (_, __, ___) => Container(
+                      width: MediaQuery.sizeOf(context).width * 0.8,
+                      height: MediaQuery.sizeOf(context).height * 0.6,
+                      color: AppColors.primary,
+                      child: const Center(
+                        child: Icon(Icons.broken_image_outlined,
+                            color: AppColors.textInverse, size: 48),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1015,24 +1294,67 @@ class _ReportsWidgetState extends State<ReportsWidget>
       );
     }
 
-    if (_model.documentsList.isEmpty) {
-      return const EmptyStateWidget(
-        icon: Icons.folder_outlined,
-        title: 'No documents yet',
-        subtitle: 'Your health records will appear here',
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => _loadDocuments(forceRefresh: true),
-      color: AppColors.accent,
-      backgroundColor: AppColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        itemCount: _model.documentsList.length,
-        itemBuilder: (_, index) =>
-            _buildDocumentCard(_model.documentsList[index]),
-      ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: _model.isUploadingDocument
+                ? Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(
+                      color: AppColors.accent,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : FilledButton.icon(
+                    onPressed: _onUploadDocument,
+                    icon: const Icon(Icons.upload_file, size: 20),
+                    label: Text(
+                      'Upload Document',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: AppColors.textInverse,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+        Expanded(
+          child: _model.documentsList.isEmpty
+              ? const EmptyStateWidget(
+                  icon: Icons.folder_outlined,
+                  title: 'No documents yet',
+                  subtitle: 'Upload a document or wait for your clinic to share one',
+                )
+              : RefreshIndicator(
+                  onRefresh: () => _loadDocuments(forceRefresh: true),
+                  color: AppColors.accent,
+                  backgroundColor: AppColors.primary,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    itemCount: _model.documentsList.length,
+                    itemBuilder: (_, index) =>
+                        _buildDocumentCard(_model.documentsList[index]),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 
