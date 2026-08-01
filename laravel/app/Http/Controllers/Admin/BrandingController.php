@@ -25,6 +25,10 @@ class BrandingController extends Controller
             'appbar_logo_url' => Setting::where('key', 'branding_appbar_logo_url')->value('value'),
             'loading_gif_url' => Setting::where('key', 'branding_loading_gif_url')->value('value'),
             'favicon_url' => Setting::where('key', 'branding_favicon_url')->value('value'),
+            'welcome_bg_color' => Setting::where('key', 'welcome_bg_color')->value('value') ?? '#131C3C',
+            'welcome_bg_gradient_color' => Setting::where('key', 'welcome_bg_gradient_color')->value('value') ?? '#1D2B5F',
+            'welcome_button_color' => Setting::where('key', 'welcome_button_color')->value('value') ?? '#3B8DFF',
+            'welcome_logo_size' => Setting::where('key', 'welcome_logo_size')->value('value') ?? '120',
             'telehealth_title' => Setting::where('key', 'telehealth_title')->value('value') ?? 'Telehealth Consultation',
             'telehealth_description' => Setting::where('key', 'telehealth_description')->value('value') ?? '',
             'telehealth_features' => Setting::where('key', 'telehealth_features')->value('value') ?? '[]',
@@ -55,6 +59,10 @@ class BrandingController extends Controller
             'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'loading_gif' => 'nullable|image|mimes:gif,webp,png|max:10240',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
+            'welcome_bg_color' => 'nullable|string|max:7',
+            'welcome_bg_gradient_color' => 'nullable|string|max:7',
+            'welcome_button_color' => 'nullable|string|max:7',
+            'welcome_logo_size' => 'nullable|integer|min:60|max:260',
             'telehealth_title' => 'nullable|string|max:255',
             'telehealth_description' => 'nullable|string|max:1000',
             'telehealth_features' => 'nullable|string|max:2000',
@@ -73,6 +81,10 @@ class BrandingController extends Controller
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
         $this->saveSetting('branding_accent_color', $validated['accent_color'] ?? '#3B8DFF');
         $this->saveSetting('branding_splash_bg_color', $validated['splash_bg_color'] ?? '#131C3C');
+        $this->saveSetting('welcome_bg_color', $validated['welcome_bg_color'] ?? '#131C3C');
+        $this->saveSetting('welcome_bg_gradient_color', $validated['welcome_bg_gradient_color'] ?? '#1D2B5F');
+        $this->saveSetting('welcome_button_color', $validated['welcome_button_color'] ?? '#3B8DFF');
+        $this->saveSetting('welcome_logo_size', $validated['welcome_logo_size'] ?? '120');
 
         $textFields = [
             'telehealth_title' => 'telehealth_title',

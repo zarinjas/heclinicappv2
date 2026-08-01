@@ -17,12 +17,15 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final primary = BrandingService.instance.primaryColor;
-    final primaryLight = Color.lerp(
-        primary, Colors.white, 0.15) ?? AppColors.primaryLight;
+    final branding = BrandingService.instance;
+    final bgColor = branding.welcomeBgColor;
+    final gradientColor = branding.welcomeBgGradientColor;
+    final buttonColor = branding.welcomeButtonColor;
+    final logoSize = branding.welcomeLogoSize;
+    final logoUrl = branding.logoUrl;
 
     return Scaffold(
-      backgroundColor: primary,
+      backgroundColor: bgColor,
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -31,8 +34,8 @@ class WelcomeScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              primary,
-              primaryLight,
+              bgColor,
+              gradientColor,
             ],
           ),
         ),
@@ -40,32 +43,10 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             children: [
               const Spacer(),
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.accent,
-                      Color(0xFF27F5A3),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.radiusSM),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  BrandingService.instance.appShortName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
+              _buildLogo(branding, logoUrl, logoSize),
               const SizedBox(height: AppSpacing.space24),
               Text(
-                BrandingService.instance.appName,
+                branding.appName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -74,7 +55,8 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.space8),
               Text(
-                BrandingService.instance.tagline,
+                branding.tagline,
+                textAlign: TextAlign.center,
                 style: AppTextStyles.body1.copyWith(
                   color: Colors.white.withValues(alpha: 0.7),
                 ),
@@ -89,11 +71,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    AppButton(
-                      label: 'Log In',
-                      variant: AppButtonVariant.whiteSolid,
-                      onPressed: () => context.go('/login'),
-                    ),
+                    _buildLoginButton(context, buttonColor),
                     const SizedBox(height: AppSpacing.space16),
                     AppButton(
                       label: 'Create Account',
@@ -115,6 +93,70 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo(BrandingService branding, String? logoUrl, double size) {
+    // Use the uploaded app logo when available, otherwise fall back to the
+    // short-name box.
+    if (logoUrl != null && logoUrl.isNotEmpty) {
+      return Image.network(
+        logoUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => _buildFallbackLogo(branding, size),
+      );
+    }
+
+    return _buildFallbackLogo(branding, size);
+  }
+
+  Widget _buildFallbackLogo(BrandingService branding, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            AppColors.accent,
+            Color(0xFF27F5A3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        branding.appShortName,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: size * 0.35,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(BuildContext context, Color buttonColor) {
+    return SizedBox(
+      height: 52,
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () => context.go('/login'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: buttonColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.radiusXL),
+          ),
+          elevation: 0,
+        ),
+        child: Text(
+          'Log In',
+          style: AppTextStyles.button.copyWith(color: Colors.white),
         ),
       ),
     );

@@ -118,6 +118,43 @@
             </div>
         </div>
 
+        <!-- Welcome Screen Settings -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mt-6">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-[#0F1B3D]">Welcome Screen Settings</h2>
+                <p class="text-xs text-gray-400 mt-1">Customize the welcome screen shown after onboarding (logo, background, and buttons).</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Background Color</label>
+                        <input type="color" name="welcome_bg_color" value="{{ old('welcome_bg_color', $branding['welcome_bg_color']) }}"
+                               class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                        <p class="text-xs text-gray-500 mt-1">Base background color for the welcome screen.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Gradient Overlay Color</label>
+                        <input type="color" name="welcome_bg_gradient_color" value="{{ old('welcome_bg_gradient_color', $branding['welcome_bg_gradient_color']) }}"
+                               class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                        <p class="text-xs text-gray-500 mt-1">Gradient overlay from top to bottom over the background color.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Button Color</label>
+                        <input type="color" name="welcome_button_color" value="{{ old('welcome_button_color', $branding['welcome_button_color']) }}"
+                               class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                        <p class="text-xs text-gray-500 mt-1">Color for the "Log In" button on the welcome screen.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Logo Size (px)</label>
+                        <input type="number" name="welcome_logo_size" value="{{ old('welcome_logo_size', $branding['welcome_logo_size']) }}"
+                               min="60" max="260"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Logo size on the welcome screen (60–260 px).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Telehealth Settings -->
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm mt-6">
             <div class="px-6 py-4 border-b border-gray-100">

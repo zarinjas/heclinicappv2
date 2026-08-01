@@ -73,6 +73,10 @@ Route::get('/v2/config/branding', function () {
         'branding_appbar_logo_url',
         'branding_loading_gif_url',
         'branding_favicon_url',
+        'welcome_bg_color',
+        'welcome_bg_gradient_color',
+        'welcome_button_color',
+        'welcome_logo_size',
     ])->pluck('value', 'key');
 
     return response()->json([
@@ -88,6 +92,10 @@ Route::get('/v2/config/branding', function () {
         'appbar_logo_url' => $settings['branding_appbar_logo_url'] ?? null,
         'loading_gif_url' => $settings['branding_loading_gif_url'] ?? null,
         'favicon_url' => $settings['branding_favicon_url'] ?? null,
+        'welcome_bg_color' => $settings['welcome_bg_color'] ?? '#131C3C',
+        'welcome_bg_gradient_color' => $settings['welcome_bg_gradient_color'] ?? '#1D2B5F',
+        'welcome_button_color' => $settings['welcome_button_color'] ?? '#3B8DFF',
+        'welcome_logo_size' => $settings['welcome_logo_size'] ?? '120',
     ]);
 });
 

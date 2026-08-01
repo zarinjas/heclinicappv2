@@ -21,6 +21,10 @@ class AppBranding {
   final String? primaryColorHex;
   final String? accentColorHex;
   final String? splashBgColorHex;
+  final String? welcomeBgColorHex;
+  final String? welcomeBgGradientHex;
+  final String? welcomeButtonColorHex;
+  final double? welcomeLogoSize;
 
   const AppBranding({
     required this.appName,
@@ -34,6 +38,10 @@ class AppBranding {
     this.primaryColorHex,
     this.accentColorHex,
     this.splashBgColorHex,
+    this.welcomeBgColorHex,
+    this.welcomeBgGradientHex,
+    this.welcomeButtonColorHex,
+    this.welcomeLogoSize,
   });
 
   factory AppBranding.fromJson(Map<String, dynamic> json) {
@@ -49,6 +57,10 @@ class AppBranding {
       primaryColorHex: json['primary_color'] as String?,
       accentColorHex: json['accent_color'] as String?,
       splashBgColorHex: json['splash_bg_color'] as String?,
+      welcomeBgColorHex: json['welcome_bg_color'] as String?,
+      welcomeBgGradientHex: json['welcome_bg_gradient_color'] as String?,
+      welcomeButtonColorHex: json['welcome_button_color'] as String?,
+      welcomeLogoSize: (json['welcome_logo_size'] as num?)?.toDouble(),
     );
   }
 
@@ -64,6 +76,10 @@ class AppBranding {
     'primary_color': primaryColorHex,
     'accent_color': accentColorHex,
     'splash_bg_color': splashBgColorHex,
+    'welcome_bg_color': welcomeBgColorHex,
+    'welcome_bg_gradient_color': welcomeBgGradientHex,
+    'welcome_button_color': welcomeButtonColorHex,
+    'welcome_logo_size': welcomeLogoSize,
   };
 
   // Default bundled fallback — never null
@@ -174,6 +190,39 @@ class BrandingService {
     }
     return primaryColor;
   }
+
+  /// Welcome screen base background color.
+  Color get welcomeBgColor {
+    final hex = branding.welcomeBgColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return primaryColor;
+  }
+
+  /// Welcome screen gradient overlay color (second color in the gradient).
+  Color get welcomeBgGradientColor {
+    final hex = branding.welcomeBgGradientHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return AppColors.primaryLight;
+  }
+
+  /// Welcome screen button color.
+  Color get welcomeButtonColor {
+    final hex = branding.welcomeButtonColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return accentColor;
+  }
+
+  /// Welcome screen logo size in pixels.
+  double get welcomeLogoSize => branding.welcomeLogoSize ?? 120;
 
   // ── Refresh from API ──
 
