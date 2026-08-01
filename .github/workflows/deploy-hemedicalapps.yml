@@ -53,4 +53,4 @@ jobs:
             php artisan migrate --force --no-interaction || true &&
             (php artisan storage:link || true) &&
             php artisan optimize:clear &&
-            chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage"
+            (chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true)"
