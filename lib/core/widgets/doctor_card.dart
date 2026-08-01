@@ -96,66 +96,36 @@ class _HorizontalDoctorCard extends StatelessWidget {
 
     return GestureDetector(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.space16),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : AppColors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-            border: isDark
-                ? Border.all(color: AppColors.dividerDark, width: 1)
-                : Border.all(color: AppColors.divider, width: 1),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _DoctorAvatar(
-                photoUrl: photoUrl,
-                initials: initials,
-                avatarGradient: avatarGradient,
-                size: 80,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _DoctorAvatar(
+              photoUrl: photoUrl,
+              initials: initials,
+              avatarGradient: avatarGradient,
+              size: 76,
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            Text(
+              name,
+              style: AppTextStyles.body1.copyWith(
+                color: primaryTextColor,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: AppSpacing.space12),
-              Text(
-                name,
-                style: AppTextStyles.heading3.copyWith(color: primaryTextColor),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: AppSpacing.space4),
-              Text(
-                specialty,
-                style: AppTextStyles.body2.copyWith(color: secondaryTextColor),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (rating != null) ...[
-                const SizedBox(height: AppSpacing.space4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.star, size: 14, color: AppColors.warning),
-                    const SizedBox(width: AppSpacing.space4),
-                    Text(
-                      rating!.toStringAsFixed(1),
-                      style: AppTextStyles.caption.copyWith(
-                        color: secondaryTextColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              if (isAvailable) ...[
-                const SizedBox(height: AppSpacing.space8),
-                AppChip(
-                  label: 'Available Today',
-                  type: AppChipType.status,
-                  statusVariant: StatusChipVariant.confirmed,
-                ),
-              ],
-            ],
-          ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              specialty,
+              style: AppTextStyles.caption.copyWith(color: secondaryTextColor),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       );
   }
