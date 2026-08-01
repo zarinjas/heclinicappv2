@@ -148,7 +148,7 @@
                             <input
                                 type="file"
                                 name="document"
-                                accept=".pdf"
+                                accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
                                 required
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7]/10 file:text-[#00C9A7] hover:file:bg-[#00C9A7]/20 file:transition-colors"
                             >
@@ -178,6 +178,7 @@
                                 <tr class="bg-gray-50 border-b border-gray-100">
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Title</th>
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Filename</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Source</th>
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Size</th>
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Uploaded</th>
                                     <th class="text-right px-4 py-3 font-medium text-gray-500">Actions</th>
@@ -188,6 +189,13 @@
                                     <tr class="border-b border-gray-50">
                                         <td class="px-4 py-3 text-[#0F1B3D]">{{ $doc->title ?? '—' }}</td>
                                         <td class="px-4 py-3 text-gray-500 max-w-[200px] truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</td>
+                                        <td class="px-4 py-3">
+                                            @if (($doc->source ?? 'admin') === 'patient')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600">Patient</span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-600">Admin</span>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3 text-gray-500">{{ $doc->size_kb }} KB</td>
                                         <td class="px-4 py-3 text-gray-500">{{ \Carbon\Carbon::parse($doc->created_at)->format('d M Y, H:i') }}</td>
                                         <td class="px-4 py-3">

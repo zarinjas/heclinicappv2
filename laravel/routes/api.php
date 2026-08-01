@@ -78,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/v2/patients/{id}/documents', [PatientDocumentController::class, 'index'])
         ->name('patients.documents');
+    Route::post('/v2/patients/{id}/documents', [PatientDocumentController::class, 'store'])
+        ->name('patients.documents.store');
+    Route::delete('/v2/patients/{id}/documents/{document}', [PatientDocumentController::class, 'destroy'])
+        ->whereNumber('document')
+        ->name('patients.documents.destroy');
 });
 
 Route::get('/v2/config/doctors', [DoctorConfigController::class, 'index'])

@@ -21,13 +21,22 @@
             </a>
         </div>
 
-        <a href="{{ route('admin.cms.videos.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors whitespace-nowrap">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Add Video
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.cms.videos.bulk') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#0F1B3D] rounded-lg hover:bg-[#1a2d5e] transition-colors whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 1.657 1.343 3 3 3h10a3 3 0 003-3V7a3 3 0 00-3-3H7a3 3 0 00-3 3z"/>
+                </svg>
+                Bulk Add
+            </a>
+            <a href="{{ route('admin.cms.videos.create') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b093] transition-colors whitespace-nowrap">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add Video
+            </a>
+        </div>
     </div>
 
     @if ($videos->isEmpty())

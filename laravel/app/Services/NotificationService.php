@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\NotificationLog;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\GeneralNotification;
+use App\Notifications\PatientDocumentUploaded;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -103,8 +104,7 @@ final class NotificationService
     }
 
     public function sendManualEmailNotification(string $title, string $body, string $recipientEmail, ?string $imageUrl = null): bool
-    {
-        if (empty(trim($recipientEmail))) {
+    {        if (empty(trim($recipientEmail))) {
             Log::channel('plato')->warning('Manual email notification skipped — no recipient email provided', [
                 'title' => $title,
             ]);
@@ -126,6 +126,45 @@ final class NotificationService
             Log::channel('plato')->warning('Manual email notification failed', [
                 'recipient' => $recipientEmail,
                 'title' => $title,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    public function sendPatientDocumentUploadedEmail(array $document, string $recipientEmail, string $branchName = ''): bool
+    {
+        if (empty(trim($recipientEmail))) {
+            Log::channel('plato')->warning('Patient document upload email skipped — no recipient email provided', [
+                'document_id' => $document['id'] ?? null,
+            ]);
+
+            return false;
+        }
+
+        try {
+            Notification::route('mail', $recipientEmail)
+                ->notify(new PatientDocumentUploaded(
+                    patientName: (string) ($document['patient_name'] ?? '—'),
+                    patientNric: (string) ($document['patient_nric'] ?? '—'),
+                    branchName: $branchName !== '' ? $branchName : '—',
+                    platoId: (string) ($document['patient_plato_uid'] ?? '—'),
+                    fileUrl: (string) ($document['url'] ?? '#'),
+                    fileName: (string) ($document['original_name'] ?? '—'),
+                    fileTitle: (string) ($document['title'] ?? '—'),
+                ));
+
+            Log::channel('plato')->info('Patient document upload email sent', [
+                'recipient' => $recipientEmail,
+                'document_id' => $document['id'] ?? null,
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            Log::channel('plato')->warning('Patient document upload email failed', [
+                'recipient' => $recipientEmail,
+                'document_id' => $document['id'] ?? null,
                 'error' => $e->getMessage(),
             ]);
 

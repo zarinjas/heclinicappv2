@@ -65,6 +65,24 @@ class DashboardController extends Controller
             $dateCursor->addDay();
         }
 
+        $uploadQuery = DB::table('patient_documents')->where('source', 'patient');
+
+        if ($user->isBranchAdmin() && $user->branch_id) {
+            $uploadQuery->where('branch_id', $user->branch_id);
+        }
+
+        $patientUploadCount = (clone $uploadQuery)->count();
+
+        $recentPatientUploads = (clone $uploadQuery)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($doc) {
+                $doc->size_kb = round($doc->size_bytes / 1024, 1);
+
+                return $doc;
+            });
+
         return view('admin.dashboard', [
             'user' => $user,
             'totalPatients' => $totalPatients,
@@ -73,6 +91,8 @@ class DashboardController extends Controller
             'deliveryRate' => $deliveryRate,
             'chartLabels' => $chartLabels,
             'chartData' => $chartData,
+            'patientUploadCount' => $patientUploadCount,
+            'recentPatientUploads' => $recentPatientUploads,
         ]);
     }
 }

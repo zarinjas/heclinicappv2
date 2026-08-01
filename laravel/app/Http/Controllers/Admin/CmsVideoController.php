@@ -57,7 +57,7 @@ class CmsVideoController extends Controller
     public function store(StoreCmsVideoRequest $request): RedirectResponse
     {
         $data = $request->validated();
-        $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['sort_order'] = $data['sort_order'] ?? (int) CmsVideo::max('sort_order') + 1;
         $data['created_by'] = auth()->id();
 
         if ($request->input('status') === 'published' && empty($data['published_at'])) {
@@ -69,6 +69,83 @@ class CmsVideoController extends Controller
         return redirect()
             ->route('admin.cms.videos.index')
             ->with('success', 'Video created successfully.');
+    }
+
+    public function bulk(): View
+    {
+        return view('admin.cms.videos.bulk');
+    }
+
+    public function bulkStore(Request $request, TiktokOembedService $oembedService): RedirectResponse
+    {
+        $request->validate([
+            'urls' => ['required', 'string'],
+            'status' => ['nullable', 'in:draft,published'],
+        ]);
+
+        $status = $request->input('status', 'published');
+        $urls = array_values(array_filter(array_map('trim', preg_split('/[\r\n,]+/', $request->input('urls')))));
+
+        if (empty($urls)) {
+            return redirect()
+                ->route('admin.cms.videos.bulk')
+                ->with('error', 'No URLs were provided. Paste at least one TikTok link.');
+        }
+
+        $created = 0;
+        $skipped = [];
+        $sortOrder = (int) CmsVideo::max('sort_order') + 1;
+
+        foreach ($urls as $url) {
+            if (! filter_var($url, FILTER_VALIDATE_URL) || ! str_contains($url, 'tiktok.com')) {
+                $skipped[] = $url;
+
+                continue;
+            }
+
+            if (CmsVideo::where('tiktok_url', $url)->exists()) {
+                $skipped[] = $url;
+
+                continue;
+            }
+
+            $info = $oembedService->fetch($url);
+
+            if (! $info || ! ($info['title'] ?? null) || ! ($info['thumbnail_url'] ?? null)) {
+                $skipped[] = $url;
+
+                continue;
+            }
+
+            CmsVideo::create([
+                'title' => $info['title'],
+                'tiktok_url' => $url,
+                'thumbnail_url' => $info['thumbnail_url'],
+                'tiktok_author' => $info['author_name'],
+                'status' => $status,
+                'sort_order' => $sortOrder++,
+                'published_at' => $status === 'published' ? now() : null,
+                'created_by' => auth()->id(),
+            ]);
+
+            $created++;
+        }
+
+        if ($created === 0) {
+            return redirect()
+                ->route('admin.cms.videos.bulk')
+                ->with('error', 'No videos were added. Check the links (must be valid tiktok.com URLs) and try again.');
+        }
+
+        $message = "Added {$created} video".($created > 1 ? 's' : '').'.';
+
+        if (count($skipped) > 0) {
+            $message .= ' '.count($skipped).' link'.(count($skipped) > 1 ? 's' : '').' skipped (invalid, duplicate, or could not be fetched).';
+        }
+
+        return redirect()
+            ->route('admin.cms.videos.index')
+            ->with('success', $message);
     }
 
     public function edit(CmsVideo $video): View

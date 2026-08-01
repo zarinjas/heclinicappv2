@@ -17,6 +17,7 @@ class UpdateBranchRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:191'],
             'whatsapp_number' => ['nullable', 'string', 'max:50', 'regex:/^\+60/'],
             'image' => ['nullable'],
             'operating_hours' => ['nullable'],

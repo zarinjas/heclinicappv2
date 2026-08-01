@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\PatientMetadata;
 use App\Services\NotificationService;
 use App\Services\PatientDocumentService;
@@ -90,7 +91,7 @@ class PatientController extends Controller
             $vitalsCount = null;
         }
 
-        $documents = app(PatientDocumentService::class)->list($id);
+        $documents = app(PatientDocumentService::class)->listForAdmin($id);
 
         $metadata = PatientMetadata::where('patient_plato_uid', $id)->first();
 
@@ -128,19 +129,31 @@ class PatientController extends Controller
     public function uploadDocument(Request $request, string $id): RedirectResponse
     {
         $request->validate([
-            'document' => ['required', 'file', 'mimetypes:application/pdf', 'max:10240'],
+            'document' => ['required', 'file', 'mimetypes:application/pdf,image/jpeg,image/png,image/gif,image/webp', 'max:10240'],
             'title' => ['nullable', 'string', 'max:255'],
         ], [
-            'document.mimetypes' => 'Only PDF files are allowed.',
+            'document.mimetypes' => 'Only PDF or image files are allowed.',
             'document.max' => 'The document must not be larger than 10MB.',
         ]);
 
         $service = app(PatientDocumentService::class);
-        $service->upload($id, $request->file('document'), $request->input('title'), $request->user()->id);
+
+        $patientInfo = $this->fetchPatientInfo($id);
+        $branchId = $this->resolvePatientBranch($id, $patientInfo);
+
+        $service->upload(
+            $id,
+            $request->file('document'),
+            $request->input('title'),
+            $request->user()->id,
+            $patientInfo,
+            $branchId,
+            'admin',
+        );
 
         try {
             $filename = $request->file('document')->getClientOriginalName();
-            app(NotificationService::class)->sendDocumentUploadedNotification($id, $filename);
+            app(NotificationService::class)->sendDocumentUploadedNotification($id, $filename, $patientInfo['name'] ?? null);
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Document upload notification failed', [
                 'patient_plato_id' => $id,
@@ -161,5 +174,47 @@ class PatientController extends Controller
         return redirect()
             ->route('admin.patients.show', $id)
             ->with('success', 'Document deleted successfully.');
+    }
+
+    private function fetchPatientInfo(string $id): array
+    {
+        try {
+            $plato = app(PlatoProxyService::class);
+            $response = $plato->proxy('GET', "patient/{$id}");
+            $patient = $response['data'] ?? [];
+
+            if (! is_array($patient)) {
+                return [];
+            }
+
+            return [
+                'name' => $patient['name'] ?? null,
+                'nric' => $patient['nric'] ?? null,
+                'phone' => $patient['phone'] ?? null,
+            ];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    private function resolvePatientBranch(string $id, array $patientInfo): ?int
+    {
+        $appointment = Appointment::query()
+            ->where(function ($q) use ($id, $patientInfo) {
+                $q->where('patient_plato_id', $id);
+
+                if (! empty($patientInfo['nric'])) {
+                    $q->orWhere('patient_nric', $patientInfo['nric']);
+                }
+
+                if (! empty($patientInfo['phone'])) {
+                    $q->orWhere('patient_phone', $patientInfo['phone']);
+                }
+            })
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return $appointment?->branch_id;
     }
 }

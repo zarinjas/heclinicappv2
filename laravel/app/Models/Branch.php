@@ -11,6 +11,7 @@ class Branch extends Model
         'name',
         'address',
         'phone',
+        'email',
         'whatsapp_number',
         'image',
         'operating_hours',

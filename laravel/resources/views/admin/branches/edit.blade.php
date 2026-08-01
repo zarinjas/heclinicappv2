@@ -55,6 +55,21 @@
                     </div>
 
                     <div>
+                        <label for="email" class="block text-sm font-medium text-[#0F1B3D] mb-1">Notification Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            value="{{ old('email', $branch->email) }}"
+                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('email') border-red-300 @enderror"
+                        >
+                        <p class="mt-1 text-xs text-gray-400">Receives notification emails when a patient uploads a document. Falls back to the default admin email if empty.</p>
+                        @error('email')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label for="whatsapp_number" class="block text-sm font-medium text-[#0F1B3D] mb-1">WhatsApp Number</label>
                         <input
                             type="text"

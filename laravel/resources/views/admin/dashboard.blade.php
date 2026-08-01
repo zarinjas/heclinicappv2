@@ -97,6 +97,64 @@
             </div>
         </div>
     </div>
+
+    <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-[#0F1B3D]">Recent Patient Uploads</h3>
+            <a href="{{ route('admin.records.index', ['source' => 'patient']) }}"
+               class="text-sm font-medium text-[#00C9A7] hover:text-[#00b093] transition-colors">
+                View all records →
+            </a>
+        </div>
+
+        @if ($patientUploadCount === 0)
+            <p class="text-sm text-gray-400">No patient document uploads yet.</p>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="text-left px-4 py-3 font-medium text-gray-500">Patient</th>
+                            <th class="text-left px-4 py-3 font-medium text-gray-500">File</th>
+                            <th class="text-left px-4 py-3 font-medium text-gray-500">Uploaded</th>
+                            <th class="text-right px-4 py-3 font-medium text-gray-500">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($recentPatientUploads as $doc)
+                            @php
+                                $fileUrl = \Illuminate\Support\Facades\Storage::disk('public')->url('patients/'.$doc->patient_plato_uid.'/documents/'.$doc->filename);
+                            @endphp
+                            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <a href="{{ route('admin.patients.show', $doc->patient_plato_uid) }}"
+                                       class="font-medium text-[#0F1B3D] hover:text-[#00C9A7] transition-colors">
+                                        {{ $doc->patient_name ?: 'Unknown' }}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3 text-gray-500 max-w-[220px] truncate" title="{{ $doc->original_name }}">{{ $doc->original_name }}</td>
+                                <td class="px-4 py-3 text-gray-500">{{ \Carbon\Carbon::parse($doc->created_at)->format('d M Y, H:i') }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ $fileUrl }}"
+                                           target="_blank"
+                                           class="p-1.5 text-gray-400 hover:text-[#0F1B3D] transition-colors"
+                                           title="View">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">{{ $patientUploadCount }} patient upload{{ $patientUploadCount !== 1 ? 's' : '' }} in total.</p>
+        @endif
+    </div>
 @endsection
 
 @push('scripts')
