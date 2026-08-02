@@ -44,13 +44,17 @@ jobs:
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/hemedicalapps.com/heclinic-laravel/
 
       - name: Post-deploy Laravel commands
-        run: >
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}
-          ${{ secrets.USERNAME }}@${{ secrets.HOST }}
-           "cd /home/hemedicalapps.com/heclinic-laravel &&
-            chown -R hemed2668:hemed2668 . &&
-            composer install --no-dev --optimize-autoloader --no-interaction &&
-            php artisan migrate --force --no-interaction || true &&
-            (php artisan storage:link || true) &&
-            php artisan optimize:clear &&
-            (chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true)"
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} \
+            ${{ secrets.USERNAME }}@${{ secrets.HOST }} bash -s <<'REMOTE'
+          set -e
+          APP_DIR=/home/hemedicalapps.com/heclinic-laravel
+          mkdir -p "$APP_DIR"
+          cd "$APP_DIR"
+          chown -R hemed2668:hemed2668 .
+          composer install --no-dev --optimize-autoloader --no-interaction
+          php artisan migrate --force --no-interaction || true
+          php artisan storage:link || true
+          php artisan optimize:clear
+          chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true
+          REMOTE
