@@ -1,124 +1,135 @@
 # Deployment — hemedicalapps.com (Laravel)
 
 Dokumen ini "mengunci" proses deploy supaya tak berlaku masalah di kemudian hari.
-Ikut setting yang dinyatakan di bawah secara tepat — beberapa isu sebelum ni berpunca
-dari nilai secret yang tak konsisten dengan server sebenar.
+Deploy guna **self-hosted GitHub runner** yang dipasang pada server sendiri —
+tidak perlu SSH dari GitHub langsung.
 
 ## 1. Server
 
 | Item | Nilai |
 |---|---|
-| IP / SSH host | `72.62.251.208` |
+| IP | `72.62.251.208` |
 | Hostname | `mail.cyberocket.my` |
-| Panel | CyberPanel (LiteSpeed), OS AlmaLinux 9 |
+| Panel | CyberPanel (LiteSpeed), OS AlmaLinux 9, HostGator Cloud |
 | Path app Laravel | `/home/hemedicalapps.com/heclinic-laravel` |
 | User pemilik domain | `hemed2668` (uid 5010) |
-| SSH user deploy | `root` |
-| SSH port | `22` sahaja |
-| Deploy key (public) | `github-actions-deploy` di dalam `/root/.ssh/authorized_keys` |
+| Runner user | `github-runner` (uid 5021) |
+| Runner dir | `/opt/actions-runner` (bukan `/home` — `/home` tak boleh list) |
+| Runner nama | `heclinic-deploy-runner` |
 
-> ⚠️ **PENTING — Cloudflare:** domain `hemedicalapps.com` berada di belakang
-> Cloudflare (resolve ke `104.21.x` / `172.67.x`). Cloudflare **tidak forward SSH**.
-> SSH **mesti** guna origin IP (`72.62.251.208`), bukan nama domain.
-> Ini punca utama masaalah "Connection timed out" sebelum ni.
+> ⚠️ **Cloudflare:** domain `hemedicalapps.com` berada di belakang Cloudflare
+> (resolve ke `104.21.x`/`172.67.x`). Ia hanya untuk web (80/443), **bukan SSH**.
+> Punca asal "Connection timed out" sebelum ni: `HOST` secret guna domain
+> Cloudflare. **Kini tidak lagi berkaitan** — deploy tak guna SSH.
 
-## 2. GitHub Actions Secrets
+## 2. Kenapa Self-Hosted Runner
 
-Set dalam **repo → Settings → Secrets and variables → Actions**:
+Hosting provider (HostGator) **block IP GitHub Actions (Azure) pada SSH secara
+intermitten** — sesetengah runner boleh connect, yang lain timeout. Ini tak
+boleh diperbaiki dari workflow atau server (fail2ban, ufw, iptables semua bersih).
 
-| Secret | Nilai | Nota |
-|---|---|---|
-| `HOST` | `72.62.251.208` | Origin IP. **JANGAN** guna `hemedicalapps.com` (Cloudflare). |
-| `PORT` | `22` | Port sshd server. |
-| `USERNAME` | `root` | Mesti padan dengan authorized_keys tempat deploy key diletak. |
-| `SSH_KEY` | (private key) | Public key kena ada dalam `/root/.ssh/authorized_keys` untuk user di atas. |
-| `GH_PAT` | (Personal Access Token) | Digunakan oleh workflow lain / bot. |
+Penyelesaian: **runner berjalan dalam server sendiri** (`heclinic-deploy-runner`).
+GitHub hantar job ke runner melalui sambungan **keluar** (server → github.com,
+yang memang berfungsi). Deploy dibuat dengan rsync tempatan + artisan — tak ada
+SSH dari Azure langsung, jadi imun terhadap block IP.
 
-Cara update:
+## 3. Setup Runner (rujukan — sudah siap)
+
 ```bash
-gh secret set HOST     --repo zarinjas/heclinicappv2 --body "72.62.251.208"
-gh secret set PORT     --repo zarinjas/heclinicappv2 --body "22"
-gh secret set USERNAME --repo zarinjas/heclinicappv2 --body "root"
+# sekali sahaja di server (root)
+useradd -m -s /bin/bash github-runner
+mkdir -p /opt/actions-runner
+curl -fsSL -o /opt/actions-runner/actions-runner-linux-x64-2.336.0.tar.gz \
+  https://github.com/actions/runner/releases/download/v2.336.0/actions-runner-linux-x64-2.336.0.tar.gz
+cd /opt/actions-runner && tar xzf actions-runner-linux-x64-2.336.0.tar.gz
+chown -R github-runner:github-runner /opt/actions-runner
+./bin/installdependencies.sh          # dnf install pakej keperluan
+# daftar (token dari: gh api repos/<owner>/<repo>/actions/runners/registration-token -X POST)
+sudo -u github-runner ./config.sh --url https://github.com/zarinjas/heclinicappv2 \
+  --token <TOKEN> --name heclinic-deploy-runner --labels self-hosted --work _work --unattended
+# sudoers
+echo 'github-runner ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github-runner
+chmod 440 /etc/sudoers.d/github-runner
+# service
+./svc.sh install github-runner && ./svc.sh start
 ```
 
-## 3. Bila Deploy Berlaku
+Semak status:
+```bash
+systemctl status actions.runner.zarinjas-heclinicappv2.heclinic-deploy-runner.service
+# online?:
+gh api repos/zarinjas/heclinicappv2/actions/runners --jq '.runners[]|{name,status}'
+```
 
-Workflow `deploy-hemedicalapps.yml` (`.github/workflows/`) trigger bila:
+## 4. GitHub Actions Secrets
 
-1. **Manual** — `workflow_dispatch` (butang "Run workflow" di GitHub Actions).
-2. **Push ke `develop`** yang menyentuh:
+Workflow sekarang **tidak lagi guna** `HOST`, `PORT`, `USERNAME`, `SSH_KEY`.
+Boleh dibiarkan atau dipadam (`gh secret delete <NAME> --repo zarinjas/heclinicappv2`).
+Yang masih dipakai oleh workflow lain: `GH_PAT`, `TELEGRAM_BOT_TOKEN`, `OPENAI_API_KEY`.
+
+## 5. Bila Deploy Berlaku
+
+Workflow `deploy-hemedicalapps.yml` trigger bila:
+
+1. **Manual** — `workflow_dispatch` (butang "Run workflow").
+2. **Push ke `develop`** menyentuh:
    - `laravel/**`
    - `.github/workflows/deploy-hemedicalapps.yml`
 
-Script tempatan untuk commit + push semua perubahan (termasuk trigger auto-deploy):
 ```bash
-./deploy.sh "mesej commit awak"
+./deploy.sh "mesej commit awak"          # commit + push semua (trigger auto-deploy)
+gh workflow run deploy-hemedicalapps.yml --repo zarinjas/heclinicappv2 --ref develop   # deploy manual
 ```
 
-Deploy manual tanpa commit baru:
+## 6. Aliran Deploy (semua dalam server)
+
+1. `actions/checkout@v5` — checkout `develop` ke `/opt/actions-runner/_work/...`
+2. **Deploy Laravel (local)**:
+   - `sudo rsync -a --delete $GITHUB_WORKSPACE/laravel/ → /home/hemedicalapps.com/heclinic-laravel/`
+     (exclude `.env`, `vendor`, `node_modules`, cache, `public/build`)
+   - `sudo chown -R hemed2668:hemed2668` app dir
+   - `sudo -u hemed2668 composer install --no-dev --optimize-autoloader`
+   - `sudo -u hemed2668 php artisan migrate --force` (`|| true` — tak menyekat deploy)
+   - `sudo -u hemed2668 php artisan storage:link`
+   - `sudo -u hemed2668 php artisan optimize:clear`
+   - chown semula `storage bootstrap/cache public/storage`
+
+## 7. Troubleshooting
+
+**Runner tak online**
 ```bash
-gh workflow run deploy-hemedicalapps.yml --repo zarinjas/heclinicappv2 --ref develop
+systemctl status actions.runner.zarinjas-heclinicappv2.heclinic-deploy-runner.service
+journalctl -u actions.runner.zarinjas-heclinicappv2.heclinic-deploy-runner.service -n 50
 ```
+Server mesti boleh keluar ke `github.com` (runner long-poll). Semak: `curl -sI https://github.com`.
 
-## 4. Aliran Deploy
+**Deploy gagal pada rsync / permission**
+- Pastikan `/home` tak menyekat: runner guna `/opt/actions-runner` (bukan `/home`).
+- Pastikan `github-runner` ada NOPASSWD sudo (`/etc/sudoers.d/github-runner`).
+- Semak pengguna PHP site ialah `hemed2668`: `ps aux | grep lsphp`.
 
-1. `actions/checkout@v5` — checkout repo
-2. Install `rsync`
-3. Setup SSH (tulis `SSH_KEY` ke `~/.ssh/deploy_key`)
-4. **Check SSH reachability** — fail-fast jika host/port tak boleh dicapai dari runner
-5. `rsync -avz --delete` — sync `laravel/` ke server (exclude `.env`, `vendor`, cache)
-6. Post-deploy (via ssh + heredoc):
-   - `composer install --no-dev`
-   - `php artisan migrate --force` (kegagalan tak menggagalkan deploy)
-   - `php artisan storage:link`
-   - `php artisan optimize:clear`
-   - chown semula ke `hemed2668:hemed2668`
-
-## 5. Troubleshooting
-
-**"ssh: connect to host ... port ...: Connection timed out"**
-- Step "Check SSH reachability" akan tunjuk `UNREACHABLE`. Sebab biasa:
-  - `HOST` secret guna domain Cloudflare → mesti tukar ke `72.62.251.208`.
-  - Server down / firewall block. Test dari laptop:
-    ```bash
-    nc -zv 72.62.251.208 22
-    ssh -i ~/.ssh/<key> root@72.62.251.208 "echo OK"
-    ```
-
-**"Permission denied (publickey)"**
-- Public key bagi `SSH_KEY` tak ada dalam `authorized_keys` user yang betul.
-- Semak di server:
-  ```bash
-  grep -c "github-actions-deploy" /root/.ssh/authorized_keys
-  ```
-
-**"No such file or directory" semasa post-deploy**
-- Pastikan `APP_DIR=/home/hemedicalapps.com/heclinic-laravel` betul dan wujud.
-- Deploy key mesti ada akses untuk tulis ke path tersebut.
+**Deploy tak trigger**
+- Push mesti sentuh `laravel/**` ATAU fail workflow.
+- Check di GitHub → Actions → Deploy Laravel to hemedicalapps.com.
 
 **Migration tak jalan**
-- `php artisan migrate --force` sengaja `|| true` supaya deploy tak tersekat.
-- Jika ada migration baharu yang tertinggal, run manual:
+- `php artisan migrate --force` sengaja `|| true`. Jika tertinggal, run manual:
   ```bash
   ssh root@72.62.251.208 "cd /home/hemedicalapps.com/heclinic-laravel && php artisan migrate --force"
   ```
 
-## 6. Verifikasi Selepas Deploy
+## 8. Verifikasi Selepas Deploy
 
 ```bash
-# API service packages (patut return JSON, bukan error)
-curl -s https://hemedicalapps.com/api/v2/cms/service-packages
-
-# Migration status di server
+curl -s https://hemedicalapps.com/api/v2/cms/service-packages   # patut return JSON
 ssh root@72.62.251.208 "cd /home/hemedicalapps.com/heclinic-laravel && php artisan migrate:status"
 ```
 
-## 7. Nota Teknikal (kenapa struktur macam ni)
+## 9. Nota Teknikal
 
-- **Heredoc + `bash -s`** untuk post-deploy (bukan satu baris dengan `&&`):
-  baris `&&` panjang dulu pernah ter-mangle oleh runner (exit 127).
-  Sekarang setiap command atas baris sendiri, lebih robust.
-- **`ssh-keyscan ... || true`** + **`StrictHostKeyChecking=accept-new`**:
-  tak perlu keyscan betul-betul berjaya untuk deploy jalan.
-- **`actions/checkout@v5`**: guna Node 24, elak warning deprecation Node 20.
-- **`concurrency` group**: deploy tak bertindih antara satu sama lain.
+- **`runs-on: self-hosted`** — job dihantar ke runner dalam server; label `self-hosted`
+  diberi automatik semasa config.
+- **Heredoc/`&&` tidak lagi relevan** — tiada SSH. Setiap command dalam satu step `run`.
+- **`actions/checkout@v5`** — guna Node 24, tiada warning deprecation.
+- **`concurrency` group** — deploy tak bertindih.
+- Semua secret SSH lama boleh dipadam; tiada kesan pada deploy.

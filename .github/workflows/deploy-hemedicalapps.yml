@@ -1,16 +1,11 @@
 # Deploy Laravel (heclinic-laravel) to hemedicalapps.com production server.
 #
-# IMPORTANT — GitHub Actions secrets required:
-#   HOST     = origin IP of the server, e.g. 72.62.251.208
-#              MUST be the raw IP / non-proxied hostname, NOT "hemedicalapps.com"
-#              (the domain is behind Cloudflare, which does NOT forward SSH).
-#   PORT     = 22  (sshd listens on port 22 only)
-#   USERNAME = root (deploy key `github-actions-deploy` is authorized for root)
-#   SSH_KEY  = private key whose public key is in /root/.ssh/authorized_keys
+# Runs on a SELF-HOSTED GitHub runner installed ON the server itself
+# (heclinic-deploy-runner, see docs/DEPLOYMENT.md). Deploy is done with local
+# rsync + artisan commands — no SSH from GitHub needed.
 #
-# Triggered by:
-#   - workflow_dispatch (manual "Run workflow")
-#   - push to develop touching laravel/** or this workflow file
+# Why self-hosted: the hosting provider blocks GitHub-hosted (Azure) runner IPs
+# on SSH intermittently, causing "Connection timed out" failures.
 #
 # Manual deploy: gh workflow run deploy-hemedicalapps.yml --repo zarinjas/heclinicappv2 --ref develop
 # Full docs: docs/DEPLOYMENT.md
@@ -32,77 +27,27 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install rsync
+      - name: Deploy Laravel (local)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rsync
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H -p ${{ secrets.PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
-
-      - name: Check SSH reachability
-        run: |
-          python3 - <<'PY'
-          import os, socket
-
-          host = os.environ["HOST"]
-          port = int(os.environ["PORT"])
-          ssh_ok = False
-
-          # probe: custom PORT, 22 (SSH), 80/443 (origin web, bypassing Cloudflare)
-          for p in (port, 22, 80, 443):
-              try:
-                  socket.create_connection((host, p), timeout=6).close()
-                  print(f"host:port({p}) => REACHABLE")
-                  if p in (port, 22):
-                      ssh_ok = True
-              except Exception as e:
-                  print(f"host:port({p}) => UNREACHABLE ({e.__class__.__name__})")
-
-          if not ssh_ok:
-              print("FATAL: SSH unreachable from runner.")
-              print("If ports 80/443 ARE reachable but 22 is not, the hosting provider is")
-              print("blocking GitHub Actions (Azure) IP ranges on SSH. Fix: use a self-hosted")
-              print("runner on the server, or ask the host to allow GitHub runner IPs.")
-              raise SystemExit(1)
-          PY
-        env:
-          HOST: ${{ secrets.HOST }}
-          PORT: ${{ secrets.PORT }}
-
-      - name: Deploy Laravel via rsync
-        run: >
-          rsync -avz --delete
-          --exclude '.env' --exclude '.env.*'
-          --exclude 'vendor/' --exclude 'node_modules/'
-          --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*'
-          --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*'
-          --exclude 'bootstrap/cache/*' --exclude 'public/storage' --exclude 'public/build/'
-          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} -o StrictHostKeyChecking=accept-new"
-          laravel/
-          ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/hemedicalapps.com/heclinic-laravel/
-
-      - name: Post-deploy Laravel commands
-        run: |
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} -o StrictHostKeyChecking=accept-new \
-            ${{ secrets.USERNAME }}@${{ secrets.HOST }} bash -s <<'REMOTE'
-          set -e
-          APP_DIR=/home/hemedicalapps.com/heclinic-laravel
-          mkdir -p "$APP_DIR"
-          cd "$APP_DIR"
-          chown -R hemed2668:hemed2668 .
-          composer install --no-dev --optimize-autoloader --no-interaction
-          php artisan migrate --force --no-interaction || true
-          php artisan storage:link || true
-          php artisan optimize:clear
-          chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true
-          REMOTE
+          SRC="$GITHUB_WORKSPACE/laravel"
+          DST="/home/hemedicalapps.com/heclinic-laravel"
+          mkdir -p "$DST"
+          sudo rsync -a --delete \
+            --exclude '.env' --exclude '.env.*' \
+            --exclude 'vendor/' --exclude 'node_modules/' \
+            --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*' \
+            --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*' \
+            --exclude 'bootstrap/cache/*' --exclude 'public/storage' --exclude 'public/build/' \
+            "$SRC/" "$DST/"
+          sudo chown -R hemed2668:hemed2668 "$DST"
+          cd "$DST"
+          sudo -u hemed2668 composer install --no-dev --optimize-autoloader --no-interaction
+          sudo -u hemed2668 php artisan migrate --force --no-interaction || true
+          sudo -u hemed2668 php artisan storage:link || true
+          sudo -u hemed2668 php artisan optimize:clear
+          sudo chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true
