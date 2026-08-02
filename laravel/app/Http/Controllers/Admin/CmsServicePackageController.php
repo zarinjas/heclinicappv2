@@ -38,6 +38,8 @@ class CmsServicePackageController extends Controller
             $data['image'] = $request->file('image')->store('service-packages', 'public');
         }
 
+        $data['gallery'] = $this->storeGallery($request);
+
         $data['is_active'] = $request->boolean('is_active');
 
         CmsServicePackage::create($data);
@@ -65,6 +67,8 @@ class CmsServicePackageController extends Controller
             unset($data['image']);
         }
 
+        $data['gallery'] = $this->storeGallery($request, $service_package);
+
         $data['is_active'] = $request->boolean('is_active');
 
         $service_package->update($data);
@@ -80,10 +84,45 @@ class CmsServicePackageController extends Controller
             Storage::disk('public')->delete($service_package->image);
         }
 
+        foreach ($service_package->gallery ?? [] as $path) {
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
         $service_package->delete();
 
         return redirect()
             ->route('admin.cms.service-packages.index')
             ->with('success', 'Service package deleted successfully.');
+    }
+
+    private function storeGallery(Request $request, ?CmsServicePackage $service_package = null): array
+    {
+        $kept = array_values(array_filter($request->input('keep_gallery', [])));
+
+        if (! $request->hasFile('gallery')) {
+            return $service_package ? array_values(array_intersect($service_package->gallery ?? [], $kept)) : $kept;
+        }
+
+        $new = [];
+        foreach ($request->file('gallery') as $file) {
+            $new[] = $file->store('service-packages', 'public');
+        }
+
+        $merged = array_values(array_unique(array_merge($kept, $new)));
+
+        if (! $service_package) {
+            return $merged;
+        }
+
+        foreach ($service_package->gallery ?? [] as $path) {
+            if ($path && ! in_array($path, $kept, true) && ! in_array($path, $new, true)
+                && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        return $merged;
     }
 }

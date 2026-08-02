@@ -11,6 +11,8 @@ class CmsServicePackage extends Model
         'name',
         'description',
         'image',
+        'gallery',
+        'whatsapp_number',
         'is_active',
     ];
 
@@ -18,6 +20,7 @@ class CmsServicePackage extends Model
     {
         return [
             'is_active' => 'boolean',
+            'gallery' => 'array',
         ];
     }
 
@@ -27,5 +30,20 @@ class CmsServicePackage extends Model
             return null;
         }
         return Storage::disk('public')->url($this->image);
+    }
+
+    public function getGalleryUrlsAttribute(): array
+    {
+        $urls = collect($this->gallery ?? [])
+            ->filter()
+            ->map(fn (string $path) => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
+
+        if (empty($urls) && $this->image_url) {
+            return [$this->image_url];
+        }
+
+        return $urls;
     }
 }

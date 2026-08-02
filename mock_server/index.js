@@ -331,10 +331,10 @@ const mockCmsSliders = [
 ];
 
 const mockServicePackages = [
-  { id: 1, name: "Basic Health Check", description: "Complete blood count, urine analysis, BMI", image: "https://placehold.co/400x300/122560/FFFFFF?text=Basic+Check", is_active: true, sort_order: 1 },
-  { id: 2, name: "Premium Health Check", description: "Comprehensive screening including ECG, chest X-ray, blood panel", image: "https://placehold.co/400x300/2563EB/FFFFFF?text=Premium", is_active: true, sort_order: 2 },
-  { id: 3, name: "Heart Package", description: "Cardiovascular screening with ECG, echo, stress test", image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Heart", is_active: true, sort_order: 3 },
-  { id: 4, name: "Women's Wellness", description: "Mammogram, pap smear, bone density scan", image: "https://placehold.co/400x300/EC4899/FFFFFF?text=Women", is_active: true, sort_order: 4 },
+  { id: 1, name: "Basic Health Check", description: "Complete blood count, urine analysis, BMI", image: "https://placehold.co/400x300/122560/FFFFFF?text=Basic+Check", gallery: ["https://placehold.co/800x600/122560/FFFFFF?text=Basic+Check+2", "https://placehold.co/800x600/27F5A3/FFFFFF?text=Basic+Check+3"], whatsapp_number: "60136254528", is_active: true, sort_order: 1 },
+  { id: 2, name: "Premium Health Check", description: "Comprehensive screening including ECG, chest X-ray, blood panel", image: "https://placehold.co/400x300/2563EB/FFFFFF?text=Premium", gallery: ["https://placehold.co/800x600/2563EB/FFFFFF?text=Premium+2", "https://placehold.co/800x600/2868F5/FFFFFF?text=Premium+3"], whatsapp_number: "60136254528", is_active: true, sort_order: 2 },
+  { id: 3, name: "Heart Package", description: "Cardiovascular screening with ECG, echo, stress test", image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Heart", gallery: ["https://placehold.co/800x600/DC2626/FFFFFF?text=Heart+2", "https://placehold.co/800x600/F5A623/FFFFFF?text=Heart+3"], whatsapp_number: "60136254528", is_active: true, sort_order: 3 },
+  { id: 4, name: "Women's Wellness", description: "Mammogram, pap smear, bone density scan", image: "https://placehold.co/400x300/EC4899/FFFFFF?text=Women", gallery: ["https://placehold.co/800x600/EC4899/FFFFFF?text=Women+2", "https://placehold.co/800x600/8B5CF6/FFFFFF?text=Women+3"], whatsapp_number: "60136254528", is_active: true, sort_order: 4 },
 ];
 
 const mockCmsArticles = [

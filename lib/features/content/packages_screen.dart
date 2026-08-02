@@ -11,6 +11,7 @@ import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
+import 'package_detail_screen.dart';
 
 class PackagesScreen extends StatefulWidget {
   const PackagesScreen({super.key});
@@ -266,7 +267,14 @@ class _PackagesScreenState extends State<PackagesScreen> {
                           width: double.infinity,
                           child: AppButton.ghost(
                             label: 'Learn More',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      PackageDetailScreen(package: pkg),
+                                ),
+                              );
+                            },
                             isFullWidth: true,
                           ),
                         ),

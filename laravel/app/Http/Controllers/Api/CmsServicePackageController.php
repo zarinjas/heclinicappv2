@@ -19,6 +19,8 @@ class CmsServicePackageController extends Controller
                 'name' => $package->name,
                 'description' => $package->description,
                 'image' => $package->image_url,
+                'gallery' => $package->gallery_urls,
+                'whatsapp_number' => $package->whatsapp_number,
             ]);
 
         return response()->json($packages);

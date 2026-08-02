@@ -76,6 +76,68 @@
                 </div>
 
                 <div>
+                    <label for="gallery" class="block text-sm font-medium text-[#0F1B3D] mb-1">
+                        Image Gallery
+                    </label>
+                    <input
+                        type="file"
+                        name="gallery[]"
+                        id="gallery"
+                        multiple
+                        accept="image/jpeg,image/png,image/webp"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('gallery') border-red-300 @enderror"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Upload up to 12 photos. Recommended size: 800×600px. Max 5MB each.</p>
+                    @error('gallery')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+
+                    @if ($isEdit && $package->gallery && count($package->gallery) > 0)
+                        <div class="mt-3">
+                            <p class="text-xs text-gray-400 mb-2">Current gallery (untick to remove):</p>
+                            <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                @foreach ($package->gallery as $path)
+                                    @php
+                                        $url = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                                    @endphp
+                                    <label class="relative group cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            name="keep_gallery[]"
+                                            value="{{ $path }}"
+                                            checked
+                                            class="absolute top-1 right-1 w-4 h-4 rounded border-gray-300 text-[#00C9A7] focus:ring-[#00C9A7]"
+                                        >
+                                        <img src="{{ $url }}" alt="" class="w-full aspect-[4/3] object-cover rounded-lg border border-gray-200">
+                                        <span class="absolute inset-0 rounded-lg bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span class="text-[10px] text-white font-medium">Untick to remove</span>
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <div id="gallery-preview" class="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
+                </div>
+
+                <div>
+                    <label for="whatsapp_number" class="block text-sm font-medium text-[#0F1B3D] mb-1">WhatsApp Number</label>
+                    <input
+                        type="text"
+                        name="whatsapp_number"
+                        id="whatsapp_number"
+                        value="{{ old('whatsapp_number', $package->whatsapp_number) }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('whatsapp_number') border-red-300 @enderror"
+                        placeholder="e.g. 60136254528"
+                    >
+                    <p class="mt-1 text-xs text-gray-400">Used for the "Ask a Question" and "Book Appointment" buttons. Leave empty to use the default clinic number.</p>
+                    @error('whatsapp_number')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input
                             type="hidden"
@@ -109,3 +171,30 @@
         </div>
     </form>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const input = document.getElementById('gallery');
+            const preview = document.getElementById('gallery-preview');
+            if (!input || !preview) return;
+
+            const render = (files) => {
+                preview.innerHTML = '';
+                [...files].forEach((file, i) => {
+                    if (!file.type.startsWith('image/')) return;
+                    const url = URL.createObjectURL(file);
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML =
+                        '<img src="' + url + '" alt="" class="w-full aspect-[4/3] object-cover rounded-lg border border-gray-200">' +
+                        '<span class="absolute top-1 right-1 w-4 h-4 rounded bg-[#00C9A7] text-white text-[10px] font-bold flex items-center justify-center">' +
+                        (i + 1) + '</span>';
+                    preview.appendChild(div);
+                });
+            };
+
+            input.addEventListener('change', () => render(input.files));
+        })();
+    </script>
+@endpush

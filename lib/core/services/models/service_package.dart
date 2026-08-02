@@ -5,28 +5,51 @@ class ServicePackage {
   final String name;
   final String description;
   final String? imageUrl;
+  final List<String> gallery;
+  final String? whatsappNumber;
 
   const ServicePackage({
     required this.id,
     required this.name,
     required this.description,
     this.imageUrl,
+    this.gallery = const [],
+    this.whatsappNumber,
   });
 
   factory ServicePackage.fromJson(Map<String, dynamic> json) {
+    final image = json['image'] as String?;
+    final galleryRaw = json['gallery'] as List<dynamic>? ?? const [];
+
     return ServicePackage(
       id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      imageUrl: json['image'] as String?,
+      imageUrl: image,
+      gallery: galleryRaw.whereType<String>().where((u) => u.isNotEmpty).toList(),
+      whatsappNumber: json['whatsapp_number'] as String?,
     );
   }
+
+  List<String> get galleryImages {
+    final images = [
+      if (imageUrl != null && imageUrl!.isNotEmpty) imageUrl!,
+      ...gallery,
+    ];
+    return images.toSet().toList();
+  }
+
+  String get whatsapp => whatsappNumber?.isNotEmpty == true
+      ? whatsappNumber!
+      : '60136254528';
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
     'description': description,
     'image': imageUrl,
+    'gallery': gallery,
+    'whatsapp_number': whatsappNumber,
   };
 
   String get price {

@@ -62,7 +62,14 @@
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                 <td class="px-6 py-4">
                                     @if ($package->image_url)
-                                        <img src="{{ $package->image_url }}" alt="" class="w-16 h-10 object-cover rounded border border-gray-200">
+                                        <div class="relative">
+                                            <img src="{{ $package->image_url }}" alt="" class="w-16 h-10 object-cover rounded border border-gray-200">
+                                            @if ($package->gallery && count($package->gallery) > 0)
+                                                <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-[#0F1B3D] text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+                                                    {{ count($package->gallery) + 1 }}
+                                                </span>
+                                            @endif
+                                        </div>
                                     @else
                                         <div class="w-16 h-10 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
                                             <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
