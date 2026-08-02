@@ -32,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _showError = false;
+  String _errorMessage = 'Invalid credentials. Please try again.';
   int _activeTab = 0;
 
   @override
@@ -116,10 +117,23 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       } else {
-        setState(() => _showError = true);
+        final apiMessage =
+            LoginCall.message(response?.jsonBody) ?? response?.bodyText ?? '';
+        final message = apiMessage.trim().isEmpty
+            ? 'Invalid credentials. Please try again.'
+            : apiMessage.trim();
+        setState(() {
+          _errorMessage = message;
+          _showError = true;
+        });
       }
     } catch (_) {
-      if (mounted) setState(() => _showError = true);
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Network error. Please check your connection.';
+          _showError = true;
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -191,10 +205,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (mounted) context.go('/');
       } else {
-        setState(() => _showError = true);
+        final apiMessage = SocialLoginCall.message(response?.jsonBody) ??
+            response?.bodyText ??
+            '';
+        setState(() {
+          _errorMessage = apiMessage.trim().isEmpty
+              ? 'Social login failed. Please try again.'
+              : apiMessage.trim();
+          _showError = true;
+        });
       }
     } catch (_) {
-      if (mounted) setState(() => _showError = true);
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Network error. Please check your connection.';
+          _showError = true;
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -549,7 +576,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: AppSpacing.space8),
             Text(
-              'Invalid credentials. Please try again.',
+              _errorMessage,
               style: AppTextStyles.body1.copyWith(
                 color:
                     isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,

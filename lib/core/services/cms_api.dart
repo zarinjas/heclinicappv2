@@ -25,13 +25,25 @@ class CmsApi {
   static const _timeoutSeconds = 3;
   static const _basePath = '/v2';
 
-  static List<String> _baseUrls() => [
-    'http://localhost:8080/api',
-    'http://127.0.0.1:8080/api',
-    'http://10.0.2.2:8080/api',
-    'http://localhost:8000/api',
-    '${EnvConfig.laravelBaseUrl}',
-  ];
+  static List<String> _baseUrls() {
+    // Production mode (dart-define set to real URLs) → go straight to the
+    // configured Laravel URL. No localhost fallback, no 3s timeouts wasted.
+    if (!EnvConfig.isMock) {
+      return [EnvConfig.laravelBaseUrl];
+    }
+
+    // Mock/local dev → try local servers first, then production.
+    return [
+      'http://localhost:4000/api',
+      'http://127.0.0.1:4000/api',
+      'http://10.0.2.2:4000/api',
+      'http://localhost:8080/api',
+      'http://127.0.0.1:8080/api',
+      'http://10.0.2.2:8080/api',
+      'http://localhost:8000/api',
+      EnvConfig.laravelBaseUrl,
+    ];
+  }
 
   static Future<String> _fetch(String path) async {
     for (final base in _baseUrls()) {

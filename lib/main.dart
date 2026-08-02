@@ -47,21 +47,26 @@ void main() async {
   final appState = FFAppState();
   await appState.initializePersistedState();
 
-  Future.wait([
-    BrandingService.instance.init(),
-    HeroService.instance.init(),
-    DoctorService.instance.init(),
-    BranchService.instance.init(),
-    ArticleService.instance.init(),
-    VideoService.instance.init(),
-    PackageService.instance.init(),
-    PromotionService.instance.init(),
-    OnboardingService.instance.init(),
-    TelehealthService.instance.init(),
-    LegalService.instance.init(),
-  ]).then((_) {
+  // Load all CMS + branding data BEFORE the first frame so the app renders
+  // with real production content (logo, colors, sliders) instead of fallbacks.
+  try {
+    await Future.wait([
+      BrandingService.instance.init(),
+      HeroService.instance.init(),
+      DoctorService.instance.init(),
+      BranchService.instance.init(),
+      ArticleService.instance.init(),
+      VideoService.instance.init(),
+      PackageService.instance.init(),
+      PromotionService.instance.init(),
+      OnboardingService.instance.init(),
+      TelehealthService.instance.init(),
+      LegalService.instance.init(),
+    ]).timeout(const Duration(seconds: 20));
     debugPrint('[CMS] Services initialized');
-  });
+  } catch (_) {
+    debugPrint('[CMS] Services init skipped/failed — using cached data');
+  }
 
   runApp(ChangeNotifierProvider(
     create: (context) => appState,
@@ -127,6 +132,9 @@ class _MyAppState extends State<MyApp> {
     );
 
     // Rebuild theme once branding (primary/accent/loading GIF) is loaded.
+    BrandingService.instance.onChanged = () {
+      if (mounted) safeSetState(() {});
+    };
     BrandingService.instance.init().then((_) {
       if (mounted) safeSetState(() {});
     });
@@ -150,7 +158,7 @@ class _MyAppState extends State<MyApp> {
         while (appNavigatorKey.currentState?.canPop() == true) {
           appNavigatorKey.currentState?.pop();
         }
-        GoRouter.of(context).go('/loginPage');
+        GoRouter.of(context).go('/login');
       }
     };
 
@@ -220,8 +228,9 @@ class _MyAppState extends State<MyApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', '')],
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.fromBranding(BrandingService.instance.branding),
+      darkTheme: AppTheme.fromBranding(BrandingService.instance.branding,
+          brightness: Brightness.dark),
       themeMode: _themeMode,
       routerConfig: _router,
     );

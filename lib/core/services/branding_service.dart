@@ -90,6 +90,26 @@ class AppBranding {
     primaryColorHex: '#131C3C',
     accentColorHex: '#3B8DFF',
   );
+
+  /// Parsed primary color (navy default) — used to theme the whole app.
+  Color get primaryColor {
+    final hex = primaryColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return AppColors.primary;
+  }
+
+  /// Parsed accent color (blue default) — used for buttons & highlights.
+  Color get accentColor {
+    final hex = accentColorHex;
+    if (hex != null && hex.length == 7) {
+      final c = hex.replaceFirst('#', '');
+      if (c.length == 6) return Color(int.parse('FF$c', radix: 16));
+    }
+    return AppColors.accent;
+  }
 }
 
 // ============================================================================
@@ -110,6 +130,14 @@ class BrandingService {
   Completer<void>? _initCompleter;
   final BrandingApi _api = BrandingApi();
 
+  /// Fired whenever branding data is refreshed (init or refresh).
+  /// Lets the UI (theme, nav bar) rebuild with the new branding.
+  void Function()? onChanged;
+
+  void _notifyChanged() {
+    onChanged?.call();
+  }
+
   // ── Initialization ──
 
   /// Start loading branding. If already started, returns existing future.
@@ -127,6 +155,7 @@ class BrandingService {
         _cached = remote;
         await _saveToCache(remote);
         _initialised = true;
+        _notifyChanged();
         _initCompleter!.complete();
         return;
       }
@@ -137,6 +166,7 @@ class BrandingService {
     // Fall back to cache
     _cached = await _loadFromCache();
     _initialised = true;
+    _notifyChanged();
     _initCompleter!.complete();
   }
 
@@ -232,6 +262,7 @@ class BrandingService {
       if (remote != null) {
         _cached = remote;
         await _saveToCache(remote);
+        _notifyChanged();
         return true;
       }
     } catch (_) {}

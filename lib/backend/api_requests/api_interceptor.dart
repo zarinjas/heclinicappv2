@@ -14,6 +14,22 @@ class ApiInterceptor {
   static final ApiInterceptor _instance = ApiInterceptor._();
   static ApiInterceptor get instance => _instance;
 
+  /// Auth calls return 401 for invalid credentials — NOT session expiry.
+  /// These must never trigger the global "session expired" logout flow.
+  static const Set<String> _authCallNames = {
+    'HeclinicLogin',
+    'HeclinicRegister',
+    'HeclinicSocialLogin',
+    'CheckNric',
+    'CheckPhone',
+    'HeclinicForgotPassword',
+    'HeclinicClaimAccount',
+    'HeclinicVerifyOtp',
+    'HeclinicResetPassword',
+    'HeclinicChangePasswordFirst',
+    'HeclinicLogout',
+  };
+
   OnUnauthorizedCallback? onUnauthorized;
   OnServerErrorCallback? onServerError;
   OnNetworkErrorCallback? onNetworkError;
@@ -38,7 +54,11 @@ class ApiInterceptor {
     final statusCode = response.statusCode;
 
     if (statusCode == 401) {
-      _handleUnauthorized();
+      // A 401 from an auth endpoint means bad credentials, not session expiry.
+      // Let the calling screen show the real error message instead.
+      if (!_authCallNames.contains(options.callName)) {
+        _handleUnauthorized();
+      }
     } else if (statusCode == 429) {
       debugPrint('ApiInterceptor: Rate limited on ${options.callName}');
       onRateLimited?.call(options.callName);
