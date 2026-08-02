@@ -56,20 +56,23 @@ jobs:
 
           host = os.environ["HOST"]
           port = int(os.environ["PORT"])
-          ok = False
+          ssh_ok = False
 
-          for p in (port, 22):
+          # probe: custom PORT, 22 (SSH), 80/443 (origin web, bypassing Cloudflare)
+          for p in (port, 22, 80, 443):
               try:
                   socket.create_connection((host, p), timeout=6).close()
                   print(f"host:port({p}) => REACHABLE")
-                  ok = True
+                  if p in (port, 22):
+                      ssh_ok = True
               except Exception as e:
                   print(f"host:port({p}) => UNREACHABLE ({e.__class__.__name__})")
 
-          if not ok:
+          if not ssh_ok:
               print("FATAL: SSH unreachable from runner.")
-              print("Check secrets: HOST must be the origin IP (NOT the Cloudflare domain 'hemedicalapps.com').")
-              print("Port should be 22. Verify the server is up and firewall allows ssh.")
+              print("If ports 80/443 ARE reachable but 22 is not, the hosting provider is")
+              print("blocking GitHub Actions (Azure) IP ranges on SSH. Fix: use a self-hosted")
+              print("runner on the server, or ask the host to allow GitHub runner IPs.")
               raise SystemExit(1)
           PY
         env:
