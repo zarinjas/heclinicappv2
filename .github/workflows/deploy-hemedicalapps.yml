@@ -30,7 +30,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p ${{ secrets.PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
 
       - name: Deploy Laravel via rsync
         run: >
@@ -40,13 +40,13 @@ jobs:
           --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*'
           --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*'
           --exclude 'bootstrap/cache/*' --exclude 'public/storage' --exclude 'public/build/'
-          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }}"
+          -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} -o StrictHostKeyChecking=accept-new"
           laravel/
           ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/home/hemedicalapps.com/heclinic-laravel/
 
       - name: Post-deploy Laravel commands
         run: |
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} \
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.PORT }} -o StrictHostKeyChecking=accept-new \
             ${{ secrets.USERNAME }}@${{ secrets.HOST }} bash -s <<'REMOTE'
           set -e
           APP_DIR=/home/hemedicalapps.com/heclinic-laravel
