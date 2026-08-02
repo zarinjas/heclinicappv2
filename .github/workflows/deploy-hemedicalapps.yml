@@ -1,3 +1,20 @@
+# Deploy Laravel (heclinic-laravel) to hemedicalapps.com production server.
+#
+# IMPORTANT — GitHub Actions secrets required:
+#   HOST     = origin IP of the server, e.g. 72.62.251.208
+#              MUST be the raw IP / non-proxied hostname, NOT "hemedicalapps.com"
+#              (the domain is behind Cloudflare, which does NOT forward SSH).
+#   PORT     = 22  (sshd listens on port 22 only)
+#   USERNAME = root (deploy key `github-actions-deploy` is authorized for root)
+#   SSH_KEY  = private key whose public key is in /root/.ssh/authorized_keys
+#
+# Triggered by:
+#   - workflow_dispatch (manual "Run workflow")
+#   - push to develop touching laravel/** or this workflow file
+#
+# Manual deploy: gh workflow run deploy-hemedicalapps.yml --repo zarinjas/heclinicappv2 --ref develop
+# Full docs: docs/DEPLOYMENT.md
+
 name: Deploy Laravel to hemedicalapps.com
 
 on:
@@ -18,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install rsync
         run: |
@@ -35,16 +52,25 @@ jobs:
       - name: Check SSH reachability
         run: |
           python3 - <<'PY'
-          import socket, os
+          import os, socket
+
           host = os.environ["HOST"]
           port = int(os.environ["PORT"])
+          ok = False
+
           for p in (port, 22):
               try:
-                  s = socket.create_connection((host, p), timeout=6)
-                  s.close()
+                  socket.create_connection((host, p), timeout=6).close()
                   print(f"host:port({p}) => REACHABLE")
+                  ok = True
               except Exception as e:
                   print(f"host:port({p}) => UNREACHABLE ({e.__class__.__name__})")
+
+          if not ok:
+              print("FATAL: SSH unreachable from runner.")
+              print("Check secrets: HOST must be the origin IP (NOT the Cloudflare domain 'hemedicalapps.com').")
+              print("Port should be 22. Verify the server is up and firewall allows ssh.")
+              raise SystemExit(1)
           PY
         env:
           HOST: ${{ secrets.HOST }}
