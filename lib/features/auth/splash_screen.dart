@@ -50,7 +50,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget _buildContent(BrandingService branding) {
-    final splashUrl = branding.splashLogoUrl;
+    // Splash logo falls back to the main app logo when a dedicated
+    // splash logo hasn't been uploaded in the admin panel.
+    final splashUrl = (branding.splashLogoUrl ?? '').isNotEmpty
+        ? branding.splashLogoUrl
+        : branding.logoUrl;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return SafeArea(

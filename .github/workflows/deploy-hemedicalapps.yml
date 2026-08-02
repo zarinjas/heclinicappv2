@@ -32,6 +32,24 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H -p ${{ secrets.PORT }} ${{ secrets.HOST }} >> ~/.ssh/known_hosts || true
 
+      - name: Check SSH reachability
+        run: |
+          python3 - <<'PY'
+          import socket, os
+          host = os.environ["HOST"]
+          port = int(os.environ["PORT"])
+          for p in (port, 22):
+              try:
+                  s = socket.create_connection((host, p), timeout=6)
+                  s.close()
+                  print(f"host:port({p}) => REACHABLE")
+              except Exception as e:
+                  print(f"host:port({p}) => UNREACHABLE ({e.__class__.__name__})")
+          PY
+        env:
+          HOST: ${{ secrets.HOST }}
+          PORT: ${{ secrets.PORT }}
+
       - name: Deploy Laravel via rsync
         run: >
           rsync -avz --delete
