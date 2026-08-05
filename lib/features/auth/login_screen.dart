@@ -14,6 +14,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/services/branding_service.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_input.dart';
+import '../../core/widgets/country_code_selector.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _showError = false;
   String _errorMessage = 'Invalid credentials. Please try again.';
+  String _selectedCountryCode = CountryCode.defaultCode;
 
   /// Strips phone separators (spaces, dashes, brackets) while keeping the
   /// email address and "+" prefix intact. The backend normalises the rest
@@ -88,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
         identifier: identifier,
         password: _passwordController.text,
         fcmToken: FFAppState().fcmtoken,
+        countryCode: _selectedCountryCode,
       );
 
       if (!mounted) return;
@@ -327,26 +330,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.space24),
+                      CountryCodeSelector(
+                        selectedCode: _selectedCountryCode,
+                        onChanged: (code) {
+                          setState(() => _selectedCountryCode = code);
+                        },
+                        enabled: !_isLoading,
+                      ),
+                      const SizedBox(height: AppSpacing.space12),
                       AppInput(
                         controller: _identifierController,
                         label: 'Email, Phone or IC Number',
                         placeholder: 'e.g. 0123456789 or you@email.com',
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
+                        helperText: 'Enter your phone without the country code',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email, phone or IC number';
                           }
                           return null;
                         },
-                      ),
-                      const SizedBox(height: AppSpacing.space8),
-                      Text(
-                        'Malaysia: 0123456789 or +60123456789 • '
-                        'Other countries: +[country code] e.g. +628123456789',
-                        style: AppTextStyles.body2.copyWith(
-                          color: secondaryTextColor,
-                        ),
                       ),
                       const SizedBox(height: AppSpacing.space16),
                       AppInput(

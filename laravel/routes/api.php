@@ -29,6 +29,7 @@ Route::prefix('v2/auth')->name('auth.')->group(function () {
     Route::post('/login',           [AuthController::class, 'login'])->name('login');
     Route::post('/social-login',    [AuthController::class, 'socialLogin'])->name('social-login');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+    Route::post('/send-fcm-otp',    [AuthController::class, 'sendFcmOtp'])->name('send-fcm-otp');
     Route::post('/claim-account',    [AuthController::class, 'claimAccount'])->name('claim-account');
     Route::post('/verify-otp',      [AuthController::class, 'verifyOtp'])->name('verify-otp');
     Route::post('/reset-password',  [AuthController::class, 'resetPassword'])->name('reset-password');
@@ -81,6 +82,7 @@ Route::get('/v2/config/branding', function () {
         'welcome_bg_gradient_color',
         'welcome_button_color',
         'welcome_logo_size',
+        'clinic_whatsapp',
     ])->pluck('value', 'key');
 
     return response()->json([
@@ -100,6 +102,7 @@ Route::get('/v2/config/branding', function () {
         'welcome_bg_gradient_color' => $settings['welcome_bg_gradient_color'] ?? '#1D2B5F',
         'welcome_button_color' => $settings['welcome_button_color'] ?? '#3B8DFF',
         'welcome_logo_size' => $settings['welcome_logo_size'] ?? '120',
+        'clinic_whatsapp' => $settings['clinic_whatsapp'] ?? '601167208860',
     ]);
 });
 

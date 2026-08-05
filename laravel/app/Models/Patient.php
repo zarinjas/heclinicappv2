@@ -92,25 +92,30 @@ class Patient extends Authenticatable
     }
 
     /**
-     * Normalise a phone number to E.164-ish format (digits only, leading +).
-     * Supports international numbers — does NOT assume +60.
+     * Normalise a phone number to E.164-ish format (digits only, no leading +).
+     *
+     * @param  string       $phone       Raw phone input.
+     * @param  string|null  $countryCode Digits-only country code (e.g. '60'), or
+     *                                   null to preserve old hardcoded behaviour.
      */
-    public static function normalisePhone(string $phone): string
+    public static function normalisePhone(string $phone, ?string $countryCode = null): string
     {
         // Strip everything except digits and leading +
         $cleaned = preg_replace('/[^\d+]/', '', $phone);
 
-        // If already has +, keep as-is (strip the + for storage consistency)
+        // If already has +, strip it and return (fully international).
         if (str_starts_with($cleaned, '+')) {
             return ltrim($cleaned, '+');
         }
 
-        // Malaysian local format: 01x -> 601x
+        // Local format (starts with 0): replace leading 0 with the country code.
         if (preg_match('/^0\d{8,10}$/', $cleaned)) {
-            return '6' . $cleaned;
+            $code = $countryCode ?? '60';
+
+            return $code . substr($cleaned, 1);
         }
 
-        // Otherwise return digits as-is (international, already has country code)
+        // Otherwise return digits as-is (international, already has country code).
         return $cleaned;
     }
 

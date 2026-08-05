@@ -23,6 +23,7 @@ class HeclinicAuthApi {
   static final ChangePasswordFirstCall changePasswordFirstCall = ChangePasswordFirstCall();
   static final LinkEmailRequestCall linkEmailRequestCall = LinkEmailRequestCall();
   static final LinkEmailVerifyCall linkEmailVerifyCall = LinkEmailVerifyCall();
+  static final SendFcmOtpCall sendFcmOtpCall = SendFcmOtpCall();
 }
 
 // ---------------------------------------------------------------------------
@@ -116,6 +117,7 @@ class RegisterCall {
     String? idplato = '',      // pre-resolved from check-nric (walk-in link)
     String? password = '',
     String? fcmToken = '',
+    String? countryCode = '60',
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicRegister',
@@ -142,6 +144,7 @@ class RegisterCall {
         'password': password,
         'password_confirmation': password,
         'fcm_token': fcmToken,
+        'country_code': countryCode,
       },
       bodyType: BodyType.MULTIPART,
       returnBody: true,
@@ -172,6 +175,7 @@ class LoginCall {
     String? identifier = '',
     String? password = '',
     String? fcmToken = '',
+    String? countryCode = '60',
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicLogin',
@@ -182,6 +186,7 @@ class LoginCall {
         'identifier': identifier,
         'password': password,
         'fcm_token': fcmToken,
+        'country_code': countryCode,
       },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,
@@ -283,13 +288,16 @@ class LogoutCall {
 // Sends OTP to the patient's email (or WhatsApp if configured server-side).
 // ---------------------------------------------------------------------------
 class ForgotPasswordCall {
-  Future<ApiCallResponse> call({String? identifier = ''}) async {
+  Future<ApiCallResponse> call({String? identifier = '', String? countryCode = '60'}) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicForgotPassword',
       apiUrl: '${HeclinicAuthApi.baseUrl}/forgot-password',
       callType: ApiCallType.POST,
       headers: {'Accept': 'application/json'},
-      params: {'identifier': identifier},
+      params: {
+        'identifier': identifier,
+        'country_code': countryCode,
+      },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,
       encodeBodyUtf8: false,
@@ -311,13 +319,16 @@ class ForgotPasswordCall {
 // For existing Plato patients without an app account yet. Sends an OTP.
 // ---------------------------------------------------------------------------
 class ClaimAccountCall {
-  Future<ApiCallResponse> call({String? identifier = ''}) async {
+  Future<ApiCallResponse> call({String? identifier = '', String? countryCode = '60'}) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicClaimAccount',
       apiUrl: '${HeclinicAuthApi.baseUrl}/claim-account',
       callType: ApiCallType.POST,
       headers: {'Accept': 'application/json'},
-      params: {'identifier': identifier},
+      params: {
+        'identifier': identifier,
+        'country_code': countryCode,
+      },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,
       encodeBodyUtf8: false,
@@ -383,6 +394,7 @@ class VerifyOtpCall {
   Future<ApiCallResponse> call({
     String? identifier = '',
     String? otp = '',
+    String? countryCode = '60',
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicVerifyOtp',
@@ -392,6 +404,7 @@ class VerifyOtpCall {
       params: {
         'identifier': identifier,
         'otp': otp,
+        'country_code': countryCode,
       },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,
@@ -503,6 +516,40 @@ class LinkEmailVerifyCall {
       params: {
         'email': email,
         'otp': otp,
+      },
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/send-fcm-otp
+// Sends the OTP via Firebase push notification as a last-resort fallback.
+// ---------------------------------------------------------------------------
+class SendFcmOtpCall {
+  Future<ApiCallResponse> call({
+    String? identifier = '',
+    String? countryCode = '60',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicSendFcmOtp',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/send-fcm-otp',
+      callType: ApiCallType.POST,
+      headers: {'Accept': 'application/json'},
+      params: {
+        'identifier': identifier,
+        'country_code': countryCode,
       },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,

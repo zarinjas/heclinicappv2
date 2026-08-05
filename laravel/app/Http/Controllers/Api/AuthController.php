@@ -131,7 +131,8 @@ class AuthController extends Controller
 
         // Normalise phone
         if (! empty($data['telephone'])) {
-            $data['telephone'] = Patient::normalisePhone($data['telephone']);
+            $countryCode = $data['country_code'] ?? null;
+            $data['telephone'] = Patient::normalisePhone($data['telephone'], $countryCode);
         }
 
         // Duplicate check — NRIC
@@ -232,7 +233,8 @@ class AuthController extends Controller
         ]);
 
         $identifier = trim($request->input('identifier'));
-        $patient = $this->findPatientByIdentifier($identifier);
+        $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
+        $patient = $this->findPatientByIdentifier($identifier, $countryCode);
 
         if (! $patient || ! Hash::check($request->input('password'), $patient->password)) {
             // Track failed attempts
@@ -405,15 +407,19 @@ class AuthController extends Controller
         $request->validate(['identifier' => 'required|string']);
 
         $identifier = trim($request->input('identifier'));
+        $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $type = Patient::detectIdentifierType($identifier);
-        $patient = $this->findPatientByIdentifier($identifier);
+        $patient = $this->findPatientByIdentifier($identifier, $countryCode);
 
-        // Always return success to prevent user enumeration
         if (! $patient) {
+            $hint = ($type === 'email')
+                ? 'This email address is not associated with any account. Please check the address or try using your phone number on the WhatsApp tab.'
+                : 'This phone number is not registered. Please check the number or try a different one.';
+
             return response()->json([
-                'status' => true,
-                'message' => 'If an account exists, a verification code has been sent.',
-            ]);
+                'status' => false,
+                'message' => $hint,
+            ], 404);
         }
 
         // Smart channel routing: phone → WhatsApp, email → email
@@ -430,7 +436,77 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'If an account exists, a verification code has been sent.',
+            'message' => 'A verification code has been sent. Please check your device.',
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/send-fcm-otp
+    // Public. Sends the OTP (existing or fresh) via Firebase push notification
+    // to the patient's device. Intended as a last-resort fallback when email
+    // and WhatsApp both fail. Works only if the patient has an active app
+    // session with a registered FCM token.
+    // -------------------------------------------------------------------------
+    public function sendFcmOtp(Request $request): JsonResponse
+    {
+        $this->rateLimit('send-fcm-otp', 3, 900);
+
+        $request->validate(['identifier' => 'required|string']);
+
+        $identifier = trim($request->input('identifier'));
+        $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
+        $patient = $this->findPatientByIdentifier($identifier, $countryCode);
+
+        if (! $patient) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This account was not found. Please check your details and try again.',
+            ], 404);
+        }
+
+        // Reuse existing OTP if still valid, otherwise generate a new one.
+        if (
+            ! $patient->otp_code
+            || ! $patient->otp_expires_at
+            || $patient->otp_expires_at->isPast()
+        ) {
+            $patient->update([
+                'otp_code' => str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+                'otp_expires_at' => now()->addMinutes(10),
+                'otp_attempts' => 0,
+            ]);
+        }
+
+        try {
+            $firebase = app(\App\Services\FirebaseService::class);
+            $firebase->writePushNotification([
+                'title' => 'Your Verification Code',
+                'body' => "Your He Clinic verification code is: {$patient->otp_code}",
+                'parameter_data' => json_encode([
+                    'otp' => $patient->otp_code,
+                    'identifier' => $identifier,
+                    'navigateTo' => '/forgotOtp',
+                ]),
+                'target_audience' => 'Specific',
+                'patient_ids' => [$patient->idplato ?? ''],
+                'type' => 'otp',
+                'initial_page_name' => 'ForgotOtp',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('AuthController::sendFcmOtp — push notification write failed', [
+                'patient_id' => $patient->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Notification service is unavailable. Please try the WhatsApp or email option.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'A verification code has been sent. Please check your device.',
         ]);
     }
 
@@ -448,8 +524,9 @@ class AuthController extends Controller
         ]);
 
         $identifier = trim($request->input('identifier'));
+        $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $type = Patient::detectIdentifierType($identifier);
-        $patient = $this->findPatientByIdentifier($identifier);
+        $patient = $this->findPatientByIdentifier($identifier, $countryCode);
 
         if (! $patient) {
             return response()->json(['status' => false, 'message' => 'Invalid or expired code.'], 422);
@@ -752,7 +829,7 @@ class AuthController extends Controller
     // Tries the detected type first, then falls back to the other numeric
     // type — a 12-digit input could be an NRIC or a full-format phone.
     // -------------------------------------------------------------------------
-    private function findPatientByIdentifier(string $identifier): ?Patient
+    private function findPatientByIdentifier(string $identifier, ?string $countryCode = null): ?Patient
     {
         $type = Patient::detectIdentifierType($identifier);
 
@@ -762,7 +839,7 @@ class AuthController extends Controller
 
         // Try every plausible phone variant — stored data may come from Plato
         // in a different format (e.g. leading 0, with/without country code).
-        $normalised = Patient::normalisePhone($identifier);
+        $normalised = Patient::normalisePhone($identifier, $countryCode);
         $digits = preg_replace('/\D/', '', $identifier);
 
         $variants = [$normalised, $digits, $identifier];

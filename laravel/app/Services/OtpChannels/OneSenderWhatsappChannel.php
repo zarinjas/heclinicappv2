@@ -2,6 +2,7 @@
 
 namespace App\Services\OtpChannels;
 
+use App\Models\Patient;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +23,18 @@ class OneSenderWhatsappChannel implements OtpChannel
 
         if (empty($key) || empty($url)) {
             Log::warning('OneSenderWhatsappChannel: ONESENDER_KEY/URL not configured.');
+
+            return false;
+        }
+
+        // Normalise to E.164 (e.g. 012-9999999 -> 60129999999). Sending a
+        // leading-0 local number raw makes the gateway misread it as another
+        // country code (e.g. 62 for Indonesia), so the OTP never arrives.
+        $recipient = Patient::normalisePhone($recipient);
+
+        if (empty($recipient)) {
+            Log::warning('OneSenderWhatsappChannel: empty recipient after normalisation.');
+
             return false;
         }
 
@@ -30,18 +43,18 @@ class OneSenderWhatsappChannel implements OtpChannel
             $contactLink = "https://wa.me/{$whatsappNumber}";
 
             $message = "Hi {$name},\n\n"
-                . "Your HE Clinic verification code is: *{$otp}*\n\n"
-                . "This code is valid for 10 minutes.\n\n"
-                . "If you did not request this, please ignore this message.\n\n"
-                . "Need help? Tap here to contact us: {$contactLink}";
+                ."Your HE Clinic verification code is: *{$otp}*\n\n"
+                ."This code is valid for 10 minutes.\n\n"
+                ."If you did not request this, please ignore this message.\n\n"
+                ."Need help? Tap here to contact us: {$contactLink}";
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer '.$key,
             ])->post($url, [
                 'recipient_type' => 'individual',
-                'to'             => $recipient,
-                'type'           => 'text',
-                'text'           => ['body' => $message],
+                'to' => $recipient,
+                'type' => 'text',
+                'text' => ['body' => $message],
             ]);
 
             if ($response->successful() && $response->json('code') === 200) {
@@ -50,14 +63,14 @@ class OneSenderWhatsappChannel implements OtpChannel
 
             Log::warning('OneSenderWhatsappChannel: unexpected response', [
                 'recipient' => $recipient,
-                'response'  => $response->json(),
+                'response' => $response->json(),
             ]);
 
             return false;
         } catch (\Throwable $e) {
             Log::error('OneSenderWhatsappChannel: failed to send OTP', [
                 'recipient' => $recipient,
-                'error'     => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return false;

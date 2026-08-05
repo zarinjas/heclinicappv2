@@ -25,6 +25,7 @@ class AppBranding {
   final String? welcomeBgGradientHex;
   final String? welcomeButtonColorHex;
   final double? welcomeLogoSize;
+  final String? clinicWhatsapp;
 
   const AppBranding({
     required this.appName,
@@ -42,6 +43,7 @@ class AppBranding {
     this.welcomeBgGradientHex,
     this.welcomeButtonColorHex,
     this.welcomeLogoSize,
+    this.clinicWhatsapp,
   });
 
   factory AppBranding.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class AppBranding {
       welcomeBgGradientHex: json['welcome_bg_gradient_color'] as String?,
       welcomeButtonColorHex: json['welcome_button_color'] as String?,
       welcomeLogoSize: parseDouble(json['welcome_logo_size']),
+      clinicWhatsapp: json['clinic_whatsapp'] as String? ?? '601167208860',
     );
   }
 
@@ -87,6 +90,7 @@ class AppBranding {
     'welcome_bg_gradient_color': welcomeBgGradientHex,
     'welcome_button_color': welcomeButtonColorHex,
     'welcome_logo_size': welcomeLogoSize,
+    'clinic_whatsapp': clinicWhatsapp,
   };
 
   // Default bundled fallback — never null
@@ -197,6 +201,7 @@ class BrandingService {
   String? get loginLogoUrl => branding.loginLogoUrl;
   String? get appBarLogoUrl => branding.appBarLogoUrl;
   String? get loadingGifUrl => branding.loadingGifUrl;
+  String get clinicWhatsapp => branding.clinicWhatsapp ?? '601167208860';
 
   /// Branding primary color (navy default) — used to theme the whole app.
   Color get primaryColor {

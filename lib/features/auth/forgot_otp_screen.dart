@@ -94,6 +94,7 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
       final result = await HeclinicAuthApi.verifyOtpCall.call(
         identifier: appState.resetIdentifier,
         otp: _otpValue,
+        countryCode: appState.resetCountryCode,
       );
 
       if (!mounted) return;
@@ -149,6 +150,7 @@ class _ForgotOtpScreenState extends State<ForgotOtpScreen> {
       final appState = FFAppState();
       final result = await HeclinicAuthApi.forgotPasswordCall.call(
         identifier: appState.resetIdentifier,
+        countryCode: appState.resetCountryCode,
       );
 
       if (!mounted) return;

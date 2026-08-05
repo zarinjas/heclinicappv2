@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -11,11 +12,21 @@ class AppErrorState extends StatelessWidget {
     this.title = 'Something went wrong',
     this.subtitle = '',
     this.onRetry,
+    this.whatsappNumber,
   });
 
   final String title;
   final String subtitle;
   final VoidCallback? onRetry;
+  final String? whatsappNumber;
+
+  Future<void> _openWhatsApp() async {
+    final number = whatsappNumber ?? '601167208860';
+    final url = Uri.parse('https://wa.me/$number');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +68,14 @@ class AppErrorState extends StatelessWidget {
               AppButton.ghost(
                 label: 'Try Again',
                 onPressed: onRetry,
+                isFullWidth: true,
+              ),
+            ],
+            if (whatsappNumber != null && whatsappNumber!.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.space12),
+              AppButton.ghost(
+                label: 'Contact Clinic on WhatsApp',
+                onPressed: _openWhatsApp,
                 isFullWidth: true,
               ),
             ],

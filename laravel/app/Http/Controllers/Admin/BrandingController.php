@@ -40,6 +40,7 @@ class BrandingController extends Controller
             'clinic_about_text' => Setting::where('key', 'clinic_about_text')->value('value') ?? '',
             'clinic_operating_hours' => Setting::where('key', 'clinic_operating_hours')->value('value') ?? '[]',
             'clinic_contact_email' => Setting::where('key', 'clinic_contact_email')->value('value') ?? 'info@heclinic.com',
+            'clinic_whatsapp' => Setting::where('key', 'clinic_whatsapp')->value('value') ?? '601167208860',
         ];
 
         return view('admin.branding', compact('branding'));
@@ -74,6 +75,7 @@ class BrandingController extends Controller
             'clinic_about_text' => 'nullable|string|max:2000',
             'clinic_operating_hours' => 'nullable|string|max:2000',
             'clinic_contact_email' => 'nullable|email|max:255',
+            'clinic_whatsapp' => 'nullable|string|max:20',
         ]);
 
         $this->saveSetting('branding_app_name', $validated['app_name']);
@@ -98,6 +100,7 @@ class BrandingController extends Controller
             'clinic_about_text' => 'clinic_about_text',
             'clinic_operating_hours' => 'clinic_operating_hours',
             'clinic_contact_email' => 'clinic_contact_email',
+            'clinic_whatsapp' => 'clinic_whatsapp',
         ];
 
         foreach ($textFields as $field => $key) {

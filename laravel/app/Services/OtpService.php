@@ -17,8 +17,8 @@ class OtpService
     {
         return match ($type) {
             'whatsapp' => app(OneSenderWhatsappChannel::class),
-            'email'    => app(ResendEmailChannel::class),
-            default    => app(ResendEmailChannel::class),
+            'email' => app(ResendEmailChannel::class),
+            default => app(ResendEmailChannel::class),
         };
     }
 
@@ -32,16 +32,16 @@ class OtpService
     {
         if ($preferredChannel === 'whatsapp' && ! empty($patient->telephone)) {
             return [
-                'channel'      => $this->channelFor('whatsapp'),
-                'recipient'    => $patient->telephone,
+                'channel' => $this->channelFor('whatsapp'),
+                'recipient' => $patient->telephone,
                 'channel_type' => 'whatsapp',
             ];
         }
 
         if ($preferredChannel === 'email' && ! empty($patient->email)) {
             return [
-                'channel'      => $this->channelFor('email'),
-                'recipient'    => $patient->email,
+                'channel' => $this->channelFor('email'),
+                'recipient' => $patient->email,
                 'channel_type' => 'email',
             ];
         }
@@ -53,8 +53,8 @@ class OtpService
             ]);
 
             return [
-                'channel'      => $this->channelFor('email'),
-                'recipient'    => $patient->email,
+                'channel' => $this->channelFor('email'),
+                'recipient' => $patient->email,
                 'channel_type' => 'email',
             ];
         }
@@ -65,8 +65,8 @@ class OtpService
             ]);
 
             return [
-                'channel'      => $this->channelFor('whatsapp'),
-                'recipient'    => $patient->telephone,
+                'channel' => $this->channelFor('whatsapp'),
+                'recipient' => $patient->telephone,
                 'channel_type' => 'whatsapp',
             ];
         }
@@ -80,7 +80,7 @@ class OtpService
      * Generate a 6-digit OTP, persist it against the patient, and dispatch it
      * via the resolved channel.
      *
-     * @return bool  Whether the OTP was sent successfully.
+     * @return bool Whether the OTP was sent successfully.
      */
     public function sendOtp(Patient $patient, string $preferredChannel = 'email'): bool
     {
@@ -97,28 +97,47 @@ class OtpService
         $otp = $this->generateOtp();
 
         $patient->update([
-            'otp_code'       => $otp,
+            'otp_code' => $otp,
             'otp_expires_at' => now()->addMinutes(10),
-            'otp_attempts'   => 0,
+            'otp_attempts' => 0,
         ]);
 
-        return $resolved['channel']->send($resolved['recipient'], $otp, $patient->name);
+        if ($resolved['channel']->send($resolved['recipient'], $otp, $patient->name)) {
+            return true;
+        }
+
+        // Primary channel failed (e.g. WhatsApp gateway down / misconfigured).
+        // Fall back to the other available channel so the OTP still gets out.
+        $fallbackType = $resolved['channel_type'] === 'whatsapp' ? 'email' : 'whatsapp';
+        $fallback = $this->resolveChannel($patient, $fallbackType);
+
+        if ($fallback !== null && $fallback['channel_type'] !== $resolved['channel_type']) {
+            Log::warning('OtpService: primary channel send failed — falling back', [
+                'patient_id' => $patient->id,
+                'primary_channel' => $resolved['channel_type'],
+                'fallback' => $fallback['channel_type'],
+            ]);
+
+            return $fallback['channel']->send($fallback['recipient'], $otp, $patient->name);
+        }
+
+        return false;
     }
 
     /**
      * Send an OTP to a specific email address (used when linking a NEW email
      * that is not yet stored on the patient's record).
      *
-     * @return bool  Whether the OTP was sent successfully.
+     * @return bool Whether the OTP was sent successfully.
      */
     public function sendOtpToEmail(Patient $patient, string $email): bool
     {
         $otp = $this->generateOtp();
 
         $patient->update([
-            'otp_code'       => $otp,
+            'otp_code' => $otp,
             'otp_expires_at' => now()->addMinutes(10),
-            'otp_attempts'   => 0,
+            'otp_attempts' => 0,
         ]);
 
         return app(ResendEmailChannel::class)->send($email, $otp, $patient->name);
@@ -128,7 +147,7 @@ class OtpService
      * Verify an OTP submitted by the patient.
      * On success, clears the OTP and issues a short-lived reset token.
      *
-     * @return string|null  The reset token on success, null on failure.
+     * @return string|null The reset token on success, null on failure.
      */
     public function verifyOtp(Patient $patient, string $submittedOtp): ?string
     {
@@ -138,14 +157,14 @@ class OtpService
         if ($patient->otp_attempts > 5) {
             Log::warning('OtpService::verifyOtp — max attempts exceeded', [
                 'patient_id' => $patient->id,
-                'attempts'   => $patient->otp_attempts,
+                'attempts' => $patient->otp_attempts,
             ]);
 
             // Reset OTP and attempts so user must request a new code
             $patient->update([
-                'otp_code'       => null,
+                'otp_code' => null,
                 'otp_expires_at' => null,
-                'otp_attempts'   => 0,
+                'otp_attempts' => 0,
             ]);
 
             return null;
@@ -158,10 +177,10 @@ class OtpService
         $resetToken = bin2hex(random_bytes(32));
 
         $patient->update([
-            'otp_code'               => null,
-            'otp_expires_at'         => null,
-            'otp_attempts'           => 0,
-            'reset_token'            => $resetToken,
+            'otp_code' => null,
+            'otp_expires_at' => null,
+            'otp_attempts' => 0,
+            'reset_token' => $resetToken,
             'reset_token_expires_at' => now()->addMinutes(15),
         ]);
 

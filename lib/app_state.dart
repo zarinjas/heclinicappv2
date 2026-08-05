@@ -335,6 +335,13 @@ class FFAppState extends ChangeNotifier {
     _resetToken = value;
   }
 
+  // Country code selected during forgot password flow (so resend uses same code)
+  String _resetCountryCode = '60';
+  String get resetCountryCode => _resetCountryCode;
+  set resetCountryCode(String value) {
+    _resetCountryCode = value;
+  }
+
   /// Clear all register temp state (call after successful register or cancel)
   void clearRegisterState() {
     _registerNric = '';
@@ -356,6 +363,7 @@ class FFAppState extends ChangeNotifier {
   void clearResetState() {
     _resetIdentifier = '';
     _resetToken = '';
+    _resetCountryCode = '60';
   }
 }
 
