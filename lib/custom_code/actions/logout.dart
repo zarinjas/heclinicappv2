@@ -13,6 +13,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> logout() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear(); // Menghapus semua data
+  // Reset in-memory auth state so the app treats the user as logged out
+  // (router + splash check these values to decide where to navigate).
+  FFAppState().isLoggedIn = false;
+  FFAppState().tokenauth = '';
 }
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the green button on the right!

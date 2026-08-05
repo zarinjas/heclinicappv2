@@ -29,6 +29,10 @@ class CmsOnboardingSlideController extends Controller
             $data['image'] = $request->file('image')->store('onboarding', 'public');
         }
 
+        if ($request->hasFile('video')) {
+            $data['video'] = $request->file('video')->store('onboarding', 'public');
+        }
+
         CmsOnboardingSlide::create($data);
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide added.');
     }
@@ -52,6 +56,15 @@ class CmsOnboardingSlideController extends Controller
             unset($data['image']);
         }
 
+        if ($request->hasFile('video')) {
+            if ($slide->video && Storage::disk('public')->exists($slide->video)) {
+                Storage::disk('public')->delete($slide->video);
+            }
+            $data['video'] = $request->file('video')->store('onboarding', 'public');
+        } else {
+            unset($data['video']);
+        }
+
         $slide->update($data);
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide updated.');
     }
@@ -60,6 +73,10 @@ class CmsOnboardingSlideController extends Controller
     {
         if ($slide->image && Storage::disk('public')->exists($slide->image)) {
             Storage::disk('public')->delete($slide->image);
+        }
+
+        if ($slide->video && Storage::disk('public')->exists($slide->video)) {
+            Storage::disk('public')->delete($slide->video);
         }
 
         $slide->delete();

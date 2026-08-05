@@ -41,7 +41,6 @@ class LoyaltyCard extends StatelessWidget {
     }
 
     final card = Container(
-      padding: const EdgeInsets.all(AppSpacing.space20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.pointsGradientStart, AppColors.pointsGradientEnd],
@@ -50,14 +49,17 @@ class LoyaltyCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(AppRadius.radius2XL),
       ),
+      // Let the decorative circles bleed past the card edge so they fill
+      // the whole card instead of looking inset by the content padding.
+      clipBehavior: Clip.none,
       child: Stack(
         children: [
           Positioned(
-            right: -20,
-            top: -20,
+            right: -30,
+            top: -30,
             child: Container(
-              width: 140,
-              height: 140,
+              width: 170,
+              height: 170,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.08),
@@ -65,130 +67,133 @@ class LoyaltyCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 20,
-            bottom: -30,
+            right: 10,
+            bottom: -40,
             child: Container(
-              width: 100,
-              height: 100,
+              width: 130,
+              height: 130,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.05),
               ),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: showTier
-                    ? MainAxisAlignment.spaceBetween
-                    : MainAxisAlignment.end,
-                children: [
-                  if (showTier) _TierBadge(tier: tier),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: const Icon(
-                      Icons.workspace_premium_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.space16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    _formatPoints(pointsBalance),
-                    style: const TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      height: 1.0,
-                      fontFamilyFallback: ['sans-serif'],
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'pts',
-                    style: AppTextStyles.body1.copyWith(
-                      color: Colors.white.withValues(alpha: 0.75),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Patient Appreciation Points',
-                style: AppTextStyles.body2.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
-              ),
-              if (showProgress) ...[
-                const SizedBox(height: AppSpacing.space16),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.radiusFull),
-                  child: LinearProgressIndicator(
-                    value: progressValue.clamp(0.0, 1.0),
-                    minHeight: 6,
-                    backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.tierGold),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.space8),
-                if (progressLabel != null)
-                  Text(
-                    progressLabel!,
-                    style: AppTextStyles.body2.copyWith(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      fontSize: 11,
-                    ),
-                  ),
-                if (nextTierLabel != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    nextTierLabel!,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.tierGold.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ],
-              if (variant == LoyaltyCardVariant.full) ...[
-                const SizedBox(height: AppSpacing.space20),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.space20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
+                  mainAxisAlignment: showTier
+                      ? MainAxisAlignment.spaceBetween
+                      : MainAxisAlignment.end,
                   children: [
-                    Expanded(
-                      child: AppButton(
-                        label: 'Redeem',
-                        variant: AppButtonVariant.whiteSolid,
-                        icon: const Icon(Icons.redeem_outlined, size: 16),
-                        onPressed: onRedeem,
+                    if (showTier) _TierBadge(tier: tier),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.space12),
-                    Expanded(
-                      child: AppButton(
-                        label: 'History',
-                        variant: AppButtonVariant.whiteGhost,
-                        icon: const Icon(Icons.history_rounded, size: 16),
-                        onPressed: onViewHistory,
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: Colors.white,
+                        size: 22,
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: AppSpacing.space16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      _formatPoints(pointsBalance),
+                      style: const TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.0,
+                        fontFamilyFallback: ['sans-serif'],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'pts',
+                      style: AppTextStyles.body1.copyWith(
+                        color: Colors.white.withValues(alpha: 0.75),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Patient Appreciation Points',
+                  style: AppTextStyles.body2.copyWith(
+                    color: Colors.white.withValues(alpha: 0.7),
+                  ),
+                ),
+                if (showProgress) ...[
+                  const SizedBox(height: AppSpacing.space16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                    child: LinearProgressIndicator(
+                      value: progressValue.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppColors.tierGold),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
+                  if (progressLabel != null)
+                    Text(
+                      progressLabel!,
+                      style: AppTextStyles.body2.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 11,
+                      ),
+                    ),
+                  if (nextTierLabel != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      nextTierLabel!,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.tierGold.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+                if (variant == LoyaltyCardVariant.full) ...[
+                  const SizedBox(height: AppSpacing.space20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          label: 'Redeem',
+                          variant: AppButtonVariant.whiteSolid,
+                          icon: const Icon(Icons.redeem_outlined, size: 16),
+                          onPressed: onRedeem,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.space12),
+                      Expanded(
+                        child: AppButton(
+                          label: 'History',
+                          variant: AppButtonVariant.whiteGhost,
+                          icon: const Icon(Icons.history_rounded, size: 16),
+                          onPressed: onViewHistory,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),

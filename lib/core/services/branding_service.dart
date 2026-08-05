@@ -45,6 +45,13 @@ class AppBranding {
   });
 
   factory AppBranding.fromJson(Map<String, dynamic> json) {
+    double? parseDouble(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+
     return AppBranding(
       appName: json['app_name'] as String? ?? 'He Medical Clinic',
       appShortName: json['app_short_name'] as String? ?? 'HE',
@@ -60,7 +67,7 @@ class AppBranding {
       welcomeBgColorHex: json['welcome_bg_color'] as String?,
       welcomeBgGradientHex: json['welcome_bg_gradient_color'] as String?,
       welcomeButtonColorHex: json['welcome_button_color'] as String?,
-      welcomeLogoSize: (json['welcome_logo_size'] as num?)?.toDouble(),
+      welcomeLogoSize: parseDouble(json['welcome_logo_size']),
     );
   }
 

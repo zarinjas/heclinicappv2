@@ -12,7 +12,7 @@ class CmsOnboardingSlide extends Model
     public const DEFAULT_GRADIENT_START = '#3B8DFF';
     public const DEFAULT_GRADIENT_END = '#27F5A3';
 
-    protected $fillable = ['title', 'subtitle', 'image', 'gradient_start', 'gradient_end', 'is_active'];
+    protected $fillable = ['title', 'subtitle', 'image', 'video', 'gradient_start', 'gradient_end', 'is_active'];
 
     protected function casts(): array
     {
@@ -26,5 +26,14 @@ class CmsOnboardingSlide extends Model
         }
 
         return Storage::disk('public')->url($this->image);
+    }
+
+    public function getVideoUrlAttribute(): ?string
+    {
+        if (! $this->video) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->video);
     }
 }

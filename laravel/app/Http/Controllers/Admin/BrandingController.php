@@ -118,17 +118,21 @@ class BrandingController extends Controller
         foreach ($imageFields as $field => $key) {
             if ($request->hasFile($field)) {
                 try {
-                    // Delete old file if exists
+                    // Store the NEW file FIRST. The old file is only deleted
+                    // after the new one is safely on disk — otherwise a failed
+                    // store() leaves the DB pointing at a deleted file and
+                    // every logo turns into a 404 (old delete-before-store bug).
+                    $path = $request->file($field)->store('branding', 'public');
+                    $url = Storage::disk('public')->url($path);
+
                     $oldUrl = Setting::where('key', $key)->value('value');
-                    if ($oldUrl) {
+                    if ($oldUrl && $oldUrl !== $url) {
                         $oldPath = str_replace('/storage/', '', parse_url($oldUrl, PHP_URL_PATH));
                         if ($oldPath && Storage::disk('public')->exists($oldPath)) {
                             Storage::disk('public')->delete($oldPath);
                         }
                     }
 
-                    $path = $request->file($field)->store('branding', 'public');
-                    $url = Storage::disk('public')->url($path);
                     $this->saveSetting($key, $url);
                 } catch (\Throwable $e) {
                     Log::warning('Branding upload failed', [

@@ -27,7 +27,12 @@
                 @forelse ($slides as $slide)
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3">
-                            @if ($slide->image_url)
+                            @if ($slide->video_url)
+                                <div class="relative w-16 h-10">
+                                    <video src="{{ $slide->video_url }}" muted playsinline class="w-16 h-10 object-cover rounded border border-gray-200"></video>
+                                    <span class="absolute bottom-0 left-0 text-[8px] font-bold bg-black/60 text-white px-1 rounded-tr">VIDEO</span>
+                                </div>
+                            @elseif ($slide->image_url)
                                 <img src="{{ $slide->image_url }}" alt="" class="w-16 h-10 object-cover rounded border border-gray-200">
                             @else
                                 <div class="w-16 h-10 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">

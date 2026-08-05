@@ -7,6 +7,7 @@ class OnboardingSlide {
   final String title;
   final String subtitle;
   final String? imageUrl;
+  final String? videoUrl;
   final String gradientStartHex;
   final String gradientEndHex;
 
@@ -15,6 +16,7 @@ class OnboardingSlide {
     required this.title,
     required this.subtitle,
     this.imageUrl,
+    this.videoUrl,
     required this.gradientStartHex,
     required this.gradientEndHex,
   });
@@ -25,6 +27,7 @@ class OnboardingSlide {
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
       imageUrl: json['image'] as String?,
+      videoUrl: json['video'] as String?,
       gradientStartHex: json['gradient_start'] as String? ?? '#3B8DFF',
       gradientEndHex: json['gradient_end'] as String? ?? '#27F5A3',
     );
@@ -35,6 +38,7 @@ class OnboardingSlide {
     'title': title,
     'subtitle': subtitle,
     'image': imageUrl,
+    'video': videoUrl,
     'gradient_start': gradientStartHex,
     'gradient_end': gradientEndHex,
   };

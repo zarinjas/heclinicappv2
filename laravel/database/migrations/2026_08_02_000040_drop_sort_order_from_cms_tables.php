@@ -22,6 +22,21 @@ return new class extends Migration
             if (! Schema::hasColumn($table, 'sort_order')) {
                 continue;
             }
+
+            // SQLite requires indexes on the column to be dropped BEFORE the
+            // column itself (ALTER TABLE ... DROP COLUMN rebuilds indexes and
+            // fails if the indexed column no longer exists). MySQL drops them
+            // automatically, so this is a no-op there.
+            $indexName = "{$table}_sort_order_index";
+            try {
+                Schema::table($table, function (Blueprint $blueprint) use ($indexName) {
+                    $blueprint->dropIndex($indexName);
+                });
+            } catch (\Throwable $e) {
+                // Index already gone (or named differently) — column drop below
+                // is the source of truth.
+            }
+
             Schema::table($table, function (Blueprint $blueprint) {
                 $blueprint->dropColumn('sort_order');
             });

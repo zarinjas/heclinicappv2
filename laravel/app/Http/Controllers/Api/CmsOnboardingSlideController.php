@@ -17,6 +17,7 @@ class CmsOnboardingSlideController extends Controller
                 'title'          => $slide->title,
                 'subtitle'       => $slide->subtitle,
                 'image'          => $slide->image_url,
+                'video'          => $slide->video_url,
                 'gradient_start' => $slide->gradient_start,
                 'gradient_end'   => $slide->gradient_end,
             ]);

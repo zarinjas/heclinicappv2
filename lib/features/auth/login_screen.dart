@@ -141,6 +141,53 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _retry() => setState(() => _showError = false);
 
+  Widget _buildLogo() {
+    final branding = BrandingService.instance;
+    // Use the dedicated login logo, falling back to the main logo.
+    final logoUrl = (branding.loginLogoUrl ?? '').isNotEmpty
+        ? branding.loginLogoUrl
+        : branding.logoUrl;
+
+    if (logoUrl != null && logoUrl.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Image.network(
+          logoUrl,
+          width: 96,
+          height: 96,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => _buildFallbackLogo(),
+        ),
+      );
+    }
+
+    return _buildFallbackLogo();
+  }
+
+  Widget _buildFallbackLogo() {
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.accent, Color(0xFF27F5A3)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: Text(
+          BrandingService.instance.appShortName,
+          style: AppTextStyles.heading2.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+
   bool get _isAppleSupported {
     if (kIsWeb) return true;
     return defaultTargetPlatform == TargetPlatform.iOS;

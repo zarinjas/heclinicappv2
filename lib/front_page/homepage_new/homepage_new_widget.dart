@@ -1,6 +1,8 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/api_requests/api_manager.dart';
 import '/backend/backend.dart';
+import '/env_config.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -17,6 +19,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 import '/theme/app_theme.dart';
+import '/core/services/branding_service.dart';
 import '/components/doctor_list_widget.dart';
 import '/components/skeleton_loaders.dart';
 import '/components/empty_state_widget.dart';
@@ -51,6 +54,10 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   bool _articlesError = false;
   bool _videosError = false;
 
+  bool _loyaltyLoaded = false;
+  int? _loyaltyBalance;
+  bool _loyaltyError = false;
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +75,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
       _loadUpcomingAppointment(),
       _loadArticles(),
       _loadVideos(),
+      _loadLoyalty(),
     ]);
     if (mounted) safeSetState(() {});
   }
@@ -266,6 +274,36 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
     }
   }
 
+  Future<void> _loadLoyalty() async {
+    try {
+      final response = await ApiManager.instance.makeApiCall(
+        callName: 'LoyaltyBalance',
+        apiUrl: '${EnvConfig.laravelBaseUrl}/v2/loyalty/balance',
+        callType: ApiCallType.GET,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        },
+        returnBody: true,
+        cache: false,
+      );
+      if (response.succeeded && response.jsonBody != null) {
+        final data = response.jsonBody;
+        _loyaltyBalance = data is Map
+            ? int.tryParse(data['balance']?.toString() ?? '')
+            : null;
+      }
+    } catch (_) {
+      // Silently fail — loyalty is optional
+    }
+    if (mounted) {
+      setState(() {
+        _loyaltyLoaded = true;
+        _loyaltyError = _loyaltyBalance == null;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _sliderTimer?.cancel();
@@ -308,19 +346,29 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   }
 
   PreferredSizeWidget _buildAppBar() {
-    final theme = FlutterFlowTheme.of(context);
+    final branding = BrandingService.instance;
+    final appBarLogo = (branding.appBarLogoUrl ?? '').isNotEmpty
+        ? branding.appBarLogoUrl
+        : branding.logoUrl;
+
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.primary,
       elevation: 0,
       scrolledUnderElevation: 1,
       surfaceTintColor: Colors.transparent,
-      leadingWidth: 80,
-      leading: Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 0.0, 8.0),
-        child: Image.asset(
-          'assets/images/hemed.png',
-          fit: BoxFit.contain,
-        ),
+      centerTitle: false,
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 12.0),
+        child: appBarLogo != null && appBarLogo.isNotEmpty
+            ? Image.network(
+                appBarLogo,
+                height: 32.0,
+                width: 32.0,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => _buildLogoFallback(),
+              )
+            : _buildLogoFallback(),
       ),
       actions: [
         Padding(
@@ -328,12 +376,12 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
           child: badges.Badge(
             badgeContent: Text(
               FFAppState().coutnnotif,
-              style: theme.bodySmall.override(
-                fontFamily: theme.bodySmallFamily,
-                color: Colors.white,
-                fontSize: 10.0,
-                letterSpacing: 0.0,
-              ),
+              style: FlutterFlowTheme.of(context).bodySmall.override(
+                    fontFamily: FlutterFlowTheme.of(context).bodySmallFamily,
+                    color: Colors.white,
+                    fontSize: 10.0,
+                    letterSpacing: 0.0,
+                  ),
             ),
             showBadge: FFAppState().coutnnotif != '0',
             shape: badges.BadgeShape.circle,
@@ -348,7 +396,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
               buttonSize: 44.0,
               icon: Icon(
                 Icons.notifications_sharp,
-                color: theme.primary,
+                color: Colors.white,
                 size: 26.0,
               ),
               onPressed: () {
@@ -361,27 +409,61 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
     );
   }
 
-  Widget _buildGreeting() {
-    final theme = FlutterFlowTheme.of(context);
-    final hour = DateTime.now().hour;
-    String greeting;
-    if (hour < 12) {
-      greeting = 'Good morning';
-    } else if (hour < 17) {
-      greeting = 'Good afternoon';
-    } else {
-      greeting = 'Good evening';
-    }
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 12.0),
+  Widget _buildLogoFallback() {
+    final branding = BrandingService.instance;
+    return Container(
+      width: 32.0,
+      height: 32.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withValues(alpha: 0.2),
+      ),
+      alignment: Alignment.center,
       child: Text(
-        '$greeting, ${FFAppState().name}',
+        branding.appShortName.isNotEmpty
+            ? branding.appShortName.substring(0, 1).toUpperCase()
+            : 'H',
         style: GoogleFonts.plusJakartaSans(
           fontSize: 16.0,
-          fontWeight: FontWeight.w600,
-          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
         ),
+      ),
+    );
+  }
+
+  Widget _buildGreeting() {
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12
+        ? 'Good morning,'
+        : hour < 17
+            ? 'Good afternoon,'
+            : 'Good evening,';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            greeting,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 24.0,
+              fontWeight: FontWeight.w400,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 2.0),
+          Text(
+            FFAppState().name.isNotEmpty ? FFAppState().name : 'User',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 26.0,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
@@ -599,7 +681,112 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
   }
 
   Widget _buildLoyaltyPoints() {
-    return const SizedBox.shrink();
+    if (!_loyaltyLoaded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 12.0),
+        child: const SkeletonTextBlock(lineCount: 1),
+      );
+    }
+
+    if (_loyaltyError || _loyaltyBalance == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 12.0),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.85)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        clipBehavior: Clip.none,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              right: -20.0,
+              top: -20.0,
+              child: Container(
+                width: 110.0,
+                height: 110.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 16.0,
+              bottom: -30.0,
+              child: Container(
+                width: 80.0,
+                height: 80.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Positioned(
+              left: -12.0,
+              bottom: -18.0,
+              child: Container(
+                width: 64.0,
+                height: 64.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40.0,
+                    height: 40.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    child: const Icon(Icons.stars_rounded, color: Colors.amberAccent, size: 22.0),
+                  ),
+                  const SizedBox(width: 14.0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Loyalty Points',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      const SizedBox(height: 2.0),
+                      Text(
+                        '$_loyaltyBalance pts',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildUpcomingAppointment() {

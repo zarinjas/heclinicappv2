@@ -97,7 +97,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   Future<void> _performLogout(BuildContext context) async {
     await actions.logout();
     if (context.mounted) {
-      context.goNamed(LoginPageWidget.routeName);
+      // Go through the splash so logged-out users see onboarding again
+      // before the login screen.
+      context.goNamed(SplashScreenWidget.routeName);
     }
   }
 

@@ -12,43 +12,42 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.titleWidget,
     required this.trailing,
     required this.backgroundColor,
+    this.titleAlign = Alignment.center,
   });
 
   factory AppAppBar.main({
+    Widget? title,
     VoidCallback? onNotificationTap,
     int notificationCount = 0,
   }) {
+    final branding = BrandingService.instance;
+    final appBarLogo = (branding.appBarLogoUrl ?? '').isNotEmpty
+        ? branding.appBarLogoUrl
+        : branding.logoUrl;
+
+    // Always prefer the Admin Panel logo. Only fall back to the icon + app
+    // name when NO remote logo is configured at all — never to a hardcoded
+    // legacy asset (the remote URL is the source of truth).
+    final Widget logo = appBarLogo != null && appBarLogo.isNotEmpty
+        ? Image.network(
+            appBarLogo,
+            height: 32,
+            width: 32,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => _LogoPlaceholder(
+              appName: branding.appName,
+            ),
+          )
+        : _LogoPlaceholder(appName: branding.appName);
+
     return AppAppBar._(
       leading: Padding(
         padding: const EdgeInsets.only(left: AppSpacing.space16),
-        child: Image.asset(
-          'assets/images/logo.png',
-          height: 32,
-          width: 32,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.medical_services,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(width: AppSpacing.space8),
-                Text(
-                  BrandingService.instance.appName,
-                  style: AppTextStyles.heading3.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+        child: logo,
       ),
-      titleWidget: const SizedBox.shrink(),
-      backgroundColor: AppColors.primary,
+      titleWidget: title ?? const SizedBox.shrink(),
+      titleAlign: title != null ? Alignment.centerLeft : Alignment.center,
+      backgroundColor: branding.primaryColor,
       trailing: Padding(
         padding: const EdgeInsets.only(right: AppSpacing.space16),
         child: GestureDetector(
@@ -136,6 +135,7 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget titleWidget;
   final Widget? trailing;
   final Color backgroundColor;
+  final Alignment titleAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +156,8 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           leading,
           Expanded(
-            child: Center(
+            child: Align(
+              alignment: titleAlign,
               child: DefaultTextStyle(
                 style: AppTextStyles.heading3,
                 child: titleWidget,
@@ -171,4 +172,31 @@ class AppAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(56.0);
+}
+
+class _LogoPlaceholder extends StatelessWidget {
+  const _LogoPlaceholder({required this.appName});
+
+  final String appName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(
+          Icons.medical_services,
+          color: Colors.white,
+          size: 28,
+        ),
+        const SizedBox(width: AppSpacing.space8),
+        Text(
+          appName,
+          style: AppTextStyles.heading3.copyWith(
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
 }

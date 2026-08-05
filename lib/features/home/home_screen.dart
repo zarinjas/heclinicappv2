@@ -214,6 +214,40 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'Good evening';
   }
 
+  /// Greeting inside the App Bar — next to the logo, vertically centered.
+  Widget _buildGreetingWidget() {
+    final name = FFAppState().name.isNotEmpty ? FFAppState().name : 'User';
+    return Padding(
+      padding: const EdgeInsets.only(left: AppSpacing.space8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${_getGreeting()},',
+            style: AppTextStyles.body2.copyWith(
+              color: Colors.white70,
+              fontSize: 10,
+              height: 1.2,
+            ),
+          ),
+          Text(
+            name,
+            style: AppTextStyles.body1.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              height: 1.2,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
   StatusChipVariant _parseStatus(String? s) {
     if (s == null) return StatusChipVariant.pending;
     switch (s.toLowerCase()) {
@@ -229,12 +263,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
-    final tc = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     context.watch<FFAppState>();
 
     return Scaffold(
       backgroundColor: bg,
       appBar: AppAppBar.main(
+        title: _buildGreetingWidget(),
         onNotificationTap: () => context.pushNamed('notificationPage'),
         notificationCount: int.tryParse(FFAppState().coutnnotif) ?? 0,
       ),
@@ -247,13 +281,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
-                  child: Text(
-                    '${_getGreeting()}, ${FFAppState().name}',
-                    style: AppTextStyles.heading3.copyWith(color: tc),
-                  ),
-                ),
                 _buildHeroSection(isDark),
                 _buildQuickActions(isDark),
                 _buildLoyaltySection(isDark),

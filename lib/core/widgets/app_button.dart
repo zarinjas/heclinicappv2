@@ -16,6 +16,7 @@ class AppButton extends StatelessWidget {
     this.icon,
     this.isLoading = false,
     this.isFullWidth = true,
+    this.backgroundColor,
   });
 
   factory AppButton.primary({
@@ -25,6 +26,7 @@ class AppButton extends StatelessWidget {
     Widget? icon,
     bool isLoading = false,
     bool isFullWidth = true,
+    Color? backgroundColor,
   }) {
     return AppButton(
       key: key,
@@ -34,6 +36,7 @@ class AppButton extends StatelessWidget {
       icon: icon,
       isLoading: isLoading,
       isFullWidth: isFullWidth,
+      backgroundColor: backgroundColor,
     );
   }
 
@@ -119,10 +122,12 @@ class AppButton extends StatelessWidget {
   final Widget? icon;
   final bool isLoading;
   final bool isFullWidth;
+  final Color? backgroundColor;
 
   Color _backgroundColor() {
     final isDisabled = onPressed == null;
     if (isDisabled) return const Color(0xFFE5E7EB);
+    if (backgroundColor != null) return backgroundColor!;
     switch (variant) {
       case AppButtonVariant.primary:
         return BrandingService.instance.accentColor;

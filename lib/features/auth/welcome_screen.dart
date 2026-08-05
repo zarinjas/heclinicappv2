@@ -22,7 +22,9 @@ class WelcomeScreen extends StatelessWidget {
     final gradientColor = branding.welcomeBgGradientColor;
     final buttonColor = branding.welcomeButtonColor;
     final logoSize = branding.welcomeLogoSize;
-    final logoUrl = branding.logoUrl;
+    final logoUrl = (branding.appBarLogoUrl ?? '').isNotEmpty
+        ? branding.appBarLogoUrl
+        : branding.logoUrl;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -54,13 +56,6 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.space8),
-              Text(
-                branding.tagline,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.body1.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
-              ),
               const Spacer(),
               Padding(
                 padding: EdgeInsets.fromLTRB(

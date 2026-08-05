@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/services/branding_service.dart';
 import '../../core/widgets/app_loader.dart';
 
@@ -32,76 +31,44 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     setState(() => _ready = true);
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go('/onboarding');
+      if (!mounted) return;
+      // Logged-in users go straight home — onboarding only shows for
+      // logged-out users (first launch / after logout).
+      final appState = FFAppState();
+      final isLoggedIn = appState.isLoggedIn || appState.tokenauth.isNotEmpty;
+      context.go(isLoggedIn ? '/' : '/onboarding');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final branding = BrandingService.instance;
-    final bgColor = branding.splashBgColor;
 
     return Scaffold(
-      backgroundColor: bgColor,
+      // White background so the admin-panel "Loading GIF" (which itself has
+      // a white background) blends seamlessly edge-to-edge.
+      backgroundColor: Colors.white,
       body: _ready
           ? _buildContent(branding)
-          : const Center(child: AppLoader(size: 64, color: Colors.white70)),
+          : const Center(child: AppLoader(size: 64, color: AppColors.primary)),
     );
   }
 
   Widget _buildContent(BrandingService branding) {
-    // Splash logo falls back to the main app logo when a dedicated
-    // splash logo hasn't been uploaded in the admin panel.
-    final splashUrl = (branding.splashLogoUrl ?? '').isNotEmpty
-        ? branding.splashLogoUrl
-        : branding.logoUrl;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Use the admin panel "Loading GIF" first, then fall back to the
+    // splash logo, then the main app logo.
+    final splashUrl = (branding.loadingGifUrl ?? '').isNotEmpty
+        ? branding.loadingGifUrl
+        : (branding.splashLogoUrl ?? '').isNotEmpty
+            ? branding.splashLogoUrl
+            : branding.logoUrl;
 
-    return SafeArea(
-      child: Column(
-        children: [
-          // 70% — image / splash GIF
-          Expanded(
-            flex: 7,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: splashUrl != null && splashUrl.isNotEmpty
-                    ? _brandImage(splashUrl!, 0)
-                        .animate()
-                        .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-                        .scale(
-                          begin: const Offset(0.85, 0.85),
-                          end: const Offset(1.0, 1.0),
-                          duration: 800.ms,
-                          curve: Curves.easeOut,
-                        )
-                    : _buildFallbackLogo(),
-              ),
-            ),
-          ),
-          // 30% — text
-          Expanded(
-            flex: 3,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  branding.tagline,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.body1.copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-                ).animate().fadeIn(
-                      duration: 600.ms,
-                      delay: 400.ms,
-                      curve: Curves.easeOut,
-                    ),
-              ],
-            ),
-          ),
-          SizedBox(height: bottomPadding + 8),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: splashUrl != null && splashUrl.isNotEmpty
+            ? _brandImage(splashUrl, 0)
+            : _buildFallbackLogo(),
       ),
     );
   }
