@@ -104,7 +104,6 @@ class _ForgotNewpasswordScreenState extends State<ForgotNewpasswordScreen> {
       if (!mounted) return;
 
       if (result.succeeded && (ResetPasswordCall.status(result.jsonBody) == true)) {
-        final appState = FFAppState();
         final token = ResetPasswordCall.token(result.jsonBody);
 
         appState.clearResetState();
@@ -113,10 +112,20 @@ class _ForgotNewpasswordScreenState extends State<ForgotNewpasswordScreen> {
           appState.tokenauth = token;
           appState.idplato = ResetPasswordCall.idplato(result.jsonBody) ?? '';
           appState.name = ResetPasswordCall.name(result.jsonBody) ?? '';
+          final userEmail = ResetPasswordCall.email(result.jsonBody) ?? '';
+          if (userEmail.isNotEmpty) {
+            appState.userEmail = userEmail;
+          }
           appState.isLoggedIn = true;
           appState.update(() {});
 
-          if (mounted) context.go('/');
+          if (mounted) {
+            if (userEmail.isEmpty) {
+              context.go('/bindEmail?from=reset');
+            } else {
+              context.go('/');
+            }
+          }
         } else {
           if (mounted) context.go('/login');
         }

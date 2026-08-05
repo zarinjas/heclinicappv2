@@ -9,6 +9,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_input.dart';
+import '../../core/widgets/country_code_selector.dart';
 
 class ClaimAccountScreen extends StatefulWidget {
   const ClaimAccountScreen({super.key});
@@ -25,6 +26,7 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
   final _identifierController = TextEditingController();
   bool _isLoading = false;
   String? _apiError;
+  String _selectedCountryCode = '60';
 
   @override
   void dispose() {
@@ -43,6 +45,7 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
     try {
       final result = await HeclinicAuthApi.claimAccountCall.call(
         identifier: _identifierController.text.trim(),
+        countryCode: _selectedCountryCode,
       );
 
       if (!mounted) return;
@@ -136,6 +139,14 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.space32),
+            CountryCodeSelector(
+              selectedCode: _selectedCountryCode,
+              onChanged: (code) {
+                setState(() => _selectedCountryCode = code);
+              },
+              enabled: !_isLoading,
+            ),
+            const SizedBox(height: AppSpacing.space12),
             AppInput(
               controller: _identifierController,
               label: 'IC / Passport, Phone, or Email',

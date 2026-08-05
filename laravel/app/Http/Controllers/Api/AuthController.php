@@ -779,10 +779,11 @@ class AuthController extends Controller
         $request->validate(['identifier' => 'required|string']);
 
         $identifier = trim($request->input('identifier'));
+        $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $type = Patient::detectIdentifierType($identifier);
 
         // 1. Look up the patient in Plato.
-        $plato = $this->findPlatoPatientByIdentifier($identifier, $type);
+        $plato = $this->findPlatoPatientByIdentifier($identifier, $type, $countryCode);
 
         if (empty($plato)) {
             return response()->json([
@@ -905,7 +906,7 @@ class AuthController extends Controller
     // -------------------------------------------------------------------------
     private function findOrCreatePatientFromPlato(string $identifier, string $type, ?string $countryCode = null): ?Patient
     {
-        $plato = $this->findPlatoPatientByIdentifier($identifier, $type);
+        $plato = $this->findPlatoPatientByIdentifier($identifier, $type, $countryCode);
 
         if (empty($plato)) {
             return null;
@@ -936,12 +937,12 @@ class AuthController extends Controller
     // -------------------------------------------------------------------------
     // Internal: Search Plato for a patient by identifier.
     // -------------------------------------------------------------------------
-    private function findPlatoPatientByIdentifier(string $identifier, string $type): ?array
+    private function findPlatoPatientByIdentifier(string $identifier, string $type, ?string $countryCode = null): ?array
     {
         $params = match ($type) {
             'email' => ['email' => $identifier],
             'nric' => ['nric' => $identifier],
-            'phone' => ['telephone' => Patient::normalisePhone($identifier)],
+            'phone' => ['telephone' => Patient::normalisePhone($identifier, $countryCode)],
         };
 
         try {

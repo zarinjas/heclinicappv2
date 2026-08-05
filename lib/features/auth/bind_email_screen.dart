@@ -55,6 +55,12 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
     return from == 'register';
   }
 
+  bool get _fromExternal => _fromRegister
+      || GoRouterState.of(context).uri.queryParameters['from'] == 'reset'
+      || GoRouterState.of(context).uri.queryParameters['from'] == 'claim';
+
+  bool get _canPopBack => !_fromExternal;
+
   @override
   void initState() {
     super.initState();
@@ -206,8 +212,8 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
 
       if (result.succeeded && (LinkEmailVerifyCall.status(result.jsonBody) == true)) {
         FFAppState().userEmail = _emailController.text.trim();
-        if (_fromRegister) {
-          context.go('/mainPage');
+        if (_fromExternal) {
+          context.go('/');
         } else {
           context.pop();
         }
@@ -255,7 +261,7 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           color: textColor,
-          onPressed: _fromRegister ? () => context.go('/mainPage') : () => context.pop(),
+          onPressed: _canPopBack ? () => context.pop() : () => context.go('/'),
         ),
       ),
       body: SafeArea(
