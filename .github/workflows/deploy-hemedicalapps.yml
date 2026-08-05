@@ -49,5 +49,21 @@ jobs:
           sudo -u hemed2668 composer install --no-dev --optimize-autoloader --no-interaction
           sudo -u hemed2668 php artisan migrate --force --no-interaction || true
           sudo -u hemed2668 php artisan storage:link || true
+
+          # Ensure OneSender (WhatsApp OTP) config exists in the production .env.
+          # Values come from GitHub secrets. Existing lines are updated in place;
+          # missing lines are appended. Skip if secrets are not set.
+          if [ -n "${{ secrets.ONESENDER_URL }}" ] && [ -n "${{ secrets.ONESENDER_KEY }}" ]; then
+            sudo grep -q '^ONESENDER_URL=' "$DST/.env" \
+              && sudo sed -i "s|^ONESENDER_URL=.*|ONESENDER_URL=${{ secrets.ONESENDER_URL }}|" "$DST/.env" \
+              || echo "ONESENDER_URL=${{ secrets.ONESENDER_URL }}" | sudo tee -a "$DST/.env" > /dev/null
+            sudo grep -q '^ONESENDER_KEY=' "$DST/.env" \
+              && sudo sed -i "s|^ONESENDER_KEY=.*|ONESENDER_KEY=${{ secrets.ONESENDER_KEY }}|" "$DST/.env" \
+              || echo "ONESENDER_KEY=${{ secrets.ONESENDER_KEY }}" | sudo tee -a "$DST/.env" > /dev/null
+            sudo grep -q '^OTP_CHANNEL=' "$DST/.env" \
+              && sudo sed -i "s|^OTP_CHANNEL=.*|OTP_CHANNEL=whatsapp|" "$DST/.env" \
+              || echo "OTP_CHANNEL=whatsapp" | sudo tee -a "$DST/.env" > /dev/null
+          fi
+
           sudo -u hemed2668 php artisan optimize:clear
           sudo chown -R hemed2668:hemed2668 storage bootstrap/cache public/storage || true

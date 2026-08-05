@@ -3,14 +3,17 @@
 namespace App\Services\OtpChannels;
 
 use App\Models\Patient;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
  * OneSender WhatsApp OTP channel.
  *
- * To enable: set OTP_CHANNEL=whatsapp in .env and configure
- * ONESENDER_URL + ONESENDER_KEY.
+ * Configuration (checked in order):
+ *   1. Database settings (`onesender_url` / `onesender_key`) — editable in
+ *      the admin panel, deploy-safe.
+ *   2. .env (ONESENDER_URL + ONESENDER_KEY).
  *
  * OneSender API docs: https://onesender.net
  */
@@ -18,11 +21,12 @@ class OneSenderWhatsappChannel implements OtpChannel
 {
     public function send(string $recipient, string $otp, string $name = ''): bool
     {
-        $url = config('services.onesender.url');
-        $key = config('services.onesender.key');
+        $url = $this->setting('onesender_url', config('services.onesender.url'));
+        $key = $this->setting('onesender_key', config('services.onesender.key'));
 
         if (empty($key) || empty($url)) {
-            Log::warning('OneSenderWhatsappChannel: ONESENDER_KEY/URL not configured.');
+            Log::warning('OneSenderWhatsappChannel: ONESENDER_KEY/URL not configured. '
+                .'Add them in the admin panel (Settings → WhatsApp) or in the server .env.');
 
             return false;
         }
@@ -39,7 +43,7 @@ class OneSenderWhatsappChannel implements OtpChannel
         }
 
         try {
-            $whatsappNumber = config('services.onesender.clinic_whatsapp', '601167208860');
+            $whatsappNumber = $this->setting('onesender_clinic_whatsapp', config('services.onesender.clinic_whatsapp', '601167208860'));
             $contactLink = "https://wa.me/{$whatsappNumber}";
 
             $message = "Hi {$name},\n\n"
@@ -75,5 +79,12 @@ class OneSenderWhatsappChannel implements OtpChannel
 
             return false;
         }
+    }
+
+    private function setting(string $key, ?string $default): ?string
+    {
+        $value = Setting::where('key', $key)->value('value');
+
+        return $value !== null && $value !== '' ? $value : $default;
     }
 }

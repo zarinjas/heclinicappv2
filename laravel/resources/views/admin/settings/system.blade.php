@@ -138,6 +138,61 @@
             </div>
         </div>
 
+        {{-- WhatsApp OTP (OneSender) --}}
+        <div class="bg-white rounded-xl p-6 border border-gray-200">
+            <h2 class="text-lg font-semibold text-[#0F1B3D] mb-1">WhatsApp OTP (OneSender)</h2>
+            <p class="text-sm text-gray-500 mb-6">Used to send verification codes for Forgot Password and account verification. Stored in the database (deploy-safe).</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">API URL</label>
+                    <input type="url" name="onesender_url" value="{{ old('onesender_url', $whatsapp['onesender_url']) }}"
+                           placeholder="https://waXXXXX.oneapi.my.id/api/v1/messages"
+                           class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">
+                    <p class="mt-1 text-xs text-gray-400">Your OneSender instance API URL.</p>
+                    @error('onesender_url') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">API Key</label>
+                    <div class="flex items-center gap-3">
+                        <input type="password" name="onesender_key" autocomplete="new-password"
+                               placeholder="Leave blank to keep the existing key"
+                               class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">
+                        <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full {{ $whatsapp['onesender_configured'] ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                            {{ $whatsapp['onesender_configured'] ? 'Configured' : 'Not set' }}
+                        </span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400">Stored encrypted. Leave empty to keep the current key.</p>
+                    @error('onesender_key') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Clinic WhatsApp Number</label>
+                    <input type="text" name="onesender_clinic_whatsapp" value="{{ old('onesender_clinic_whatsapp', $whatsapp['clinic_whatsapp']) }}"
+                           placeholder="601167208860"
+                           class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">
+                    <p class="mt-1 text-xs text-gray-400">Shown as the "contact us" link inside the OTP message. International format without +.</p>
+                    @error('onesender_clinic_whatsapp') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            @if ($whatsapp['onesender_configured'])
+                <div class="mt-4 border-t border-gray-100 pt-4">
+                    <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Test Connection</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" name="test_phone" id="test_phone" placeholder="e.g. 60123456789"
+                               class="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">
+                        <button type="button" onclick="sendTestWhatsapp()"
+                                class="px-4 py-2 text-sm font-medium text-white bg-[#0F1B3D] rounded-lg hover:bg-[#1e2d52] transition-colors whitespace-nowrap">
+                            Send Test OTP
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-400">Sends a real test verification code to the number above. Use it to confirm the API key works.</p>
+                </div>
+            @endif
+        </div>
+
         <div class="flex items-center gap-3">
             <button type="submit"
                     class="px-6 py-3 bg-[#00C9A7] text-white rounded-xl font-medium text-sm hover:bg-[#00b897] transition-colors">
@@ -146,4 +201,24 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    function sendTestWhatsapp() {
+        const phone = document.getElementById('test_phone').value.trim();
+        if (!phone) { alert('Enter a phone number first.'); return; }
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route('admin.settings.system.test-whatsapp') }}';
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden'; csrf.name = '_token'; csrf.value = '{{ csrf_token() }}';
+        form.appendChild(csrf);
+        const phoneInput = document.createElement('input');
+        phoneInput.type = 'hidden'; phoneInput.name = 'phone'; phoneInput.value = phone;
+        form.appendChild(phoneInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+@endpush
 @endsection
