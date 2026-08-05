@@ -66,7 +66,20 @@ class PatientController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        return view('admin.patients.index', compact('patients'));
+        // Build a lookup of which patients (by Plato _id) already have a local
+        // app account, so the list can show a "Linked / Not Linked" badge.
+        $ids = collect($patientsData)
+            ->pluck('_id')
+            ->filter()
+            ->values()
+            ->all();
+
+        $linked = [];
+        if (! empty($ids)) {
+            $linked = Patient::whereIn('idplato', $ids)->pluck('idplato')->all();
+        }
+
+        return view('admin.patients.index', compact('patients', 'linked'));
     }
 
     public function show(Request $request, string $id): View
@@ -80,11 +93,7 @@ class PatientController extends Controller
 
         $response = $plato->proxy('GET', "patient/{$id}", $query);
 
-        $patient = [];
-
-        if (! isset($response['error']) && isset($response['data'])) {
-            $patient = is_array($response['data']) ? $response['data'] : (array) $response['data'];
-        }
+        $patient = $this->pluckPatient($response);
 
         if (empty($patient)) {
             abort(404, 'Patient not found in Plato.');
@@ -119,7 +128,7 @@ class PatientController extends Controller
 
         // 1. Fetch patient data from Plato.
         $response = $plato->proxy('GET', "patient/{$id}");
-        $platoData = $response['data'] ?? [];
+        $platoData = $this->pluckPatient($response);
 
         if (empty($platoData)) {
             return redirect()
@@ -269,16 +278,16 @@ class PatientController extends Controller
         try {
             $plato = app(PlatoProxyService::class);
             $response = $plato->proxy('GET', "patient/{$id}");
-            $patient = $response['data'] ?? [];
+            $patient = $this->pluckPatient($response);
 
-            if (! is_array($patient)) {
+            if (empty($patient)) {
                 return [];
             }
 
             return [
                 'name' => $patient['name'] ?? null,
                 'nric' => $patient['nric'] ?? null,
-                'phone' => $patient['phone'] ?? null,
+                'phone' => $patient['telephone'] ?? $patient['phone'] ?? null,
             ];
         } catch (\Exception $e) {
             return [];
@@ -304,5 +313,24 @@ class PatientController extends Controller
             ->first();
 
         return $appointment?->branch_id;
+    }
+
+    /**
+     * Plato's patient/{id} endpoint returns data as a list [{...}] (the record
+     * at index 0). This unwraps it into the patient object array.
+     */
+    private function pluckPatient(array $response): array
+    {
+        $data = $response['data'] ?? [];
+
+        if (! is_array($data)) {
+            return [];
+        }
+
+        if (isset($data[0]) && is_array($data[0])) {
+            return $data[0];
+        }
+
+        return $data;
     }
 }

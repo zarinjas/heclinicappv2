@@ -54,7 +54,7 @@
                     <div>
                         <h3 class="text-lg font-semibold text-[#0F1B3D]">{{ $patient['name'] ?? 'Unknown' }}</h3>
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 bg-[#00C9A7]/10 text-[#00C9A7]">
-                            {{ $patient['givenid'] ?? '—' }}
+                            {{ $patient['given_id'] ?? $patient['givenid'] ?? '—' }}
                         </span>
                         @if (isset($localPatient) && $localPatient)
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ml-2 bg-blue-50 text-blue-600">
@@ -67,7 +67,7 @@
                         @endif
                     </div>
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('admin.patients.show', ['patient' => $patient['id'] ?? request()->route('patient'), 'sync' => 1]) }}"
+                        <a href="{{ route('admin.patients.show', ['patient' => $patient['_id'] ?? request()->route('patient'), 'sync' => 1]) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#00C9A7] rounded-lg hover:bg-[#00b89a] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -106,7 +106,7 @@
                         </div>
                         <div>
                             <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Gender</dt>
-                            <dd class="mt-1 text-sm text-[#0F1B3D]">{{ $patient['gender'] ?? '—' }}</dd>
+                            <dd class="mt-1 text-sm text-[#0F1B3D]">{{ $patient['sex'] ?? $patient['gender'] ?? '—' }}</dd>
                         </div>
                         <div>
                             <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Nationality</dt>
@@ -122,7 +122,7 @@
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
                             <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Phone</dt>
-                            <dd class="mt-1 text-sm text-[#0F1B3D]">{{ $patient['phone'] ?? '—' }}</dd>
+                            <dd class="mt-1 text-sm text-[#0F1B3D]">{{ $patient['telephone'] ?? $patient['phone'] ?? '—' }}</dd>
                         </div>
                         <div>
                             <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Address</dt>
@@ -187,7 +187,7 @@
 
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
                 <p class="text-xs text-gray-400">
-                    Patient ID: {{ $patient['id'] ?? 'Unknown' }}
+                    Patient ID: {{ $patient['_id'] ?? $patient['id'] ?? 'Unknown' }}
                 </p>
             </div>
         </div>
