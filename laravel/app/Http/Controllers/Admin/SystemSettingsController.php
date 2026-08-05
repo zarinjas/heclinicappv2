@@ -68,7 +68,7 @@ class SystemSettingsController extends Controller
             $this->saveSetting('onesender_url', $validated['onesender_url']);
         }
         if (! empty($validated['onesender_key'])) {
-            $this->saveSetting('onesender_key', Crypt::encryptString($validated['onesender_key']));
+            $this->saveSetting('onesender_key', $validated['onesender_key']); // plaintext — channel handles decrypt if needed
         }
         if (! empty($validated['onesender_clinic_whatsapp'])) {
             $this->saveSetting('onesender_clinic_whatsapp', $validated['onesender_clinic_whatsapp']);

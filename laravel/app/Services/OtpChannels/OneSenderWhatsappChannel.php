@@ -4,6 +4,7 @@ namespace App\Services\OtpChannels;
 
 use App\Models\Patient;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -85,6 +86,21 @@ class OneSenderWhatsappChannel implements OtpChannel
     {
         $value = Setting::where('key', $key)->value('value');
 
-        return $value !== null && $value !== '' ? $value : $default;
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        // The admin panel may have saved the key encrypted. Try to decrypt it.
+        // If the value is already plaintext, decrypt will throw — catch and
+        // return the raw value.
+        try {
+            $decrypted = Crypt::decryptString($value);
+
+            if ($decrypted !== null && $decrypted !== '') {
+                return $decrypted;
+            }
+        } catch (\Throwable) {}
+
+        return $value;
     }
 }
