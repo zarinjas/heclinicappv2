@@ -23,6 +23,7 @@ class CmsOnboardingSlideController extends Controller
     public function store(StoreCmsOnboardingSlideRequest $request)
     {
         $data = $request->validated();
+        $this->fillGradientDefaults($data);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('onboarding', 'public');
@@ -40,6 +41,7 @@ class CmsOnboardingSlideController extends Controller
     public function update(StoreCmsOnboardingSlideRequest $request, CmsOnboardingSlide $slide)
     {
         $data = $request->validated();
+        $this->fillGradientDefaults($data);
 
         if ($request->hasFile('image')) {
             if ($slide->image && Storage::disk('public')->exists($slide->image)) {
@@ -62,5 +64,11 @@ class CmsOnboardingSlideController extends Controller
 
         $slide->delete();
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide deleted.');
+    }
+
+    private function fillGradientDefaults(array &$data): void
+    {
+        $data['gradient_start'] ??= CmsOnboardingSlide::DEFAULT_GRADIENT_START;
+        $data['gradient_end'] ??= CmsOnboardingSlide::DEFAULT_GRADIENT_END;
     }
 }
