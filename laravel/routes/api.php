@@ -39,6 +39,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::post('/v2/auth/change-password-first', [AuthController::class, 'changePasswordFirst'])
         ->name('auth.change-password-first');
+    Route::post('/v2/auth/link-email-request', [AuthController::class, 'linkEmailRequest'])
+        ->name('auth.link-email-request');
+    Route::post('/v2/auth/link-email-verify', [AuthController::class, 'linkEmailVerify'])
+        ->name('auth.link-email-verify');
 });
 
 // ─── Mobile Loyalty Points (protected) ──────────────────────────────────────

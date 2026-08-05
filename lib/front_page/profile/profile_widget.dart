@@ -12,6 +12,7 @@ import '/core/theme/app_spacing.dart';
 import '/core/theme/app_text_styles.dart';
 import '/core/widgets/app_button.dart';
 import '/custom_code/actions/index.dart' as actions;
+import '/features/auth/bind_email_screen.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 
@@ -132,6 +133,23 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               ),
               const SizedBox(height: AppSpacing.space16),
               _buildSectionHeader('Settings', isDark),
+              _profileTile(
+                icon: Icons.email_outlined,
+                label: appState.userEmail.isNotEmpty
+                    ? 'Email Address'
+                    : 'Add Email Address',
+                trailing: appState.userEmail.isNotEmpty
+                    ? Text(
+                        appState.userEmail,
+                        style: AppTextStyles.body2.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      )
+                    : null,
+                onTap: () => context.pushNamed(
+                  BindEmailScreen.routeName,
+                ),
+              ),
               _profileTile(
                 icon: Icons.fingerprint,
                 label: 'Biometric Login',

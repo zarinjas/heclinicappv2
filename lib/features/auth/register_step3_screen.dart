@@ -139,11 +139,19 @@ class _RegisterStep3ScreenState extends State<RegisterStep3Screen> {
         }
 
         appState.isLoggedIn = true;
+        final registeredEmail = appState.registerEmail;
         appState.clearRegisterState();
         appState.update(() {});
 
         if (mounted) {
-          context.go('/mainPage');
+          // Force-bind an email when the user registered without one, so
+          // they can log in with either phone or email later.
+          if (registeredEmail.isNotEmpty) {
+            appState.userEmail = registeredEmail;
+            context.go('/mainPage');
+          } else {
+            context.go('/bindEmail?from=register');
+          }
         }
       } else {
         final message = RegisterCall.message(result.jsonBody);

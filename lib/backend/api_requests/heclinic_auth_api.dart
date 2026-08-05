@@ -21,6 +21,8 @@ class HeclinicAuthApi {
   static final VerifyOtpCall verifyOtpCall = VerifyOtpCall();
   static final ResetPasswordCall resetPasswordCall = ResetPasswordCall();
   static final ChangePasswordFirstCall changePasswordFirstCall = ChangePasswordFirstCall();
+  static final LinkEmailRequestCall linkEmailRequestCall = LinkEmailRequestCall();
+  static final LinkEmailVerifyCall linkEmailVerifyCall = LinkEmailVerifyCall();
 }
 
 // ---------------------------------------------------------------------------
@@ -427,6 +429,80 @@ class ResetPasswordCall {
         'reset_token': resetToken,
         'password': password,
         'password_confirmation': password,
+      },
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/link-email-request
+// Protected. Sends an OTP to a new email the patient wants to bind.
+// ---------------------------------------------------------------------------
+class LinkEmailRequestCall {
+  Future<ApiCallResponse> call({
+    String? token = '',
+    String? email = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicLinkEmailRequest',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/link-email-request',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {
+        'email': email,
+      },
+      bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/link-email-verify
+// Protected. Verifies the OTP and binds the new email to the account.
+// ---------------------------------------------------------------------------
+class LinkEmailVerifyCall {
+  Future<ApiCallResponse> call({
+    String? token = '',
+    String? email = '',
+    String? otp = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicLinkEmailVerify',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/link-email-verify',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {
+        'email': email,
+        'otp': otp,
       },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,

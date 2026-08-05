@@ -37,6 +37,7 @@ import '/features/auth/claim_account_screen.dart';
 import '/features/auth/forgot_otp_screen.dart';
 import '/features/auth/forgot_newpassword_screen.dart';
 import '/features/auth/first_change_password_screen.dart';
+import '/features/auth/bind_email_screen.dart';
 import '/features/content/articles_list_screen.dart';
 import '/features/content/article_detail_screen.dart';
 import '/features/content/videos_list_screen.dart';
@@ -396,6 +397,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: FirstChangePasswordScreen.routeName,
           path: FirstChangePasswordScreen.routePath,
           builder: (context, params) => const FirstChangePasswordScreen(),
+        ),
+        FFRoute(
+          name: BindEmailScreen.routeName,
+          path: BindEmailScreen.routePath,
+          builder: (context, params) => const BindEmailScreen(),
         ),
 
         // ── Content screens ──────────────────────────────────────────────

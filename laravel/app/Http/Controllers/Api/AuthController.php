@@ -287,6 +287,109 @@ class AuthController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // POST /api/v2/auth/link-email-request
+    // Protected (auth:sanctum). Sends an OTP to a NEW email the patient wants
+    // to bind to their account (used for add/change email).
+    // -------------------------------------------------------------------------
+    public function linkEmailRequest(Request $request): JsonResponse
+    {
+        $this->rateLimit('link-email-request', 3, 900);
+
+        $request->validate([
+            'email' => ['required', 'email', 'max:191'],
+        ]);
+
+        $patient = $request->user();
+        $email = strtolower(trim($request->input('email')));
+
+        // Reject if this email is already used by another account.
+        $exists = Patient::whereRaw('LOWER(email) = ?', [$email])
+            ->where('id', '!=', $patient->id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This email is already linked to another account.',
+            ], 409);
+        }
+
+        // Store the pending email and send the OTP to it.
+        $patient->update(['pending_email' => $email]);
+
+        $sent = $this->otp->sendOtpToEmail($patient, $email);
+
+        if (! $sent) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to send the verification code. Please try again.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Verification code sent to ' . $email . '.',
+            'email' => $email,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/link-email-verify
+    // Protected (auth:sanctum). Verifies the OTP and binds the new email.
+    // -------------------------------------------------------------------------
+    public function linkEmailVerify(Request $request): JsonResponse
+    {
+        $this->rateLimit('link-email-verify', 5, 900);
+
+        $request->validate([
+            'email' => ['required', 'email', 'max:191'],
+            'otp' => 'required|string|size:6',
+        ]);
+
+        $patient = $request->user();
+        $email = strtolower(trim($request->input('email')));
+
+        if (($patient->pending_email ?? '') !== $email) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Please request a new verification code for this email.',
+            ], 422);
+        }
+
+        // Re-check uniqueness (the email may have been taken since the request).
+        $exists = Patient::whereRaw('LOWER(email) = ?', [$email])
+            ->where('id', '!=', $patient->id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This email is already linked to another account.',
+            ], 409);
+        }
+
+        // verifyOtp clears the OTP and issues a reset token — we only need the
+        // success/failure result here.
+        if (! $this->otp->verifyOtp($patient, $request->input('otp'))) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid or expired code.',
+            ], 422);
+        }
+
+        $patient->update([
+            'email' => $email,
+            'pending_email' => null,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Email linked successfully.',
+            'email' => $email,
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
     // POST /api/v2/auth/logout
     // Protected (auth:sanctum). Revokes the current token.
     // -------------------------------------------------------------------------

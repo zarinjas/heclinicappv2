@@ -78,6 +78,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::post('videos/fetch-info', [CmsVideoController::class, 'fetchInfo'])->name('videos.fetch-info');
             Route::resource('promotions', CmsPromotionController::class);
             Route::resource('onboarding', CmsOnboardingSlideController::class);
+            Route::post('onboarding/{onboarding}/remove-media', [CmsOnboardingSlideController::class, 'removeMedia'])
+                ->name('cms.onboarding.remove-media');
             Route::resource('legal', CmsLegalPageController::class);
         });
 

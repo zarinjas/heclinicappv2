@@ -78,6 +78,25 @@ class AppButton extends StatelessWidget {
     );
   }
 
+  factory AppButton.whiteSolid({
+    Key? key,
+    required String label,
+    VoidCallback? onPressed,
+    Widget? icon,
+    bool isLoading = false,
+    bool isFullWidth = true,
+  }) {
+    return AppButton(
+      key: key,
+      label: label,
+      onPressed: onPressed,
+      variant: AppButtonVariant.whiteSolid,
+      icon: icon,
+      isLoading: isLoading,
+      isFullWidth: isFullWidth,
+    );
+  }
+
   factory AppButton.destructive({
     Key? key,
     required String label,
@@ -181,54 +200,68 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDisabled = onPressed == null || isLoading;
 
-    final button = SizedBox(
-      height: 52,
-      width: isFullWidth ? double.infinity : null,
-      child: ElevatedButton(
-        onPressed: isDisabled ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _backgroundColor(),
-          foregroundColor: _foregroundColor(),
-          disabledBackgroundColor: const Color(0xFFE5E7EB),
-          disabledForegroundColor: const Color(0xFF9CA3AF),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.radiusXL),
-          ),
-          side: _border(),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          textStyle: AppTextStyles.button,
-          elevation: 0,
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (icon != null) ...[
-                    icon!,
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: AppTextStyles.button.copyWith(
-                        color: _foregroundColor(),
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+    final button = LayoutBuilder(
+      builder: (context, constraints) {
+        // Some routes (e.g. the iOS back-gesture transition stack) can
+        // transiently lay this widget out with unbounded width. The literal
+        // `double.infinity` asserts in that case, so use the incoming max
+        // width when bounded and fall back to the screen width otherwise.
+        final double? width = isFullWidth
+            ? (constraints.hasBoundedWidth
+                ? constraints.maxWidth
+                : MediaQuery.sizeOf(context).width)
+            : null;
+
+        return SizedBox(
+          height: 52,
+          width: width,
+          child: ElevatedButton(
+            onPressed: isDisabled ? null : onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _backgroundColor(),
+              foregroundColor: _foregroundColor(),
+              disabledBackgroundColor: const Color(0xFFE5E7EB),
+              disabledForegroundColor: const Color(0xFF9CA3AF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.radiusXL),
               ),
-      ),
+              side: _border(),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              textStyle: AppTextStyles.button,
+              elevation: 0,
+            ),
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null) ...[
+                        icon!,
+                        const SizedBox(width: 8),
+                      ],
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: AppTextStyles.button.copyWith(
+                            color: _foregroundColor(),
+                          ),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
 
     return _AppButtonPressable(isDisabled: isDisabled, child: button);

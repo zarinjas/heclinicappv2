@@ -26,14 +26,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _showError = false;
   String _errorMessage = 'Invalid credentials. Please try again.';
-  int _activeTab = 0;
+
+  /// Strips phone separators (spaces, dashes, brackets) while keeping the
+  /// email address and "+" prefix intact. The backend normalises the rest
+  /// (e.g. 0123456789 → 60123456789).
+  static String _normalizeIdentifier(String raw) {
+    final value = raw.trim();
+    if (value.contains('@')) return value;
+    return value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+  }
 
   @override
   void initState() {
@@ -43,8 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _phoneController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -62,8 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
       if (didAuth && mounted) {
-        _emailController.text = '';
-        _phoneController.text = '';
+        _identifierController.text = '';
         _passwordController.text = '';
       }
     } catch (_) {}
@@ -77,9 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final identifier = _activeTab == 0
-          ? _emailController.text.trim()
-          : _phoneController.text.trim();
+      final identifier = _normalizeIdentifier(_identifierController.text);
 
       final response = await HeclinicAuthApi.loginCall.call(
         identifier: identifier,
@@ -89,16 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      if ((response?.succeeded ?? false) &&
-          (LoginCall.status(response?.jsonBody) == true)) {
+      if ((response.succeeded) &&
+          (LoginCall.status(response.jsonBody) == true)) {
         final appState = FFAppState();
-        final token = LoginCall.token(response?.jsonBody) ?? '';
+        final token = LoginCall.token(response.jsonBody) ?? '';
         final idplato =
-            LoginCall.idplato(response?.jsonBody) ?? '';
+            LoginCall.idplato(response.jsonBody) ?? '';
         final name =
-            LoginCall.name(response?.jsonBody) ?? '';
+            LoginCall.name(response.jsonBody) ?? '';
         final passwordChangedAt =
-            LoginCall.passwordChangedAt(response?.jsonBody);
+            LoginCall.passwordChangedAt(response.jsonBody);
 
         appState.tokenauth = token;
         appState.idplato = idplato;
@@ -118,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         final apiMessage =
-            LoginCall.message(response?.jsonBody) ?? response?.bodyText ?? '';
+            LoginCall.message(response.jsonBody) ?? response.bodyText;
         final message = apiMessage.trim().isEmpty
             ? 'Invalid credentials. Please try again.'
             : apiMessage.trim();
@@ -237,12 +240,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      if ((response?.succeeded ?? false) &&
-          (SocialLoginCall.status(response?.jsonBody) == true)) {
+      if ((response.succeeded) &&
+          (SocialLoginCall.status(response.jsonBody) == true)) {
         final appState = FFAppState();
-        final token = SocialLoginCall.token(response?.jsonBody) ?? '';
-        final idplato = SocialLoginCall.idplato(response?.jsonBody) ?? '';
-        final name = SocialLoginCall.name(response?.jsonBody) ?? '';
+        final token = SocialLoginCall.token(response.jsonBody) ?? '';
+        final idplato = SocialLoginCall.idplato(response.jsonBody) ?? '';
+        final name = SocialLoginCall.name(response.jsonBody) ?? '';
 
         appState.tokenauth = token;
         appState.idplato = idplato;
@@ -252,9 +255,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (mounted) context.go('/');
       } else {
-        final apiMessage = SocialLoginCall.message(response?.jsonBody) ??
-            response?.bodyText ??
-            '';
+        final apiMessage = SocialLoginCall.message(response.jsonBody) ??
+            response.bodyText;
         setState(() {
           _errorMessage = apiMessage.trim().isEmpty
               ? 'Social login failed. Please try again.'
@@ -325,103 +327,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.space24),
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? AppColors.inputBgDark
-                              : AppColors.divider,
-                          borderRadius:
-                              BorderRadius.circular(AppRadius.radiusFull),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    setState(() => _activeTab = 0),
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: _activeTab == 0
-                                        ? AppColors.accent
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(
-                                        AppRadius.radiusFull),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Email',
-                                      style: AppTextStyles.label.copyWith(
-                                        color: _activeTab == 0
-                                            ? Colors.white
-                                            : textColor,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () =>
-                                    setState(() => _activeTab = 1),
-                                child: Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: _activeTab == 1
-                                        ? AppColors.accent
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(
-                                        AppRadius.radiusFull),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Phone',
-                                      style: AppTextStyles.label.copyWith(
-                                        color: _activeTab == 1
-                                            ? Colors.white
-                                            : textColor,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      AppInput(
+                        controller: _identifierController,
+                        label: 'Email, Phone or IC Number',
+                        placeholder: 'e.g. 0123456789 or you@email.com',
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email, phone or IC number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.space8),
+                      Text(
+                        'Malaysia: 0123456789 or +60123456789 • '
+                        'Other countries: +[country code] e.g. +628123456789',
+                        style: AppTextStyles.body2.copyWith(
+                          color: secondaryTextColor,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.space24),
-                      if (_activeTab == 0)
-                        AppInput(
-                          controller: _emailController,
-                          label: 'Email',
-                          placeholder: 'your@email.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            return null;
-                          },
-                        )
-                      else
-                        AppInput(
-                          controller: _phoneController,
-                          label: 'Phone',
-                          placeholder: '+60 12 345 6789',
-                          keyboardType: TextInputType.phone,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your phone number';
-                            }
-                            return null;
-                          },
-                        ),
                       const SizedBox(height: AppSpacing.space16),
                       AppInput(
                         controller: _passwordController,

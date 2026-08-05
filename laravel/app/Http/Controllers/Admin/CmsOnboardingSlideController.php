@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCmsOnboardingSlideRequest;
 use App\Models\CmsOnboardingSlide;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class CmsOnboardingSlideController extends Controller
@@ -81,6 +82,28 @@ class CmsOnboardingSlideController extends Controller
 
         $onboarding->delete();
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide deleted.');
+    }
+
+    public function removeMedia(Request $request, CmsOnboardingSlide $onboarding)
+    {
+        $type = $request->input('type');
+
+        if ($type === 'image' && $onboarding->image) {
+            if (Storage::disk('public')->exists($onboarding->image)) {
+                Storage::disk('public')->delete($onboarding->image);
+            }
+            $onboarding->image = null;
+            $onboarding->save();
+        } elseif ($type === 'video' && $onboarding->video) {
+            if (Storage::disk('public')->exists($onboarding->video)) {
+                Storage::disk('public')->delete($onboarding->video);
+            }
+            $onboarding->video = null;
+            $onboarding->save();
+        }
+
+        return redirect()->route('admin.cms.onboarding.edit', $onboarding)
+            ->with('success', 'File removed.');
     }
 
     private function fillGradientDefaults(array &$data): void

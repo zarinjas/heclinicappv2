@@ -25,7 +25,19 @@
                     @if ($isEdit && $onboarding->image_url)
                         <div class="mt-3">
                             <p class="text-xs text-gray-400 mb-1">Current image:</p>
-                            <img src="{{ $onboarding->image_url }}" alt="" class="w-64 h-auto rounded-lg border border-gray-200">
+                            <div class="flex items-start gap-2">
+                                <img src="{{ $onboarding->image_url }}" alt="" class="w-64 h-auto rounded-lg border border-gray-200">
+                                <form action="{{ route('admin.cms.onboarding.remove-media', $onboarding) }}" method="POST" onsubmit="return confirm('Remove this image?')">
+                                    @csrf
+                                    <input type="hidden" name="type" value="image">
+                                    <button type="submit" title="Remove image"
+                                            class="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -41,7 +53,19 @@
                     @if ($isEdit && $onboarding->video_url)
                         <div class="mt-3">
                             <p class="text-xs text-gray-400 mb-1">Current video:</p>
-                            <video src="{{ $onboarding->video_url }}" controls playsinline class="w-64 rounded-lg border border-gray-200"></video>
+                            <div class="flex items-start gap-2">
+                                <video src="{{ $onboarding->video_url }}" controls playsinline class="w-64 rounded-lg border border-gray-200"></video>
+                                <form action="{{ route('admin.cms.onboarding.remove-media', $onboarding) }}" method="POST" onsubmit="return confirm('Remove this video?')">
+                                    @csrf
+                                    <input type="hidden" name="type" value="video">
+                                    <button type="submit" title="Remove video"
+                                            class="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     @endif
                 </div>

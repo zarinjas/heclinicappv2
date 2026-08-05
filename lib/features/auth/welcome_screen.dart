@@ -142,8 +142,8 @@ class WelcomeScreen extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () => context.go('/login'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: buttonColor,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.radiusXL),
           ),
@@ -151,7 +151,7 @@ class WelcomeScreen extends StatelessWidget {
         ),
         child: Text(
           'Log In',
-          style: AppTextStyles.button.copyWith(color: Colors.white),
+          style: AppTextStyles.button.copyWith(color: AppColors.primary),
         ),
       ),
     );

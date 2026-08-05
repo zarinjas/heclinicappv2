@@ -106,6 +106,25 @@ class OtpService
     }
 
     /**
+     * Send an OTP to a specific email address (used when linking a NEW email
+     * that is not yet stored on the patient's record).
+     *
+     * @return bool  Whether the OTP was sent successfully.
+     */
+    public function sendOtpToEmail(Patient $patient, string $email): bool
+    {
+        $otp = $this->generateOtp();
+
+        $patient->update([
+            'otp_code'       => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
+            'otp_attempts'   => 0,
+        ]);
+
+        return app(ResendEmailChannel::class)->send($email, $otp, $patient->name);
+    }
+
+    /**
      * Verify an OTP submitted by the patient.
      * On success, clears the OTP and issues a short-lived reset token.
      *

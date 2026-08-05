@@ -17,6 +17,7 @@ class Patient extends Authenticatable
         'nric_type',
         'telephone',
         'email',
+        'pending_email',
         'name',
         'nationality',
         'dob',
