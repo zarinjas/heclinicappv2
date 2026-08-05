@@ -603,10 +603,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: AppSpacing.space8),
 
-            // ── Forgot password ──
+            // ── Forgot password / Verify my account ──
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Spacer(),
                 GestureDetector(
                   onTap: () => context.go('/forgotEmail'),
                   child: Text(
@@ -614,6 +614,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: AppTextStyles.body2.copyWith(
                       color: AppColors.accent,
                       fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _isLoading ? null : () => context.go('/claimAccount'),
+                  child: Text(
+                    'Already a patient? Verify my account',
+                    style: AppTextStyles.body2.copyWith(
+                      color: secondaryTextColor,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
@@ -744,18 +754,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
             const SizedBox(height: AppSpacing.space16),
-            GestureDetector(
-              onTap:
-                  _isLoading ? null : () => context.go('/claimAccount'),
-              child: Text(
-                'Already a patient? Verify my account',
-                style: AppTextStyles.body2.copyWith(
-                  color: secondaryTextColor,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.space24),
           ],
         ),
       ),

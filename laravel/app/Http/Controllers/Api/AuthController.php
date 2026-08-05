@@ -236,6 +236,20 @@ class AuthController extends Controller
         $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $patient = $this->findPatientByIdentifier($identifier, $countryCode);
 
+        // If the patient exists in Plato but has no local account yet, they
+        // can't login until they set a password via Forgot Password / claim.
+        if (! $patient) {
+            $type = Patient::detectIdentifierType($identifier);
+            $platoPatient = $this->findOrCreatePatientFromPlato($identifier, $type, $countryCode);
+
+            if ($platoPatient) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your account is registered but not yet activated. Please use Forgot Password to set up your password and sign in.',
+                ], 401);
+            }
+        }
+
         if (! $patient || ! Hash::check($request->input('password'), $patient->password)) {
             // Track failed attempts
             $failKey = "login_attempts:{$identifier}";
@@ -410,6 +424,11 @@ class AuthController extends Controller
         $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $type = Patient::detectIdentifierType($identifier);
         $patient = $this->findPatientByIdentifier($identifier, $countryCode);
+
+        // Fallback: patient may exist in Plato but not yet claimed locally.
+        if (! $patient) {
+            $patient = $this->findOrCreatePatientFromPlato($identifier, $type, $countryCode);
+        }
 
         if (! $patient) {
             $hint = ($type === 'email')
@@ -865,6 +884,41 @@ class AuthController extends Controller
         }
 
         return $query->first() ?? Patient::where('nric', $identifier)->first();
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: If a patient isn't in the local DB, search Plato and create a
+    // local account from the Plato record (mirrors the claim-account flow).
+    // Returns the patient, or null if Plato has no match.
+    // -------------------------------------------------------------------------
+    private function findOrCreatePatientFromPlato(string $identifier, string $type, ?string $countryCode = null): ?Patient
+    {
+        $plato = $this->findPlatoPatientByIdentifier($identifier, $type);
+
+        if (empty($plato)) {
+            return null;
+        }
+
+        // Reuse existing local account if there is one (matched by idplato/email).
+        $existing = Patient::where('idplato', $plato['_id'] ?? null)
+            ->orWhere('email', $plato['email'] ?? null)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        return Patient::create([
+            'name' => $plato['name'] ?? 'He Clinic Patient',
+            'email' => $plato['email'] ?? null,
+            'telephone' => ! empty($plato['telephone'])
+                ? Patient::normalisePhone($plato['telephone'], $countryCode)
+                : null,
+            'nric' => $plato['nric'] ?? null,
+            'nationality' => $plato['nationality'] ?? 'Malaysian',
+            'idplato' => $plato['_id'] ?? null,
+            'password' => Hash::make(bin2hex(random_bytes(16))),
+        ]);
     }
 
     // -------------------------------------------------------------------------
