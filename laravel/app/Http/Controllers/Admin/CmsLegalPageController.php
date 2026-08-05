@@ -16,7 +16,7 @@ class CmsLegalPageController extends Controller
 
     public function create()
     {
-        return view('admin.cms.legal.form', ['page' => new CmsLegalPage]);
+        return view('admin.cms.legal.form', ['legal' => new CmsLegalPage]);
     }
 
     public function store(StoreCmsLegalPageRequest $request)
@@ -27,22 +27,22 @@ class CmsLegalPageController extends Controller
         return redirect()->route('admin.cms.legal.index')->with('success', 'Page created.');
     }
 
-    public function edit(CmsLegalPage $page)
+    public function edit(CmsLegalPage $legal)
     {
-        return view('admin.cms.legal.form', compact('page'));
+        return view('admin.cms.legal.form', compact('legal'));
     }
 
-    public function update(StoreCmsLegalPageRequest $request, CmsLegalPage $page)
+    public function update(StoreCmsLegalPageRequest $request, CmsLegalPage $legal)
     {
         $data = $request->validated();
         $data['sections'] = json_decode($request->sections_json, true) ?? [];
-        $page->update($data);
+        $legal->update($data);
         return redirect()->route('admin.cms.legal.index')->with('success', 'Page updated.');
     }
 
-    public function destroy(CmsLegalPage $page)
+    public function destroy(CmsLegalPage $legal)
     {
-        $page->delete();
+        $legal->delete();
         return redirect()->route('admin.cms.legal.index')->with('success', 'Page deleted.');
     }
 }

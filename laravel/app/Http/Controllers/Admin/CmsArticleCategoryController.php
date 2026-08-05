@@ -24,7 +24,7 @@ class CmsArticleCategoryController extends Controller
 
     public function create(): View
     {
-        return view('admin.cms.article_categories.form', ['category' => new CmsArticleCategory]);
+        return view('admin.cms.article_categories.form', ['article_category' => new CmsArticleCategory]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -38,30 +38,30 @@ class CmsArticleCategoryController extends Controller
             ->with('success', 'Category created successfully.');
     }
 
-    public function edit(CmsArticleCategory $category): View
+    public function edit(CmsArticleCategory $article_category): View
     {
-        return view('admin.cms.article_categories.form', compact('category'));
+        return view('admin.cms.article_categories.form', compact('article_category'));
     }
 
-    public function update(Request $request, CmsArticleCategory $category): RedirectResponse
+    public function update(Request $request, CmsArticleCategory $article_category): RedirectResponse
     {
         $data = $this->validateData($request);
 
-        $category->update($data);
+        $article_category->update($data);
 
         return redirect()
             ->route('admin.cms.article-categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
-    public function destroy(CmsArticleCategory $category): RedirectResponse
+    public function destroy(CmsArticleCategory $article_category): RedirectResponse
     {
-        CmsArticle::where('category_id', $category->id)->update([
+        CmsArticle::where('category_id', $article_category->id)->update([
             'category_id' => null,
             'category' => null,
         ]);
 
-        $category->delete();
+        $article_category->delete();
 
         return redirect()
             ->route('admin.cms.article-categories.index')

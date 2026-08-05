@@ -1,5 +1,5 @@
 @php
-    $isEdit = isset($category) && $category->exists;
+    $isEdit = isset($article_category) && $article_category->exists;
 @endphp
 
 @extends('layouts.admin')
@@ -10,7 +10,7 @@
 
 @section('content')
     <form method="POST"
-          action="{{ $isEdit ? route('admin.cms.article-categories.update', $category) : route('admin.cms.article-categories.store') }}"
+          action="{{ $isEdit ? route('admin.cms.article-categories.update', $article_category) : route('admin.cms.article-categories.store') }}"
           class="max-w-2xl">
         @csrf
         @if ($isEdit)
@@ -27,7 +27,7 @@
                         type="text"
                         name="name"
                         id="name"
-                        value="{{ old('name', $category->name) }}"
+                        value="{{ old('name', $article_category->name) }}"
                         class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('name') border-red-300 @enderror"
                         placeholder="e.g. Health Tips, Nutrition, News"
                     >
@@ -42,7 +42,7 @@
                         type="text"
                         name="slug"
                         id="slug"
-                        value="{{ old('slug', $category->slug) }}"
+                        value="{{ old('slug', $article_category->slug) }}"
                         class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('slug') border-red-300 @enderror"
                         placeholder="auto-generated-from-name"
                     >
@@ -60,8 +60,8 @@
                             id="status"
                             class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('status') border-red-300 @enderror"
                         >
-                            <option value="active" {{ old('status', $category->status) === 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="inactive" {{ old('status', $category->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            <option value="active" {{ old('status', $article_category->status) === 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ old('status', $article_category->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                         @error('status')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

@@ -17,7 +17,7 @@ class CmsOnboardingSlideController extends Controller
 
     public function create()
     {
-        return view('admin.cms.onboarding.form', ['slide' => new CmsOnboardingSlide]);
+        return view('admin.cms.onboarding.form', ['onboarding' => new CmsOnboardingSlide]);
     }
 
     public function store(StoreCmsOnboardingSlideRequest $request)
@@ -37,19 +37,19 @@ class CmsOnboardingSlideController extends Controller
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide added.');
     }
 
-    public function edit(CmsOnboardingSlide $slide)
+    public function edit(CmsOnboardingSlide $onboarding)
     {
-        return view('admin.cms.onboarding.form', compact('slide'));
+        return view('admin.cms.onboarding.form', compact('onboarding'));
     }
 
-    public function update(StoreCmsOnboardingSlideRequest $request, CmsOnboardingSlide $slide)
+    public function update(StoreCmsOnboardingSlideRequest $request, CmsOnboardingSlide $onboarding)
     {
         $data = $request->validated();
         $this->fillGradientDefaults($data);
 
         if ($request->hasFile('image')) {
-            if ($slide->image && Storage::disk('public')->exists($slide->image)) {
-                Storage::disk('public')->delete($slide->image);
+            if ($onboarding->image && Storage::disk('public')->exists($onboarding->image)) {
+                Storage::disk('public')->delete($onboarding->image);
             }
             $data['image'] = $request->file('image')->store('onboarding', 'public');
         } else {
@@ -57,29 +57,29 @@ class CmsOnboardingSlideController extends Controller
         }
 
         if ($request->hasFile('video')) {
-            if ($slide->video && Storage::disk('public')->exists($slide->video)) {
-                Storage::disk('public')->delete($slide->video);
+            if ($onboarding->video && Storage::disk('public')->exists($onboarding->video)) {
+                Storage::disk('public')->delete($onboarding->video);
             }
             $data['video'] = $request->file('video')->store('onboarding', 'public');
         } else {
             unset($data['video']);
         }
 
-        $slide->update($data);
+        $onboarding->update($data);
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide updated.');
     }
 
-    public function destroy(CmsOnboardingSlide $slide)
+    public function destroy(CmsOnboardingSlide $onboarding)
     {
-        if ($slide->image && Storage::disk('public')->exists($slide->image)) {
-            Storage::disk('public')->delete($slide->image);
+        if ($onboarding->image && Storage::disk('public')->exists($onboarding->image)) {
+            Storage::disk('public')->delete($onboarding->image);
         }
 
-        if ($slide->video && Storage::disk('public')->exists($slide->video)) {
-            Storage::disk('public')->delete($slide->video);
+        if ($onboarding->video && Storage::disk('public')->exists($onboarding->video)) {
+            Storage::disk('public')->delete($onboarding->video);
         }
 
-        $slide->delete();
+        $onboarding->delete();
         return redirect()->route('admin.cms.onboarding.index')->with('success', 'Slide deleted.');
     }
 
