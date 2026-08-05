@@ -232,13 +232,7 @@ class AuthController extends Controller
         ]);
 
         $identifier = trim($request->input('identifier'));
-        $type = Patient::detectIdentifierType($identifier);
-
-        $patient = match ($type) {
-            'email' => Patient::where('email', $identifier)->first(),
-            'nric' => Patient::where('nric', $identifier)->first(),
-            'phone' => Patient::where('telephone', Patient::normalisePhone($identifier))->first(),
-        };
+        $patient = $this->findPatientByIdentifier($identifier);
 
         if (! $patient || ! Hash::check($request->input('password'), $patient->password)) {
             // Track failed attempts
@@ -412,12 +406,7 @@ class AuthController extends Controller
 
         $identifier = trim($request->input('identifier'));
         $type = Patient::detectIdentifierType($identifier);
-
-        $patient = match ($type) {
-            'email' => Patient::where('email', $identifier)->first(),
-            'nric' => Patient::where('nric', $identifier)->first(),
-            'phone' => Patient::where('telephone', Patient::normalisePhone($identifier))->first(),
-        };
+        $patient = $this->findPatientByIdentifier($identifier);
 
         // Always return success to prevent user enumeration
         if (! $patient) {
@@ -460,12 +449,7 @@ class AuthController extends Controller
 
         $identifier = trim($request->input('identifier'));
         $type = Patient::detectIdentifierType($identifier);
-
-        $patient = match ($type) {
-            'email' => Patient::where('email', $identifier)->first(),
-            'nric' => Patient::where('nric', $identifier)->first(),
-            'phone' => Patient::where('telephone', Patient::normalisePhone($identifier))->first(),
-        };
+        $patient = $this->findPatientByIdentifier($identifier);
 
         if (! $patient) {
             return response()->json(['status' => false, 'message' => 'Invalid or expired code.'], 422);
@@ -708,7 +692,9 @@ class AuthController extends Controller
             $patient = Patient::create([
                 'name' => $plato['name'] ?? 'He Clinic Patient',
                 'email' => $plato['email'] ?? null,
-                'telephone' => $plato['telephone'] ?? null,
+                'telephone' => ! empty($plato['telephone'])
+                    ? Patient::normalisePhone($plato['telephone'])
+                    : null,
                 'nric' => $plato['nric'] ?? null,
                 'nationality' => $plato['nationality'] ?? 'Malaysian',
                 'idplato' => $plato['_id'] ?? null,
@@ -759,6 +745,44 @@ class AuthController extends Controller
             'message' => 'Password changed successfully.',
             'token' => $token,
         ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Find a local patient by any login identifier.
+    // Tries the detected type first, then falls back to the other numeric
+    // type — a 12-digit input could be an NRIC or a full-format phone.
+    // -------------------------------------------------------------------------
+    private function findPatientByIdentifier(string $identifier): ?Patient
+    {
+        $type = Patient::detectIdentifierType($identifier);
+
+        if ($type === 'email') {
+            return Patient::whereRaw('LOWER(email) = ?', [strtolower($identifier)])->first();
+        }
+
+        // Try every plausible phone variant — stored data may come from Plato
+        // in a different format (e.g. leading 0, with/without country code).
+        $normalised = Patient::normalisePhone($identifier);
+        $digits = preg_replace('/\D/', '', $identifier);
+
+        $variants = [$normalised, $digits, $identifier];
+
+        // Also try the leading-0 local form (011XXXXXXX) — some older
+        // records store the number without the +60 country code.
+        if (str_starts_with($normalised, '60')) {
+            $variants[] = '0'.substr($normalised, 2);
+        }
+
+        $query = Patient::query();
+        foreach (array_values(array_unique($variants)) as $i => $variant) {
+            if ($i === 0) {
+                $query->where('telephone', $variant);
+            } else {
+                $query->orWhere('telephone', $variant);
+            }
+        }
+
+        return $query->first() ?? Patient::where('nric', $identifier)->first();
     }
 
     // -------------------------------------------------------------------------

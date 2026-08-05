@@ -125,10 +125,26 @@ class Patient extends Authenticatable
             return 'email';
         }
 
-        // NRIC / IC: 12 consecutive digits (Malaysian), or alphanumeric passport
+        // Explicit + prefix or leading 0 → always a phone number (never an NRIC).
+        if (str_starts_with($identifier, '+') || str_starts_with($identifier, '0')) {
+            return 'phone';
+        }
+
         $digits = preg_replace('/\D/', '', $identifier);
+
+        // 12 consecutive digits: could be a Malaysian NRIC OR a full-format
+        // phone number with country code (e.g. 60 + 10-digit 010/011 series).
+        // Use the NRIC date pattern (YYMMDD) to disambiguate.
         if (strlen($digits) === 12 && ctype_digit($digits)) {
-            return 'nric';
+            $month = (int) substr($digits, 2, 2);
+            $day = (int) substr($digits, 4, 2);
+            $looksLikeNric = $month >= 1 && $month <= 12 && $day >= 1 && $day <= 31;
+
+            if ($looksLikeNric) {
+                return 'nric';
+            }
+
+            return 'phone';
         }
 
         // Default: treat as phone
