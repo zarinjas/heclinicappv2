@@ -62,7 +62,6 @@ class CountryCodeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selected = CountryCode.fromCode(selectedCode);
 
     return Container(
       height: 52,

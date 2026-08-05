@@ -79,8 +79,7 @@ class _TroubleSigningInScreenState extends State<TroubleSigningInScreen> {
   }
 
   Future<void> _openWhatsApp() async {
-    final number =
-        BrandingService.instance.clinicWhatsapp ?? '601167208860';
+    final number = BrandingService.instance.clinicWhatsapp;
     final url = Uri.parse('https://wa.me/$number');
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -113,7 +112,7 @@ class _TroubleSigningInScreenState extends State<TroubleSigningInScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.space32),
-              Icon(
+              const Icon(
                 Icons.support_agent_outlined,
                 size: 64,
                 color: AppColors.accent,

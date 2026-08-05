@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
@@ -24,6 +26,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   List<OnboardingSlide> _slides = OnboardingSlide.fallbackList;
   bool _loading = true;
+
+  // Keep-alive keys so _SlideMedia widgets retain state across page switches
+  // — videos stay loaded and don't restart.
+  final Map<int, GlobalKey<_SlideMediaState>> _mediaKeys = {};
 
   @override
   void initState() {
@@ -64,15 +70,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     context.go('/welcome');
   }
 
+  /// Preload the video for the next page when we're close to it (when the user
+  /// reaches any page, preload the *following* page's video in the background).
+  void _preloadNeighbors(int current) {
+    final next = current + 1;
+    if (next < _slides.length) {
+      _mediaKeys.putIfAbsent(next, () => GlobalKey<_SlideMediaState>());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mediaKeys[next]?.currentState?.ensureInitialized();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF0A1128),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.accent),
+        ),
+      );
+    }
+
     final slide = _slides[_currentPage.clamp(0, _slides.length - 1)];
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A1128),
       body: Column(
         children: [
-          // ── Full-screen hero slider (fills all remaining space) ──────
           Expanded(
             child: Stack(
               children: [
@@ -82,12 +108,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     itemCount: _slides.length,
                     onPageChanged: (index) {
                       setState(() => _currentPage = index);
+                      _preloadNeighbors(index);
                     },
-                    itemBuilder: (context, index) => _buildSlide(context, index),
+                    itemBuilder: (context, index) {
+                      _mediaKeys.putIfAbsent(
+                        index,
+                        () => GlobalKey<_SlideMediaState>(),
+                      );
+                      return _buildSlide(context, index,
+                          key: _mediaKeys[index]);
+                    },
                   ),
                 ),
-                // Bottom gradient overlay — shared across all slides,
-                // raised slightly so the media blends in and no edge shows.
                 Positioned(
                   left: 0,
                   right: 0,
@@ -109,7 +141,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                 ),
-                // Skip button
                 Positioned(
                   top: 0,
                   right: 16,
@@ -130,8 +161,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
-          // ── ONE bottom content block, anchored from the bottom safe
-          //    area: title → description → dots → button ─────────────────
           SafeArea(
             top: false,
             child: Padding(
@@ -198,9 +227,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           color: _currentPage == index
                               ? AppColors.accent
                               : Colors.white.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(
-                            AppSpacing.space4,
-                          ),
+                          borderRadius: BorderRadius.circular(AppSpacing.space4),
                         ),
                       );
                     }),
@@ -224,14 +251,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildSlide(BuildContext context, int index) {
+  Widget _buildSlide(BuildContext context, int index, {GlobalKey<_SlideMediaState>? key}) {
     final slide = _slides[index];
-    final hasMedia = (slide.imageUrl != null && slide.imageUrl!.isNotEmpty) ||
-        (slide.videoUrl != null && slide.videoUrl!.isNotEmpty);
+    final hasImage = slide.imageUrl != null && slide.imageUrl!.isNotEmpty;
+    final hasVideo = slide.videoUrl != null && slide.videoUrl!.isNotEmpty;
+    final hasMedia = hasImage || hasVideo;
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Fallback gradient (visible while/if the media fails).
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -244,9 +271,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
         ),
-        // Full-bleed background video (preferred) or image.
         if (hasMedia)
           _SlideMedia(
+            key: key,
             videoUrl: slide.videoUrl,
             imageUrl: slide.imageUrl,
           ),
@@ -259,7 +286,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 /// uploaded one, otherwise the plain image. Falls back to the image if the
 /// video fails to load.
 class _SlideMedia extends StatefulWidget {
-  const _SlideMedia({this.videoUrl, this.imageUrl});
+  const _SlideMedia({super.key, this.videoUrl, this.imageUrl});
 
   final String? videoUrl;
   final String? imageUrl;
@@ -270,7 +297,11 @@ class _SlideMedia extends StatefulWidget {
 
 class _SlideMediaState extends State<_SlideMedia> {
   VideoPlayerController? _controller;
-  bool _videoFailed = false;
+  VideoLoadState _loadState = VideoLoadState.idle;
+  String _debugLastError = '';
+  bool _mounted = true;
+
+  static const _kInitTimeout = Duration(seconds: 15);
 
   @override
   void initState() {
@@ -281,26 +312,63 @@ class _SlideMediaState extends State<_SlideMedia> {
     }
   }
 
+  /// Called by the parent page to trigger preloading after the widget is
+  /// already rendered but the video might not have been initialized yet
+  /// (e.g. for a neighboring page that was built lazily).
+  void ensureInitialized() {
+    final videoUrl = widget.videoUrl;
+    if (videoUrl != null && videoUrl.isNotEmpty && _controller == null && !_videoFinished
+        && _loadState == VideoLoadState.idle) {
+      _initVideo(videoUrl);
+    }
+  }
+
+  bool get _videoFinished => _loadState == VideoLoadState.playing || _loadState == VideoLoadState.failed;
+
   Future<void> _initVideo(String url) async {
-    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
+    _loadState = VideoLoadState.loading;
+    if (_mounted) setState(() {});
+
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse(url),
+      httpHeaders: {
+        'Accept': '*/*',
+        'Range': 'bytes=0-', // enable byte-range streaming
+      },
+    );
+
     try {
-      await controller.initialize();
+      await controller.initialize().timeout(_kInitTimeout);
       await controller.setLooping(true);
       await controller.setVolume(0);
       await controller.play();
-      if (!mounted) {
+      if (!_mounted) {
         controller.dispose();
         return;
       }
-      setState(() => _controller = controller);
+      _loadState = VideoLoadState.playing;
+      _controller = controller;
+    } on TimeoutException {
+      controller.dispose();
+      if (_mounted) {
+        _debugLastError = 'Video timed out — file may be too large or '
+            'server too slow. Try uploading a compressed MP4 with '
+            'fast-start metadata (ffmpeg -movflags faststart).';
+        _loadState = VideoLoadState.failed;
+      }
     } catch (_) {
       controller.dispose();
-      if (mounted) setState(() => _videoFailed = true);
+      if (_mounted) {
+        _debugLastError = 'Video failed to load.';
+        _loadState = VideoLoadState.failed;
+      }
     }
+    if (_mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _mounted = false;
     _controller?.dispose();
     super.dispose();
   }
@@ -310,8 +378,6 @@ class _SlideMediaState extends State<_SlideMedia> {
     final imageUrl = widget.imageUrl;
     final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
-    // Always render the image underneath while the video is buffering so the
-    // slide never looks empty — the video appears on top as soon as ready.
     final background = hasImage
         ? Image.network(
             imageUrl,
@@ -321,8 +387,8 @@ class _SlideMediaState extends State<_SlideMedia> {
         : const SizedBox.shrink();
 
     final controller = _controller;
+
     if (controller != null) {
-      // BoxFit.cover — fill the whole screen, cropping the edges.
       return SizedBox.expand(
         child: Stack(
           fit: StackFit.expand,
@@ -342,7 +408,78 @@ class _SlideMediaState extends State<_SlideMedia> {
       );
     }
 
-    if (_videoFailed) return const SizedBox.shrink();
+    if (_loadState == VideoLoadState.loading) {
+      return SizedBox.expand(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            background,
+            // Pulsing shimmer overlay while video initializes
+            const Center(
+              child: _LoadingIndicator(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_loadState == VideoLoadState.failed) {
+      debugPrint('[_SlideMedia] $_debugLastError');
+      return background;
+    }
+
     return background;
+  }
+}
+
+enum VideoLoadState { idle, loading, playing, failed }
+
+/// Minimal pulsing dot indicator — doesn't block the slide content.
+class _LoadingIndicator extends StatefulWidget {
+  const _LoadingIndicator();
+
+  @override
+  State<_LoadingIndicator> createState() => _LoadingIndicatorState();
+}
+
+class _LoadingIndicatorState extends State<_LoadingIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _anim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _anim,
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: Colors.black26,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(12),
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: Colors.white70,
+          ),
+        ),
+      ),
+    );
   }
 }

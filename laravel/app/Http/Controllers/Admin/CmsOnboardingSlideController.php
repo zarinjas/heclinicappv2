@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCmsOnboardingSlideRequest;
 use App\Models\CmsOnboardingSlide;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CmsOnboardingSlideController extends Controller
@@ -31,7 +32,7 @@ class CmsOnboardingSlideController extends Controller
         }
 
         if ($request->hasFile('video')) {
-            $data['video'] = $request->file('video')->store('onboarding', 'public');
+            $data['video'] = $this->storeAndOptimiseVideo($request->file('video'));
         }
 
         CmsOnboardingSlide::create($data);
@@ -61,7 +62,7 @@ class CmsOnboardingSlideController extends Controller
             if ($onboarding->video && Storage::disk('public')->exists($onboarding->video)) {
                 Storage::disk('public')->delete($onboarding->video);
             }
-            $data['video'] = $request->file('video')->store('onboarding', 'public');
+            $data['video'] = $this->storeAndOptimiseVideo($request->file('video'));
         } else {
             unset($data['video']);
         }
@@ -110,5 +111,47 @@ class CmsOnboardingSlideController extends Controller
     {
         $data['gradient_start'] ??= CmsOnboardingSlide::DEFAULT_GRADIENT_START;
         $data['gradient_end'] ??= CmsOnboardingSlide::DEFAULT_GRADIENT_END;
+    }
+
+    /**
+     * Store a video file then optimise it for fast mobile streaming:
+     *   - add fast-start metadata (moov atom at beginning)
+     *   - compress with H.264 baseline at mobile-friendly quality
+     *
+     * Falls back to the original file if ffmpeg is unavailable.
+     */
+    private function storeAndOptimiseVideo($file): string
+    {
+        $path = $file->store('onboarding', 'public');
+        $fullPath = Storage::disk('public')->path($path);
+
+        $output = dirname($fullPath).'/opt_'.$file->hashName();
+        $cmd = sprintf(
+            'ffmpeg -y -i %s -vf scale=\'min(1080,iw)\':-2 '
+            .'-c:v libx264 -preset fast -crf 28 -movflags +faststart '
+            .'-c:a aac -b:a 64k %s 2>&1',
+            escapeshellarg($fullPath),
+            escapeshellarg($output)
+        );
+
+        exec($cmd, $cmdOutput, $exitCode);
+
+        if ($exitCode === 0 && file_exists($output)) {
+            // Replace original with optimised version.
+            rename($output, $fullPath);
+
+            Log::info('CmsOnboarding: video optimised', [
+                'path' => $path,
+                'original_bytes' => filesize($fullPath),
+            ]);
+        } else {
+            Log::warning('CmsOnboarding: ffmpeg unavailable or failed — keeping original', [
+                'path' => $path,
+                'exit_code' => $exitCode,
+                'output' => implode("\n", array_slice($cmdOutput, -5)),
+            ]);
+        }
+
+        return $path;
     }
 }

@@ -33,11 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _showError = false;
   String _errorMessage = 'Invalid credentials. Please try again.';
+  int _activeTab = 0; // 0 = Email / IC, 1 = Phone
   String _selectedCountryCode = CountryCode.defaultCode;
 
-  /// Strips phone separators (spaces, dashes, brackets) while keeping the
-  /// email address and "+" prefix intact. The backend normalises the rest
-  /// (e.g. 0123456789 → 60123456789).
   static String _normalizeIdentifier(String raw) {
     final value = raw.trim();
     if (value.contains('@')) return value;
@@ -90,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
         identifier: identifier,
         password: _passwordController.text,
         fcmToken: FFAppState().fcmtoken,
-        countryCode: _selectedCountryCode,
+        countryCode: _activeTab == 1 ? _selectedCountryCode : null,
       );
 
       if (!mounted) return;
@@ -99,10 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
           (LoginCall.status(response.jsonBody) == true)) {
         final appState = FFAppState();
         final token = LoginCall.token(response.jsonBody) ?? '';
-        final idplato =
-            LoginCall.idplato(response.jsonBody) ?? '';
-        final name =
-            LoginCall.name(response.jsonBody) ?? '';
+        final idplato = LoginCall.idplato(response.jsonBody) ?? '';
+        final name = LoginCall.name(response.jsonBody) ?? '';
         final passwordChangedAt =
             LoginCall.passwordChangedAt(response.jsonBody);
 
@@ -113,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.update(() {});
 
         if (mounted) {
-          // First login with a temporary password → force a password change.
           final mustChange =
               passwordChangedAt == null || passwordChangedAt.isEmpty;
           if (mustChange) {
@@ -147,9 +142,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _retry() => setState(() => _showError = false);
 
+  void _onTabChanged(int tab) {
+    setState(() {
+      _activeTab = tab;
+      _identifierController.clear();
+    });
+  }
+
+  // ── Logo ──
+
   Widget _buildLogo() {
     final branding = BrandingService.instance;
-    // Use the dedicated login logo, falling back to the main logo.
     final logoUrl = (branding.loginLogoUrl ?? '').isNotEmpty
         ? branding.loginLogoUrl
         : branding.logoUrl;
@@ -194,6 +197,36 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ── Tab Toggle ──
+
+  Widget _buildTabToggle(bool isDark) {
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.inputBgDark : AppColors.divider,
+        borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+      ),
+      child: Row(
+        children: [
+          _TabOption(
+            label: 'Email / IC',
+            isActive: _activeTab == 0,
+            isDark: isDark,
+            onTap: () => _onTabChanged(0),
+          ),
+          _TabOption(
+            label: 'Phone',
+            isActive: _activeTab == 1,
+            isDark: isDark,
+            onTap: () => _onTabChanged(1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Social Login ──
+
   bool get _isAppleSupported {
     if (kIsWeb) return true;
     return defaultTargetPlatform == TargetPlatform.iOS;
@@ -213,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (provider == 'google') {
         final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
         final account = await googleSignIn.signIn();
-        if (account == null) return; // user cancelled
+        if (account == null) return;
         final auth = await account.authentication;
         idToken = auth.idToken;
         email = account.email;
@@ -279,12 +312,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // ── Build ──
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
-    final textColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     final secondaryTextColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
@@ -293,259 +327,324 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: _showError
             ? _buildErrorState(isDark)
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.space24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: AppSpacing.space32),
-                      _buildLogo(),
-                      const SizedBox(height: AppSpacing.space12),
-                      Text(
-                        BrandingService.instance.appName,
-                        style: AppTextStyles.heading3.copyWith(
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.space32),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Welcome back',
-                          style: AppTextStyles.heading2.copyWith(
-                            color: textColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.space4),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Sign in to your account',
-                          style: AppTextStyles.body1.copyWith(
-                            color: secondaryTextColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.space24),
-                      CountryCodeSelector(
-                        selectedCode: _selectedCountryCode,
-                        onChanged: (code) {
-                          setState(() => _selectedCountryCode = code);
-                        },
-                        enabled: !_isLoading,
-                      ),
-                      const SizedBox(height: AppSpacing.space12),
-                      AppInput(
-                        controller: _identifierController,
-                        label: 'Email, Phone or IC Number',
-                        placeholder: 'e.g. 0123456789 or you@email.com',
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.next,
-                        helperText: 'Enter your phone without the country code',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email, phone or IC number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.space16),
-                      AppInput(
-                        controller: _passwordController,
-                        label: 'Password',
-                        placeholder: 'Enter password',
-                        isPassword: true,
-                        textInputAction: TextInputAction.done,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.space8),
-                      Row(
-                        children: [
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () => context.go('/forgotEmail'),
-                            child: Text(
-                              'Forgot Password?',
-                              style: AppTextStyles.body2.copyWith(
-                                color: AppColors.accent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.space24),
-                      AppButton.primary(
-                        label: 'Log In',
-                        onPressed: _performLogin,
-                        isLoading: _isLoading,
-                      ),
-                      const SizedBox(height: AppSpacing.space24),
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Divider(color: AppColors.divider),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.space16,
-                            ),
-                            child: Text(
-                              'or continue with',
-                              style: AppTextStyles.body2.copyWith(
-                                color: secondaryTextColor,
-                              ),
-                            ),
-                          ),
-                          const Expanded(
-                            child: Divider(color: AppColors.divider),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.space16),
-                      _SocialButton(
-                        icon: Icons.g_mobiledata_rounded,
-                        label: 'Continue with Google',
-                        onPressed: _isLoading ? null : () => _socialLogin('google'),
-                      ),
-                      if (_isAppleSupported) ...[
-                        const SizedBox(height: AppSpacing.space12),
-                        _SocialButton(
-                          icon: Icons.apple,
-                          label: 'Continue with Apple',
-                          onPressed: _isLoading
-                              ? null
-                              : () => _socialLogin('apple'),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.space24),
-                      GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Biometric authentication...'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 64,
-                              decoration: BoxDecoration(
-                                color: AppColors.accent.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.fingerprint,
-                                size: 48,
-                                color: AppColors.accent,
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.space8),
-                            Text(
-                              'Use Face ID',
-                              style: AppTextStyles.caption.copyWith(
-                                color: secondaryTextColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.space32),
-                      AppButton.secondary(
-                        label: 'Create Account',
-                        onPressed: _isLoading
-                            ? null
-                            : () => context.go('/registerStep1'),
-                      ),
-                      const SizedBox(height: AppSpacing.space16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account? ",
-                            style: AppTextStyles.body2.copyWith(
-                              color: secondaryTextColor,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: _isLoading
-                                ? null
-                                : () => context.go('/registerStep1'),
-                            child: Text(
-                              'Register',
-                              style: AppTextStyles.body2.copyWith(
-                                color: AppColors.accent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.space16),
-                      GestureDetector(
-                        onTap: _isLoading ? null : () => context.go('/claimAccount'),
-                        child: Text(
-                          'Already a patient? Verify my account',
-                          style: AppTextStyles.body2.copyWith(
-                            color: secondaryTextColor,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.space24),
-                    ],
+            : _buildForm(isDark, textColor, secondaryTextColor),
+      ),
+    );
+  }
+
+  Widget _buildForm(bool isDark, Color textColor, Color secondaryTextColor) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.space24),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: AppSpacing.space32),
+            _buildLogo(),
+            const SizedBox(height: AppSpacing.space12),
+            Text(
+              BrandingService.instance.appName,
+              style: AppTextStyles.heading3.copyWith(color: textColor),
+            ),
+            const SizedBox(height: AppSpacing.space32),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Welcome back',
+                style: AppTextStyles.heading2.copyWith(color: textColor),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Sign in to your account',
+                style: AppTextStyles.body1.copyWith(color: secondaryTextColor),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space24),
+
+            // ── Tab Toggle ──
+            _buildTabToggle(isDark),
+            const SizedBox(height: AppSpacing.space16),
+
+            // ── Identifier (conditional) ──
+            if (_activeTab == 1) ...[
+              CountryCodeSelector(
+                selectedCode: _selectedCountryCode,
+                onChanged: (code) {
+                  setState(() => _selectedCountryCode = code);
+                },
+                enabled: !_isLoading,
+              ),
+              const SizedBox(height: AppSpacing.space12),
+            ],
+            AppInput(
+              controller: _identifierController,
+              label: _activeTab == 0 ? 'Email or IC Number' : 'Phone Number',
+              placeholder: _activeTab == 0
+                  ? 'e.g. you@email.com or 991111111111'
+                  : 'Enter your phone number only',
+              keyboardType:
+                  _activeTab == 0 ? TextInputType.text : TextInputType.phone,
+              textInputAction: TextInputAction.next,
+              helperText: _activeTab == 1 ? 'Number without country code' : null,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return _activeTab == 0
+                      ? 'Please enter your email or IC number'
+                      : 'Please enter your phone number';
+                }
+                if (_activeTab == 1 && value.trim().length < 8) {
+                  return 'Please enter a valid phone number';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: AppSpacing.space16),
+
+            // ── Password ──
+            AppInput(
+              controller: _passwordController,
+              label: 'Password',
+              placeholder: 'Enter your password',
+              isPassword: true,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _performLogin(),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your password';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: AppSpacing.space8),
+
+            // ── Forgot password ──
+            Row(
+              children: [
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => context.go('/forgotEmail'),
+                  child: Text(
+                    'Forgot Password?',
+                    style: AppTextStyles.body2.copyWith(
+                      color: AppColors.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space24),
+
+            // ── Login Button ──
+            AppButton.primary(
+              label: 'Log In',
+              onPressed: _performLogin,
+              isLoading: _isLoading,
+            ),
+
+            // ── Divider & Social Login ──
+            const SizedBox(height: AppSpacing.space24),
+            Row(
+              children: [
+                const Expanded(child: Divider(color: AppColors.divider)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.space16,
+                  ),
+                  child: Text(
+                    'or continue with',
+                    style: AppTextStyles.body2.copyWith(
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                ),
+                const Expanded(child: Divider(color: AppColors.divider)),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            _SocialButton(
+              icon: Icons.g_mobiledata_rounded,
+              label: 'Continue with Google',
+              onPressed:
+                  _isLoading ? null : () => _socialLogin('google'),
+            ),
+            if (_isAppleSupported) ...[
+              const SizedBox(height: AppSpacing.space12),
+              _SocialButton(
+                icon: Icons.apple,
+                label: 'Continue with Apple',
+                onPressed:
+                    _isLoading ? null : () => _socialLogin('apple'),
               ),
+            ],
+
+            // ── Biometric ──
+            const SizedBox(height: AppSpacing.space24),
+            GestureDetector(
+              onTap: _checkBiometric,
+              child: Column(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.fingerprint,
+                      size: 48,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
+                  Text(
+                    'Use Face ID',
+                    style: AppTextStyles.caption.copyWith(
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space32),
+
+            // ── Create Account ──
+            AppButton.secondary(
+              label: 'Create Account',
+              onPressed:
+                  _isLoading ? null : () => context.go('/registerStep1'),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Don't have an account? ",
+                  style: AppTextStyles.body2.copyWith(
+                    color: secondaryTextColor,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _isLoading
+                      ? null
+                      : () => context.go('/registerStep1'),
+                  child: Text(
+                    'Register',
+                    style: AppTextStyles.body2.copyWith(
+                      color: AppColors.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            GestureDetector(
+              onTap:
+                  _isLoading ? null : () => context.go('/claimAccount'),
+              child: Text(
+                'Already a patient? Verify my account',
+                style: AppTextStyles.body2.copyWith(
+                  color: secondaryTextColor,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space24),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildErrorState(bool isDark) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.space32),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
+          const SizedBox(height: AppSpacing.space48),
+          const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+          const SizedBox(height: AppSpacing.space16),
+          Text(
+            'Login Failed',
+            style: AppTextStyles.heading2.copyWith(
+              color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
             ),
-            const SizedBox(height: AppSpacing.space16),
-            Text(
-              'Login Failed',
-              style: AppTextStyles.heading2.copyWith(
-                color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+          ),
+          const SizedBox(height: AppSpacing.space8),
+          Text(
+            _errorMessage,
+            style: AppTextStyles.body1.copyWith(
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.space24),
+          AppButton.primary(label: 'Try Again', onPressed: _retry),
+          const SizedBox(height: AppSpacing.space16),
+          GestureDetector(
+            onTap: () => context.go('/forgotEmail'),
+            child: Text(
+              'Forgot Password?',
+              style: AppTextStyles.body2.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: AppSpacing.space8),
-            Text(
-              _errorMessage,
-              style: AppTextStyles.body1.copyWith(
-                color:
-                    isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          ),
+        ],
+      ),
+    ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Private helper widgets
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TabOption extends StatelessWidget {
+  const _TabOption({
+    required this.label,
+    required this.isActive,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isActive;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.accent : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.label.copyWith(
+                color: isActive
+                    ? Colors.white
+                    : (isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                fontWeight: FontWeight.w600,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.space24),
-            AppButton.primary(
-              label: 'Try Again',
-              onPressed: _retry,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -595,8 +694,7 @@ class _SocialButton extends StatelessWidget {
                 Text(
                   label,
                   style: AppTextStyles.button.copyWith(
-                    color:
-                        isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                    color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                   ),
                 ),
               ],
