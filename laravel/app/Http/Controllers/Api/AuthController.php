@@ -603,9 +603,21 @@ class AuthController extends Controller
         // Revoke all existing tokens so old sessions are invalidated
         $patient->tokens()->delete();
 
+        // Issue a fresh token so the user is logged in immediately — no need
+        // to re-enter credentials after a password reset.
+        $token = $patient->createToken('mobile')->plainTextToken;
+
         return response()->json([
             'status' => true,
-            'message' => 'Password reset successfully. Please log in.',
+            'message' => 'Password reset successfully.',
+            'token' => $token,
+            'user' => [
+                'id' => $patient->id,
+                'name' => $patient->name,
+                'email' => $patient->email,
+                'idplato' => $patient->idplato,
+                'password_changed_at' => $patient->password_changed_at,
+            ],
         ]);
     }
 

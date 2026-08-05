@@ -115,6 +115,13 @@ class Patient extends Authenticatable
             return $code . substr($cleaned, 1);
         }
 
+        // If a country code was provided, and the digits don't already start
+        // with that code, prepend it. Example: user types "132716575" with
+        // country "+60" → 60132716575.
+        if ($countryCode !== null && $countryCode !== '' && ! str_starts_with($cleaned, $countryCode)) {
+            return $countryCode . $cleaned;
+        }
+
         // Otherwise return digits as-is (international, already has country code).
         return $cleaned;
     }

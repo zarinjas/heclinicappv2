@@ -7,7 +7,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
-import '../../core/widgets/app_dialog.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_input.dart';
 
@@ -105,17 +104,21 @@ class _ForgotNewpasswordScreenState extends State<ForgotNewpasswordScreen> {
       if (!mounted) return;
 
       if (result.succeeded && (ResetPasswordCall.status(result.jsonBody) == true)) {
-        if (mounted) {
-          appState.clearResetState();
-          await AppDialog.success(
-            context,
-            title: 'Password Reset',
-            message: 'Your password has been reset successfully. Please log in with your new password.',
-            buttonLabel: 'Login',
-            onDone: () {
-              if (mounted) context.go('/login');
-            },
-          );
+        final appState = FFAppState();
+        final token = ResetPasswordCall.token(result.jsonBody);
+
+        appState.clearResetState();
+
+        if (token != null && token.isNotEmpty) {
+          appState.tokenauth = token;
+          appState.idplato = ResetPasswordCall.idplato(result.jsonBody) ?? '';
+          appState.name = ResetPasswordCall.name(result.jsonBody) ?? '';
+          appState.isLoggedIn = true;
+          appState.update(() {});
+
+          if (mounted) context.go('/');
+        } else {
+          if (mounted) context.go('/login');
         }
       } else {
         final message = ResetPasswordCall.message(result.jsonBody);

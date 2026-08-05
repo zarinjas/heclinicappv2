@@ -455,6 +455,12 @@ class ResetPasswordCall {
 
   static bool? status(dynamic response) =>
       castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? token(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.token'''));
+  static String? idplato(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.idplato'''));
+  static String? name(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.name'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
 }
