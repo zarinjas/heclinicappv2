@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../app_state.dart';
@@ -33,8 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _showError = false;
   String _errorMessage = 'Invalid credentials. Please try again.';
-  int _activeTab = 0; // 0 = Email / IC, 1 = Phone
+  int _activeTab = 1; // 1 = Phone (default), 0 = Email / IC
   String _selectedCountryCode = CountryCode.defaultCode;
+  bool _biometricReady = false;
+  bool _hasSavedBioCreds = false;
 
   static String _normalizeIdentifier(String raw) {
     final value = raw.trim();
@@ -45,7 +50,34 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkBiometric());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initBiometric());
+  }
+
+  Future<void> _initBiometric() async {
+    try {
+      final localAuth = LocalAuthentication();
+      final canAuth = await localAuth.canCheckBiometrics;
+      final hasCreds = await _hasSavedCredentials();
+      if (mounted) {
+        setState(() {
+          _biometricReady = canAuth;
+          _hasSavedBioCreds = hasCreds;
+        });
+      }
+      // Auto-trigger biometric login only if credentials are already saved.
+      if (canAuth && hasCreds && mounted) {
+        final didAuth = await localAuth.authenticate(
+          localizedReason: 'Sign in with biometrics',
+          options: const AuthenticationOptions(
+            stickyAuth: true,
+            biometricOnly: true,
+          ),
+        );
+        if (didAuth && mounted) {
+          _performLoginWithSavedCredentials();
+        }
+      }
+    } catch (_) {}
   }
 
   @override
@@ -55,23 +87,70 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _checkBiometric() async {
-    try {
-      final localAuth = LocalAuthentication();
-      final canAuth = await localAuth.canCheckBiometrics;
-      if (!canAuth || !mounted) return;
-      final didAuth = await localAuth.authenticate(
-        localizedReason: 'Sign in with biometrics',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
-      );
-      if (didAuth && mounted) {
-        _identifierController.text = '';
-        _passwordController.text = '';
-      }
-    } catch (_) {}
+  // ── Biometric credential storage ──
+
+  static const _bioKeyIdentifier = 'bio_identifier';
+  static const _bioKeyPassword = 'bio_password';
+  static const _bioKeyCountryCode = 'bio_country_code';
+  static const _bioKeyActiveTab = 'bio_active_tab';
+
+  Future<bool> _hasSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_bioKeyIdentifier);
+  }
+
+  Future<void> _saveCredentials(
+    String identifier,
+    String password,
+    String countryCode,
+    int activeTab,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_bioKeyIdentifier, base64Encode(utf8.encode(identifier)));
+    await prefs.setString(_bioKeyPassword, base64Encode(utf8.encode(password)));
+    await prefs.setString(_bioKeyCountryCode, countryCode);
+    await prefs.setInt(_bioKeyActiveTab, activeTab);
+  }
+
+  Future<void> _clearCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_bioKeyIdentifier);
+    await prefs.remove(_bioKeyPassword);
+    await prefs.remove(_bioKeyCountryCode);
+    await prefs.remove(_bioKeyActiveTab);
+  }
+
+  Future<void> _performLoginWithSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final idB64 = prefs.getString(_bioKeyIdentifier);
+    final pwB64 = prefs.getString(_bioKeyPassword);
+    final cc = prefs.getString(_bioKeyCountryCode) ?? '60';
+    final tab = prefs.getInt(_bioKeyActiveTab) ?? 1;
+
+    if (idB64 == null || pwB64 == null) return;
+
+    final identifier = utf8.decode(base64Decode(idB64));
+    final password = utf8.decode(base64Decode(pwB64));
+
+    _identifierController.text = identifier;
+    _passwordController.text = password;
+    _selectedCountryCode = cc;
+    if (_activeTab != tab) {
+      _activeTab = tab;
+    }
+
+    await _performLogin();
+    if (mounted && !_showError) {
+      // Success — even if _showError is false at this point, login succeeded.
+      return;
+    }
+
+    // If biometric login fails (stale credentials), clear and show form.
+    await _clearCredentials();
+    if (mounted) {
+      _identifierController.clear();
+      _passwordController.clear();
+    }
   }
 
   Future<void> _performLogin() async {
@@ -107,6 +186,15 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.name = name;
         appState.isLoggedIn = true;
         appState.update(() {});
+
+        // Save credentials for future biometric quick-login.
+        // Only save when user logs in with password (not biometric auto-login).
+        await _saveCredentials(
+          identifier,
+          _passwordController.text,
+          _selectedCountryCode,
+          _activeTab,
+        );
 
         if (mounted) {
           final mustChange =
@@ -312,6 +400,116 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Widget _buildPhoneInput(bool isDark) {
+    final labelColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final inputBg = isDark ? AppColors.inputBgDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.dividerDark : AppColors.inputBorder;
+    final textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Phone Number',
+          style: AppTextStyles.label.copyWith(color: labelColor),
+        ),
+        const SizedBox(height: AppSpacing.space12),
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: inputBg,
+            borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+            border: Border.all(color: borderColor, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              // Country code dropdown with flag
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCountryCode,
+                  icon: const Icon(Icons.expand_more, size: 20),
+                  iconEnabledColor:
+                      isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                  iconDisabledColor: AppColors.textSecondary,
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  selectedItemBuilder: (_) => CountryCode.common.map((c) {
+                    return Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Text(
+                        '${c.flag} +${c.code}',
+                        style: AppTextStyles.body1.copyWith(color: textColor),
+                      ),
+                    );
+                  }).toList(),
+                  items: CountryCode.common.map((c) {
+                    return DropdownMenuItem(
+                      value: c.code,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '${c.flag}  +${c.code}  ${c.name}',
+                          style: AppTextStyles.body1.copyWith(color: textColor),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: _isLoading
+                      ? null
+                      : (v) {
+                          if (v != null) setState(() => _selectedCountryCode = v);
+                        },
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 28,
+                color: isDark ? AppColors.dividerDark : AppColors.inputBorder,
+              ),
+              // Phone number field
+              Expanded(
+                child: TextField(
+                  controller: _identifierController,
+                  enabled: !_isLoading,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 0123456789',
+                    hintStyle: AppTextStyles.body1.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.space16,
+                      vertical: 14,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        Text(
+          'With leading 0 — e.g. 0123456789',
+          style: AppTextStyles.body2.copyWith(
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
   // ── Build ──
 
   @override
@@ -370,38 +568,22 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: AppSpacing.space16),
 
             // ── Identifier (conditional) ──
-            if (_activeTab == 1) ...[
-              CountryCodeSelector(
-                selectedCode: _selectedCountryCode,
-                onChanged: (code) {
-                  setState(() => _selectedCountryCode = code);
+            if (_activeTab == 1)
+              _buildPhoneInput(isDark)
+            else
+              AppInput(
+                controller: _identifierController,
+                label: 'Email or IC Number',
+                placeholder: 'e.g. you@email.com or 991111111111',
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email or IC number';
+                  }
+                  return null;
                 },
-                enabled: !_isLoading,
               ),
-              const SizedBox(height: AppSpacing.space12),
-            ],
-            AppInput(
-              controller: _identifierController,
-              label: _activeTab == 0 ? 'Email or IC Number' : 'Phone Number',
-              placeholder: _activeTab == 0
-                  ? 'e.g. you@email.com or 991111111111'
-                  : 'Enter your phone number only',
-              keyboardType:
-                  _activeTab == 0 ? TextInputType.text : TextInputType.phone,
-              textInputAction: TextInputAction.next,
-              helperText: _activeTab == 1 ? 'Number without country code' : null,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return _activeTab == 0
-                      ? 'Please enter your email or IC number'
-                      : 'Please enter your phone number';
-                }
-                if (_activeTab == 1 && value.trim().length < 8) {
-                  return 'Please enter a valid phone number';
-                }
-                return null;
-              },
-            ),
             const SizedBox(height: AppSpacing.space16),
 
             // ── Password ──
@@ -483,34 +665,52 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
 
             // ── Biometric ──
-            const SizedBox(height: AppSpacing.space24),
-            GestureDetector(
-              onTap: _checkBiometric,
-              child: Column(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.accent.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+            if (_biometricReady) ...[
+              const SizedBox(height: AppSpacing.space24),
+              GestureDetector(
+                onTap: _hasSavedBioCreds
+                    ? () async {
+                        final localAuth = LocalAuthentication();
+                        final didAuth = await localAuth.authenticate(
+                          localizedReason: 'Sign in with biometrics',
+                          options: const AuthenticationOptions(
+                            stickyAuth: true,
+                            biometricOnly: true,
+                          ),
+                        );
+                        if (didAuth && mounted) {
+                          _performLoginWithSavedCredentials();
+                        }
+                      }
+                    : null,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.fingerprint,
+                        size: 48,
+                        color: AppColors.accent,
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.fingerprint,
-                      size: 48,
-                      color: AppColors.accent,
+                    const SizedBox(height: AppSpacing.space8),
+                    Text(
+                      _hasSavedBioCreds
+                          ? 'Login with Face ID'
+                          : 'Sign in once to enable Face ID',
+                      style: AppTextStyles.caption.copyWith(
+                        color: secondaryTextColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.space8),
-                  Text(
-                    'Use Face ID',
-                    style: AppTextStyles.caption.copyWith(
-                      color: secondaryTextColor,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: AppSpacing.space32),
 
             // ── Create Account ──

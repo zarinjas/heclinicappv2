@@ -16,9 +16,9 @@
             <div class="p-6 space-y-6">
                 <div>
                     <label for="image" class="block text-sm font-medium text-[#0F1B3D] mb-1">Slide Image</label>
-                    <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp"
+                    <input type="file" name="image" id="image" accept="image/jpeg,image/png,image/webp,image/gif"
                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('image') border-red-300 @enderror">
-                    <p class="mt-1 text-xs text-gray-400">Optional. Max 5MB. JPEG, PNG, or WebP.</p>
+                    <p class="mt-1 text-xs text-gray-400">Optional. Max 5MB. JPEG, PNG, WebP, or GIF. Animated GIFs work as lightweight motion backgrounds.</p>
                     <p class="mt-1 text-xs text-amber-600 font-medium">Recommended image size: 1080 × 1920 px (9:16 portrait). Safe area: keep important content within the center 1080 × 1500 px to avoid cropping on different devices.</p>
                     @error('image') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
 
@@ -48,6 +48,7 @@
                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('video') border-red-300 @enderror">
                     <p class="mt-1 text-xs text-gray-400">Optional. Max 50MB. MP4, MOV, or WebM. If a video is uploaded it plays automatically (muted, looping) as the slide background instead of the image.</p>
                     <p class="mt-1 text-xs text-amber-600 font-medium">Recommended: 1080 × 1920 px (9:16 portrait), MP4 H.264. Keep important content within the center 1080 × 1500 px to avoid cropping on different devices.</p>
+                    <p class="mt-1 text-xs text-red-500 font-medium">⚠️ Large files will be slow to load. Keep videos under 10MB for best performance. Uploaded videos are automatically compressed.</p>
                     @error('video') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
 
                     @if ($isEdit && $onboarding->video_url)

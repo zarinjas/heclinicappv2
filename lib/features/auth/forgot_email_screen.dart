@@ -28,7 +28,7 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
   final _identifierController = TextEditingController();
   bool _isLoading = false;
   String? _apiError;
-  int _activeTab = 0; // 0 = Email, 1 = WhatsApp
+  int _activeTab = 1; // 1 = WhatsApp (default), 0 = Email
   String _selectedCountryCode = '60';
 
   @override
@@ -77,6 +77,115 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
   }
 
   void _retry() => setState(() => _apiError = null);
+
+  Widget _buildPhoneInput(bool isDark) {
+    final labelColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final inputBg = isDark ? AppColors.inputBgDark : AppColors.surface;
+    final borderColor =
+        isDark ? AppColors.dividerDark : AppColors.inputBorder;
+    final textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'WhatsApp Number',
+          style: AppTextStyles.label.copyWith(color: labelColor),
+        ),
+        const SizedBox(height: AppSpacing.space12),
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: inputBg,
+            borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+            border: Border.all(color: borderColor, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCountryCode,
+                  icon: const Icon(Icons.expand_more, size: 20),
+                  iconEnabledColor:
+                      isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                  iconDisabledColor: AppColors.textSecondary,
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  selectedItemBuilder: (_) => CountryCode.common.map((c) {
+                    return Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Text(
+                        '${c.flag} +${c.code}',
+                        style: AppTextStyles.body1.copyWith(color: textColor),
+                      ),
+                    );
+                  }).toList(),
+                  items: CountryCode.common.map((c) {
+                    return DropdownMenuItem(
+                      value: c.code,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '${c.flag}  +${c.code}  ${c.name}',
+                          style: AppTextStyles.body1.copyWith(color: textColor),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: _isLoading
+                      ? null
+                      : (v) {
+                          if (v != null) setState(() => _selectedCountryCode = v);
+                        },
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 28,
+                color: isDark ? AppColors.dividerDark : AppColors.inputBorder,
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _identifierController,
+                  enabled: !_isLoading,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _sendOtp(),
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 0123456789',
+                    hintStyle: AppTextStyles.body1.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.space16,
+                      vertical: 14,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        Text(
+          'With leading 0 — e.g. 0123456789',
+          style: AppTextStyles.body2.copyWith(
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -255,45 +364,26 @@ class _ForgotEmailScreenState extends State<ForgotEmailScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.space24),
-            if (_activeTab == 1) ...[
-              CountryCodeSelector(
-                selectedCode: _selectedCountryCode,
-                onChanged: (code) {
-                  setState(() => _selectedCountryCode = code);
-                },
-                enabled: !_isLoading,
-              ),
-              const SizedBox(height: AppSpacing.space12),
-            ],
-            AppInput(
-              controller: _identifierController,
-              label: _activeTab == 0 ? 'Email Address' : 'WhatsApp Number',
-              placeholder: _activeTab == 0
-                  ? 'Enter your email address'
-                  : 'Enter your WhatsApp number',
-              keyboardType: _activeTab == 0
-                  ? TextInputType.emailAddress
-                  : TextInputType.phone,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _sendOtp(),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return _activeTab == 0
-                      ? 'Please enter your email address'
-                      : 'Please enter your WhatsApp number';
-                }
-                if (_activeTab == 0) {
+            if (_activeTab == 1)
+              _buildPhoneInput(isDark)
+            else
+              AppInput(
+                controller: _identifierController,
+                label: 'Email Address',
+                placeholder: 'Enter your email address',
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _sendOtp(),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your email address';
+                  }
                   if (!value.contains('@')) {
                     return 'Please enter a valid email address';
                   }
-                } else {
-                  if (value.trim().length < 8) {
-                    return 'Please enter a valid phone number';
-                  }
-                }
-                return null;
-              },
-            ),
+                  return null;
+                },
+              ),
             const SizedBox(height: AppSpacing.space32),
             AppButton.primary(
               label: 'Send Code',

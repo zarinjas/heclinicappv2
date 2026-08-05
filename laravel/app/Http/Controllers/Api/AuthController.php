@@ -850,6 +850,11 @@ class AuthController extends Controller
             $variants[] = '0'.substr($normalised, 2);
         }
 
+        // Some records store the full E.164 number with a leading +
+        // (e.g. +60132716575 or +62123456789).
+        $variants[] = '+'.$normalised;
+        $variants[] = '+'.$digits;
+
         $query = Patient::query();
         foreach (array_values(array_unique($variants)) as $i => $variant) {
             if ($i === 0) {
