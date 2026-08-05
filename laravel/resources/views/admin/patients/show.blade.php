@@ -16,6 +16,38 @@
             </a>
         </div>
 
+        @if (session('temp_password'))
+            <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 mt-0.5">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-sm font-semibold text-green-800 mb-1">
+                            Password has been reset for {{ session('patient_name') ?? 'Patient' }}
+                        </h4>
+                        <p class="text-sm text-green-700 mb-3">
+                            Share this temporary password with the patient. They will be required to change it on first login.
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <code class="px-4 py-2 bg-white border border-green-300 rounded-lg text-lg font-bold text-green-800 tracking-widest select-all">
+                                {{ session('temp_password') }}
+                            </code>
+                            <button
+                                type="button"
+                                onclick="navigator.clipboard.writeText('{{ session('temp_password') }}').then(() => this.querySelector('span').textContent = 'Copied!')"
+                                class="px-3 py-2 text-xs font-medium text-green-700 bg-white border border-green-300 rounded-lg hover:bg-green-100 transition-colors"
+                            >
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="p-6 space-y-6">
                 <div class="flex items-start justify-between">
@@ -24,6 +56,15 @@
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 bg-[#00C9A7]/10 text-[#00C9A7]">
                             {{ $patient['givenid'] ?? '—' }}
                         </span>
+                        @if (isset($localPatient) && $localPatient)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ml-2 bg-blue-50 text-blue-600">
+                                App Account Linked
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ml-2 bg-amber-50 text-amber-600">
+                                No App Account
+                            </span>
+                        @endif
                     </div>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('admin.patients.show', ['patient' => $patient['id'] ?? request()->route('patient'), 'sync' => 1]) }}"
@@ -33,6 +74,20 @@
                             </svg>
                             Re-sync from Plato
                         </a>
+                        <form
+                            action="{{ route('admin.patients.reset-password', request()->route('patient')) }}"
+                            method="POST"
+                            onsubmit="return confirm('Reset password for {{ addslashes($patient['name'] ?? 'this patient') }}?\\n\\nA temporary password will be generated. The patient must change it on first login.')"
+                        >
+                            @csrf
+                            <button type="submit"
+                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#0F1B3D] rounded-lg hover:bg-[#1e2d52] transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                                </svg>
+                                Reset Password
+                            </button>
+                        </form>
                     </div>
                 </div>
 

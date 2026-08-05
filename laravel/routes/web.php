@@ -47,6 +47,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('patients.documents.upload');
         Route::delete('patients/{patient}/documents/{filename}', [PatientController::class, 'deleteDocument'])
             ->name('patients.documents.delete');
+        Route::post('patients/{patient}/reset-password', [PatientController::class, 'resetPassword'])
+            ->name('patients.reset-password');
         Route::get('records', [RecordController::class, 'index'])->name('records.index');
         Route::post('records/email', [RecordController::class, 'updateDefaultEmail'])->name('records.email.update');
         Route::delete('records/{record}', [RecordController::class, 'destroy'])->name('records.destroy');
