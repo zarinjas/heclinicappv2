@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/api_requests/api_manager.dart';
+import '/env_config.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/theme/app_theme.dart';
 import '/components/skeleton_loaders.dart';
@@ -59,32 +61,41 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
       if (!_codesLoaded) {
         final codesResult = await GetAppointmentCodeCall.call();
         if (codesResult.succeeded) {
-          FFAppState().Listcode = GetAppointmentCodeCall.codes(
-                codesResult.jsonBody,
-              )!
-              .toList()
-              .cast<String>();
-          FFAppState().ListDoctorName = GetAppointmentCodeCall.names(
-                codesResult.jsonBody,
-              )!
-              .toList()
-              .cast<String>();
-          _locationCodes = GetAppointmentCodeCall.codelocation(
-                codesResult.jsonBody,
-              )!
-              .toList()
-              .cast<String>();
-          _locationNames = GetAppointmentCodeCall.namelocation(
-                codesResult.jsonBody,
-              )!
-              .toList()
-              .cast<String>();
-          _codesLoaded = true;
+          final codes =
+              GetAppointmentCodeCall.codes(codesResult.jsonBody) ?? [];
+          final names =
+              GetAppointmentCodeCall.names(codesResult.jsonBody) ?? [];
+          final locCodes =
+              GetAppointmentCodeCall.codelocation(codesResult.jsonBody) ?? [];
+          final locNames =
+              GetAppointmentCodeCall.namelocation(codesResult.jsonBody) ?? [];
+
+          if (codes.isNotEmpty) {
+            FFAppState().Listcode = codes;
+            FFAppState().ListDoctorName = names;
+            _locationCodes = locCodes;
+            _locationNames = locNames;
+            _codesLoaded = true;
+          } else if (FFAppState().Listcode.isNotEmpty) {
+            // API returned no new codes (nothing changed since the last
+            // `modified_since` timestamp) — keep the cached codes.
+            _codesLoaded = true;
+          }
           safeSetState(() {});
         }
       }
 
       final patientId = FFAppState().idplato;
+      if (patientId.isEmpty) {
+        // Patient not linked to a Plato profile yet — nothing to fetch.
+        setState(() {
+          _upcomingAppointments = [];
+          _pastAppointments = [];
+          _isLoading = false;
+          _hasError = false;
+        });
+        return;
+      }
       final result = await GetAppointmentCall.call(
         patientId: patientId,
         forceRefresh: true,
@@ -97,6 +108,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
         final titles = GetAppointmentCall.title(jsonBody) ?? [];
         final doctorCodes = GetAppointmentCall.doctorCode(jsonBody) ?? [];
         final locationCodes = GetAppointmentCall.locationCode(jsonBody) ?? [];
+        final appointmentIds = GetAppointmentCall.appointmentId(jsonBody) ?? [];
 
         final now = DateTime.now();
         final upcoming = <Map<String, dynamic>>[];
@@ -129,6 +141,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
             'locationName': locationName,
             'color': _getColorForCode(doctorCode),
             'isUpcoming': startDt != null && startDt.isAfter(now),
+            'appointmentId': appointmentIds.length > i ? appointmentIds[i] : '',
           };
 
           if (startDt != null && startDt.isAfter(now)) {
@@ -266,56 +279,237 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                 borderRadius: BorderRadius.circular(AppRadius.full),
               ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Container(
-              width: 56.0,
-              height: 56.0,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-              child: Icon(
-                Icons.calendar_today,
-                color: color,
-                size: 28.0,
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: AppSpacing.lg),
+                    Container(
+                      width: 56.0,
+                      height: 56.0,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                      ),
+                      child: Icon(
+                        Icons.calendar_today,
+                        color: color,
+                        size: 28.0,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Appointment Detail',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppColors.textInverse
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                      child: Column(
+                        children: [
+                          _detailRow(Icons.access_time, 'Date & Time',
+                              '${_formatDate(start)} at ${_formatTime(start)}'),
+                          if (end != null)
+                            _detailRow(Icons.timer_outlined, 'Ends at',
+                                _formatTime(end)),
+                          if (locationName.isNotEmpty)
+                            _detailRow(Icons.location_on_outlined, 'Branch',
+                                locationName),
+                          _detailRow(Icons.person_outline, 'Doctor',
+                              doctorName),
+                          _detailRow(Icons.info_outline, 'Status', statusLabel,
+                              valueColor: statusColor),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    if (appointment['isUpcoming'] == true &&
+                        (appointment['appointmentId'] as String? ?? '')
+                            .isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          0,
+                          AppSpacing.lg,
+                          AppSpacing.lg,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _onCancelAppointment(appointment),
+                            icon: const Icon(Icons.cancel_outlined, size: 18),
+                            label: const Text('Cancel Appointment'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.error,
+                              side: const BorderSide(color: AppColors.error),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.md),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(height: AppSpacing.lg),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'Appointment Detail',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 18.0,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.textInverse
-                    : AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Column(
-                children: [
-                  _detailRow(Icons.access_time, 'Date & Time',
-                      '${_formatDate(start)} at ${_formatTime(start)}'),
-                  if (end != null)
-                    _detailRow(Icons.timer_outlined, 'Ends at',
-                        _formatTime(end)),
-                  if (locationName.isNotEmpty)
-                    _detailRow(Icons.location_on_outlined, 'Branch',
-                        locationName),
-                  _detailRow(Icons.person_outline, 'Doctor', doctorName),
-                  _detailRow(Icons.info_outline, 'Status', statusLabel,
-                      valueColor: statusColor),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _onCancelAppointment(Map<String, dynamic> appointment) async {
+    final appointmentId = appointment['appointmentId'] as String? ?? '';
+    if (appointmentId.isEmpty || !mounted) return;
+
+    final reason = await _showCancelReasonDialog();
+    if (reason == null || !mounted) return;
+
+    final cancelled = await _cancelAppointment(appointmentId, reason);
+    if (!mounted) return;
+
+    if (cancelled) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Appointment cancelled')),
+      );
+      _loadAppointments();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to cancel appointment')),
+      );
+    }
+  }
+
+  Future<String?> _showCancelReasonDialog() {
+    const reasons = [
+      'Change of plans',
+      'Cannot make it',
+      'Feeling unwell',
+      'Doctor not available',
+      'Booking mistake',
+      'Other',
+    ];
+    final controller = TextEditingController();
+    String selected = '';
+
+    final future = showDialog<String>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('Why are you cancelling?'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: reasons.map((reason) {
+                    final isSelected = selected == reason;
+                    return ChoiceChip(
+                      label: Text(reason),
+                      selected: isSelected,
+                      onSelected: (_) =>
+                          setDialogState(() => selected = reason),
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                      selectedColor: AppColors.error,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.full),
+                        side: const BorderSide(color: AppColors.divider),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                if (selected == 'Other') ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      hintText: 'Tell us the reason...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Keep Appointment'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                final reason = selected == 'Other'
+                    ? (controller.text.trim().isNotEmpty
+                        ? controller.text.trim()
+                        : selected)
+                    : selected;
+                Navigator.of(dialogContext).pop(reason);
+              },
+              child: const Text('Cancel Appointment'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    future.whenComplete(controller.dispose);
+    return future;
+  }
+
+  Future<bool> _cancelAppointment(String appointmentId, String reason) async {
+    try {
+      final response = await ApiManager.instance.makeApiCall(
+        callName: 'Cancel Appointment',
+        apiUrl:
+            '${EnvConfig.platomBaseUrl}/appointment/$appointmentId/cancel',
+        callType: ApiCallType.POST,
+        headers: {
+          'Authorization': 'Bearer ${FFAppState().tokenauth}',
+          'db': 'hemedclinic',
+        },
+        params: {'reason': reason},
+        bodyType: BodyType.JSON,
+        returnBody: true,
+        encodeBodyUtf8: false,
+        decodeUtf8: false,
+        cache: false,
+        isStreamingApi: false,
+        alwaysAllowBody: false,
+      );
+      return response.succeeded;
+    } catch (_) {
+      return false;
+    }
   }
 
   Widget _detailRow(IconData icon, String label, String value,
@@ -607,7 +801,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                   : 'Your completed appointments will appear here',
               actionLabel: isUpcoming ? 'Book Now' : null,
               onAction: isUpcoming
-                  ? () => context.pushNamed('/branchSelectionScreen')
+                  ? () => context.push('/branchSelectionScreen')
                   : null,
             ),
           ),

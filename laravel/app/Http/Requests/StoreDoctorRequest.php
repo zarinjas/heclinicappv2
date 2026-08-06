@@ -16,6 +16,7 @@ class StoreDoctorRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'specialty' => ['nullable', 'string', 'max:255'],
+            'qualifications' => ['nullable', 'string', 'max:1000'],
             'bio' => ['nullable', 'string'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'branch_id' => ['required', 'exists:branches,id'],

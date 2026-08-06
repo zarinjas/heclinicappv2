@@ -8,6 +8,7 @@ import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/loyalty_api.dart';
 import '/core/theme/app_colors.dart';
+import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
 import '/core/theme/app_text_styles.dart';
 import '/core/services/article_service.dart';
@@ -149,9 +150,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadDoctors() async {
     try {
-      await DoctorService.instance.init();
+      final service = DoctorService.instance;
+      final wasInitialised = service.isInitialised;
+      await service.init();
+      // Always re-fetch once the service has loaded before, so doctors that
+      // were toggled "Show in App" in the Admin Panel appear without needing
+      // an app restart.
+      if (wasInitialised) {
+        await service.refresh();
+      }
       if (mounted) setState(() {
-        _doctors = DoctorService.instance.doctors;
+        _doctors = service.doctors;
         _docLoaded = true;
       });
     } catch (_) {
@@ -302,15 +311,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHeroSection(bool isDark) {
     if (!_heroLoaded) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: AppSkeleton.slider(),	
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        child: AppSkeleton.slider(),
       );
     }
     if (_heroErr || _heroes.isEmpty) {
       return const SizedBox.shrink();
     }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
       child: GradientHeroSlider(
         slides: _heroes.map((b) => GradientHeroSlide(
           title: b.title,
@@ -329,12 +338,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildQuickActions(bool isDark) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: CompactQuickActions(actions: [
+      child: CompactQuickActions(
+        horizontalPadding: 0,
+        actions: [
         CompactQuickAction(
           icon: Icons.event_available_outlined,
           label: 'Book Visit',
           tint: const Color(0xFF3B8DFF),
-          onTap: () => context.pushNamed('bookingPage'),
+          onTap: () => context.push('/branchSelectionScreen'),
         ),
         CompactQuickAction(
           icon: Icons.folder_open_outlined,
@@ -401,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'No upcoming appointments',
         subtitle: 'Book your next visit with us',
         ctaLabel: 'Book Now',
-        onCtaTap: () => context.pushNamed('bookingPage'),
+        onCtaTap: () => context.push('/branchSelectionScreen'),
       );
     }
 
@@ -417,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'No upcoming appointments',
         subtitle: 'Book your next visit with us',
         ctaLabel: 'Book Now',
-        onCtaTap: () => context.pushNamed('bookingPage'),
+        onCtaTap: () => context.push('/branchSelectionScreen'),
       );
     }
 
@@ -586,7 +597,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: 4,
                 itemBuilder: (_, i) => SizedBox(
-                  width: 120,
+                  width: 104,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: AppSkeleton.doctorHorizontal(),
@@ -612,11 +623,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _doctors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (_, i) {
                 final d = _doctors[i];
                 return SizedBox(
-                  width: 120,
+                  width: 104,
                   child: DoctorCard(
                     photoUrl: d.photoUrl,
                     initials: d.initials,
@@ -624,7 +635,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: d.name,
                     specialty: d.specialty,
                     variant: DoctorCardVariant.horizontal,
-                    onTap: () => DoctorDetailSheet.show(context, doctorName: d.name, specialty: d.specialty),
+                    onTap: () => DoctorDetailSheet.show(
+                      context,
+                      doctorName: d.name,
+                      specialty: d.specialty,
+                      qualifications: d.qualifications,
+                      branchName: d.branchName,
+                      photoUrl: d.photoUrl,
+                      bio: d.bio,
+                    ),
                   ),
                 );
               },
@@ -754,6 +773,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildVideosSection(bool isDark) {
+    final itemWidth = (MediaQuery.sizeOf(context).width - 32) * 0.55;
+    final itemHeight = itemWidth * (16 / 9) + 84;
+
     if (!_videoLoaded) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -762,12 +784,23 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SectionHeader(title: 'Featured Videos', onSeeAll: () => context.pushNamed('/videosList')),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(child: AppSkeleton.videoGrid()),
-                const SizedBox(width: 12),
-                Expanded(child: AppSkeleton.videoGrid()),
-              ],
+            SizedBox(
+              height: itemHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 2,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, i) => SizedBox(
+                  width: itemWidth,
+                  child: AppSkeleton.card(
+                    height: itemHeight,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(AppRadius.radiusLG),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -783,29 +816,29 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           SectionHeader(title: 'Featured Videos', onSeeAll: () => context.pushNamed('/videosList')),
           const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.45,
+          SizedBox(
+            height: itemHeight,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (_, i) {
+                final v = items[i];
+                return SizedBox(
+                  width: itemWidth,
+                  child: VideoCard(
+                    thumbnailUrl: v.thumbnailUrl ?? '',
+                    placeholderGradient: v.placeholderGradient,
+                    title: v.title,
+                    author: v.author,
+                    videoAspectRatio: 9 / 16,
+                    platformLabel: 'TikTok',
+                    durationLabel: '0:30',
+                    onTap: () => context.pushNamed('/videosList'),
+                  ),
+                );
+              },
             ),
-            itemBuilder: (_, i) {
-              final v = items[i];
-              return VideoCard(
-                thumbnailUrl: v.thumbnailUrl ?? '',
-                placeholderGradient: v.placeholderGradient,
-                title: v.title,
-                author: v.author,
-                videoAspectRatio: 9 / 16,
-                platformLabel: 'TikTok',
-                durationLabel: '0:30',
-                onTap: () => context.pushNamed('/videosList'),
-              );
-            },
           ),
         ],
       ),

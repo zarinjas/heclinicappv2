@@ -25,6 +25,52 @@ class CmsApi {
   static const _timeoutSeconds = 3;
   static const _basePath = '/v2';
 
+  /// The base URL that last answered a CMS request successfully. Used to
+  /// rebase media URLs (images/videos) that Laravel built from its own
+  /// `APP_URL` (often `http://localhost:8080`) onto a host the device can
+  /// actually reach — e.g. `10.0.2.2` on the Android emulator.
+  static String? _lastSuccessfulBase;
+  static String? get lastSuccessfulBase => _lastSuccessfulBase;
+
+  static bool _isLoopbackHost(String host) {
+    final h = host.toLowerCase();
+    return h == 'localhost' || h == '127.0.0.1' || h == '::1';
+  }
+
+  /// Scheme://host[:port] of the API server (without the `/api` suffix),
+  /// preferring whichever base actually served the CMS data.
+  static String get mediaOrigin {
+    final base = _lastSuccessfulBase ?? EnvConfig.laravelBaseUrl;
+    final uri = Uri.tryParse(base);
+    if (uri == null || uri.host.isEmpty) return '';
+    final scheme = uri.scheme.isEmpty ? 'http' : uri.scheme;
+    final port = uri.hasPort ? ':${uri.port}' : '';
+    return '$scheme://${uri.host}$port';
+  }
+
+  /// Rewrites a CMS media URL so it is reachable from the device.
+  ///
+  /// - Fully-qualified URLs on a real (non-loopback) host are returned as-is.
+  /// - Relative paths (e.g. `/storage/onboarding/x.mp4`) get the API origin
+  ///   prepended.
+  /// - Loopback URLs (`http://localhost:8080/...`, `http://127.0.0.1/...`)
+  ///   are rebased onto the host/port the app actually talks to.
+  static String resolveMediaUrl(String url) {
+    if (url.isEmpty) return url;
+    final uri = Uri.tryParse(url);
+    if (uri == null) return url;
+    if (uri.hasScheme && !_isLoopbackHost(uri.host)) return url;
+
+    final origin = mediaOrigin;
+    if (origin.isEmpty) return url;
+
+    final path = uri.hasScheme
+        ? (uri.path.isEmpty ? '/' : uri.path)
+        : (url.startsWith('/') ? url : '/$url');
+    final query = uri.hasQuery ? '?${uri.query}' : '';
+    return '$origin$path$query';
+  }
+
   static List<String> _baseUrls() {
     // Production mode (dart-define set to real URLs) → go straight to the
     // configured Laravel URL. No localhost fallback, no 3s timeouts wasted.
@@ -54,6 +100,7 @@ class CmsApi {
             .get(Uri.parse(url))
             .timeout(const Duration(seconds: _timeoutSeconds));
         if (response.statusCode == 200) {
+          _lastSuccessfulBase = base;
           debugPrint('[CMS API] OK 200 — ${response.body.length} bytes');
           return response.body;
         }

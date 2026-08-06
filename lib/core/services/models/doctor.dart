@@ -6,6 +6,7 @@ class Doctor {
   final int id;
   final String name;
   final String specialty;
+  final String? qualifications;
   final String? bio;
   final String? photoUrl;
   final bool isVisibleInApp;
@@ -16,6 +17,7 @@ class Doctor {
     required this.id,
     required this.name,
     required this.specialty,
+    this.qualifications,
     this.bio,
     this.photoUrl,
     this.isVisibleInApp = true,
@@ -28,6 +30,7 @@ class Doctor {
       id: _parseInt(json['id']),
       name: json['name'] as String? ?? '',
       specialty: json['specialty'] as String? ?? '',
+      qualifications: json['qualifications'] as String?,
       bio: json['bio'] as String?,
       photoUrl: json['photo'] as String?,
       isVisibleInApp: json['is_visible_in_app'] as bool? ?? true,
@@ -53,6 +56,7 @@ class Doctor {
     'id': id,
     'name': name,
     'specialty': specialty,
+    'qualifications': qualifications,
     'bio': bio,
     'photo': photoUrl,
     'is_visible_in_app': isVisibleInApp,

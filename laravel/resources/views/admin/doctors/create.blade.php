@@ -63,6 +63,21 @@
                     </div>
                 </div>
 
+                <div>
+                    <label for="qualifications" class="block text-sm font-medium text-[#0F1B3D] mb-1">Qualifications</label>
+                    <input
+                        type="text"
+                        name="qualifications"
+                        id="qualifications"
+                        value="{{ old('qualifications') }}"
+                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('qualifications') border-red-300 @enderror"
+                        placeholder="e.g. MBBS (UKM), MMed Family Medicine"
+                    >
+                    @error('qualifications')
+                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label for="plato_facility_id" class="block text-sm font-medium text-[#0F1B3D] mb-1">Plato Facility ID</label>

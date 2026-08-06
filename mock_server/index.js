@@ -134,10 +134,19 @@ const mockFacilities = [
 ];
 
 const mockAppointments = [
-  { starttime: "2025-07-01 09:00", endtime: "2025-07-01 10:00", title: "General Checkup", code_Background: "B001", code_Top: "L001", name_Background: "Dr. Ahmad Bin Ismail", name_Top: "He Clinic Shah Alam", status: "confirmed", doctorname: "Dr. Ahmad Bin Ismail", specialty: "General Practitioner", branch_name: "He Clinic Shah Alam", appointment_type: "General Checkup", notes: "Routine checkup" },
-  { starttime: "2025-07-03 10:00", endtime: "2025-07-03 11:00", title: "Follow-up", code_Background: "B002", code_Top: "L001", name_Background: "Dr. Sarah Binti Abdullah", name_Top: "He Clinic Shah Alam", status: "confirmed", doctorname: "Dr. Sarah Binti Abdullah", specialty: "Pediatrician", branch_name: "He Clinic Shah Alam", appointment_type: "Follow-up", notes: "Review lab results" },
-  { starttime: "2025-07-05 14:00", endtime: "2025-07-05 15:00", title: "Vaccination", code_Background: "B003", code_Top: "L002", name_Background: "Dr. Lim Wei Ming", name_Top: "He Clinic Bangi", status: "pending", doctorname: "Dr. Lim Wei Ming", specialty: "Cardiologist", branch_name: "He Clinic Bangi", appointment_type: "Vaccination", notes: "Flu vaccine" },
+  { appointment_id: "APT-2026-001", starttime: _daysFromNow(3) + " 09:00", endtime: _daysFromNow(3) + " 10:00", title: "General Checkup", code_Background: "B001", code_Top: "L001", name_Background: "Dr. Ahmad Bin Ismail", name_Top: "He Clinic Shah Alam", status: "confirmed", doctorname: "Dr. Ahmad Bin Ismail", specialty: "General Practitioner", branch_name: "He Clinic Shah Alam", appointment_type: "General Checkup", notes: "Routine checkup" },
+  { appointment_id: "APT-2026-002", starttime: _daysFromNow(10) + " 10:00", endtime: _daysFromNow(10) + " 11:00", title: "Follow-up", code_Background: "B002", code_Top: "L001", name_Background: "Dr. Sarah Binti Abdullah", name_Top: "He Clinic Shah Alam", status: "confirmed", doctorname: "Dr. Sarah Binti Abdullah", specialty: "Pediatrician", branch_name: "He Clinic Shah Alam", appointment_type: "Follow-up", notes: "Review lab results" },
+  { appointment_id: "APT-2026-003", starttime: _daysFromNow(-2) + " 14:00", endtime: _daysFromNow(-2) + " 15:00", title: "Vaccination", code_Background: "B003", code_Top: "L002", name_Background: "Dr. Lim Wei Ming", name_Top: "He Clinic Bangi", status: "completed", doctorname: "Dr. Lim Wei Ming", specialty: "Cardiologist", branch_name: "He Clinic Bangi", appointment_type: "Vaccination", notes: "Flu vaccine" },
 ];
+
+function _daysFromNow(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 app.get("/platom/patient", (req, res) => {
   res.json(mockPatients);
@@ -362,11 +371,11 @@ const mockBranches = [
 ];
 
 const mockDoctors = [
-  { id: 1, name: "Dr. Ahmad Bin Ismail", specialty: "General Practitioner", bio: "Experienced GP with 15 years in family medicine.", photo: "https://placehold.co/200x200/122560/FFFFFF?text=Dr+A", is_visible_in_app: true, branch_id: 1, branch_name: "He Clinic Shah Alam" },
-  { id: 2, name: "Dr. Sarah Binti Abdullah", specialty: "Pediatrician", bio: "Specializing in children's health and development.", photo: "https://placehold.co/200x200/2563EB/FFFFFF?text=Dr+S", is_visible_in_app: true, branch_id: 1, branch_name: "He Clinic Shah Alam" },
-  { id: 3, name: "Dr. Lim Wei Ming", specialty: "Cardiologist", bio: "Heart health specialist with advanced training in cardiology.", photo: "https://placehold.co/200x200/DC2626/FFFFFF?text=Dr+L", is_visible_in_app: true, branch_id: 2, branch_name: "He Clinic Bangi" },
-  { id: 4, name: "Dr. Nurul Huda", specialty: "General Practitioner", bio: "Dedicated to providing comprehensive primary care.", photo: "https://placehold.co/200x200/10B981/FFFFFF?text=Dr+N", is_visible_in_app: true, branch_id: 2, branch_name: "He Clinic Bangi" },
-  { id: 5, name: "Dr. Rajesh Kumar", specialty: "Orthopedics", bio: "Bone and joint specialist.", photo: "https://placehold.co/200x200/8B5CF6/FFFFFF?text=Dr+R", is_visible_in_app: false, branch_id: 1, branch_name: "He Clinic Shah Alam" },
+  { id: 1, name: "Dr. Ahmad Bin Ismail", specialty: "General Practitioner", qualifications: "MBBS (UKM), MRCGP", bio: "Experienced GP with 15 years in family medicine.", photo: "https://placehold.co/200x200/122560/FFFFFF?text=Dr+A", is_visible_in_app: true, branch_id: 1, branch_name: "He Clinic Shah Alam" },
+  { id: 2, name: "Dr. Sarah Binti Abdullah", specialty: "Pediatrician", qualifications: "MD (USM), MRCPCH", bio: "Specializing in children's health and development.", photo: "https://placehold.co/200x200/2563EB/FFFFFF?text=Dr+S", is_visible_in_app: true, branch_id: 1, branch_name: "He Clinic Shah Alam" },
+  { id: 3, name: "Dr. Lim Wei Ming", specialty: "Cardiologist", qualifications: "MBBS, MRCP, Fellowship in Cardiology", bio: "Heart health specialist with advanced training in cardiology.", photo: "https://placehold.co/200x200/DC2626/FFFFFF?text=Dr+L", is_visible_in_app: true, branch_id: 2, branch_name: "He Clinic Bangi" },
+  { id: 4, name: "Dr. Nurul Huda", specialty: "General Practitioner", qualifications: "MBBS (IIUM)", bio: "Dedicated to providing comprehensive primary care.", photo: "https://placehold.co/200x200/10B981/FFFFFF?text=Dr+N", is_visible_in_app: true, branch_id: 2, branch_name: "He Clinic Bangi" },
+  { id: 5, name: "Dr. Rajesh Kumar", specialty: "Orthopedics", qualifications: "MBBS, MS Orth", bio: "Bone and joint specialist.", photo: "https://placehold.co/200x200/8B5CF6/FFFFFF?text=Dr+R", is_visible_in_app: false, branch_id: 1, branch_name: "He Clinic Shah Alam" },
 ];
 
 app.get("/api/v2/cms/sliders", (req, res) => {

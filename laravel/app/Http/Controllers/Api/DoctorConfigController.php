@@ -39,6 +39,7 @@ final class DoctorConfigController extends Controller
             'id' => $doctor->plato_facility_id ?? (string) $doctor->id,
             'name' => $doctor->name,
             'specialty' => $doctor->specialty,
+            'qualifications' => $doctor->qualifications,
             'bio' => $doctor->bio,
             'photo' => $doctor->photo ? Storage::disk('public')->url($doctor->photo) : null,
             'is_visible_in_app' => $doctor->is_visible_in_app,

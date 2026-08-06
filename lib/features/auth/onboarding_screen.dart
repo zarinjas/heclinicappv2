@@ -8,6 +8,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/onboarding_service.dart';
+import '../../core/services/cms_api.dart';
 import '../../core/services/models/onboarding_slide.dart';
 import '../../core/widgets/app_button.dart';
 
@@ -325,7 +326,11 @@ class _SlideMediaState extends State<_SlideMedia> {
 
   bool get _videoFinished => _loadState == VideoLoadState.playing || _loadState == VideoLoadState.failed;
 
-  Future<void> _initVideo(String url) async {
+  Future<void> _initVideo(String rawUrl) async {
+    // Laravel builds media URLs from its own APP_URL (often localhost), which
+    // is unreachable from an emulator or physical device — rebase onto the API
+    // host the app actually connected to.
+    final url = CmsApi.resolveMediaUrl(rawUrl);
     _loadState = VideoLoadState.loading;
     if (_mounted) setState(() {});
 
@@ -353,13 +358,13 @@ class _SlideMediaState extends State<_SlideMedia> {
       if (_mounted) {
         _debugLastError = 'Video timed out — file may be too large or '
             'server too slow. Try uploading a compressed MP4 with '
-            'fast-start metadata (ffmpeg -movflags faststart).';
+            'fast-start metadata (ffmpeg -movflags faststart).\n$url';
         _loadState = VideoLoadState.failed;
       }
-    } catch (_) {
+    } catch (e) {
       controller.dispose();
       if (_mounted) {
-        _debugLastError = 'Video failed to load.';
+        _debugLastError = 'Video failed to load.\n$url\n$e';
         _loadState = VideoLoadState.failed;
       }
     }
@@ -375,7 +380,10 @@ class _SlideMediaState extends State<_SlideMedia> {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = widget.imageUrl;
+    final rawImageUrl = widget.imageUrl;
+    final imageUrl = rawImageUrl == null || rawImageUrl.isEmpty
+        ? null
+        : CmsApi.resolveMediaUrl(rawImageUrl);
     final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     final background = hasImage

@@ -1844,6 +1844,32 @@ class GetAppointmentCall {
           .map((x) => castToType<String>(x))
           .withoutNulls
           .toList();
+
+  /// Appointment id used to fetch details / cancel. The Plato API returns it
+  /// as `appointment_id`, with `id` as a fallback.
+  static List<String>? appointmentId(dynamic response) {
+    final primary = getJsonField(
+      response,
+      r'''$[:].appointment_id''',
+      true,
+    ) as List?;
+    if (primary != null && primary.isNotEmpty) {
+      return primary.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+    }
+    final fallback = getJsonField(
+      response,
+      r'''$[:].id''',
+      true,
+    ) as List?;
+    if (fallback == null) return null;
+    return fallback.withoutNulls
+        .map((x) => castToType<String>(x))
+        .withoutNulls
+        .toList();
+  }
 }
 
 class GetAppointmentUpcomingCall {

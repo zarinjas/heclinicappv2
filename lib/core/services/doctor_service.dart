@@ -14,6 +14,8 @@ class DoctorService {
 
   bool _initialised = false;
 
+  bool get isInitialised => _initialised;
+
   List<Doctor> get doctors => _base.data;
 
   List<Doctor> doctorsForBranch(int branchId) {

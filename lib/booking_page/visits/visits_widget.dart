@@ -36,16 +36,16 @@ class _VisitsWidgetState extends State<VisitsWidget> {
       _model.apiResultnbm = await GetAppointmentCodeCall.call();
 
       if ((_model.apiResultnbm?.succeeded ?? true)) {
-        FFAppState().Listcode = GetAppointmentCodeCall.codes(
-          (_model.apiResultnbm?.jsonBody ?? ''),
-        )!
-            .toList()
-            .cast<String>();
-        FFAppState().ListDoctorName = GetAppointmentCodeCall.names(
-          (_model.apiResultnbm?.jsonBody ?? ''),
-        )!
-            .toList()
-            .cast<String>();
+        final codes =
+            GetAppointmentCodeCall.codes(_model.apiResultnbm?.jsonBody ?? '') ??
+                [];
+        final names =
+            GetAppointmentCodeCall.names(_model.apiResultnbm?.jsonBody ?? '') ??
+                [];
+        if (codes.isNotEmpty) {
+          FFAppState().Listcode = codes;
+          FFAppState().ListDoctorName = names;
+        }
         safeSetState(() {});
       }
     });

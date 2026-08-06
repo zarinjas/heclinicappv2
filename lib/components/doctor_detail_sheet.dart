@@ -7,6 +7,7 @@ class DoctorDetailSheet extends StatelessWidget {
     super.key,
     required this.doctorName,
     this.specialty,
+    this.qualifications,
     this.branchName,
     this.photoUrl,
     this.bio,
@@ -15,6 +16,7 @@ class DoctorDetailSheet extends StatelessWidget {
 
   final String doctorName;
   final String? specialty;
+  final String? qualifications;
   final String? branchName;
   final String? photoUrl;
   final String? bio;
@@ -24,6 +26,7 @@ class DoctorDetailSheet extends StatelessWidget {
     BuildContext context, {
     required String doctorName,
     String? specialty,
+    String? qualifications,
     String? branchName,
     String? photoUrl,
     String? bio,
@@ -38,6 +41,7 @@ class DoctorDetailSheet extends StatelessWidget {
         child: DoctorDetailSheet(
           doctorName: doctorName,
           specialty: specialty,
+          qualifications: qualifications,
           branchName: branchName,
           photoUrl: photoUrl,
           bio: bio,
@@ -128,6 +132,31 @@ class DoctorDetailSheet extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                  if (qualifications != null && qualifications!.isNotEmpty) ...[
+                    const SizedBox(height: 16.0),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Qualifications',
+                        style: theme.headlineSmall.override(
+                          fontFamily: theme.headlineSmallFamily,
+                          color: theme.primaryText,
+                          letterSpacing: 0.0,
+                          useGoogleFonts: !theme.headlineSmallIsCustom,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text(
+                      qualifications!,
+                      style: theme.bodyMedium.override(
+                        fontFamily: theme.bodyMediumFamily,
+                        color: theme.primaryText,
+                        letterSpacing: 0.0,
+                        useGoogleFonts: !theme.bodyMediumIsCustom,
+                      ),
                     ),
                   ],
                   if (bio != null && bio!.isNotEmpty) ...[

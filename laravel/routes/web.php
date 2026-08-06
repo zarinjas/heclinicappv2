@@ -81,7 +81,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::resource('promotions', CmsPromotionController::class);
             Route::resource('onboarding', CmsOnboardingSlideController::class);
             Route::post('onboarding/{onboarding}/remove-media', [CmsOnboardingSlideController::class, 'removeMedia'])
-                ->name('cms.onboarding.remove-media');
+                ->name('onboarding.remove-media');
             Route::resource('legal', CmsLegalPageController::class);
         });
 

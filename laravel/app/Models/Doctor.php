@@ -13,6 +13,7 @@ class Doctor extends Model
         'branch_id',
         'name',
         'specialty',
+        'qualifications',
         'bio',
         'photo',
         'plato_facility_id',
