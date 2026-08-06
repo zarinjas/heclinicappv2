@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
-import '/env_config.dart';
+import '/app_state.dart';
+import '/core/services/doctor_service.dart';
+import '/core/services/models/doctor.dart';
 import 'booking_flow_model.dart';
 
 class DoctorSelectionScreenWidget extends StatefulWidget {
@@ -40,43 +42,102 @@ class _DoctorSelectionScreenWidgetState
     });
 
     try {
-      final response = await GetDoctorsCall.call(
-        branchId: _bookingModel.selectedBranchId.isNotEmpty
-            ? _bookingModel.selectedBranchId
-            : null,
-        visible: true,
-      );
-      if (response.succeeded) {
-        final ids = GetDoctorsCall.id(response.jsonBody) ?? [];
-        final names = GetDoctorsCall.name(response.jsonBody) ?? [];
-        final specialties = GetDoctorsCall.specialty(response.jsonBody) ?? [];
+      final service = DoctorService.instance;
+      final wasInitialised = service.isInitialised;
+      await service.init();
+      // Re-fetch once the service has loaded before so newly toggled
+      // "Visible in App" doctors appear without an app restart.
+      if (wasInitialised) {
+        await service.refresh();
+      }
 
-        final doctors = <DoctorItem>[];
-        for (int i = 0; i < ids.length; i++) {
-          doctors.add(DoctorItem(
-            id: i < ids.length ? ids[i] : '',
-            name: i < names.length ? names[i] : '',
-            specialty: i < specialties.length ? specialties[i] : '',
-          ));
+      final selectedBranch = _bookingModel.selectedBranchName;
+      final doctors = <DoctorItem>[];
+      for (final d in service.doctors) {
+        // Prefer doctors assigned to the selected branch, but keep doctors
+        // without a branch mapping so the list is never empty.
+        if (d.branchName != null &&
+            d.branchName!.isNotEmpty &&
+            d.branchName != selectedBranch) {
+          continue;
         }
+        doctors.add(DoctorItem(
+          id: d.id.toString(),
+          name: d.name,
+          specialty: d.specialty,
+          photoUrl: d.photoUrl ?? '',
+        ));
+      }
 
+      String? lastConsultedName;
+      if (FFAppState().idplato.isNotEmpty) {
+        lastConsultedName = await _findLastConsultedDoctor();
+      }
+
+      DoctorItem? preselected;
+      if (lastConsultedName != null && lastConsultedName.isNotEmpty) {
+        final needle = lastConsultedName!.trim().toLowerCase();
+        for (final d in doctors) {
+          if (d.name.trim().toLowerCase() == needle) {
+            preselected = d;
+            break;
+          }
+        }
+      }
+
+      if (mounted) {
         setState(() {
           _doctors = doctors;
+          if (preselected != null) {
+            _isNoPreference = false;
+            _selectedDoctorId = preselected!.id;
+            _bookingModel.selectDoctor(
+              id: preselected!.id,
+              name: preselected!.name,
+              isNoPreference: false,
+            );
+          }
           _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-          _errorMessage = 'Error ${response.statusCode}: Failed to load doctors';
         });
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-        _errorMessage = _getErrorMessage(e);
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _errorMessage = _getErrorMessage(e);
+        });
+      }
+    }
+  }
+
+  /// Returns the name of the doctor from the most recent PAST appointment,
+  /// used to pre-select the doctor the patient last consulted.
+  Future<String?> _findLastConsultedDoctor() async {
+    try {
+      final response = await GetAppointmentCall.call(
+        patientId: FFAppState().idplato,
+        forceRefresh: true,
+      );
+      if (!response.succeeded) return null;
+
+      final names = GetAppointmentCall.doctorname(response.jsonBody) ?? [];
+      final starts = GetAppointmentCall.start(response.jsonBody) ?? [];
+      final now = DateTime.now();
+
+      String? lastDoctor;
+      DateTime? lastDate;
+      for (var i = 0; i < names.length; i++) {
+        final dt = DateTime.tryParse(starts.length > i ? starts[i] : '');
+        if (dt == null || !dt.isBefore(now)) continue;
+        if (lastDate == null || dt.isAfter(lastDate)) {
+          lastDate = dt;
+          lastDoctor = names[i];
+        }
+      }
+      return lastDoctor;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -470,16 +531,21 @@ class _DoctorSelectionScreenWidgetState
             CircleAvatar(
               radius: 32,
               backgroundColor: const Color(0xFFE5E7EB),
-              child: Text(
-                doctor.name.isNotEmpty
-                    ? doctor.name[0].toUpperCase()
-                    : '?',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
+              backgroundImage: doctor.photoUrl.isNotEmpty
+                  ? NetworkImage(doctor.photoUrl)
+                  : null,
+              child: doctor.photoUrl.isNotEmpty
+                  ? null
+                  : Text(
+                      doctor.name.isNotEmpty
+                          ? doctor.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -580,10 +646,12 @@ class DoctorItem {
   final String id;
   final String name;
   final String specialty;
+  final String photoUrl;
 
   DoctorItem({
     required this.id,
     required this.name,
     required this.specialty,
+    this.photoUrl = '',
   });
 }

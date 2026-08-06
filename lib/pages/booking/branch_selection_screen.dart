@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
-import '/env_config.dart';
+import '/core/services/branch_service.dart';
+import '/core/services/models/branch.dart';
 import 'booking_flow_model.dart';
 
 class BranchSelectionScreenWidget extends StatefulWidget {
@@ -42,43 +42,58 @@ class _BranchSelectionScreenWidgetState
     });
 
     try {
-      final response = await GetproviderCall.call();
-      if (response.succeeded) {
-        final ids = GetproviderCall.id(response.jsonBody) ?? [];
-        final names = GetproviderCall.name(response.jsonBody) ?? [];
-        final nrics = GetproviderCall.nric(response.jsonBody) ?? [];
-        final telephones = GetproviderCall.telephone(response.jsonBody) ?? [];
+      final service = BranchService.instance;
+      final wasInitialised = service.isInitialised;
+      await service.init();
+      // Re-fetch once the service has loaded before so newly toggled
+      // "Visible in App" branches appear without an app restart.
+      if (wasInitialised) {
+        await service.refresh();
+      }
 
-        final branches = <BranchItem>[];
-        for (int i = 0; i < ids.length; i++) {
-          branches.add(BranchItem(
-            id: i < ids.length ? ids[i] : '',
-            name: i < names.length ? names[i] : '',
-            address: i < nrics.length ? nrics[i] : '',
-            image: '',
-            hours: '',
-            phone: i < telephones.length ? telephones[i] : '',
-          ));
-        }
+      final branches = <BranchItem>[];
+      for (final b in service.branches) {
+        branches.add(BranchItem(
+          id: b.platoFacilityId ?? b.id.toString(),
+          name: b.name,
+          address: b.address,
+          image: b.imageUrl ?? '',
+          hours: b.operatingHours != null
+              ? _hoursForToday(b.operatingHours!)
+              : '',
+          phone: b.whatsappNumber ?? b.phone ?? '',
+        ));
+      }
 
+      if (mounted) {
         setState(() {
           _branches = branches;
           _isLoading = false;
         });
-      } else {
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
           _isLoading = false;
           _hasError = true;
-          _errorMessage = 'Error ${response.statusCode}: Failed to load branches';
+          _errorMessage = _getErrorMessage(e);
         });
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-        _errorMessage = _getErrorMessage(e);
-      });
     }
+  }
+
+  String _hoursForToday(Map<String, String> hours) {
+    const days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+    final today = days[DateTime.now().weekday - 1];
+    return hours[today] ?? '';
   }
 
   String _getErrorMessage(dynamic error) {

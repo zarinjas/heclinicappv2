@@ -11,7 +11,7 @@ class StoreCmsOnboardingSlideRequest extends FormRequest
         return [
             'title'          => ['required', 'string', 'max:255'],
             'subtitle'       => ['nullable', 'string', 'max:500'],
-            'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
+            'image'          => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:10240'],
             'video'          => ['nullable', 'file', 'mimes:mp4,mov,m4v,webm', 'max:51200'],
             'gradient_start' => ['nullable', 'string', 'max:9'],
             'gradient_end'   => ['nullable', 'string', 'max:9'],

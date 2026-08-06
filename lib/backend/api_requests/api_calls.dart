@@ -1845,6 +1845,16 @@ class GetAppointmentCall {
           .withoutNulls
           .toList();
 
+  static List<String>? doctorname(dynamic response) => (getJsonField(
+        response,
+        r'''$[:].name_Background''',
+        true,
+      ) as List?)
+          ?.withoutNulls
+          .map((x) => castToType<String>(x))
+          .withoutNulls
+          .toList();
+
   /// Appointment id used to fetch details / cancel. The Plato API returns it
   /// as `appointment_id`, with `id` as a fallback.
   static List<String>? appointmentId(dynamic response) {

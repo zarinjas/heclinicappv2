@@ -433,7 +433,10 @@ Stream<List<T>> queryCollection<T>(
     query = query.limit(singleRecord ? 1 : limit);
   }
   return query.snapshots().handleError((err) {
+    // Re-throw so StreamBuilder can surface the error (missing index,
+    // permissions, etc.) instead of hanging on the loading state forever.
     print('Error querying $collection: $err');
+    throw err;
   }).map((s) => s.docs
       .map(
         (d) => safeGet(

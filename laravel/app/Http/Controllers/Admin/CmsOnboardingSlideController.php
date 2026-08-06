@@ -115,43 +115,69 @@ class CmsOnboardingSlideController extends Controller
 
     /**
      * Store a video file then optimise it for fast mobile streaming:
-     *   - add fast-start metadata (moov atom at beginning)
-     *   - compress with H.264 baseline at mobile-friendly quality
+     *   - H.264 baseline (maximum device compatibility) MP4
+     *   - fast-start metadata (moov atom at the beginning) so playback can
+     *     begin before the file finishes downloading
+     *   - audio removed (backgrounds play muted) and width capped at 720px,
+     *     which shrinks the file dramatically
      *
-     * Falls back to the original file if ffmpeg is unavailable.
+     * Falls back to the original file if ffmpeg is unavailable or fails.
      */
     private function storeAndOptimiseVideo($file): string
     {
+        // Keep the original upload as a fallback until the re-encode succeeds.
         $path = $file->store('onboarding', 'public');
-        $fullPath = Storage::disk('public')->path($path);
 
-        $output = dirname($fullPath).'/opt_'.$file->hashName();
+        if (! $this->ffmpegAvailable()) {
+            Log::warning('CmsOnboarding: ffmpeg not installed — video kept as-is', [
+                'path' => $path,
+            ]);
+            return $path;
+        }
+
+        $fullPath = Storage::disk('public')->path($path);
+        $output = dirname($fullPath).'/'.pathinfo($fullPath, PATHINFO_FILENAME).'_opt.mp4';
+
         $cmd = sprintf(
-            'ffmpeg -y -i %s -vf scale=\'min(1080,iw)\':-2 '
-            .'-c:v libx264 -preset fast -crf 28 -movflags +faststart '
-            .'-c:a aac -b:a 64k %s 2>&1',
+            'ffmpeg -y -i %s '
+            .'-vf "scale=w=\'min(720,iw)\':h=-2:force_original_aspect_ratio=decrease,'
+            .'fps=24,format=yuv420p" '
+            .'-c:v libx264 -preset veryfast -crf 28 -profile:v baseline -level 3.1 '
+            .'-an -movflags +faststart %s 2>&1',
             escapeshellarg($fullPath),
             escapeshellarg($output)
         );
 
         exec($cmd, $cmdOutput, $exitCode);
 
-        if ($exitCode === 0 && file_exists($output)) {
-            // Replace original with optimised version.
-            rename($output, $fullPath);
+        if ($exitCode === 0 && is_file($output) && filesize($output) > 0) {
+            // Replace the original upload with the optimised MP4 so the URL in
+            // the database always points at a clean, fast-start file.
+            $optimisedPath = 'onboarding/'.basename($output);
+            Storage::disk('public')->delete($path);
 
             Log::info('CmsOnboarding: video optimised', [
-                'path' => $path,
-                'original_bytes' => filesize($fullPath),
+                'path' => $optimisedPath,
+                'bytes' => filesize($output),
             ]);
-        } else {
-            Log::warning('CmsOnboarding: ffmpeg unavailable or failed — keeping original', [
-                'path' => $path,
-                'exit_code' => $exitCode,
-                'output' => implode("\n", array_slice($cmdOutput, -5)),
-            ]);
+
+            return $optimisedPath;
         }
 
+        @unlink($output);
+        Log::warning('CmsOnboarding: ffmpeg failed — keeping original', [
+            'path' => $path,
+            'exit_code' => $exitCode,
+            'output' => implode("\n", array_slice($cmdOutput, -8)),
+        ]);
+
         return $path;
+    }
+
+    private function ffmpegAvailable(): bool
+    {
+        exec('ffmpeg -version 2>&1', $_, $code);
+
+        return $code === 0;
     }
 }

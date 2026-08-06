@@ -14,6 +14,8 @@ class BranchService {
 
   bool _initialised = false;
 
+  bool get isInitialised => _initialised;
+
   List<Branch> get branches => _base.data;
 
   Future<void> init() async {

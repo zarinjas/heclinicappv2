@@ -75,7 +75,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (deepLink.isNotEmpty) {
       switch (deepLink) {
         case 'appointments':
-          context.pushNamed('MyBookingPage');
+          context.push('/myBookingPage');
           break;
         case 'health/records':
         case 'health/vitals':
