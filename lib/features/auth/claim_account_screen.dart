@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../app_state.dart';
 import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_error_state.dart';
-import '../../core/widgets/app_input.dart';
 import '../../core/widgets/country_code_selector.dart';
 
 class ClaimAccountScreen extends StatefulWidget {
@@ -73,6 +73,112 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
   }
 
   void _retry() => setState(() => _apiError = null);
+
+  Widget _buildIdentifierInput(bool isDark) {
+    final labelColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final inputBg = isDark ? AppColors.inputBgDark : AppColors.surface;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.inputBorder;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'IC / Passport, Phone, or Email',
+          style: AppTextStyles.label.copyWith(color: labelColor),
+        ),
+        const SizedBox(height: AppSpacing.space12),
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: inputBg,
+            borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+            border: Border.all(color: borderColor, width: 1.5),
+          ),
+          child: Row(
+            children: [
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCountryCode,
+                  icon: const Icon(Icons.expand_more, size: 20),
+                  iconEnabledColor:
+                      isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                  iconDisabledColor: AppColors.textSecondary,
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  selectedItemBuilder: (_) => CountryCode.common.map((c) {
+                    return Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Text(
+                        '${c.flag} +${c.code}',
+                        style: AppTextStyles.body1.copyWith(color: textColor),
+                      ),
+                    );
+                  }).toList(),
+                  items: CountryCode.common.map((c) {
+                    return DropdownMenuItem(
+                      value: c.code,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          '${c.flag}  +${c.code}  ${c.name}',
+                          style: AppTextStyles.body1.copyWith(color: textColor),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: _isLoading
+                      ? null
+                      : (v) {
+                          if (v != null) setState(() => _selectedCountryCode = v);
+                        },
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 28,
+                color: isDark ? AppColors.dividerDark : AppColors.inputBorder,
+              ),
+              Expanded(
+                child: TextField(
+                  controller: _identifierController,
+                  enabled: !_isLoading,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _submit(),
+                  style: AppTextStyles.body1.copyWith(color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 0123456789 or 900101-14-5678',
+                    hintStyle: AppTextStyles.body1.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.space16,
+                      vertical: 14,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        Text(
+          'Enter your phone with leading 0, or IC/email',
+          style: AppTextStyles.body2.copyWith(
+            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,31 +245,7 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.space32),
-            CountryCodeSelector(
-              selectedCode: _selectedCountryCode,
-              onChanged: (code) {
-                setState(() => _selectedCountryCode = code);
-              },
-              enabled: !_isLoading,
-            ),
-            const SizedBox(height: AppSpacing.space12),
-            AppInput(
-              controller: _identifierController,
-              label: 'IC / Passport, Phone, or Email',
-              placeholder: 'e.g. 900101-14-5678 or 0123456789',
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your IC, phone, or email';
-                }
-                if (value.trim().length < 8) {
-                  return 'Please enter a valid IC, phone number, or email';
-                }
-                return null;
-              },
-            ),
+            _buildIdentifierInput(isDark),
             const SizedBox(height: AppSpacing.space32),
             AppButton.primary(
               label: 'Send Verification Code',

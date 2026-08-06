@@ -400,6 +400,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const ForgotOtpScreen(),
         ),
         FFRoute(
+          name: ForgotNewpasswordScreen.routeName,
+          path: ForgotNewpasswordScreen.routePath,
+          builder: (context, params) => const ForgotNewpasswordScreen(),
+        ),
+        FFRoute(
           name: FirstChangePasswordScreen.routeName,
           path: FirstChangePasswordScreen.routePath,
           builder: (context, params) => const FirstChangePasswordScreen(),
