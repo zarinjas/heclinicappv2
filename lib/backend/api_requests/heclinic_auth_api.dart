@@ -499,6 +499,8 @@ class LinkEmailRequestCall {
 
   static bool? status(dynamic response) =>
       castToType<bool>(getJsonField(response, r'''$.status'''));
+  static bool? emailBound(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.email_bound'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
 }

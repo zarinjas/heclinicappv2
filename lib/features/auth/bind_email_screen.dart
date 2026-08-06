@@ -112,6 +112,15 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
       if (!mounted) return;
 
       if (result.succeeded && (LinkEmailRequestCall.status(result.jsonBody) == true)) {
+        // First-time bind: email linked directly, no OTP needed.
+        if (LinkEmailRequestCall.emailBound(result.jsonBody) == true) {
+          FFAppState().userEmail = _emailController.text.trim();
+          if (mounted) {
+            _finishAndClose();
+          }
+          return;
+        }
+
         setState(() {
           _otpSent = true;
           _apiError = null;
@@ -212,11 +221,7 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
 
       if (result.succeeded && (LinkEmailVerifyCall.status(result.jsonBody) == true)) {
         FFAppState().userEmail = _emailController.text.trim();
-        if (_fromExternal) {
-          context.go('/');
-        } else {
-          context.pop();
-        }
+        _finishAndClose();
       } else {
         final message = LinkEmailVerifyCall.message(result.jsonBody);
         setState(() {
@@ -244,6 +249,14 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
   }
 
   void _retry() => setState(() => _apiError = null);
+
+  void _finishAndClose() {
+    if (_fromExternal) {
+      context.go('/');
+    } else {
+      context.pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

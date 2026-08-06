@@ -324,7 +324,27 @@ class AuthController extends Controller
             ], 409);
         }
 
-        // Store the pending email and send the OTP to it.
+        // First-time bind: the patient has no email on file yet. Bind it
+        // directly without an OTP — the patient is already authenticated and
+        // this is simply adding an email, not changing an existing one.
+        if (empty($patient->email)) {
+            $patient->update([
+                'email' => $email,
+                'pending_email' => null,
+                'otp_code' => null,
+                'otp_expires_at' => null,
+                'otp_attempts' => 0,
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'email_bound' => true,
+                'message' => 'Email linked to your account successfully.',
+                'email' => $email,
+            ]);
+        }
+
+        // Existing email: require an OTP to confirm the change.
         $patient->update(['pending_email' => $email]);
 
         $sent = $this->otp->sendOtpToEmail($patient, $email);
