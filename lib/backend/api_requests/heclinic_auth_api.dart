@@ -15,6 +15,7 @@ class HeclinicAuthApi {
   static final RegisterCall registerCall = RegisterCall();
   static final LoginCall loginCall = LoginCall();
   static final SocialLoginCall socialLoginCall = SocialLoginCall();
+  static final MeCall meCall = MeCall();
   static final LogoutCall logoutCall = LogoutCall();
   static final ForgotPasswordCall forgotPasswordCall = ForgotPasswordCall();
   static final ClaimAccountCall claimAccountCall = ClaimAccountCall();
@@ -289,6 +290,39 @@ class SocialLoginCall {
       castToType<String>(getJsonField(response, r'''$.user.name'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// GET /v2/auth/me   (requires Bearer token)
+// Lightweight session probe for biometric quick-login: a 200 means the stored
+// token is still valid, a 401 means it was revoked or has expired.
+// ---------------------------------------------------------------------------
+class MeCall {
+  Future<ApiCallResponse> call({String? token = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicMe',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/me',
+      callType: ApiCallType.GET,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? name(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.name'''));
+  static String? idplato(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.idplato'''));
 }
 
 // ---------------------------------------------------------------------------

@@ -8,7 +8,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../app_state.dart';
-import '../../backend/api_requests/api_calls.dart' show MedicalAppsApiGroup;
 import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/config/social_login_config.dart';
 import '../../core/services/biometric_auth_service.dart';
@@ -142,16 +141,17 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await MedicalAppsApiGroup.profileCall.call(
-        authorization: 'Bearer $token',
-        accept: 'application/json',
-      );
+      final response = await HeclinicAuthApi.meCall.call(token: token);
 
       if (!mounted) return;
 
-      if (!response.succeeded) {
-        // Token rejected (revoked, expired, password changed elsewhere).
-        // Drop it so we do not keep prompting for a dead session.
+      // Only a 401/403 means the token itself is dead. Any other failure
+      // (offline, DNS, 500, timeout) must NOT wipe the user's enrolment —
+      // that would force a full password login every time the network hiccups.
+      final statusCode = response.statusCode;
+      final tokenRejected = statusCode == 401 || statusCode == 403;
+
+      if (tokenRejected) {
         await BiometricAuthService.instance.disable();
         if (!mounted) return;
         setState(() {
@@ -163,10 +163,21 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      final profile = MedicalAppsApiGroup.profileCall;
+      if (!response.succeeded) {
+        // Server or connectivity problem. Keep the enrolment intact so the
+        // user can simply try again.
+        setState(() {
+          _errorMessage =
+              'Could not reach the server. Please check your connection and try again.';
+          _showError = true;
+        });
+        return;
+      }
+
       final appState = FFAppState();
       appState.tokenauth = token;
-      appState.name = profile.name(response.jsonBody) ?? appState.name;
+      appState.name = MeCall.name(response.jsonBody) ?? appState.name;
+      appState.idplato = MeCall.idplato(response.jsonBody) ?? appState.idplato;
       appState.isLoggedIn = true;
       appState.update(() {});
 
@@ -175,6 +186,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) context.go('/');
     } catch (_) {
+      // Network exception — again, do not punish the user by dropping their
+      // biometric enrolment.
       if (mounted) {
         setState(() {
           _errorMessage = 'Network error. Please check your connection.';

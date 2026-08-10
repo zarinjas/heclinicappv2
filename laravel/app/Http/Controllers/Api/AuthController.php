@@ -425,6 +425,37 @@ class AuthController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // GET /api/v2/auth/me
+    // Protected (auth:sanctum). Returns the current patient.
+    //
+    // Used by biometric quick-login to confirm a stored token is still valid
+    // before restoring the session. Sanctum's middleware already rejects a
+    // revoked or expired token with 401, so reaching this method at all means
+    // the token is good.
+    // -------------------------------------------------------------------------
+    public function me(Request $request): JsonResponse
+    {
+        $patient = $request->user();
+
+        if ($patient === null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => true,
+            'user' => [
+                'id' => $patient->id,
+                'name' => $patient->name,
+                'email' => $patient->email,
+                'idplato' => $patient->idplato,
+            ],
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
     // POST /api/v2/auth/logout
     // Protected (auth:sanctum). Revokes the current token.
     // -------------------------------------------------------------------------

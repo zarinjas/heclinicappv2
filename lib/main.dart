@@ -99,7 +99,14 @@ class MyAppScrollBehavior extends MaterialScrollBehavior {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+  // Force light mode. The app follows a white/light brand palette and the dark
+  // variant has not been designed against it, so honouring the OS setting made
+  // the app render dark for anyone with system dark mode on.
+  //
+  // The dark ThemeData is still built and passed to MaterialApp, so flipping
+  // this back to ThemeMode.system is all that is needed once dark mode has
+  // been designed and reviewed.
+  ThemeMode _themeMode = ThemeMode.light;
 
   late AppStateNotifier _appStateNotifier;
   late GoRouter _router;
