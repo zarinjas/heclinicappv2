@@ -523,6 +523,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				APS_ENVIRONMENT = production;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -537,6 +538,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -566,6 +569,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -596,6 +600,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MTL_FAST_MATH = YES;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -624,6 +629,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MTL_FAST_MATH = YES;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps.ImageNotification;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -749,6 +755,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				APS_ENVIRONMENT = development;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -763,6 +770,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -782,6 +791,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				APS_ENVIRONMENT = production;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -796,6 +806,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
 				);
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ST2CK9CGWU;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hemedgroup.heclinicapps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";

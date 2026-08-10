@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/config/social_login_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -256,19 +257,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.space12),
-              _SocialButton(
-                icon: Icons.apple,
-                label: 'Continue with Apple',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Coming soon'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
+              // Apple Sign In is an Apple-platform-only affordance; showing it
+              // on Android/web would be misleading (and breaks App Store /
+              // Play Store expectations). These buttons are inert "Coming
+              // soon" stubs, so Google stays visible here as a design
+              // reference even while it is disabled on the real login screen.
+              if (SocialLoginConfig.appleEnabled) ...[
+                const SizedBox(height: AppSpacing.space12),
+                _SocialButton(
+                  icon: Icons.apple,
+                  label: 'Continue with Apple',
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Coming soon'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+              ],
               const SizedBox(height: AppSpacing.space24),
               // Biometric button
               GestureDetector(

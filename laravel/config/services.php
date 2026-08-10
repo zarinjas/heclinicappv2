@@ -40,6 +40,35 @@ return [
         'base_url' => env('PLATO_BASE_URL', 'https://clinic.platomedical.com/api/hemedclinic'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Social Sign-In
+    |--------------------------------------------------------------------------
+    |
+    | Expected `aud` values for provider identity tokens. A token whose
+    | audience is not in this list was minted for a different app and MUST be
+    | rejected, otherwise anyone with any Google/Apple token could sign in.
+    |
+    | APPLE_CLIENT_IDS: the iOS bundle identifier (and the Services ID if a web
+    | flow is ever added), comma-separated.
+    | GOOGLE_CLIENT_IDS: the OAuth client IDs for each platform, comma-separated.
+    |
+    */
+
+    'apple' => [
+        'client_ids' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('APPLE_CLIENT_IDS', 'com.hemedgroup.heclinicapps'))
+        ))),
+    ],
+
+    'google' => [
+        'client_ids' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('GOOGLE_CLIENT_IDS', ''))
+        ))),
+    ],
+
     // OTP delivery channel: 'email' (Resend) | 'whatsapp' (OneSender)
     'otp' => [
         'channel' => env('OTP_CHANNEL', 'email'),

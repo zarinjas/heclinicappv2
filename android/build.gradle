@@ -24,7 +24,10 @@ subprojects {
         if (project.plugins.hasPlugin("com.android.application") ||
                 project.plugins.hasPlugin("com.android.library")) {
             project.android {
-                compileSdkVersion 35
+                // 36 is required by androidx.core:core(-ktx):1.18.0, which
+                // connectivity_plus pulls in. This block also applies to :app,
+                // so it must not be lower than the value in app/build.gradle.
+                compileSdkVersion 36
             }
         }
         if (project.hasProperty('android')) {
@@ -43,6 +46,6 @@ subprojects {
     project.evaluationDependsOn(':app')
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
 }

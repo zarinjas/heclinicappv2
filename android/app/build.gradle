@@ -32,7 +32,10 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.hemedgroup.heclinicapps"
-    compileSdkVersion 35
+    // 36 is required by androidx.core:core:1.18.0 (pulled in via connectivity_plus).
+    // Raising compileSdk only allows newer APIs to be referenced at compile time;
+    // runtime behaviour is still governed by targetSdk below.
+    compileSdkVersion 36
     ndkVersion "28.2.13676358"
 
     compileOptions {

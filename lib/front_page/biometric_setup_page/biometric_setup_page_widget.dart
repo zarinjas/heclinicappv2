@@ -287,6 +287,35 @@ class _BiometricSetupPageWidgetState extends State<BiometricSetupPageWidget> {
                                           await actions.saveBiometricStatus(
                                             true,
                                           );
+                                          // saveBiometricStatus only succeeds
+                                          // when there is a live session token
+                                          // to bind to the keystore.
+                                          if (!FFAppState().fingerprint) {
+                                            safeSetState(() => _model
+                                                .checkboxValue = false);
+                                            await showDialog(
+                                              context: context,
+                                              builder: (alertDialogContext) {
+                                                return WebViewAware(
+                                                  child: AlertDialog(
+                                                    title: Text(
+                                                        'Sign In Required'),
+                                                    content: Text(
+                                                        'Please sign in again before enabling biometric login.'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                                alertDialogContext),
+                                                        child: Text('Ok'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                            return;
+                                          }
                                           await showDialog(
                                             context: context,
                                             builder: (alertDialogContext) {
@@ -358,7 +387,12 @@ class _BiometricSetupPageWidgetState extends State<BiometricSetupPageWidget> {
                                             _model.outputbio =
                                                 await _localAuth.authenticate(
                                                     localizedReason:
-                                                        'To disabled Biometric verification please verify your biometric id');
+                                                        'To disabled Biometric verification please verify your biometric id',
+                                                    options:
+                                                        const AuthenticationOptions(
+                                                            stickyAuth: true,
+                                                            biometricOnly:
+                                                                true));
                                           } on PlatformException {
                                             _model.outputbio = false;
                                           }

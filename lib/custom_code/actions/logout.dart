@@ -10,15 +10,23 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '/core/services/biometric_auth_service.dart';
 import '/core/services/device_token_service.dart';
 
 Future<void> logout() async {
+  // Wipe the biometric session token from the keystore FIRST. SharedPreferences
+  // .clear() does not touch the Keychain / EncryptedSharedPreferences, so
+  // without this the next person on the device could biometrically unlock the
+  // previous user's session.
+  await BiometricAuthService.instance.clearOnLogout();
+
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear(); // Menghapus semua data
   // Reset in-memory auth state so the app treats the user as logged out
   // (router + splash check these values to decide where to navigate).
   FFAppState().isLoggedIn = false;
   FFAppState().tokenauth = '';
+  FFAppState().fingerprint = false;
   // Forget the cached push registration so the next login re-registers this
   // device against the new account.
   DeviceTokenService.instance.reset();

@@ -253,6 +253,7 @@ class SocialLoginCall {
     String? idToken = '',
     String? email = '',
     String? name = '',
+    String? rawNonce,
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicSocialLogin',
@@ -264,6 +265,9 @@ class SocialLoginCall {
         'id_token': idToken,
         'email': email,
         'name': name,
+        // Apple only: the un-hashed nonce. The backend recomputes SHA-256 and
+        // compares it against the `nonce` claim inside the identity token.
+        if (rawNonce != null && rawNonce.isNotEmpty) 'raw_nonce': rawNonce,
       },
       bodyType: BodyType.X_WWW_FORM_URL_ENCODED,
       returnBody: true,

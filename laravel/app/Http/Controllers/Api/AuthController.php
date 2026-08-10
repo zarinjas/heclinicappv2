@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Services\OtpService;
 use App\Services\PlatoProxyService;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -701,10 +703,15 @@ class AuthController extends Controller
             'id_token' => 'required|string',
             'email' => 'nullable|email|max:191',
             'name' => 'nullable|string|max:191',
+            'raw_nonce' => 'nullable|string|max:191',
         ]);
 
         // 1. Verify the provider token and extract the verified email.
-        $verified = $this->verifySocialToken($data['provider'], $data['id_token']);
+        $verified = $this->verifySocialToken(
+            $data['provider'],
+            $data['id_token'],
+            $data['raw_nonce'] ?? null,
+        );
 
         if (empty($verified)) {
             return response()->json([
@@ -713,7 +720,10 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $email = $verified['email'] ?? $data['email'] ?? null;
+        // The email MUST come from the verified token. Falling back to the
+        // client-supplied value would let a caller pair a valid token with
+        // somebody else's address and hijack that account.
+        $email = $verified['email'] ?? null;
 
         if (empty($email)) {
             return response()->json([
@@ -761,44 +771,14 @@ class AuthController extends Controller
     // Internal: Verify a Google / Apple id_token server-side.
     // Returns ['email' => ..., 'name' => ...] or null when invalid.
     // -------------------------------------------------------------------------
-    private function verifySocialToken(string $provider, string $idToken): ?array
+    private function verifySocialToken(string $provider, string $idToken, ?string $rawNonce = null): ?array
     {
         try {
             if ($provider === 'google') {
-                $response = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
-                    'id_token' => $idToken,
-                ]);
-
-                if (! $response->successful()) {
-                    return null;
-                }
-
-                $payload = $response->json();
-
-                return [
-                    'email' => $payload['email'] ?? null,
-                    'name' => $payload['name'] ?? null,
-                ];
+                return $this->verifyGoogleToken($idToken);
             }
 
-            // Apple — decode the JWT payload (signature verification via Apple's
-            // public keys is intentionally skipped for simplicity; the id_token
-            // was already validated client-side by Sign in with Apple).
-            [$header, $payloadB64, $signature] = array_pad(explode('.', $idToken), 3, '');
-            if (empty($payloadB64)) {
-                return null;
-            }
-
-            $payload = json_decode(base64_decode(strtr($payloadB64, '-_', '+/')), true);
-
-            if (! is_array($payload) || empty($payload['email'])) {
-                return null;
-            }
-
-            return [
-                'email' => $payload['email'] ?? null,
-                'name' => null,
-            ];
+            return $this->verifyAppleToken($idToken, $rawNonce);
         } catch (\Throwable $e) {
             Log::warning('AuthController::verifySocialToken failed', [
                 'provider' => $provider,
@@ -806,6 +786,184 @@ class AuthController extends Controller
             ]);
 
             return null;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Verify a Google id_token via Google's tokeninfo endpoint.
+    // -------------------------------------------------------------------------
+    private function verifyGoogleToken(string $idToken): ?array
+    {
+        $response = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $idToken,
+        ]);
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $payload = $response->json();
+
+        if (! is_array($payload)) {
+            return null;
+        }
+
+        // Google's tokeninfo already checks the signature and expiry, but NOT
+        // that the token was minted for *this* app. Without an audience check
+        // a token issued to any other Google app would be accepted.
+        $allowedAudiences = (array) config('services.google.client_ids', []);
+        if (! empty($allowedAudiences)) {
+            if (! in_array($payload['aud'] ?? '', $allowedAudiences, true)) {
+                Log::warning('Google token rejected: audience mismatch', [
+                    'aud' => $payload['aud'] ?? null,
+                ]);
+
+                return null;
+            }
+        }
+
+        // Reject unverified addresses; Google returns this as a string.
+        $emailVerified = $payload['email_verified'] ?? 'false';
+        if ($emailVerified !== true && $emailVerified !== 'true') {
+            return null;
+        }
+
+        if (empty($payload['email'])) {
+            return null;
+        }
+
+        return [
+            'email' => $payload['email'],
+            'name' => $payload['name'] ?? null,
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Verify an Apple identity token.
+    //
+    // Performs full RS256 signature verification against Apple's published
+    // JWKS, plus issuer / audience / expiry / nonce checks. Previously this
+    // method base64-decoded the payload without verifying anything, which let
+    // anyone forge a token for an arbitrary email and take over that account.
+    // -------------------------------------------------------------------------
+    private function verifyAppleToken(string $idToken, ?string $rawNonce = null): ?array
+    {
+        $keys = $this->appleSigningKeys();
+
+        if (empty($keys)) {
+            Log::error('Apple sign in: could not load Apple public keys.');
+
+            return null;
+        }
+
+        try {
+            $payload = JWT::decode($idToken, $keys);
+        } catch (\Firebase\JWT\ExpiredException $e) {
+            Log::warning('Apple token rejected: expired.');
+
+            return null;
+        } catch (\Throwable $e) {
+            // Keys rotate. Bust the cache once and retry before giving up.
+            Cache::forget('apple_jwks');
+            $keys = $this->appleSigningKeys();
+
+            if (empty($keys)) {
+                return null;
+            }
+
+            try {
+                $payload = JWT::decode($idToken, $keys);
+            } catch (\Throwable $e2) {
+                Log::warning('Apple token rejected: invalid signature.', [
+                    'error' => $e2->getMessage(),
+                ]);
+
+                return null;
+            }
+        }
+
+        $claims = (array) $payload;
+
+        // Issuer must be Apple.
+        if (($claims['iss'] ?? '') !== 'https://appleid.apple.com') {
+            Log::warning('Apple token rejected: bad issuer.', [
+                'iss' => $claims['iss'] ?? null,
+            ]);
+
+            return null;
+        }
+
+        // Audience must be one of our own client IDs.
+        $allowedAudiences = (array) config('services.apple.client_ids', []);
+        if (! empty($allowedAudiences)
+            && ! in_array($claims['aud'] ?? '', $allowedAudiences, true)) {
+            Log::warning('Apple token rejected: audience mismatch.', [
+                'aud' => $claims['aud'] ?? null,
+            ]);
+
+            return null;
+        }
+
+        // Replay protection: the client sends the un-hashed nonce; Apple
+        // embedded its SHA-256. Compare when the client supplied one.
+        if (! empty($rawNonce)) {
+            $expected = hash('sha256', $rawNonce);
+            if (! hash_equals($expected, (string) ($claims['nonce'] ?? ''))) {
+                Log::warning('Apple token rejected: nonce mismatch.');
+
+                return null;
+            }
+        }
+
+        if (empty($claims['email'])) {
+            return null;
+        }
+
+        // Apple flags relay/unverified addresses as strings or booleans.
+        $emailVerified = $claims['email_verified'] ?? true;
+        if ($emailVerified === false || $emailVerified === 'false') {
+            return null;
+        }
+
+        return [
+            'email' => $claims['email'],
+            'name' => null,
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Fetch and cache Apple's JWKS as php-jwt Key objects.
+    // -------------------------------------------------------------------------
+    private function appleSigningKeys(): array
+    {
+        $jwks = Cache::remember('apple_jwks', now()->addHours(12), function () {
+            $response = Http::timeout(10)->get('https://appleid.apple.com/auth/keys');
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $body = $response->json();
+
+            return isset($body['keys']) && is_array($body['keys']) ? $body : null;
+        });
+
+        if (empty($jwks)) {
+            // Do not cache a failure.
+            Cache::forget('apple_jwks');
+
+            return [];
+        }
+
+        try {
+            return JWK::parseKeySet($jwks);
+        } catch (\Throwable $e) {
+            Cache::forget('apple_jwks');
+            Log::error('Apple sign in: failed to parse JWKS.', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
         }
     }
 

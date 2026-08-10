@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
-import 'package:shared_preferences/shared_preferences.dart';
+import '/core/services/biometric_auth_service.dart';
 
+/// Legacy FlutterFlow action, now delegating to [BiometricAuthService] so the
+/// old splash/setup screens and the new login screen agree on a single source
+/// of truth. Returns true only when the user opted in AND a session token is
+/// actually present in the keystore to unlock.
 Future<bool> loadBiometricStatus() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getBool('biometric_enabled') ?? false;
+  return BiometricAuthService.instance.isEnabled();
 }
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the green button on the right!

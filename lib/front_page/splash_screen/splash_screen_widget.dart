@@ -58,11 +58,18 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget> {
             try {
               _model.outputbioverif = await _localAuth.authenticate(
                   localizedReason:
-                      'Biometric login helps confirm your identity securely. We do not store or access your fingerprint data.');
+                      'Biometric login helps confirm your identity securely. We do not store or access your fingerprint data.',
+                  options: const AuthenticationOptions(
+                      stickyAuth: true, biometricOnly: true));
             } on PlatformException {
               _model.outputbioverif = false;
             }
             safeSetState(() {});
+          } else {
+            // Biometrics were enabled but the hardware/enrolment is gone
+            // (e.g. the user removed their fingerprint). Do not silently let
+            // the session through — fall back to the login screen.
+            _model.outputbioverif = false;
           }
 
           FFAppState().fingerprint = true;

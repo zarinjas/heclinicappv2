@@ -1,15 +1,17 @@
 import 'dart:convert';
+import 'dart:math';
 
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../app_state.dart';
+import '../../backend/api_requests/api_calls.dart' show MedicalAppsApiGroup;
 import '../../backend/api_requests/heclinic_auth_api.dart';
+import '../../core/config/social_login_config.dart';
+import '../../core/services/biometric_auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -41,6 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
   String _selectedCountryCode = CountryCode.defaultCode;
   bool _biometricReady = false;
   bool _hasSavedBioCreds = false;
+  bool _biometricBusy = false;
+  String _biometricLabel = 'Biometrics';
 
   static String _normalizeIdentifier(String raw) {
     final value = raw.trim();
@@ -55,30 +59,26 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _initBiometric() async {
-    try {
-      final localAuth = LocalAuthentication();
-      final canAuth = await localAuth.canCheckBiometrics;
-      final hasCreds = await _hasSavedCredentials();
-      if (mounted) {
-        setState(() {
-          _biometricReady = canAuth;
-          _hasSavedBioCreds = hasCreds;
-        });
-      }
-      // Auto-trigger biometric login only if credentials are already saved.
-      if (canAuth && hasCreds && mounted) {
-        final didAuth = await localAuth.authenticate(
-          localizedReason: 'Sign in with biometrics',
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-            biometricOnly: true,
-          ),
-        );
-        if (didAuth && mounted) {
-          _performLoginWithSavedCredentials();
-        }
-      }
-    } catch (_) {}
+    final bio = BiometricAuthService.instance;
+
+    // Purge any plaintext credentials written by pre-secure-storage builds.
+    await bio.migrateLegacyCredentials();
+
+    final available = await bio.isAvailable();
+    final enabled = available && await bio.isEnabled();
+    final label = available ? await bio.biometricLabel() : 'Biometrics';
+
+    if (!mounted) return;
+    setState(() {
+      _biometricReady = available;
+      _hasSavedBioCreds = enabled;
+      _biometricLabel = label;
+    });
+
+    // Auto-prompt only when a token is actually stored to unlock.
+    if (enabled) {
+      await _loginWithBiometric(auto: true);
+    }
   }
 
   @override
@@ -88,69 +88,144 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // ── Biometric credential storage ──
+  // ── Biometric login ──
+  //
+  // The password is never stored. Biometrics unlock the Sanctum session token
+  // held in the platform keystore; that token is then validated against the
+  // backend before we treat the user as logged in.
 
-  static const _bioKeyIdentifier = 'bio_identifier';
-  static const _bioKeyPassword = 'bio_password';
-  static const _bioKeyCountryCode = 'bio_country_code';
-  static const _bioKeyActiveTab = 'bio_active_tab';
+  Future<void> _loginWithBiometric({bool auto = false}) async {
+    if (_biometricBusy) return;
+    setState(() => _biometricBusy = true);
 
-  Future<bool> _hasSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.containsKey(_bioKeyIdentifier);
-  }
+    try {
+      final result = await BiometricAuthService.instance.unlock(
+        reason: 'Sign in to He Clinic with $_biometricLabel',
+      );
 
-  Future<void> _saveCredentials(
-    String identifier,
-    String password,
-    String countryCode,
-    int activeTab,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_bioKeyIdentifier, base64Encode(utf8.encode(identifier)));
-    await prefs.setString(_bioKeyPassword, base64Encode(utf8.encode(password)));
-    await prefs.setString(_bioKeyCountryCode, countryCode);
-    await prefs.setInt(_bioKeyActiveTab, activeTab);
-  }
+      if (!mounted) return;
 
-  Future<void> _clearCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_bioKeyIdentifier);
-    await prefs.remove(_bioKeyPassword);
-    await prefs.remove(_bioKeyCountryCode);
-    await prefs.remove(_bioKeyActiveTab);
-  }
+      switch (result.status) {
+        case BiometricUnlockStatus.success:
+          await _resumeSessionWithToken(result.token!);
+          break;
 
-  Future<void> _performLoginWithSavedCredentials() async {
-    final prefs = await SharedPreferences.getInstance();
-    final idB64 = prefs.getString(_bioKeyIdentifier);
-    final pwB64 = prefs.getString(_bioKeyPassword);
-    final cc = prefs.getString(_bioKeyCountryCode) ?? '60';
-    final tab = prefs.getInt(_bioKeyActiveTab) ?? 1;
+        case BiometricUnlockStatus.notEnrolled:
+        case BiometricUnlockStatus.unavailable:
+          // Nothing stored to unlock — fall back to the password form.
+          if (mounted) setState(() => _hasSavedBioCreds = false);
+          break;
 
-    if (idB64 == null || pwB64 == null) return;
-
-    final identifier = utf8.decode(base64Decode(idB64));
-    final password = utf8.decode(base64Decode(pwB64));
-
-    _identifierController.text = identifier;
-    _passwordController.text = password;
-    _selectedCountryCode = cc;
-    if (_activeTab != tab) {
-      _activeTab = tab;
+        case BiometricUnlockStatus.failed:
+          // A cancelled auto-prompt is normal; stay silent. An explicit tap
+          // that fails deserves feedback.
+          if (!auto && mounted) {
+            setState(() {
+              _errorMessage = result.message ??
+                  'We could not verify your identity. Please try again.';
+              _showError = true;
+            });
+          }
+          break;
+      }
+    } finally {
+      if (mounted) setState(() => _biometricBusy = false);
     }
+  }
 
-    await _performLogin();
-    if (mounted && !_showError) {
-      // Success — even if _showError is false at this point, login succeeded.
+  /// Restores a session from a biometric-unlocked token. The token is verified
+  /// against the backend so a revoked/expired one cannot grant offline access.
+  Future<void> _resumeSessionWithToken(String token) async {
+    setState(() {
+      _isLoading = true;
+      _showError = false;
+    });
+
+    try {
+      final response = await MedicalAppsApiGroup.profileCall.call(
+        authorization: 'Bearer $token',
+        accept: 'application/json',
+      );
+
+      if (!mounted) return;
+
+      if (!response.succeeded) {
+        // Token rejected (revoked, expired, password changed elsewhere).
+        // Drop it so we do not keep prompting for a dead session.
+        await BiometricAuthService.instance.disable();
+        if (!mounted) return;
+        setState(() {
+          _hasSavedBioCreds = false;
+          _errorMessage =
+              'Your saved session has expired. Please sign in with your password.';
+          _showError = true;
+        });
+        return;
+      }
+
+      final profile = MedicalAppsApiGroup.profileCall;
+      final appState = FFAppState();
+      appState.tokenauth = token;
+      appState.name = profile.name(response.jsonBody) ?? appState.name;
+      appState.isLoggedIn = true;
+      appState.update(() {});
+
+      DeviceTokenService.instance.reset();
+      await DeviceTokenService.instance.registerCachedToken();
+
+      if (mounted) context.go('/');
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Network error. Please check your connection.';
+          _showError = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Offers biometric enrolment after a successful password login, or silently
+  /// refreshes the stored token when the user already opted in.
+  Future<void> _offerBiometricEnrolment(String token, String accountLabel) async {
+    final bio = BiometricAuthService.instance;
+    if (token.isEmpty) return;
+    if (!await bio.isAvailable()) return;
+
+    // Already enabled — just keep the stored token current.
+    if (await bio.isEnabled()) {
+      await bio.refreshTokenIfEnabled(token: token, accountLabel: accountLabel);
       return;
     }
 
-    // If biometric login fails (stale credentials), clear and show form.
-    await _clearCredentials();
-    if (mounted) {
-      _identifierController.clear();
-      _passwordController.clear();
+    if (!mounted) return;
+    final label = await bio.biometricLabel();
+    if (!mounted) return;
+
+    final wantsIt = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Enable $label login?'),
+        content: Text(
+          'Sign in faster next time using $label. '
+          'Your password is never stored on this device.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Not now'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+
+    if (wantsIt == true) {
+      await bio.enable(token: token, accountLabel: accountLabel);
     }
   }
 
@@ -192,18 +267,16 @@ class _LoginScreenState extends State<LoginScreen> {
         DeviceTokenService.instance.reset();
         await DeviceTokenService.instance.registerCachedToken();
 
-        // Save credentials for future biometric quick-login.
-        // Only save when user logs in with password (not biometric auto-login).
-        await _saveCredentials(
-          identifier,
-          _passwordController.text,
-          _selectedCountryCode,
-          _activeTab,
-        );
+        final mustChange =
+            passwordChangedAt == null || passwordChangedAt.isEmpty;
+
+        // Offer biometric quick-login. Only the session token is stored, and
+        // never before the user has a usable (already-changed) password.
+        if (!mustChange) {
+          await _offerBiometricEnrolment(token, identifier);
+        }
 
         if (mounted) {
-          final mustChange =
-              passwordChangedAt == null || passwordChangedAt.isEmpty;
           if (mustChange) {
             context.go('/firstChangePassword');
           } else {
@@ -320,9 +393,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // ── Social Login ──
 
-  bool get _isAppleSupported {
-    if (kIsWeb) return true;
-    return defaultTargetPlatform == TargetPlatform.iOS;
+  /// Cryptographically secure random nonce, bound to the Apple ID request and
+  /// echoed back inside the identity token. Prevents token replay.
+  static String _generateNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 
   Future<void> _socialLogin(String provider) async {
@@ -335,6 +415,7 @@ class _LoginScreenState extends State<LoginScreen> {
       String? idToken;
       String? email;
       String? name;
+      String? rawNonce;
 
       if (provider == 'google') {
         final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
@@ -345,11 +426,19 @@ class _LoginScreenState extends State<LoginScreen> {
         email = account.email;
         name = account.displayName;
       } else if (provider == 'apple') {
+        // Bind this request to a one-time nonce. Apple embeds the SHA-256 of
+        // it in the identity token; the backend re-derives and compares, so a
+        // captured token cannot be replayed.
+        rawNonce = _generateNonce();
+        final hashedNonce =
+            sha256.convert(utf8.encode(rawNonce)).toString();
+
         final credential = await SignInWithApple.getAppleIDCredential(
           scopes: [
             AppleIDAuthorizationScopes.email,
             AppleIDAuthorizationScopes.fullName,
           ],
+          nonce: hashedNonce,
         );
         idToken = credential.identityToken;
         email = credential.email;
@@ -365,6 +454,7 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: idToken,
         email: email ?? '',
         name: name ?? '',
+        rawNonce: rawNonce,
       );
 
       if (!mounted) return;
@@ -386,6 +476,9 @@ class _LoginScreenState extends State<LoginScreen> {
         DeviceTokenService.instance.reset();
         await DeviceTokenService.instance.registerCachedToken();
 
+        // Keep biometric quick-login usable for social sign-ins too.
+        await _offerBiometricEnrolment(token, email ?? name);
+
         if (mounted) context.go('/');
       } else {
         final apiMessage = SocialLoginCall.message(response.jsonBody) ??
@@ -397,10 +490,24 @@ class _LoginScreenState extends State<LoginScreen> {
           _showError = true;
         });
       }
-    } catch (_) {
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // User dismissing the Apple sheet is not an error worth surfacing.
+      if (e.code == AuthorizationErrorCode.canceled) return;
       if (mounted) {
         setState(() {
-          _errorMessage = 'Network error. Please check your connection.';
+          _errorMessage = 'Apple sign in failed. Please try again.';
+          _showError = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          // Google Sign In throws a PlatformException when the OAuth client ID
+          // is missing from GoogleService-Info.plist. Surface a helpful message
+          // instead of a misleading "network error".
+          _errorMessage = e.toString().contains('GoogleSignIn')
+              ? 'Google sign in is not configured yet. Please try another method.'
+              : 'Social login failed. Please try again.';
           _showError = true;
         });
       }
@@ -648,33 +755,41 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             // ── Divider & Social Login ──
-            const SizedBox(height: AppSpacing.space24),
-            Row(
-              children: [
-                const Expanded(child: Divider(color: AppColors.divider)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.space16,
-                  ),
-                  child: Text(
-                    'or continue with',
-                    style: AppTextStyles.body2.copyWith(
-                      color: secondaryTextColor,
+            // The divider is tied to the buttons: with every provider
+            // disabled it would otherwise leave a dangling "or continue with"
+            // above nothing.
+            if (SocialLoginConfig.anyEnabled) ...[
+              const SizedBox(height: AppSpacing.space24),
+              Row(
+                children: [
+                  const Expanded(child: Divider(color: AppColors.divider)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.space16,
+                    ),
+                    child: Text(
+                      'or continue with',
+                      style: AppTextStyles.body2.copyWith(
+                        color: secondaryTextColor,
+                      ),
                     ),
                   ),
-                ),
-                const Expanded(child: Divider(color: AppColors.divider)),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            _SocialButton(
-              icon: Icons.g_mobiledata_rounded,
-              label: 'Continue with Google',
-              onPressed:
-                  _isLoading ? null : () => _socialLogin('google'),
-            ),
-            if (_isAppleSupported) ...[
-              const SizedBox(height: AppSpacing.space12),
+                  const Expanded(child: Divider(color: AppColors.divider)),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.space16),
+            ],
+            if (SocialLoginConfig.googleEnabled)
+              _SocialButton(
+                icon: Icons.g_mobiledata_rounded,
+                label: 'Continue with Google',
+                onPressed:
+                    _isLoading ? null : () => _socialLogin('google'),
+              ),
+            if (SocialLoginConfig.appleEnabled) ...[
+              // Only pad above Apple when Google is actually rendered above it.
+              if (SocialLoginConfig.googleEnabled)
+                const SizedBox(height: AppSpacing.space12),
               _SocialButton(
                 icon: Icons.apple,
                 label: 'Continue with Apple',
@@ -686,47 +801,55 @@ class _LoginScreenState extends State<LoginScreen> {
             // ── Biometric ──
             if (_biometricReady) ...[
               const SizedBox(height: AppSpacing.space24),
-              GestureDetector(
-                onTap: _hasSavedBioCreds
-                    ? () async {
-                        final localAuth = LocalAuthentication();
-                        final didAuth = await localAuth.authenticate(
-                          localizedReason: 'Sign in with biometrics',
-                          options: const AuthenticationOptions(
-                            stickyAuth: true,
-                            biometricOnly: true,
+              Semantics(
+                button: true,
+                enabled: _hasSavedBioCreds && !_biometricBusy,
+                label: _hasSavedBioCreds
+                    ? 'Sign in with $_biometricLabel'
+                    : 'Sign in once to enable $_biometricLabel',
+                child: GestureDetector(
+                  onTap: (_hasSavedBioCreds && !_biometricBusy && !_isLoading)
+                      ? () => _loginWithBiometric()
+                      : null,
+                  child: Opacity(
+                    opacity: _hasSavedBioCreds ? 1.0 : 0.5,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
                           ),
-                        );
-                        if (didAuth && mounted) {
-                          _performLoginWithSavedCredentials();
-                        }
-                      }
-                    : null,
-                child: Column(
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.fingerprint,
-                        size: 48,
-                        color: AppColors.accent,
-                      ),
+                          child: _biometricBusy
+                              ? const Padding(
+                                  padding: EdgeInsets.all(18),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.accent,
+                                  ),
+                                )
+                              : Icon(
+                                  _biometricLabel.contains('Face')
+                                      ? Icons.face_retouching_natural
+                                      : Icons.fingerprint,
+                                  size: 48,
+                                  color: AppColors.accent,
+                                ),
+                        ),
+                        const SizedBox(height: AppSpacing.space8),
+                        Text(
+                          _hasSavedBioCreds
+                              ? 'Login with $_biometricLabel'
+                              : 'Sign in once to enable $_biometricLabel',
+                          style: AppTextStyles.caption.copyWith(
+                            color: secondaryTextColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.space8),
-                    Text(
-                      _hasSavedBioCreds
-                          ? 'Login with Face ID'
-                          : 'Sign in once to enable Face ID',
-                      style: AppTextStyles.caption.copyWith(
-                        color: secondaryTextColor,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
