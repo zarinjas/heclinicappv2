@@ -755,18 +755,43 @@ class AuthController extends Controller
         // client-supplied value would let a caller pair a valid token with
         // somebody else's address and hijack that account.
         $email = $verified['email'] ?? null;
+        $appleSub = $verified['sub'] ?? null;
 
-        if (empty($email)) {
+        $name = $verified['name'] ?? $data['name'] ?? 'He Clinic Patient';
+
+        // 2. Find the existing account.
+        //
+        // Apple only sends `email` on the very first authorisation; later
+        // tokens carry only `sub`. Match on `sub` first so returning users are
+        // recognised, then fall back to email for accounts created before
+        // `sub` was stored, or for Google.
+        $patient = null;
+
+        if ($appleSub !== null) {
+            $patient = Patient::where('apple_sub', $appleSub)->first();
+        }
+
+        if ($patient === null && ! empty($email)) {
+            $patient = Patient::where('email', $email)->first();
+        }
+
+        // Without a known account and without an email there is nothing to
+        // register — this only happens if Apple withheld the email on a first
+        // ever sign-in, which it does not do.
+        if ($patient === null && empty($email)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Social login did not provide an email address.',
             ], 422);
         }
 
-        $name = $verified['name'] ?? $data['name'] ?? 'He Clinic Patient';
-
-        // 2. Look for an existing local account by email.
-        $patient = Patient::where('email', $email)->first();
+        // Backfill `sub` on an account that was matched by email, so the next
+        // sign-in resolves directly.
+        if ($patient !== null
+            && $appleSub !== null
+            && empty($patient->apple_sub)) {
+            $patient->update(['apple_sub' => $appleSub]);
+        }
 
         // 3. If none exists, try to find the patient in Plato by email.
         if (! $patient) {
@@ -775,6 +800,7 @@ class AuthController extends Controller
             $patient = Patient::create([
                 'name' => $name,
                 'email' => $email,
+                'apple_sub' => $appleSub,
                 'idplato' => $idplato,
                 'password' => Hash::make(bin2hex(random_bytes(16))),
                 'password_changed_at' => now(),
@@ -946,19 +972,26 @@ class AuthController extends Controller
             }
         }
 
-        if (empty($claims['email'])) {
+        // `sub` is Apple's stable per-app user id and is present on every
+        // token. `email` is only included the first time the user authorises
+        // the app, so it cannot be required here — doing so made the first
+        // sign-in work and every later one fail.
+        if (empty($claims['sub'])) {
             return null;
         }
+
+        $email = $claims['email'] ?? null;
 
         // Apple flags relay/unverified addresses as strings or booleans.
         $emailVerified = $claims['email_verified'] ?? true;
         if ($emailVerified === false || $emailVerified === 'false') {
-            return null;
+            $email = null;
         }
 
         return [
-            'email' => $claims['email'],
+            'email' => $email,
             'name' => null,
+            'sub' => $claims['sub'],
         ];
     }
 

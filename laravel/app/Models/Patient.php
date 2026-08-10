@@ -18,6 +18,9 @@ class Patient extends Authenticatable
         'telephone',
         'email',
         'pending_email',
+        // Apple's stable per-app user id. Apple only sends the email on first
+        // authorisation, so this is what identifies a returning user.
+        'apple_sub',
         'name',
         'nationality',
         'dob',

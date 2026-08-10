@@ -75,6 +75,10 @@ class SocialLoginSecurityTest extends TestCase
             'exp' => time() + 3600,
         ], $overrides);
 
+        // A null override means "Apple omitted this claim entirely", which is
+        // what happens to `email` on every sign-in after the first.
+        $claims = array_filter($claims, static fn ($v) => $v !== null);
+
         return JWT::encode($claims, $signingKey ?? $this->privateKey, 'RS256', 'testkey');
     }
 
@@ -196,5 +200,39 @@ class SocialLoginSecurityTest extends TestCase
         // The session must belong to the attacker, never the victim.
         $this->assertSame('attacker@example.com', $response->json('user.email'));
         $this->assertNotSame($victim->id, $response->json('user.id'));
+    }
+
+    public function test_a_returning_apple_user_without_email_is_recognised(): void
+    {
+        // First sign-in: Apple includes the email and creates the account.
+        $first = $this->socialLogin(['id_token' => $this->appleToken()]);
+        $first->assertStatus(200);
+        $userId = $first->json('user.id');
+
+        // Every later sign-in carries only `sub` — no email. This is the exact
+        // case that produced "Login failed" for real users.
+        $second = $this->socialLogin([
+            'id_token' => $this->appleToken(['email' => null]),
+        ]);
+
+        $second->assertStatus(200);
+        $second->assertJson(['status' => true]);
+        $this->assertSame($userId, $second->json('user.id'));
+        $this->assertNotEmpty($second->json('token'));
+    }
+
+    public function test_a_different_apple_user_gets_a_separate_account(): void
+    {
+        $this->socialLogin(['id_token' => $this->appleToken()])->assertStatus(200);
+
+        $other = $this->socialLogin([
+            'id_token' => $this->appleToken([
+                'sub' => '009999.differentuser',
+                'email' => 'someone.else@example.com',
+            ]),
+        ]);
+
+        $other->assertStatus(200);
+        $this->assertSame('someone.else@example.com', $other->json('user.email'));
     }
 }

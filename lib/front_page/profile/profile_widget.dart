@@ -116,6 +116,9 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       key: scaffoldKey,
       backgroundColor: bgColor,
       body: SafeArea(
+        // The floating nav sits below this content, so the bottom inset is
+        // accounted for explicitly at the end of the list instead.
+        bottom: false,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -220,7 +223,15 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   isFullWidth: true,
                 ),
               ),
-              const SizedBox(height: AppSpacing.space32),
+              // Clear the floating bottom nav, which is drawn over this screen
+              // by MainShell: 68px tall + 12px margin, plus the home indicator
+              // inset. Without this the Log Out button sits underneath it and
+              // cannot be tapped.
+              SizedBox(
+                height: AppSpacing.space32 +
+                    80 +
+                    MediaQuery.of(context).padding.bottom,
+              ),
             ],
           ),
         ),
