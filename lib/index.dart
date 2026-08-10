@@ -11,7 +11,6 @@ export '/booking_page/my_booking_page/my_booking_page_widget.dart'
     show MyBookingPageWidget;
 export '/auth_page/register_page/register_page_widget.dart'
     show RegisterPageWidget;
-export '/auth_page/on_boarding/on_boarding_widget.dart' show OnBoardingWidget;
 export '/front_page/splash_screen/splash_screen_widget.dart'
     show SplashScreenWidget;
 export '/telehealth/all_doctor/all_doctor_widget.dart' show AllDoctorWidget;
