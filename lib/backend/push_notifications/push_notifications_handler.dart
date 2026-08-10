@@ -52,7 +52,7 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
       if (notifType == 'appointment_confirmed' ||
           notifType == 'appointment_reminder') {
         _incrementNotifBadge();
-        _navigateToPage(context, 'MyBookingPage');
+        _navigateToPage(context, 'AppointmentsScreen');
         return;
       }
 
@@ -202,7 +202,7 @@ final parametersBuilderMap =
           'namecase': getParameter<String>(data, 'namecase'),
         },
       ),
-  'MyBookingPage': ParameterData.none(),
+  'AppointmentsScreen': ParameterData.none(),
   'RegisterPage': ParameterData.none(),
   'onBoarding': ParameterData.none(),
   'SplashScreen': ParameterData.none(),

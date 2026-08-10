@@ -1,3 +1,4 @@
+import '/features/auth/splash_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -100,7 +101,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     if (context.mounted) {
       // Go through the splash so logged-out users see onboarding again
       // before the login screen.
-      context.goNamed(SplashScreenWidget.routeName);
+      context.goNamed(SplashScreen.legacyRouteName);
     }
   }
 

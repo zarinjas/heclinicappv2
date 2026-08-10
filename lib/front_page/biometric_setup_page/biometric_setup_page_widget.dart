@@ -1,3 +1,4 @@
+import '/features/auth/splash_screen.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -339,7 +340,7 @@ class _BiometricSetupPageWidgetState extends State<BiometricSetupPageWidget> {
                                           );
 
                                           context.goNamed(
-                                            SplashScreenWidget.routeName,
+                                            SplashScreen.legacyRouteName,
                                             extra: <String, dynamic>{
                                               '__transition_info__':
                                                   TransitionInfo(

@@ -155,7 +155,7 @@ class _NotificationPageWidgetState extends State<NotificationPageWidget> {
                               if (deepLink.isNotEmpty) {
                                 switch (deepLink) {
                                   case 'appointments':
-                                    context.pushNamed('MyBookingPage');
+                                    context.pushNamed('AppointmentsScreen');
                                     break;
                                   case 'health/records':
                                   case 'health/vitals':

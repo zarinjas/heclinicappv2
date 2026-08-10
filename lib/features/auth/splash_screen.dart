@@ -15,6 +15,15 @@ class SplashScreen extends StatefulWidget {
   static String routeName = 'AuthSplashScreen';
   static String routePath = '/authSplash';
 
+  /// Legacy route identifiers inherited from the FlutterFlow splash screen.
+  ///
+  /// `nav.dart` registered the old `SplashScreenWidget.routeName` / `.routePath`
+  /// but built this widget, so `/splashScreen` has always rendered this screen.
+  /// The constants live here now that the old widget is gone; existing links
+  /// and `goNamed('SplashScreen')` callers keep working.
+  static String legacyRouteName = 'SplashScreen';
+  static String legacyRoutePath = '/splashScreen';
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }

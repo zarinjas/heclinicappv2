@@ -135,7 +135,7 @@ void _navigateToAppointments(String payload) {
   try {
     final navigatorContext = appNavigatorKey.currentContext;
     if (navigatorContext != null) {
-      navigatorContext.pushNamed('MyBookingPage');
+      navigatorContext.pushNamed('AppointmentsScreen');
     }
   } catch (e) {
     print('Error navigating from foreground notification: $e');

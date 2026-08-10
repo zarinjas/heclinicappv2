@@ -1,3 +1,4 @@
+import '/pages/appointments/appointments_screen.dart';
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/api_manager.dart';
@@ -854,7 +855,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
           _buildSectionHeaderWithAction(
             'Upcoming Appointment',
             'See All',
-            () => context.pushNamed(MyBookingPageWidget.routeName),
+            () => context.pushNamed(AppointmentsScreenWidget.routeName),
           ),
           const SizedBox(height: 8.0),
           Container(
@@ -918,7 +919,7 @@ class _HomepageNewWidgetState extends State<HomepageNewWidget> {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () =>
-                        context.pushNamed(MyBookingPageWidget.routeName),
+                        context.pushNamed(AppointmentsScreenWidget.routeName),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.accent,
                       side: const BorderSide(color: AppColors.accent),

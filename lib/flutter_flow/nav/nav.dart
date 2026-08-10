@@ -207,8 +207,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
 
 
         FFRoute(
-          name: SplashScreenWidget.routeName,
-          path: SplashScreenWidget.routePath,
+          name: SplashScreen.legacyRouteName,
+          path: SplashScreen.legacyRoutePath,
           builder: (context, params) => const SplashScreen(),
         ),
         FFRoute(
