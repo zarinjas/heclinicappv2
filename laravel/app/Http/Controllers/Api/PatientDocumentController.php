@@ -20,6 +20,15 @@ final class PatientDocumentController extends Controller
 
     public function index(Request $request, string $patientId): JsonResponse
     {
+        $patient = $request->user();
+
+        if ($patient === null || (string) $patient->idplato !== $patientId) {
+            return response()->json([
+                'error' => true,
+                'message' => 'You are not authorized to view documents for this patient.',
+            ], 403);
+        }
+
         $modifiedSince = $request->filled('modified_since')
             ? (int) $request->input('modified_since')
             : null;
@@ -47,13 +56,21 @@ final class PatientDocumentController extends Controller
                 'mimetypes:application/pdf,image/jpeg,image/png,image/gif,image/webp',
                 'max:10240',
             ],
-            'title' => ['nullable', 'string', 'max:255'],
+            'title'     => ['nullable', 'string', 'max:255'],
+            'branch_id' => ['nullable', 'integer', 'exists:branches,id'],
         ], [
             'document.mimetypes' => 'Only PDF or image files are allowed.',
-            'document.max' => 'The document must not be larger than 10MB.',
+            'document.max'       => 'The document must not be larger than 10MB.',
+            'branch_id.exists'   => 'The selected branch is invalid.',
         ]);
 
-        $branchId = $this->resolveBranchId($patientId, $patient);
+        // Use the branch the patient explicitly selected; fall back to their
+        // most recent appointment's branch only when none was provided.
+        $patientBranchId = $request->filled('branch_id')
+            ? (int) $request->input('branch_id')
+            : null;
+
+        $branchId = $patientBranchId ?? $this->resolveBranchId($patientId, $patient);
         $branch = $branchId !== null ? Branch::find($branchId) : null;
         $defaultEmail = (string) Setting::where('key', 'document_upload_admin_email')->value('value');
         $recipient = $branch?->email ?: $defaultEmail;

@@ -30,6 +30,7 @@ import 'core/services/branding_service.dart';
 import 'core/services/onboarding_service.dart';
 import 'core/services/telehealth_service.dart';
 import 'core/services/legal_service.dart';
+import 'core/services/device_token_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,6 +47,11 @@ void main() async {
 
   final appState = FFAppState();
   await appState.initializePersistedState();
+
+  // Push the current FCM token to the backend for already-logged-in users and
+  // keep it in sync when FCM rotates it. Fire-and-forget so it never delays
+  // the first frame; the call no-ops when there is no auth token yet.
+  DeviceTokenService.instance.register();
 
   // Load all CMS + branding data BEFORE the first frame so the app renders
   // with real production content (logo, colors, sliders) instead of fallbacks.

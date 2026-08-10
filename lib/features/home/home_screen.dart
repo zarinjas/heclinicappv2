@@ -17,6 +17,7 @@ import '/core/services/branch_service.dart';
 import '/core/services/hero_service.dart';
 import '/core/services/video_service.dart';
 import '/core/services/promotion_service.dart';
+import '/core/services/notification_inbox_service.dart';
 import '/core/services/models/article.dart';
 import '/core/services/models/doctor.dart';
 import '/core/services/models/branch.dart';
@@ -95,8 +96,25 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadVideos(),
       _loadPromotions(),
       _loadLoyalty(),
+      _loadUnreadNotifications(),
     ]);
     if (mounted) setState(() {});
+  }
+
+  /// Seed the notification badge from the server. Push handlers only ever
+  /// increment it locally, so without this the count is lost on restart and
+  /// notifications that arrived while the app was closed are never counted.
+  Future<void> _loadUnreadNotifications() async {
+    if (FFAppState().tokenauth.isEmpty) return;
+
+    final unread = await NotificationInboxService.instance.unreadCount();
+    if (!mounted) return;
+
+    if (unread <= 0) {
+      FFAppState().resetNotifCount();
+    } else {
+      FFAppState().coutnnotif = unread.toString();
+    }
   }
 
   void _loadGreeting() {

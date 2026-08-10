@@ -2408,8 +2408,17 @@ class UploadPatientDocumentCall {
     String? patientId = '',
     FFUploadedFile? document,
     String? title = '',
+    int? branchId,
   }) async {
     final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+
+    final params = <String, dynamic>{
+      'document': document,
+      'title': title,
+    };
+    if (branchId != null) {
+      params['branch_id'] = branchId.toString();
+    }
 
     return ApiManager.instance.makeApiCall(
       callName: 'UploadPatientDocument',
@@ -2419,10 +2428,7 @@ class UploadPatientDocumentCall {
         'Authorization': 'Bearer ${FFAppState().tokenauth}',
         'Accept': 'application/json',
       },
-      params: {
-        'document': document,
-        'title': title,
-      },
+      params: params,
       bodyType: BodyType.MULTIPART,
       returnBody: true,
       encodeBodyUtf8: false,

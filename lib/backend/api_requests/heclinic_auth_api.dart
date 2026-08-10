@@ -24,6 +24,35 @@ class HeclinicAuthApi {
   static final LinkEmailRequestCall linkEmailRequestCall = LinkEmailRequestCall();
   static final LinkEmailVerifyCall linkEmailVerifyCall = LinkEmailVerifyCall();
   static final SendFcmOtpCall sendFcmOtpCall = SendFcmOtpCall();
+  static final RegisterDeviceTokenCall registerDeviceTokenCall = RegisterDeviceTokenCall();
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/auth/device-token
+// Registers/refreshes the FCM device token for the logged-in patient so the
+// backend can target push notifications at this device. Must be called after
+// login and again whenever FCM rotates the token.
+// ---------------------------------------------------------------------------
+class RegisterDeviceTokenCall {
+  Future<ApiCallResponse> call({String? token = '', String? fcmToken = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicRegisterDeviceToken',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/device-token',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {'fcm_token': fcmToken},
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------

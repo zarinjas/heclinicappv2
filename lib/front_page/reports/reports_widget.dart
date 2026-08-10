@@ -7,6 +7,7 @@ import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
 import '/component/alert_report/alert_report_widget.dart';
 import '/theme/app_theme.dart';
+import '/core/widgets/branch_picker_sheet.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -935,7 +936,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                     ],
                   ),
                 ),
-                if (doc.source == 'patient') ...[
+                if (doc.source == 'patient' && doc.id > 0) ...[
                   IconButton(
                     onPressed: () => _onDeleteDocument(doc),
                     icon: const Icon(
@@ -956,6 +957,12 @@ class _ReportsWidgetState extends State<ReportsWidget>
   }
 
   Future<void> _onDeleteDocument(PatientDocument doc) async {
+    // Guard against invalid IDs to avoid accidentally hitting DELETE /documents/0.
+    if (doc.id <= 0) {
+      showSnackbar(context, 'Unable to delete this document.');
+      return;
+    }
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -1020,6 +1027,11 @@ class _ReportsWidgetState extends State<ReportsWidget>
   Future<void> _onUploadDocument() async {
     if (_model.isUploadingDocument) return;
 
+    // Step 1: Patient selects which branch they're from.
+    final branchResult = await BranchPickerSheet.show(context);
+    if (branchResult == null || !mounted) return;
+
+    // Step 2: Patient picks file type (PDF or photo).
     final source = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1139,10 +1151,14 @@ class _ReportsWidgetState extends State<ReportsWidget>
       _model.isUploadingDocument = true;
     });
 
+    // Use the filename as the document title so it is not blank in the admin view.
+    final title = file.name ?? '';
+
     final response = await UploadPatientDocumentCall.call(
       patientId: patientId,
       document: file,
-      title: '',
+      title: title,
+      branchId: branchResult.branchId,
     );
 
     if (!mounted) return;

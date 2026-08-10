@@ -39,7 +39,7 @@ class RecordController extends Controller
             ->withQueryString();
 
         $records->getCollection()->transform(function ($record) {
-            $record->url = $this->documents->getUrl($record->patient_plato_uid, $record->filename);
+            $record->url = $this->documents->signedUrl((int) $record->id);
             $record->size_kb = round($record->size_bytes / 1024, 1);
 
             return $record;

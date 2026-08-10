@@ -4,7 +4,6 @@ import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_radius.dart';
 import 'app_card.dart';
-import 'app_skeleton.dart';
 
 enum DocumentFileType { pdf, image, other }
 
@@ -14,7 +13,9 @@ class DocumentItem extends StatelessWidget {
   final String typeLabel;
   final String uploadedAt;
   final int sizeBytes;
+  final bool canDelete;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   const DocumentItem({
     super.key,
@@ -23,7 +24,9 @@ class DocumentItem extends StatelessWidget {
     required this.typeLabel,
     required this.uploadedAt,
     this.sizeBytes = 0,
+    this.canDelete = false,
     this.onTap,
+    this.onDelete,
   });
 
   IconData get _icon {
@@ -38,6 +41,7 @@ class DocumentItem extends StatelessWidget {
   }
 
   String get _formattedSize {
+    if (sizeBytes <= 0) return '';
     if (sizeBytes < 1024) return '$sizeBytes B';
     if (sizeBytes < 1024 * 1024) return '${(sizeBytes / 1024).toStringAsFixed(1)} KB';
     return '${(sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
@@ -46,13 +50,15 @@ class DocumentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final sizeLabel = _formattedSize;
+    final metaLabel = sizeLabel.isNotEmpty ? '$uploadedAt · $sizeLabel' : uploadedAt;
 
     return AppCard(
       onTap: onTap,
       padding: const EdgeInsets.all(AppSpacing.space12),
       child: Row(
         children: [
-          _LeadingIcon(isDark: isDark),
+          _buildLeadingIcon(isDark),
           const SizedBox(width: AppSpacing.space12),
           Expanded(
             child: Column(
@@ -75,7 +81,7 @@ class DocumentItem extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.space2),
                 Text(
-                  '$uploadedAt · $_formattedSize',
+                  metaLabel,
                   style: AppTextStyles.body2.copyWith(
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                   ),
@@ -84,17 +90,29 @@ class DocumentItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.space8),
-          Icon(
-            Icons.chevron_right,
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-            size: 20,
-          ),
+          if (canDelete && onDelete != null)
+            IconButton(
+              onPressed: onDelete,
+              icon: Icon(
+                Icons.delete_outline,
+                size: 20,
+                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+              ),
+              tooltip: 'Delete',
+              visualDensity: VisualDensity.compact,
+            )
+          else
+            Icon(
+              Icons.chevron_right,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+              size: 20,
+            ),
         ],
       ),
     );
   }
 
-  Widget _LeadingIcon({required bool isDark}) {
+  Widget _buildLeadingIcon(bool isDark) {
     return Container(
       width: 40,
       height: 40,

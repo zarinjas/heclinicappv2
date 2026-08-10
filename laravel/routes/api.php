@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\CmsLegalPageController as ApiCmsLegalPageController
 use App\Http\Controllers\Api\BranchConfigController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\LoyaltyController;
+use App\Http\Controllers\Api\NotificationInboxController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use Illuminate\Http\Request;
@@ -40,10 +41,27 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::post('/v2/auth/change-password-first', [AuthController::class, 'changePasswordFirst'])
         ->name('auth.change-password-first');
+    Route::post('/v2/auth/device-token', [AuthController::class, 'registerDeviceToken'])
+        ->name('auth.device-token');
     Route::post('/v2/auth/link-email-request', [AuthController::class, 'linkEmailRequest'])
         ->name('auth.link-email-request');
     Route::post('/v2/auth/link-email-verify', [AuthController::class, 'linkEmailVerify'])
         ->name('auth.link-email-verify');
+});
+
+// ─── Mobile Notification Inbox (protected) ──────────────────────────────────
+// Replaces the app's direct Firestore reads of `historynotif`, which the
+// security rules deny because the app authenticates with Sanctum, not Firebase.
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/v2/notifications', [NotificationInboxController::class, 'index'])
+        ->name('notifications.index');
+    Route::get('/v2/notifications/unread-count', [NotificationInboxController::class, 'unreadCount'])
+        ->name('notifications.unread-count');
+    Route::post('/v2/notifications/read-all', [NotificationInboxController::class, 'markAllRead'])
+        ->name('notifications.read-all');
+    Route::post('/v2/notifications/{id}/read', [NotificationInboxController::class, 'markRead'])
+        ->whereNumber('id')
+        ->name('notifications.read');
 });
 
 // ─── Mobile Loyalty Points (protected) ──────────────────────────────────────

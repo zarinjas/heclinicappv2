@@ -20,6 +20,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+# Firebase service account credentials — grants full push-send rights.
+firebase-service-account*.json
+*-firebase-adminsdk-*.json
+/storage/app/firebase*.json
 /vendor
 _ide_helper.php
 Homestead.json

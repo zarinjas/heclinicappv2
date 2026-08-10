@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 final class PatientDocumentService
@@ -60,7 +61,7 @@ final class PatientDocumentService
             'patient_nric' => $patientInfo['nric'] ?? null,
             'patient_phone' => $patientInfo['phone'] ?? null,
             'branch_id' => $branchId,
-            'url' => $this->getUrl($patientUid, $storedName),
+            'url' => $this->signedUrl($id),
             'source' => $source,
             'created_at' => now()->toISOString(),
         ];
@@ -90,7 +91,7 @@ final class PatientDocumentService
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($doc) {
-                $doc->url = $this->getUrl($doc->patient_plato_uid, $doc->filename);
+                $doc->url = $this->signedUrl((int) $doc->id);
                 $doc->size_kb = round($doc->size_bytes / 1024, 1);
 
                 return $doc;
@@ -135,11 +136,33 @@ final class PatientDocumentService
         return DB::table('patient_documents')->where('id', $id)->first();
     }
 
+    /**
+     * Permanent public URL to the raw file.
+     *
+     * Prefer {@see signedUrl()} — this leaks an unauthenticated, never-expiring
+     * link to a medical document and should only be used where a document id is
+     * genuinely unavailable.
+     */
     public function getUrl(string $patientUid, string $filename): string
     {
         $path = sprintf('patients/%s/documents/%s', $patientUid, $filename);
 
         return Storage::disk('public')->url($path);
+    }
+
+    /**
+     * Time-limited signed URL for a document, validated by the `signed`
+     * middleware on the `documents.show` route.
+     */
+    public function signedUrl(int $documentId, ?int $minutes = null): string
+    {
+        $minutes ??= (int) config('documents.link_ttl_minutes', 60);
+
+        return URL::temporarySignedRoute(
+            'documents.show',
+            now()->addMinutes($minutes),
+            ['document' => $documentId],
+        );
     }
 
     public function getFilePath(string $patientUid, string $filename): string
@@ -152,7 +175,7 @@ final class PatientDocumentService
         return [
             'id' => $doc->id,
             'name' => $doc->original_name,
-            'url' => $this->getUrl($doc->patient_plato_uid, $doc->filename),
+            'url' => $this->signedUrl((int) $doc->id),
             'uploaded_at' => Carbon::parse($doc->created_at)->toISOString(),
             'admin_note' => $doc->title,
             'size_bytes' => (int) $doc->size_bytes,

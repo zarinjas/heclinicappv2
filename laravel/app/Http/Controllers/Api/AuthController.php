@@ -17,6 +17,9 @@ use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
+    /** How long a mobile access token remains valid before it expires. */
+    private const TOKEN_TTL_DAYS = 30;
+
     public function __construct(
         private readonly PlatoProxyService $plato,
         private readonly OtpService $otp,
@@ -203,7 +206,7 @@ class AuthController extends Controller
             'fcm_token' => $data['fcm_token'] ?? null,
         ]);
 
-        $token = $patient->createToken('mobile')->plainTextToken;
+        $token = $this->issueToken($patient);
 
         return response()->json([
             'status' => true,
@@ -281,7 +284,7 @@ class AuthController extends Controller
 
         // Revoke previous tokens and issue a fresh one
         $patient->tokens()->delete();
-        $token = $patient->createToken('mobile')->plainTextToken;
+        $token = $this->issueToken($patient);
 
         return response()->json([
             'status' => true,
@@ -425,9 +428,52 @@ class AuthController extends Controller
     // -------------------------------------------------------------------------
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $patient = $request->user();
+
+        // Detach the device so the phone stops receiving this patient's pushes.
+        if ($patient !== null && ! empty($patient->fcm_token)) {
+            $patient->update(['fcm_token' => null]);
+        }
+
+        // currentAccessToken() is null when the request was authenticated by a
+        // session/guard rather than a personal access token, so guard the call.
+        $accessToken = $patient?->currentAccessToken();
+
+        if ($accessToken !== null && method_exists($accessToken, 'delete')) {
+            $accessToken->delete();
+        }
 
         return response()->json(['status' => true, 'message' => 'Logged out successfully.']);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/auth/device-token
+    // Protected. Registers/refreshes the caller's FCM device token.
+    //
+    // Previously a token was only captured during login/register, so a token
+    // rotated by FCM afterwards was never persisted and push delivery silently
+    // stopped. The app now calls this on startup and on every token refresh.
+    // -------------------------------------------------------------------------
+    public function registerDeviceToken(Request $request): JsonResponse
+    {
+        $request->validate([
+            'fcm_token' => ['required', 'string', 'max:191'],
+        ]);
+
+        $patient = $request->user();
+        $token = trim($request->input('fcm_token'));
+
+        // The same physical device must not stay attached to a previous account.
+        Patient::where('fcm_token', $token)
+            ->where('id', '!=', $patient->id)
+            ->update(['fcm_token' => null]);
+
+        $patient->update(['fcm_token' => $token]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Device token registered.',
+        ]);
     }
 
     // -------------------------------------------------------------------------
@@ -625,7 +671,7 @@ class AuthController extends Controller
 
         // Issue a fresh token so the user is logged in immediately — no need
         // to re-enter credentials after a password reset.
-        $token = $patient->createToken('mobile')->plainTextToken;
+        $token = $this->issueToken($patient);
 
         return response()->json([
             'status' => true,
@@ -696,7 +742,7 @@ class AuthController extends Controller
 
         // 4. Issue a fresh token.
         $patient->tokens()->delete();
-        $token = $patient->createToken('mobile')->plainTextToken;
+        $token = $this->issueToken($patient);
 
         return response()->json([
             'status' => true,
@@ -867,7 +913,7 @@ class AuthController extends Controller
         ]);
 
         $patient->tokens()->delete();
-        $token = $patient->createToken('mobile')->plainTextToken;
+        $token = $this->issueToken($patient);
 
         return response()->json([
             'status' => true,
@@ -983,6 +1029,15 @@ class AuthController extends Controller
 
             return null;
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Internal: Issue a time-limited Sanctum token for the mobile app.
+    // -------------------------------------------------------------------------
+    private function issueToken(Patient $patient): string
+    {
+        return $patient->createToken('mobile', ['*'], now()->addDays(self::TOKEN_TTL_DAYS))
+            ->plainTextToken;
     }
 
     // -------------------------------------------------------------------------

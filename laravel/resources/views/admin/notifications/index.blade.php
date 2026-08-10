@@ -205,14 +205,29 @@
                                         $statusColors = [
                                             'draft' => 'bg-gray-100 text-gray-500',
                                             'pending' => 'bg-yellow-50 text-yellow-700',
+                                            'sending' => 'bg-blue-50 text-blue-700',
                                             'sent' => 'bg-green-50 text-green-700',
+                                            'partial' => 'bg-amber-50 text-amber-700',
                                             'failed' => 'bg-red-50 text-red-700',
+                                        ];
+                                        $statusDots = [
+                                            'draft' => 'bg-gray-400',
+                                            'pending' => 'bg-yellow-500',
+                                            'sending' => 'bg-blue-500',
+                                            'sent' => 'bg-green-500',
+                                            'partial' => 'bg-amber-500',
+                                            'failed' => 'bg-red-500',
                                         ];
                                     @endphp
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$notification->status] ?? 'bg-gray-100 text-gray-500' }}">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $notification->status === 'sent' ? 'bg-green-500' : ($notification->status === 'failed' ? 'bg-red-500' : ($notification->status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400')) }}"></span>
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $statusDots[$notification->status] ?? 'bg-gray-400' }}"></span>
                                         {{ ucfirst($notification->status) }}
                                     </span>
+                                    @if ($notification->delivered_count || $notification->failed_count)
+                                        <div class="text-[11px] text-gray-400 mt-1">
+                                            {{ $notification->delivered_count }} delivered@if ($notification->failed_count), {{ $notification->failed_count }} failed @endif
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 text-gray-500 text-xs whitespace-nowrap">
                                     {{ $notification->sent_at ? $notification->sent_at->format('d M Y, h:i A') : $notification->created_at->format('d M Y, h:i A') }}

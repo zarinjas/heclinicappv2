@@ -15,6 +15,7 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/branding_service.dart';
+import '../../core/services/device_token_service.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_input.dart';
 import '../../core/widgets/country_code_selector.dart';
@@ -186,6 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.name = name;
         appState.isLoggedIn = true;
         appState.update(() {});
+
+        // Register this device for push now that we hold an auth token.
+        DeviceTokenService.instance.reset();
+        await DeviceTokenService.instance.registerCachedToken();
 
         // Save credentials for future biometric quick-login.
         // Only save when user logs in with password (not biometric auto-login).
@@ -376,6 +381,10 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.name = name;
         appState.isLoggedIn = true;
         appState.update(() {});
+
+        // Register this device for push now that we hold an auth token.
+        DeviceTokenService.instance.reset();
+        await DeviceTokenService.instance.registerCachedToken();
 
         if (mounted) context.go('/');
       } else {

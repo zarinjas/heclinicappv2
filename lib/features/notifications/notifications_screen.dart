@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
-import '../../backend/backend.dart';
-import '../../backend/schema/historynotif_record.dart';
+import '../../core/services/notification_inbox_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -24,91 +22,113 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
+  bool _isLoading = true;
+  bool _hasError = false;
   bool _markingAllRead = false;
-  Stream<List<HistorynotifRecord>>? _notificationStream;
+  List<InboxNotification> _notifications = const [];
 
   @override
   void initState() {
     super.initState();
-    _initStream();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  void _initStream() {
-    _notificationStream = queryHistorynotifRecord(
-      queryBuilder: (q) => q
-          .where('id_patient', isEqualTo: FFAppState().idplato)
-          .orderBy('created_at', descending: true),
-    );
+  Future<void> _load() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    try {
+      final page = await NotificationInboxService.instance.fetch();
+      if (!mounted) return;
+      setState(() {
+        _notifications = page.notifications;
+        _isLoading = false;
+      });
+      _syncBadge(page.unreadCount);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+        });
+      }
+    }
+  }
+
+  /// Keep the global unread badge in step with the server's count.
+  void _syncBadge(int unreadCount) {
+    if (unreadCount <= 0) {
+      FFAppState().resetNotifCount();
+    } else {
+      FFAppState().coutnnotif = unreadCount.toString();
+    }
   }
 
   Future<void> _markAllRead() async {
     if (_markingAllRead) return;
     setState(() => _markingAllRead = true);
-    try {
-      final unread = await queryHistorynotifRecordOnce(
-        queryBuilder: (q) => q
-            .where('id_patient', isEqualTo: FFAppState().idplato)
-            .where('read', isEqualTo: 'no'),
-      );
-      for (final notif in unread) {
-        await notif.reference
-            .update(createHistorynotifRecordData(readBool: true));
-      }
-      if (mounted) {
-        FFAppState().resetNotifCount();
-        setState(() => _markingAllRead = false);
-      }
-    } catch (_) {
-      if (mounted) setState(() => _markingAllRead = false);
-    }
-  }
 
-  Future<void> _handleNotificationTap(HistorynotifRecord notif) async {
-    if (!notif.readBool) {
-      await notif.reference
-          .update(createHistorynotifRecordData(readBool: true));
-      _updateUnreadCount();
-    }
+    final ok = await NotificationInboxService.instance.markAllRead();
     if (!mounted) return;
 
-    final deepLink = notif.deepLink;
-    if (deepLink.isNotEmpty) {
-      switch (deepLink) {
-        case 'appointments':
-          context.push('/myBookingPage');
-          break;
-        case 'health/records':
-        case 'health/vitals':
-        case 'health/documents':
-          context.pushNamed('Reports',
-              queryParameters: {'id': FFAppState().idplato});
-          break;
-        case 'profile':
-          context.pushNamed('HomepageNew');
-          break;
-        default:
-          context.pushNamed('Reports',
-              queryParameters: {'id': FFAppState().idplato});
+    setState(() {
+      _markingAllRead = false;
+      if (ok) {
+        _notifications = _notifications
+            .map((n) => n.isRead ? n : n.copyWith(isRead: true))
+            .toList();
       }
-    }
-  }
+    });
 
-  Future<void> _handleDismiss(HistorynotifRecord notif) async {
-    if (!notif.readBool) {
-      await notif.reference
-          .update(createHistorynotifRecordData(readBool: true));
-      _updateUnreadCount();
-    }
-  }
-
-  void _updateUnreadCount() {
-    final current =
-        int.tryParse(FFAppState().coutnnotif) ?? 1;
-    final updated = current > 0 ? current - 1 : 0;
-    if (updated == 0) {
-      FFAppState().resetNotifCount();
+    if (ok) {
+      _syncBadge(0);
     } else {
-      FFAppState().coutnnotif = updated.toString();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not mark all as read.')),
+      );
+    }
+  }
+
+  Future<void> _markRead(InboxNotification notification) async {
+    if (notification.isRead) return;
+
+    // Update locally first so the UI responds immediately.
+    setState(() {
+      _notifications = _notifications
+          .map((n) => n.id == notification.id ? n.copyWith(isRead: true) : n)
+          .toList();
+    });
+
+    final remaining = await NotificationInboxService.instance.markRead(notification.id);
+    if (remaining != null && mounted) _syncBadge(remaining);
+  }
+
+  Future<void> _handleTap(InboxNotification notification) async {
+    await _markRead(notification);
+    if (!mounted) return;
+
+    final deepLink = notification.deepLink;
+    if (deepLink.isEmpty) return;
+
+    switch (deepLink) {
+      case 'appointments':
+        context.push('/myBookingPage');
+        break;
+      case 'health/records':
+      case 'health/vitals':
+      case 'health/documents':
+        context.pushNamed('Reports',
+            queryParameters: {'id': FFAppState().idplato});
+        break;
+      case 'profile':
+        context.pushNamed('HomepageNew');
+        break;
+      default:
+        context.pushNamed('Reports',
+            queryParameters: {'id': FFAppState().idplato});
     }
   }
 
@@ -117,7 +137,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
       itemCount: 5,
       itemBuilder: (_, __) => Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.space16,
           vertical: AppSpacing.space4,
         ),
@@ -165,77 +185,56 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               ),
       ),
-      body: StreamBuilder<List<HistorynotifRecord>>(
-        stream: _notificationStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              !snapshot.hasData) {
-            return _buildSkeleton();
-          }
+      body: _buildBody(),
+    );
+  }
 
-          if (snapshot.hasError) {
-            return AppErrorState(
-              title: 'Could not load notifications',
-              subtitle: 'Check your connection and try again',
-              onRetry: () {
-                setState(() {
-                  _initStream();
-                });
-              },
-            );
-          }
+  Widget _buildBody() {
+    if (_isLoading) return _buildSkeleton();
 
-          final notifications = snapshot.data ?? [];
+    if (_hasError) {
+      return AppErrorState(
+        title: 'Could not load notifications',
+        subtitle: 'Check your connection and try again',
+        onRetry: _load,
+      );
+    }
 
-          if (notifications.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  _initStream();
-                });
-              },
-              child: ListView(children: [_buildEmpty()]),
-            );
-          }
+    if (_notifications.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _load,
+        color: AppColors.accent,
+        child: ListView(children: [
+          const SizedBox(height: AppSpacing.space48),
+          _buildEmpty(),
+        ]),
+      );
+    }
 
-          return RefreshIndicator(
-                onRefresh: () async {
-                  setState(() {
-                    _initStream();
-                  });
-                },
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.space8),
-                  itemCount: notifications.length,
-                  separatorBuilder: (_, __) => const Divider(
-                    height: 1,
-                    indent: AppSpacing.space16,
-                    endIndent: AppSpacing.space16,
-                  ),
-                  itemBuilder: (context, index) {
-                    final notif = notifications[index];
-                    return NotificationItem(
-                      key: ValueKey(
-                          'notification_${notif.reference.id}'),
-                      title: notif.title.isNotEmpty
-                          ? notif.title
-                          : notif.tittle,
-                      body: notif.body.isNotEmpty
-                          ? notif.body
-                          : notif.message,
-                      createdAt: notif.createdAt,
-                      isRead: notif.readBool,
-                      type: notif.type,
-                      deepLink: notif.deepLink,
-                      reference: notif.reference,
-                      onTap: () => _handleNotificationTap(notif),
-                      onDismiss: () =>
-                          _handleDismiss(notif),
-                    );
-                  },
-                ),
-              );
+    return RefreshIndicator(
+      onRefresh: _load,
+      color: AppColors.accent,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
+        itemCount: _notifications.length,
+        separatorBuilder: (_, __) => const Divider(
+          height: 1,
+          indent: AppSpacing.space16,
+          endIndent: AppSpacing.space16,
+        ),
+        itemBuilder: (context, index) {
+          final notif = _notifications[index];
+          return NotificationItem(
+            key: ValueKey('notification_${notif.id}'),
+            title: notif.title,
+            body: notif.body,
+            createdAt: notif.createdAt,
+            isRead: notif.isRead,
+            type: notif.type,
+            deepLink: notif.deepLink,
+            onTap: () => _handleTap(notif),
+            onDismiss: () => _markRead(notif),
+          );
         },
       ),
     );

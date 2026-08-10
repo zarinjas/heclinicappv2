@@ -5,6 +5,8 @@ import '../../app_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/services/branding_service.dart';
+import '../../core/services/onboarding_service.dart';
+import '../../core/services/onboarding_media_cache.dart';
 import '../../core/widgets/app_loader.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,14 +32,33 @@ class _SplashScreenState extends State<SplashScreen> {
     await BrandingService.instance.init();
     if (!mounted) return;
     setState(() => _ready = true);
+
+    final appState = FFAppState();
+    final isLoggedIn = appState.isLoggedIn || appState.tokenauth.isNotEmpty;
+
+    // For logged-out users, warm the onboarding media cache during the splash
+    // window so the background video/GIF plays instantly on the next screen.
+    if (!isLoggedIn) {
+      _prefetchOnboardingMedia();
+    }
+
     Future.delayed(const Duration(seconds: 2), () {
       if (!mounted) return;
       // Logged-in users go straight home — onboarding only shows for
       // logged-out users (first launch / after logout).
-      final appState = FFAppState();
-      final isLoggedIn = appState.isLoggedIn || appState.tokenauth.isNotEmpty;
       context.go(isLoggedIn ? '/' : '/onboarding');
     });
+  }
+
+  Future<void> _prefetchOnboardingMedia() async {
+    try {
+      await OnboardingService.instance.init();
+      final urls = OnboardingService.instance.slides
+          .expand((s) => [s.videoUrl, s.imageUrl]);
+      await OnboardingMediaCache.instance.prefetch(urls);
+    } catch (_) {
+      // Prefetch is best-effort; playback still falls back to streaming.
+    }
   }
 
   @override

@@ -22,11 +22,20 @@ use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WhatsAppController;
+use App\Http\Controllers\PatientDocumentFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
 });
+
+// Signed, expiring download link for patient documents. Replaces the previous
+// permanent public storage URLs, which exposed medical files to anyone holding
+// the link. The signature is validated by the `signed` middleware.
+Route::get('/documents/{document}', PatientDocumentFileController::class)
+    ->whereNumber('document')
+    ->middleware('signed')
+    ->name('documents.show');
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

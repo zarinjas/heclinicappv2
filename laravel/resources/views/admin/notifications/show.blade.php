@@ -38,13 +38,17 @@
                                 $statusColors = [
                                     'draft' => 'bg-gray-100 text-gray-500',
                                     'pending' => 'bg-yellow-50 text-yellow-700',
+                                    'sending' => 'bg-blue-50 text-blue-700',
                                     'sent' => 'bg-green-50 text-green-700',
+                                    'partial' => 'bg-amber-50 text-amber-700',
                                     'failed' => 'bg-red-50 text-red-700',
                                 ];
                                 $statusDots = [
                                     'draft' => 'bg-gray-400',
                                     'pending' => 'bg-yellow-500',
+                                    'sending' => 'bg-blue-500',
                                     'sent' => 'bg-green-500',
+                                    'partial' => 'bg-amber-500',
                                     'failed' => 'bg-red-500',
                                 ];
                             @endphp

@@ -19,6 +19,8 @@ class NotificationLog extends Model
         'target_date_to',
         'channels',
         'status',
+        'delivered_count',
+        'failed_count',
         'sent_at',
     ];
 

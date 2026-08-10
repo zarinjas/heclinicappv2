@@ -38,7 +38,7 @@ class PatientDocumentUploaded extends Notification
             ->line('**File:** '.$this->fileName)
             ->line('**Title:** '.$this->fileTitle)
             ->action('View File', $this->fileUrl)
-            ->line('Open the link above to view the file — no login required.')
+            ->line('This is a secure, time-limited link. Do not forward this email — anyone with the link can view the document until it expires.')
             ->salutation('Regards, He Clinic');
     }
 

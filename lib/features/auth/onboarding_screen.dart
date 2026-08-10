@@ -9,6 +9,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/services/onboarding_service.dart';
 import '../../core/services/cms_api.dart';
+import '../../core/services/onboarding_media_cache.dart';
 import '../../core/services/models/onboarding_slide.dart';
 import '../../core/widgets/app_button.dart';
 
@@ -45,6 +46,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         _slides = OnboardingService.instance.slides;
         _loading = false;
       });
+      // Warm the cache for every slide's media so later pages play instantly
+      // (in case the splash-time prefetch didn't finish).
+      OnboardingMediaCache.instance
+          .prefetch(_slides.expand((s) => [s.videoUrl, s.imageUrl]));
     }
   }
 
@@ -334,13 +339,29 @@ class _SlideMediaState extends State<_SlideMedia> {
     _loadState = VideoLoadState.loading;
     if (_mounted) setState(() {});
 
-    final controller = VideoPlayerController.networkUrl(
-      Uri.parse(url),
-      httpHeaders: {
-        'Accept': '*/*',
-        'Range': 'bytes=0-', // enable byte-range streaming
-      },
-    );
+    // Prefer a locally cached copy → plays instantly with no network round-trip.
+    // Otherwise stream from the network and cache it in the background so the
+    // next launch is instant.
+    VideoPlayerController controller;
+    final cached = await OnboardingMediaCache.instance.getIfCached(rawUrl);
+    if (cached != null && await cached.file.exists()) {
+      controller = VideoPlayerController.file(cached.file);
+    } else {
+      controller = VideoPlayerController.networkUrl(
+        Uri.parse(url),
+        httpHeaders: {
+          'Accept': '*/*',
+          'Range': 'bytes=0-', // enable byte-range streaming
+        },
+      );
+      // Fire-and-forget: warm the cache for next time.
+      OnboardingMediaCache.instance.download(rawUrl);
+    }
+
+    if (!_mounted) {
+      controller.dispose();
+      return;
+    }
 
     try {
       await controller.initialize().timeout(_kInitTimeout);

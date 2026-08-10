@@ -4,23 +4,26 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\NotificationLog;
+use App\Models\Patient;
+use App\Models\PatientNotification;
+use App\Jobs\SendPushNotification;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\GeneralNotification;
 use App\Notifications\PatientDocumentUploaded;
-use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 final class NotificationService
 {
     private FirebaseService $firebase;
     private PlatoProxyService $platoProxy;
+    private FcmService $fcm;
 
-    public function __construct(FirebaseService $firebase, PlatoProxyService $platoProxy)
+    public function __construct(FirebaseService $firebase, PlatoProxyService $platoProxy, FcmService $fcm)
     {
         $this->firebase = $firebase;
         $this->platoProxy = $platoProxy;
+        $this->fcm = $fcm;
     }
 
     public function sendAppointmentConfirmation(Appointment $appointment, ?array $channels = null): void
@@ -36,9 +39,11 @@ final class NotificationService
             $appointment->appointment_time,
         );
 
+        $delivered = [];
+
         if (in_array('push', $selectedChannels, true)) {
             $patientId = $this->resolvePatientId($appointment);
-            $this->sendPush($title, $body, [
+            $result = $this->sendPush($title, $body, [
                 'parameter_data' => json_encode([
                     'appointment_id' => $appointment->id,
                     'plato_appointment_id' => $appointment->plato_appointment_id,
@@ -49,15 +54,16 @@ final class NotificationService
                 'type' => 'appointment_confirmed',
                 'patient_ids' => $patientId !== null ? [$patientId] : [],
             ]);
+            $delivered['push'] = (bool) ($result['success'] ?? false);
         }
 
         if (in_array('in_app', $selectedChannels, true)) {
-            $this->sendInApp($title, $body, $appointment);
+            $delivered['in_app'] = $this->sendInApp($title, $body, $appointment);
         }
 
         if (in_array('email', $selectedChannels, true)) {
             $recipientEmail = $this->resolvePatientEmailForAppointment($appointment);
-            $this->sendEmail($title, $body, $recipientEmail, $appointment);
+            $delivered['email'] = $this->sendEmail($title, $body, $recipientEmail, $appointment);
         }
 
         $appointment->update(['notified_at' => now()]);
@@ -69,9 +75,28 @@ final class NotificationService
             'target_type' => 'appointment',
             'target_ids' => [(string) $appointment->id],
             'channels' => $selectedChannels,
-            'status' => 'sent',
+            'status' => $this->resolveLogStatus($delivered),
             'sent_at' => now(),
         ]);
+    }
+
+    /**
+     * Reduce per-channel delivery outcomes to a single log status so the admin
+     * UI stops reporting "sent" for notifications that never went out.
+     *
+     * @param  array<string, bool>  $delivered
+     */
+    private function resolveLogStatus(array $delivered): string
+    {
+        if ($delivered === []) {
+            return 'failed';
+        }
+
+        if (in_array(true, $delivered, true)) {
+            return in_array(false, $delivered, true) ? 'partial' : 'sent';
+        }
+
+        return 'failed';
     }
 
     public function sendTargetedPush(string $title, string $body, array $targeting): array
@@ -103,8 +128,9 @@ final class NotificationService
         return $this->sendPush($title, $body, $pushData);
     }
 
-    public function sendManualEmailNotification(string $title, string $body, string $recipientEmail, ?string $imageUrl = null): bool
-    {        if (empty(trim($recipientEmail))) {
+    public function sendManualEmailNotification(string $title, string $body, ?string $recipientEmail, ?string $imageUrl = null): bool
+    {
+        if (empty(trim((string) $recipientEmail))) {
             Log::channel('plato')->warning('Manual email notification skipped — no recipient email provided', [
                 'title' => $title,
             ]);
@@ -150,7 +176,14 @@ final class NotificationService
                     patientNric: (string) ($document['patient_nric'] ?? '—'),
                     branchName: $branchName !== '' ? $branchName : '—',
                     platoId: (string) ($document['patient_plato_uid'] ?? '—'),
-                    fileUrl: (string) ($document['url'] ?? '#'),
+                    // Emailed links need a longer life than in-app ones, since
+                    // staff may not open the message immediately.
+                    fileUrl: isset($document['id'])
+                        ? app(PatientDocumentService::class)->signedUrl(
+                            (int) $document['id'],
+                            (int) config('documents.email_link_ttl_minutes', 10080),
+                        )
+                        : (string) ($document['url'] ?? '#'),
                     fileName: (string) ($document['original_name'] ?? '—'),
                     fileTitle: (string) ($document['title'] ?? '—'),
                 ));
@@ -172,7 +205,7 @@ final class NotificationService
         }
     }
 
-    private function sendPush(string $title, string $body, array $options): array
+    private function sendPush(string $title, string $body, array $options, ?int $logId = null): array
     {
         $payload = array_merge([
             'title' => $title,
@@ -181,6 +214,62 @@ final class NotificationService
             'target_audience' => 'All',
         ], $options);
 
+        // Preferred path: send straight from Laravel via FCM HTTP v1 using the
+        // device tokens we already store on the patients table at login.
+        if ($this->fcm->isConfigured()) {
+            $tokens = $this->resolveDeviceTokens($payload);
+
+            if ($tokens === []) {
+                Log::channel('plato')->warning('Push notification skipped — no registered device tokens', [
+                    'title' => $title,
+                    'patient_ids' => $payload['patient_ids'] ?? [],
+                ]);
+
+                return ['success' => false, 'error' => 'No registered device tokens for the target audience.'];
+            }
+
+            $data = [
+                'initialPageName' => $payload['initial_page_name'] ?? '',
+                'parameterData' => $payload['parameter_data'] ?? '',
+                'type' => $payload['type'] ?? 'manual',
+            ];
+            $imageUrl = $payload['image_url'] ?? null;
+
+            // FCM v1 sends one HTTP request per device, so anything larger than
+            // a single chunk goes to the queue to keep the request fast.
+            if (count($tokens) > SendPushNotification::CHUNK_SIZE) {
+                foreach (array_chunk($tokens, SendPushNotification::CHUNK_SIZE) as $chunk) {
+                    SendPushNotification::dispatch($chunk, $title, $body, $data, $imageUrl, $logId);
+                }
+
+                Log::channel('plato')->info('Push notification queued', [
+                    'title' => $title,
+                    'devices' => count($tokens),
+                ]);
+
+                return ['success' => true, 'queued' => true, 'devices' => count($tokens)];
+            }
+
+            $result = $this->fcm->sendToTokens($tokens, $title, $body, $data, $imageUrl);
+
+            // Drop tokens FCM told us are permanently dead so we stop retrying them.
+            if (! empty($result['invalid_tokens'])) {
+                Patient::whereIn('fcm_token', $result['invalid_tokens'])->update(['fcm_token' => null]);
+            }
+
+            if (($result['success'] ?? 0) < 1) {
+                Log::channel('plato')->warning('Push notification failed', [
+                    'error' => $result['error'] ?? 'All sends failed',
+                    'failure' => $result['failure'] ?? 0,
+                ]);
+
+                return ['success' => false, 'error' => $result['error'] ?? 'All sends failed'] + $result;
+            }
+
+            return ['success' => true] + $result;
+        }
+
+        // Fallback: the legacy Firestore queue consumed by the Cloud Function.
         $result = $this->firebase->writePushNotification($payload);
 
         if (!($result['success'] ?? false)) {
@@ -190,6 +279,51 @@ final class NotificationService
         }
 
         return $result;
+    }
+
+    /**
+     * Resolve device tokens for a push payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, string>
+     */
+    private function resolveDeviceTokens(array $payload): array
+    {
+        $query = Patient::query()->whereNotNull('fcm_token')->where('fcm_token', '!=', '');
+
+        $patientIds = array_filter((array) ($payload['patient_ids'] ?? []));
+
+        if ($patientIds !== []) {
+            return $query->whereIn('idplato', $patientIds)->pluck('fcm_token')->all();
+        }
+
+        $branchIds = array_filter((array) ($payload['branch_ids'] ?? []));
+        $doctorIds = array_filter((array) ($payload['doctor_ids'] ?? []));
+        $dateRange = $payload['target_date_range'] ?? null;
+
+        // Branch, doctor and date-range targeting all resolve through appointments.
+        if ($branchIds !== [] || $doctorIds !== [] || is_array($dateRange)) {
+            $appointments = Appointment::query()
+                ->whereNotNull('patient_plato_id')
+                ->when($branchIds !== [], fn ($q) => $q->whereIn('branch_id', $branchIds))
+                ->when($doctorIds !== [], fn ($q) => $q->whereIn('doctor_id', $doctorIds))
+                ->when(
+                    is_array($dateRange) && ! empty($dateRange['from']) && ! empty($dateRange['to']),
+                    fn ($q) => $q->whereBetween('appointment_date', [$dateRange['from'], $dateRange['to']]),
+                )
+                ->pluck('patient_plato_id')
+                ->unique()
+                ->all();
+
+            if ($appointments === []) {
+                return [];
+            }
+
+            return $query->whereIn('idplato', $appointments)->pluck('fcm_token')->all();
+        }
+
+        // No targeting supplied — broadcast to every registered device.
+        return $query->pluck('fcm_token')->all();
     }
 
     public function sendAppointmentReminder(Appointment $appointment, string $reminderType): void
@@ -206,10 +340,11 @@ final class NotificationService
         );
 
         $channels = ['push', 'in_app'];
+        $delivered = [];
 
         if (in_array('push', $channels, true)) {
             $patientId = $this->resolvePatientId($appointment);
-            $this->sendPush($title, $body, [
+            $result = $this->sendPush($title, $body, [
                 'parameter_data' => json_encode([
                     'appointment_id' => $appointment->id,
                     'plato_appointment_id' => $appointment->plato_appointment_id,
@@ -220,10 +355,11 @@ final class NotificationService
                 'type' => 'appointment_reminder',
                 'patient_ids' => $patientId !== null ? [$patientId] : [],
             ]);
+            $delivered['push'] = (bool) ($result['success'] ?? false);
         }
 
         if (in_array('in_app', $channels, true)) {
-            $this->writeInAppNotify($title, $body, 'appointments', 'appointment_reminder', $appointment->patient_plato_id ?? null);
+            $delivered['in_app'] = $this->writeInAppNotify($title, $body, 'appointments', 'appointment_reminder', $appointment->patient_plato_id ?? null);
         }
 
         $timestampColumn = $reminderType === '24h' ? 'reminded_24h_at' : 'reminded_1h_at';
@@ -236,7 +372,7 @@ final class NotificationService
             'target_type' => 'appointment',
             'target_ids' => [(string) $appointment->id],
             'channels' => $channels,
-            'status' => 'sent',
+            'status' => $this->resolveLogStatus($delivered),
             'sent_at' => now(),
         ]);
     }
@@ -249,9 +385,10 @@ final class NotificationService
             : sprintf('A new document "%s" has been uploaded to your records.', $filename);
 
         $channels = ['push', 'in_app'];
+        $delivered = [];
 
         if (in_array('push', $channels, true)) {
-            $this->sendPush($title, $body, [
+            $result = $this->sendPush($title, $body, [
                 'parameter_data' => json_encode([
                     'filename' => $filename,
                     'patient_plato_id' => $patientPlatoId,
@@ -261,10 +398,11 @@ final class NotificationService
                 'type' => 'document_uploaded',
                 'patient_ids' => [$patientPlatoId],
             ]);
+            $delivered['push'] = (bool) ($result['success'] ?? false);
         }
 
         if (in_array('in_app', $channels, true)) {
-            $this->writeInAppNotify($title, $body, 'health/documents', 'document_uploaded', $patientPlatoId);
+            $delivered['in_app'] = $this->writeInAppNotify($title, $body, 'health/documents', 'document_uploaded', $patientPlatoId);
         }
 
         NotificationLog::create([
@@ -274,7 +412,7 @@ final class NotificationService
             'target_type' => 'patient',
             'target_ids' => [$patientPlatoId],
             'channels' => $channels,
-            'status' => 'sent',
+            'status' => $this->resolveLogStatus($delivered),
             'sent_at' => now(),
         ]);
     }
@@ -290,12 +428,16 @@ final class NotificationService
             $patientId = $this->resolvePatientIdByTerm((string) $log->target_ids[0]);
         }
 
+        $delivered = [];
+        $queued = false;
+
         if (in_array('push', $channels, true)) {
             if ($targetType === 'specific_patient' && $patientId === null) {
                 Log::channel('plato')->warning('Manual push skipped — could not resolve specific patient', [
                     'notification_log_id' => $log->id,
                     'term' => $log->target_ids[0] ?? null,
                 ]);
+                $delivered['push'] = false;
             } else {
                 $pushData = [
                     'parameter_data' => json_encode(['patient_id' => $patientId]),
@@ -317,34 +459,63 @@ final class NotificationService
                     $pushData['patient_ids'] = [$patientId];
                 }
 
-                $this->sendPush($log->title, $log->body, $pushData);
+                $result = $this->sendPush($log->title, $log->body, $pushData, $log->id);
+                $delivered['push'] = (bool) ($result['success'] ?? false);
+                $queued = $queued || (bool) ($result['queued'] ?? false);
             }
         }
 
         if (in_array('email', $channels, true)) {
             if ($patientId !== null) {
                 $recipientEmail = $this->resolvePatientEmailById($patientId);
-                $this->sendManualEmailNotification($log->title, $log->body, $recipientEmail, $log->image_url);
+                $delivered['email'] = $this->sendManualEmailNotification($log->title, $log->body, $recipientEmail, $log->image_url);
             } else {
                 Log::channel('plato')->warning('Manual email notification skipped — target is not a single patient', [
                     'notification_log_id' => $log->id,
                     'target_type' => $targetType,
                 ]);
+                $delivered['email'] = false;
             }
         }
 
         if (in_array('in_app', $channels, true)) {
-            $this->writeInAppNotify($log->title, $log->body, 'profile', 'manual', $patientId);
+            $delivered['in_app'] = $this->writeInAppNotify($log->title, $log->body, 'profile', 'manual', $patientId, $log->image_url);
         }
 
         $log->update([
-            'status' => 'sent',
+            // Queued sends report their own outcome as each batch completes, so
+            // don't overwrite that with a provisional status here.
+            'status' => $queued ? 'sending' : $this->resolveLogStatus($delivered),
             'sent_at' => now(),
         ]);
     }
 
-    private function writeInAppNotify(string $title, string $body, string $deepLink, string $type, ?string $idPatient): void
+    private function writeInAppNotify(string $title, string $body, string $deepLink, string $type, ?string $idPatient, ?string $imageUrl = null): bool
     {
+        // Primary store: our own DB, read by the app over the authenticated API.
+        $stored = false;
+
+        if ($idPatient !== null && $idPatient !== '') {
+            try {
+                PatientNotification::create([
+                    'patient_plato_id' => $idPatient,
+                    'type' => $type,
+                    'title' => $title,
+                    'body' => $body,
+                    'deep_link' => $deepLink,
+                    'image_url' => $imageUrl,
+                ]);
+                $stored = true;
+            } catch (\Exception $e) {
+                Log::channel('plato')->warning('In-app notification store failed', [
+                    'patient_plato_id' => $idPatient,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // Legacy mirror to Firestore, kept so older app builds still see the
+        // inbox. Its outcome does not affect the reported delivery status.
         $this->firebase->writeInAppNotification([
             'title' => $title,
             'body' => $body,
@@ -352,14 +523,16 @@ final class NotificationService
             'deep_link' => $deepLink,
             'id_patient' => $idPatient,
         ]);
+
+        return $stored;
     }
 
-    private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): void
+    private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): bool
     {
-        $this->writeInAppNotify($title, $body, $deepLink, $type, $appointment->patient_plato_id ?? null);
+        return $this->writeInAppNotify($title, $body, $deepLink, $type, $appointment->patient_plato_id ?? null);
     }
 
-    private function sendEmail(string $title, string $body, ?string $recipientEmail, ?Appointment $appointment = null): void
+    private function sendEmail(string $title, string $body, ?string $recipientEmail, ?Appointment $appointment = null): bool
     {
         if ($recipientEmail === null || trim($recipientEmail) === '') {
             Log::channel('plato')->warning('Email notification skipped — no recipient email available', [
@@ -367,7 +540,7 @@ final class NotificationService
                 'title' => $title,
             ]);
 
-            return;
+            return false;
         }
 
         try {
@@ -389,12 +562,16 @@ final class NotificationService
                 'appointment_id' => $appointment?->id,
                 'title' => $title,
             ]);
+
+            return true;
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Email notification failed', [
                 'appointment_id' => $appointment?->id,
                 'recipient' => $recipientEmail,
                 'error' => $e->getMessage(),
             ]);
+
+            return false;
         }
     }
 
