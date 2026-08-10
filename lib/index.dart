@@ -19,8 +19,6 @@ export '/article_page/all_article_page_new/all_article_page_new_widget.dart'
 export '/content_media/all_content_media/all_content_media_widget.dart'
     show AllContentMediaWidget;
 export '/info_page/hemed_info/hemed_info_widget.dart' show HemedInfoWidget;
-export '/front_page/profile_edit_page/profile_edit_page_widget.dart'
-    show ProfileEditPageWidget;
 export '/front_page/branch_location_new_copy/branch_location_new_copy_widget.dart'
     show BranchLocationNewCopyWidget;
 export '/front_page/notification_page/notification_page_widget.dart'

@@ -446,13 +446,69 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'user' => [
-                'id' => $patient->id,
-                'name' => $patient->name,
-                'email' => $patient->email,
-                'idplato' => $patient->idplato,
-            ],
+            'user' => $this->profilePayload($patient),
         ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // PATCH /api/v2/auth/me
+    // Protected (auth:sanctum). Updates the patient's own editable details.
+    //
+    // Deliberately narrow: identity fields (nric, telephone, email, idplato)
+    // are not editable here. Email changes go through the verified
+    // link-email-request / link-email-verify flow.
+    // -------------------------------------------------------------------------
+    public function updateMe(Request $request): JsonResponse
+    {
+        $patient = $request->user();
+
+        if ($patient === null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:191',
+            'address' => 'sometimes|nullable|string|max:500',
+            'dob' => 'sometimes|nullable|date_format:Y-m-d',
+            'sex' => 'sometimes|nullable|string|max:20',
+            'nationality' => 'sometimes|nullable|string|max:100',
+            'allergies' => 'sometimes|nullable|string|max:500',
+            'food_allergies' => 'sometimes|nullable|string|max:500',
+        ]);
+
+        if (! empty($data)) {
+            $patient->update($data);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile updated.',
+            'user' => $this->profilePayload($patient->fresh()),
+        ]);
+    }
+
+    /**
+     * Shared shape for the patient profile returned by /me and PATCH /me.
+     */
+    private function profilePayload(Patient $patient): array
+    {
+        return [
+            'id' => $patient->id,
+            'name' => $patient->name,
+            'email' => $patient->email,
+            'idplato' => $patient->idplato,
+            'nric' => $patient->nric,
+            'telephone' => $patient->telephone,
+            'address' => $patient->address,
+            'dob' => $patient->dob,
+            'sex' => $patient->sex,
+            'nationality' => $patient->nationality,
+            'allergies' => $patient->allergies,
+            'food_allergies' => $patient->food_allergies,
+        ];
     }
 
     // -------------------------------------------------------------------------

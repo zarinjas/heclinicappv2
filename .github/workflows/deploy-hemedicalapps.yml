@@ -37,12 +37,17 @@ jobs:
           SRC="$GITHUB_WORKSPACE/laravel"
           DST="/home/hemedicalapps.com/heclinic-laravel"
           mkdir -p "$DST"
+          # NOTE: storage/app/public is excluded deliberately. It holds media
+          # uploaded through the admin panel (onboarding videos, branding,
+          # doctor photos). Those files are not in git, so without this exclude
+          # `--delete` wipes them on every deploy.
           sudo rsync -a --delete \
             --exclude '.env' --exclude '.env.*' \
             --exclude 'vendor/' --exclude 'node_modules/' \
             --exclude 'storage/logs/*' --exclude 'storage/framework/cache/*' \
             --exclude 'storage/framework/sessions/*' --exclude 'storage/framework/views/*' \
             --exclude 'bootstrap/cache/*' --exclude 'public/storage' --exclude 'public/build/' \
+            --exclude 'storage/app/public/' \
             "$SRC/" "$DST/"
           sudo chown -R hemed2668:hemed2668 "$DST"
           cd "$DST"

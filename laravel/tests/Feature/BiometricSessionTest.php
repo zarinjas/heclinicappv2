@@ -107,4 +107,54 @@ class BiometricSessionTest extends TestCase
             ->getJson('/api/v2/auth/me')
             ->assertStatus(200);
     }
+
+    public function test_a_patient_can_update_their_own_profile(): void
+    {
+        $patient = $this->patient();
+        $token = $patient->createToken('mobile', ['*'])->plainTextToken;
+
+        $response = $this->withHeader('Authorization', "Bearer $token")
+            ->patchJson('/api/v2/auth/me', [
+                'name' => 'Updated Name',
+                'address' => '1 Jalan Test',
+                'dob' => '1990-01-15',
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => true,
+            'user' => ['name' => 'Updated Name', 'address' => '1 Jalan Test'],
+        ]);
+
+        $this->assertDatabaseHas('patients', [
+            'id' => $patient->id,
+            'name' => 'Updated Name',
+        ]);
+    }
+
+    public function test_identity_fields_cannot_be_changed_via_the_profile_endpoint(): void
+    {
+        $patient = $this->patient();
+        $token = $patient->createToken('mobile', ['*'])->plainTextToken;
+
+        $this->withHeader('Authorization', "Bearer $token")
+            ->patchJson('/api/v2/auth/me', [
+                'name' => 'Legit Change',
+                'email' => 'attacker@example.com',
+                'idplato' => 'HIJACKED',
+            ])->assertStatus(200);
+
+        // The whitelist must have ignored email and idplato.
+        $this->assertDatabaseHas('patients', [
+            'id' => $patient->id,
+            'email' => 'bio@example.com',
+            'idplato' => 'PL-001',
+        ]);
+    }
+
+    public function test_profile_update_requires_authentication(): void
+    {
+        $this->patchJson('/api/v2/auth/me', ['name' => 'Nope'])
+            ->assertStatus(401);
+    }
 }

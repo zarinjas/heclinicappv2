@@ -148,7 +148,7 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
                   onSubmitted: (_) => _submit(),
                   style: AppTextStyles.body1.copyWith(color: textColor),
                   decoration: InputDecoration(
-                    hintText: 'e.g. 0123456789 or 900101-14-5678',
+                    hintText: 'e.g. 12 345 6789 or 900101-14-5678',
                     hintStyle: AppTextStyles.body1.copyWith(
                       color: isDark
                           ? AppColors.textSecondaryDark
@@ -171,7 +171,7 @@ class _ClaimAccountScreenState extends State<ClaimAccountScreen> {
         ),
         const SizedBox(height: AppSpacing.space4),
         Text(
-          'Enter your phone with leading 0, or IC/email',
+          'Enter your phone number, IC or email',
           style: AppTextStyles.body2.copyWith(
             color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
           ),

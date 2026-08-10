@@ -1,4 +1,5 @@
 import '/features/auth/splash_screen.dart';
+import '/features/profile/personal_info_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -128,12 +129,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               _profileTile(
                 icon: Icons.person_outline_rounded,
                 label: 'Personal Information',
-                onTap: () => context.pushNamed(
-                  ProfileEditPageWidget.routeName,
-                  queryParameters: {
-                    'idplato': appState.idplato,
-                  }.withoutNulls,
-                ),
+                onTap: () =>
+                    context.pushNamed(PersonalInfoScreen.routeName),
               ),
               const SizedBox(height: AppSpacing.space16),
               _buildSectionHeader('Settings', isDark),
@@ -344,15 +341,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   ],
                   const SizedBox(height: AppSpacing.space16),
                   AppButton(
-                    label: 'Edit Profile',
-                    variant: AppButtonVariant.whiteSolid,
-                    onPressed: () => context.pushNamed(
-                      ProfileEditPageWidget.routeName,
-                      queryParameters: {
-                        'idplato': appState.idplato,
-                      }.withoutNulls,
-                    ),
-                  ),
+                     label: 'Edit Profile',
+                     variant: AppButtonVariant.whiteSolid,
+                     onPressed: () =>
+                         context.pushNamed(PersonalInfoScreen.routeName),
+                   ),
                 ],
               );
             },

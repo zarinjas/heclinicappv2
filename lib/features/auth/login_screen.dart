@@ -607,7 +607,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.next,
                   style: AppTextStyles.body1.copyWith(color: textColor),
                   decoration: InputDecoration(
-                    hintText: 'e.g. 0123456789',
+                    hintText: 'e.g. 12 345 6789',
                     hintStyle: AppTextStyles.body1.copyWith(
                       color: isDark
                           ? AppColors.textSecondaryDark
@@ -626,13 +626,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.space4),
-        Text(
-          'With leading 0 — e.g. 0123456789',
-          style: AppTextStyles.body2.copyWith(
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
           ),
         ),
       ],

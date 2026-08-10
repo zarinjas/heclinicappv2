@@ -26,6 +26,7 @@ import '/pages/appointments/appointments_screen.dart';
 
 // New features/auth screens
 import '/features/auth/splash_screen.dart';
+import '/features/profile/personal_info_screen.dart';
 import '/features/auth/onboarding_screen.dart';
 import '/features/auth/welcome_screen.dart';
 import '/features/auth/login_screen.dart';
@@ -261,30 +262,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => HemedInfoWidget(),
         ),
         FFRoute(
-          name: ProfileEditPageWidget.routeName,
-          path: ProfileEditPageWidget.routePath,
-          builder: (context, params) => ProfileEditPageWidget(
-            avatar: params.getParam(
-              'avatar',
-              ParamType.String,
-            ),
-            name: params.getParam(
-              'name',
-              ParamType.String,
-            ),
-            address: params.getParam(
-              'address',
-              ParamType.String,
-            ),
-            dob: params.getParam(
-              'dob',
-              ParamType.String,
-            ),
-            idplato: params.getParam(
-              'idplato',
-              ParamType.String,
-            ),
-          ),
+          name: PersonalInfoScreen.routeName,
+          path: PersonalInfoScreen.routePath,
+          builder: (context, params) => const PersonalInfoScreen(),
+        ),
+        // The old FlutterFlow /profileEditPage path is kept so saved links and
+        // any lingering deep links land on the rewritten screen.
+        FFRoute(
+          name: 'ProfileEditPage',
+          path: '/profileEditPage',
+          builder: (context, params) => const PersonalInfoScreen(),
         ),
         FFRoute(
           name: BranchLocationNewCopyWidget.routeName,

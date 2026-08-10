@@ -16,6 +16,7 @@ class HeclinicAuthApi {
   static final LoginCall loginCall = LoginCall();
   static final SocialLoginCall socialLoginCall = SocialLoginCall();
   static final MeCall meCall = MeCall();
+  static final UpdateMeCall updateMeCall = UpdateMeCall();
   static final LogoutCall logoutCall = LogoutCall();
   static final ForgotPasswordCall forgotPasswordCall = ForgotPasswordCall();
   static final ClaimAccountCall claimAccountCall = ClaimAccountCall();
@@ -323,6 +324,74 @@ class MeCall {
       castToType<String>(getJsonField(response, r'''$.user.name'''));
   static String? idplato(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.user.idplato'''));
+  static String? email(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.email'''));
+  static String? nric(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.nric'''));
+  static String? telephone(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.telephone'''));
+  static String? address(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.address'''));
+  static String? dob(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.dob'''));
+  static String? sex(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.sex'''));
+  static String? nationality(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.nationality'''));
+  static String? allergies(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.allergies'''));
+  static String? foodAllergies(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.food_allergies'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// PATCH /v2/auth/me   (requires Bearer token)
+// Updates the patient's own editable profile fields.
+// ---------------------------------------------------------------------------
+class UpdateMeCall {
+  Future<ApiCallResponse> call({
+    String? token = '',
+    String? name,
+    String? address,
+    String? dob,
+    String? sex,
+    String? nationality,
+    String? allergies,
+    String? foodAllergies,
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicUpdateMe',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/me',
+      callType: ApiCallType.PATCH,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {
+        if (name != null) 'name': name,
+        if (address != null) 'address': address,
+        if (dob != null) 'dob': dob,
+        if (sex != null) 'sex': sex,
+        if (nationality != null) 'nationality': nationality,
+        if (allergies != null) 'allergies': allergies,
+        if (foodAllergies != null) 'food_allergies': foodAllergies,
+      },
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
 }
 
 // ---------------------------------------------------------------------------
