@@ -151,7 +151,9 @@ class _BiometricScreenState extends State<BiometricScreen> {
                   if (_enabled) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Signing out will turn this off and erase the saved session.',
+                      'This stays on after you log out, so you can sign back in '
+                      'with $_label. Turn it off to remove the saved session '
+                      'from this device.',
                       style: AppTextStyles.caption.copyWith(color: sc),
                       textAlign: TextAlign.center,
                     ),

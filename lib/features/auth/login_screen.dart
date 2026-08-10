@@ -206,10 +206,25 @@ class _LoginScreenState extends State<LoginScreen> {
     if (token.isEmpty) return;
     if (!await bio.isAvailable()) return;
 
-    // Already enabled — just keep the stored token current.
     if (await bio.isEnabled()) {
-      await bio.refreshTokenIfEnabled(token: token, accountLabel: accountLabel);
-      return;
+      final enrolledFor = await bio.accountLabel();
+
+      // Signing in as a different account must not leave the previous user's
+      // enrolment in place — biometrics would otherwise unlock whichever
+      // account happened to be stored last, under the old account's label.
+      if (enrolledFor != null &&
+          accountLabel.isNotEmpty &&
+          enrolledFor != accountLabel) {
+        await bio.disable();
+        // Fall through and offer enrolment for the account just signed in.
+      } else {
+        // Same account — keep the stored token current.
+        await bio.refreshTokenIfEnabled(
+          token: token,
+          accountLabel: accountLabel,
+        );
+        return;
+      }
     }
 
     if (!mounted) return;

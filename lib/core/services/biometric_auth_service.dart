@@ -38,8 +38,12 @@ class BiometricUnlockResult {
 ///    token issued by the backend is stored, inside the platform keystore
 ///    (iOS Keychain / Android EncryptedSharedPreferences via Keystore).
 ///  * The stored token is only readable after a successful biometric check.
-///  * Disabling biometrics, logging out, or a rejected token all wipe the
-///    stored secret immediately.
+///  * Disabling biometrics, a rejected token, or signing in as a different
+///    account all wipe the stored secret immediately.
+///  * The enrolment intentionally SURVIVES logout, so returning users can sign
+///    back in with a single biometric tap. The secret stays behind the device
+///    biometric, so anyone already enrolled on the phone can re-enter the
+///    account — an accepted trade-off for a personal device.
 ///
 /// This replaces the two previous, disconnected implementations which stored
 /// a base64-encoded password in plain `SharedPreferences`.
@@ -255,10 +259,6 @@ class BiometricAuthService {
       debugPrint('BiometricAuthService.disable prefs reset failed: $e');
     }
   }
-
-  /// Called on logout. Erases every biometric secret so the next user of the
-  /// device cannot unlock the previous account.
-  Future<void> clearOnLogout() => disable();
 
   /// Removes plaintext credentials written by pre-secure-storage builds.
   /// Runs on every app start via [migrateLegacyCredentials].

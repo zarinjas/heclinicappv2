@@ -14,19 +14,35 @@ import '/core/services/biometric_auth_service.dart';
 import '/core/services/device_token_service.dart';
 
 Future<void> logout() async {
-  // Wipe the biometric session token from the keystore FIRST. SharedPreferences
-  // .clear() does not touch the Keychain / EncryptedSharedPreferences, so
-  // without this the next person on the device could biometrically unlock the
-  // previous user's session.
-  await BiometricAuthService.instance.clearOnLogout();
+  // Biometric enrolment deliberately SURVIVES logout so the user can sign back
+  // in with one Face ID / fingerprint tap instead of retyping credentials.
+  //
+  // The stored token stays in the Keychain / EncryptedSharedPreferences and is
+  // only readable after a successful biometric check, so it remains protected
+  // by the device's own biometrics. Anyone enrolled on the phone can therefore
+  // re-enter this account after a logout — that is the accepted trade-off for
+  // a personal device. Turning the toggle off in Settings, or signing in as a
+  // different account, erases it.
+  final bio = BiometricAuthService.instance;
+  final keepBiometric = await bio.isEnabled();
 
   final prefs = await SharedPreferences.getInstance();
   await prefs.clear(); // Menghapus semua data
+
+  // prefs.clear() wiped the enabled flag, so restore it. The token itself
+  // lives in the keystore and was never touched by clear().
+  if (keepBiometric) {
+    await prefs.setBool(BiometricAuthService.prefKeyEnabled, true);
+  } else {
+    // Nothing usable stored — make sure no stale secret is left behind.
+    await bio.disable();
+  }
+
   // Reset in-memory auth state so the app treats the user as logged out
   // (router + splash check these values to decide where to navigate).
   FFAppState().isLoggedIn = false;
   FFAppState().tokenauth = '';
-  FFAppState().fingerprint = false;
+  FFAppState().fingerprint = keepBiometric;
   // Forget the cached push registration so the next login re-registers this
   // device against the new account.
   DeviceTokenService.instance.reset();
