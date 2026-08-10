@@ -15,7 +15,12 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.3.7+37
+# Build number must keep increasing for iOS: App Store Connect rejects any
+# build whose CFBundleVersion is not higher than the previous upload, and
+# ios/Runner/Info.plist reads it straight from here via FLUTTER_BUILD_NUMBER.
+# The last shipped build was 37, so this continues from 38 rather than
+# restarting at 1 — even though Android ships as a brand new listing.
+version: 1.0.0+38
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
