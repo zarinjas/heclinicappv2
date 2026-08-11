@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/api_manager.dart';
 import '/env_config.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/theme/app_theme.dart';
-import '/components/skeleton_loaders.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/theme/app_colors.dart' as core;
+import '/core/theme/app_radius.dart' as core;
+import '/core/theme/app_spacing.dart' as core;
+import '/core/widgets/app_button.dart';
+import '/core/widgets/app_toast.dart';
 import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
 import '/pages/queue/queue_tracker_screen.dart';
@@ -302,9 +306,8 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                     const SizedBox(height: AppSpacing.md),
                     Text(
                       'Appointment Detail',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: AppTextStyles.heading3.copyWith(
                         fontSize: 18.0,
-                        fontWeight: FontWeight.w600,
                         color: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.textInverse
                             : AppColors.textPrimary,
@@ -385,14 +388,10 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
 
     if (cancelled) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Appointment cancelled')),
-      );
+      AppToast.success(context, message: 'Appointment cancelled');
       _loadAppointments();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to cancel appointment')),
-      );
+      AppToast.error(context, message: 'Failed to cancel appointment');
     }
   }
 
@@ -410,76 +409,128 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
 
     final future = showDialog<String>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: const Text('Why are you cancelling?'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: reasons.map((reason) {
-                    final isSelected = selected == reason;
-                    return ChoiceChip(
-                      label: Text(reason),
-                      selected: isSelected,
-                      onSelected: (_) =>
-                          setDialogState(() => selected = reason),
-                      labelStyle: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : AppColors.textSecondary,
-                        fontSize: 13,
+      builder: (dialogContext) {
+        final isDark =
+            Theme.of(dialogContext).brightness == Brightness.dark;
+        final surface = isDark ? core.AppColors.surfaceDark : core.AppColors.surface;
+        final titleColor =
+            isDark ? core.AppColors.textPrimaryDark : core.AppColors.primary;
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) => Dialog(
+            backgroundColor: surface,
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: core.AppSpacing.space24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(core.AppRadius.radiusXL),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(core.AppSpacing.space24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Why are you cancelling?',
+                    style: AppTextStyles.heading3.copyWith(color: titleColor),
+                  ),
+                  const SizedBox(height: core.AppSpacing.space16),
+                  Wrap(
+                    spacing: core.AppSpacing.space8,
+                    runSpacing: core.AppSpacing.space8,
+                    children: reasons.map((reason) {
+                      final isSelected = selected == reason;
+                      return ChoiceChip(
+                        label: Text(reason),
+                        selected: isSelected,
+                        showCheckmark: false,
+                        onSelected: (_) =>
+                            setDialogState(() => selected = reason),
+                        labelStyle: AppTextStyles.body2.copyWith(
+                          color: isSelected
+                              ? Colors.white
+                              : core.AppColors.textSecondary,
+                        ),
+                        selectedColor: core.AppColors.error,
+                        backgroundColor: surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(core.AppRadius.radiusFull),
+                          side: BorderSide(
+                            color: isSelected
+                                ? core.AppColors.error
+                                : core.AppColors.divider,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (selected == 'Other') ...[
+                    const SizedBox(height: core.AppSpacing.space12),
+                    TextField(
+                      controller: controller,
+                      maxLines: 2,
+                      style: AppTextStyles.body1.copyWith(color: titleColor),
+                      decoration: InputDecoration(
+                        hintText: 'Tell us the reason…',
+                        hintStyle: AppTextStyles.body1
+                            .copyWith(color: core.AppColors.textSecondary),
+                        contentPadding: const EdgeInsets.all(
+                            core.AppSpacing.space12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              core.AppRadius.radiusMD),
+                          borderSide:
+                              const BorderSide(color: core.AppColors.inputBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              core.AppRadius.radiusMD),
+                          borderSide:
+                              const BorderSide(color: core.AppColors.inputBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(
+                              core.AppRadius.radiusMD),
+                          borderSide: const BorderSide(
+                              color: core.AppColors.inputBorderFocus),
+                        ),
                       ),
-                      selectedColor: AppColors.error,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.full),
-                        side: const BorderSide(color: AppColors.divider),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                if (selected == 'Other') ...[
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: controller,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      hintText: 'Tell us the reason...',
-                      border: OutlineInputBorder(),
                     ),
+                  ],
+                  const SizedBox(height: core.AppSpacing.space24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton.ghost(
+                          label: 'Keep',
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                        ),
+                      ),
+                      const SizedBox(width: core.AppSpacing.space12),
+                      Expanded(
+                        child: AppButton.destructive(
+                          label: 'Cancel Visit',
+                          onPressed: selected.isEmpty
+                              ? null
+                              : () {
+                                  final reason = selected == 'Other'
+                                      ? (controller.text.trim().isNotEmpty
+                                          ? controller.text.trim()
+                                          : selected)
+                                      : selected;
+                                  Navigator.of(dialogContext).pop(reason);
+                                },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ],
+              ),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Keep Appointment'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () {
-                final reason = selected == 'Other'
-                    ? (controller.text.trim().isNotEmpty
-                        ? controller.text.trim()
-                        : selected)
-                    : selected;
-                Navigator.of(dialogContext).pop(reason);
-              },
-              child: const Text('Cancel Appointment'),
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
 
     future.whenComplete(controller.dispose);
@@ -525,8 +576,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
             width: 80.0,
             child: Text(
               label,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14.0,
+              style: AppTextStyles.body1.copyWith(
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
               ),
@@ -535,7 +585,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.plusJakartaSans(
+              style: AppTextStyles.label.copyWith(
                 fontSize: 14.0,
                 fontWeight: FontWeight.w600,
                 color: valueColor ??
@@ -569,9 +619,8 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
         ),
         title: Text(
           'My Appointments',
-          style: GoogleFonts.plusJakartaSans(
+          style: AppTextStyles.heading1.copyWith(
             fontSize: 22.0,
-            fontWeight: FontWeight.w700,
             color: AppColors.textInverse,
           ),
         ),
@@ -753,12 +802,11 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
             ),
             indicatorSize: TabBarIndicatorSize.tab,
             dividerColor: Colors.transparent,
-            labelStyle: GoogleFonts.plusJakartaSans(
+            labelStyle: AppTextStyles.label.copyWith(
               fontSize: 14.0,
               fontWeight: FontWeight.w600,
             ),
-            unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-              fontSize: 14.0,
+            unselectedLabelStyle: AppTextStyles.body1.copyWith(
               fontWeight: FontWeight.w500,
             ),
             tabs: const [
@@ -880,9 +928,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                                 children: [
                                   Text(
                                     _formatDate(start),
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600,
+                                    style: AppTextStyles.heading3.copyWith(
                                       color: Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? AppColors.textInverse
@@ -891,7 +937,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                                   ),
                                   Text(
                                     _formatTime(start),
-                                    style: GoogleFonts.plusJakartaSans(
+                                    style: AppTextStyles.label.copyWith(
                                       fontSize: 14.0,
                                       fontWeight: FontWeight.w600,
                                       color: AppColors.accent,
@@ -912,9 +958,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                               ),
                               child: Text(
                                 statusLabel,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13.0,
-                                  fontWeight: FontWeight.w500,
+                                style: AppTextStyles.label.copyWith(
                                   color: statusColor,
                                 ),
                               ),
@@ -927,9 +971,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                                 const EdgeInsets.only(top: AppSpacing.xs),
                             child: Text(
                               'Until ${_formatTime(end)}',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w400,
+                              style: AppTextStyles.body2.copyWith(
                                 color: AppColors.textSecondary,
                               ),
                             ),
@@ -946,9 +988,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                               const SizedBox(width: AppSpacing.xs),
                               Text(
                                 locationName,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w400,
+                                style: AppTextStyles.body1.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
                               ),
@@ -965,9 +1005,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                             const SizedBox(width: AppSpacing.xs),
                             Text(
                               doctorName,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w400,
+                              style: AppTextStyles.body1.copyWith(
                                 color: AppColors.textSecondary,
                               ),
                             ),

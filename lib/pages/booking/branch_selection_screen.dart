@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_radius.dart';
+import '/core/widgets/app_button.dart';
 import '/core/services/branch_service.dart';
-import '/core/services/models/branch.dart';
 import 'booking_flow_model.dart';
 
 class BranchSelectionScreenWidget extends StatefulWidget {
@@ -123,25 +126,22 @@ class _BranchSelectionScreenWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
-    const accentColor = Color(0xFF00C9A7);
-    final stepIndicator = _buildStepIndicator(theme, accentColor);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accentColor = AppColors.accent;
+    final stepIndicator = _buildStepIndicator(accentColor);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor:
+          isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1B3D),
+        backgroundColor: AppColors.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Book Appointment',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.heading3.copyWith(color: Colors.white),
         ),
         centerTitle: false,
         elevation: 0,
@@ -149,20 +149,25 @@ class _BranchSelectionScreenWidgetState
       body: Column(
         children: [
           Container(
-            color: const Color(0xFF0F1B3D),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            color: AppColors.primary,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space16,
+              0,
+              AppSpacing.space16,
+              AppSpacing.space24,
+            ),
             child: stepIndicator,
           ),
           Expanded(
-            child: _buildBody(theme, accentColor),
+            child: _buildBody(isDark, accentColor),
           ),
-          _buildNextButton(theme, accentColor),
+          _buildNextButton(isDark, accentColor),
         ],
       ),
     );
   }
 
-  Widget _buildStepIndicator(FlutterFlowTheme theme, Color accentColor) {
+  Widget _buildStepIndicator(Color accentColor) {
     final steps = [
       _StepData(1, 'Branch', true),
       _StepData(2, 'Doctor', false),
@@ -189,7 +194,7 @@ class _BranchSelectionScreenWidgetState
                 alignment: Alignment.center,
                 child: Text(
                   '${step.number}',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: step.isActive ? Colors.white : Colors.white70,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -199,7 +204,7 @@ class _BranchSelectionScreenWidgetState
               const SizedBox(width: 6),
               Text(
                 step.label,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: step.isActive ? Colors.white : Colors.white60,
                   fontSize: 11,
                   fontWeight: step.isActive ? FontWeight.w600 : FontWeight.w400,
@@ -212,45 +217,50 @@ class _BranchSelectionScreenWidgetState
     );
   }
 
-  Widget _buildBody(FlutterFlowTheme theme, Color accentColor) {
+  Widget _buildBody(bool isDark, Color accentColor) {
     if (_isLoading) {
-      return _buildSkeletonLoader();
+      return _buildSkeletonLoader(isDark);
     }
     if (_hasError) {
-      return _buildErrorState(theme, accentColor);
+      return _buildErrorState(isDark, accentColor);
     }
     if (_branches.isEmpty) {
-      return _buildEmptyState(theme);
+      return _buildEmptyState(isDark);
     }
-    return _buildBranchList(theme, accentColor);
+    return _buildBranchList(isDark, accentColor);
   }
 
-  Widget _buildSkeletonLoader() {
+  Widget _buildSkeletonLoader(bool isDark) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final skeleton = isDark ? AppColors.dividerDark : AppColors.divider;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       child: ListView.separated(
         itemCount: 4,
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        separatorBuilder: (_, __) =>
+            const SizedBox(height: AppSpacing.space16),
         itemBuilder: (_, __) => Container(
           height: 120,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: surface,
+            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
           ),
           child: Row(
             children: [
               Container(
                 width: 100,
                 height: 120,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE5E7EB),
-                  borderRadius: BorderRadius.horizontal(left: Radius.circular(16)),
+                decoration: BoxDecoration(
+                  color: skeleton,
+                  borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(AppRadius.radiusLG)),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.space12),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppSpacing.space16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -258,26 +268,29 @@ class _BranchSelectionScreenWidgetState
                         width: 160,
                         height: 14,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(4),
+                          color: skeleton,
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.radiusXS),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.space8),
                       Container(
                         width: 200,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(4),
+                          color: skeleton,
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.radiusXS),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.space4),
                       Container(
                         width: 120,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
-                          borderRadius: BorderRadius.circular(4),
+                          color: skeleton,
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.radiusXS),
                         ),
                       ),
                     ],
@@ -291,37 +304,33 @@ class _BranchSelectionScreenWidgetState
     );
   }
 
-  Widget _buildErrorState(FlutterFlowTheme theme, Color accentColor) {
+  Widget _buildErrorState(bool isDark, Color accentColor) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.error_outline,
               size: 48,
-              color: Color(0xFFEF4444),
+              color: AppColors.error,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.space16),
             Text(
               'Something went wrong',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF0F1B3D),
-              ),
+              style: AppTextStyles.heading3.copyWith(color: textColor),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.space8),
             Text(
               _errorMessage,
-              style: TextStyle(
-                fontSize: 14,
-                color: const Color(0xFF6B7280),
-              ),
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.space24),
             TextButton.icon(
               onPressed: _loadBranches,
               icon: const Icon(Icons.refresh),
@@ -336,34 +345,33 @@ class _BranchSelectionScreenWidgetState
     );
   }
 
-  Widget _buildEmptyState(FlutterFlowTheme theme) {
+  Widget _buildEmptyState(bool isDark) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.location_off,
               size: 64,
-              color: const Color(0xFF9CA3AF),
+              color: secondaryText,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'No branches available',
-              style: TextStyle(
+              style: AppTextStyles.heading2.copyWith(
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F1B3D),
+                color: textColor,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            const SizedBox(height: AppSpacing.space8),
+            Text(
               'Please check back later or contact the clinic.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),
           ],
@@ -372,15 +380,15 @@ class _BranchSelectionScreenWidgetState
     );
   }
 
-  Widget _buildBranchList(FlutterFlowTheme theme, Color accentColor) {
+  Widget _buildBranchList(bool isDark, Color accentColor) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       itemCount: _branches.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
       itemBuilder: (_, index) {
         final branch = _branches[index];
         final isSelected = _selectedBranchId == branch.id;
-        return _buildBranchCard(branch, isSelected, theme, accentColor);
+        return _buildBranchCard(branch, isSelected, isDark, accentColor);
       },
     );
   }
@@ -388,17 +396,22 @@ class _BranchSelectionScreenWidgetState
   Widget _buildBranchCard(
     BranchItem branch,
     bool isSelected,
-    FlutterFlowTheme theme,
+    bool isDark,
     Color accentColor,
   ) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.divider;
     return GestureDetector(
       onTap: () => _onBranchSelected(branch),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: surface,
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
           border: Border.all(
-            color: isSelected ? accentColor : const Color(0xFFE5E7EB),
+            color: isSelected ? accentColor : borderColor,
             width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: const [
@@ -421,46 +434,44 @@ class _BranchSelectionScreenWidgetState
                     ? Image.network(
                         branch.image,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+                        errorBuilder: (_, __, ___) =>
+                            _buildPlaceholderImage(isDark),
                       )
-                    : _buildPlaceholderImage(),
+                    : _buildPlaceholderImage(isDark),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.space16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       branch.name,
-                      style: const TextStyle(
+                      style: AppTextStyles.heading2.copyWith(
                         fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F1B3D),
+                        color: textColor,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (branch.address.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.space4),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.location_on_outlined,
                             size: 14,
-                            color: Color(0xFF6B7280),
+                            color: secondaryText,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: AppSpacing.space4),
                           Expanded(
                             child: Text(
                               branch.address,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF6B7280),
-                              ),
+                              style: AppTextStyles.body1
+                                  .copyWith(color: secondaryText),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -469,21 +480,19 @@ class _BranchSelectionScreenWidgetState
                       ),
                     ],
                     if (branch.hours.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.space4),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.access_time,
                             size: 14,
-                            color: Color(0xFF6B7280),
+                            color: secondaryText,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: AppSpacing.space4),
                           Text(
                             branch.hours,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
+                            style: AppTextStyles.body2
+                                .copyWith(color: secondaryText),
                           ),
                         ],
                       ),
@@ -494,7 +503,7 @@ class _BranchSelectionScreenWidgetState
             ),
             if (isSelected)
               Padding(
-                padding: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.only(right: AppSpacing.space12),
                 child: Icon(
                   Icons.check_circle,
                   color: accentColor,
@@ -507,55 +516,41 @@ class _BranchSelectionScreenWidgetState
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage(bool isDark) {
+    final bg = isDark ? AppColors.dividerDark : AppColors.divider;
+    final iconColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Container(
-      color: const Color(0xFFE5E7EB),
-      child: const Center(
+      color: bg,
+      child: Center(
         child: Icon(
           Icons.store,
           size: 32,
-          color: Color(0xFF9CA3AF),
+          color: iconColor,
         ),
       ),
     );
   }
 
-  Widget _buildNextButton(FlutterFlowTheme theme, Color accentColor) {
+  Widget _buildNextButton(bool isDark, Color accentColor) {
     final isEnabled = _selectedBranchId != null;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FC),
+        color: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: isEnabled ? _onNextPressed : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isEnabled ? accentColor : const Color(0xFFE5E7EB),
-              foregroundColor: isEnabled ? Colors.white : const Color(0xFF9CA3AF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Next',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        child: AppButton.primary(
+          label: 'Next',
+          onPressed: isEnabled ? _onNextPressed : null,
+          backgroundColor: accentColor,
         ),
       ),
     );

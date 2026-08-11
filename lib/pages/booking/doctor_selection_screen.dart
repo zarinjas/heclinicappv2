@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_radius.dart';
+import '/core/widgets/app_button.dart';
 import '/app_state.dart';
 import '/core/services/doctor_service.dart';
-import '/core/services/models/doctor.dart';
 import 'booking_flow_model.dart';
 
 class DoctorSelectionScreenWidget extends StatefulWidget {
@@ -178,24 +181,22 @@ class _DoctorSelectionScreenWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = const Color(0xFF00C9A7);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accentColor = AppColors.accent;
     final stepIndicator = _buildStepIndicator(accentColor);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor:
+          isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1B3D),
+        backgroundColor: AppColors.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Book Appointment',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.heading3.copyWith(color: Colors.white),
         ),
         centerTitle: false,
         elevation: 0,
@@ -203,14 +204,19 @@ class _DoctorSelectionScreenWidgetState
       body: Column(
         children: [
           Container(
-            color: const Color(0xFF0F1B3D),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            color: AppColors.primary,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space16,
+              0,
+              AppSpacing.space16,
+              AppSpacing.space24,
+            ),
             child: stepIndicator,
           ),
           Expanded(
-            child: _buildBody(accentColor),
+            child: _buildBody(isDark, accentColor),
           ),
-          _buildNextButton(accentColor),
+          _buildNextButton(isDark, accentColor),
         ],
       ),
     );
@@ -243,7 +249,7 @@ class _DoctorSelectionScreenWidgetState
                 alignment: Alignment.center,
                 child: Text(
                   '${step.number}',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: step.isActive ? Colors.white : Colors.white70,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -253,7 +259,7 @@ class _DoctorSelectionScreenWidgetState
               const SizedBox(width: 6),
               Text(
                 step.label,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: step.isActive ? Colors.white : Colors.white60,
                   fontSize: 11,
                   fontWeight: step.isActive ? FontWeight.w600 : FontWeight.w400,
@@ -266,38 +272,41 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildBody(Color accentColor) {
+  Widget _buildBody(bool isDark, Color accentColor) {
     if (_isLoading) {
-      return _buildSkeletonLoader();
+      return _buildSkeletonLoader(isDark);
     }
     if (_hasError) {
-      return _buildErrorState(accentColor);
+      return _buildErrorState(isDark, accentColor);
     }
     if (_doctors.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDark);
     }
-    return _buildDoctorList(accentColor);
+    return _buildDoctorList(isDark, accentColor);
   }
 
-  Widget _buildSkeletonLoader() {
+  Widget _buildSkeletonLoader(bool isDark) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final skeleton = isDark ? AppColors.dividerDark : AppColors.divider;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       child: ListView.separated(
         itemCount: 5,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, __) =>
+            const SizedBox(height: AppSpacing.space12),
         itemBuilder: (_, __) => Container(
           height: 80,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            color: surface,
+            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
           ),
           child: Row(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(12),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.space12),
                 child: CircleAvatar(
                   radius: 28,
-                  backgroundColor: Color(0xFFE5E7EB),
+                  backgroundColor: skeleton,
                 ),
               ),
               Expanded(
@@ -309,17 +318,19 @@ class _DoctorSelectionScreenWidgetState
                       width: 140,
                       height: 14,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
-                        borderRadius: BorderRadius.circular(4),
+                        color: skeleton,
+                        borderRadius:
+                            BorderRadius.circular(AppRadius.radiusXS),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: AppSpacing.space8),
                     Container(
                       width: 100,
                       height: 10,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
-                        borderRadius: BorderRadius.circular(4),
+                        color: skeleton,
+                        borderRadius:
+                            BorderRadius.circular(AppRadius.radiusXS),
                       ),
                     ),
                   ],
@@ -332,37 +343,33 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildErrorState(Color accentColor) {
+  Widget _buildErrorState(bool isDark, Color accentColor) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.error_outline,
               size: 48,
-              color: Color(0xFFEF4444),
+              color: AppColors.error,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'Something went wrong',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F1B3D),
-              ),
+              style: AppTextStyles.heading3.copyWith(color: textColor),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.space8),
             Text(
               _errorMessage,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.space24),
             TextButton.icon(
               onPressed: _loadDoctors,
               icon: const Icon(Icons.refresh),
@@ -377,34 +384,34 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDark) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.person_off,
               size: 64,
-              color: const Color(0xFF9CA3AF),
+              color: secondaryText,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'No doctors available for this branch',
-              style: TextStyle(
+              style: AppTextStyles.heading2.copyWith(
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F1B3D),
+                color: textColor,
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            const Text(
+            const SizedBox(height: AppSpacing.space8),
+            Text(
               'Please check back later or contact the clinic.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),
           ],
@@ -413,32 +420,38 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildDoctorList(Color accentColor) {
+  Widget _buildDoctorList(bool isDark, Color accentColor) {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       itemCount: 1 + _doctors.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
       itemBuilder: (_, index) {
         if (index == 0) {
-          return _buildNoPreferenceCard(accentColor);
+          return _buildNoPreferenceCard(isDark, accentColor);
         }
         final doctor = _doctors[index - 1];
         final isSelected = _selectedDoctorId == doctor.id;
-        return _buildDoctorCard(doctor, isSelected, accentColor);
+        return _buildDoctorCard(doctor, isSelected, isDark, accentColor);
       },
     );
   }
 
-  Widget _buildNoPreferenceCard(Color accentColor) {
+  Widget _buildNoPreferenceCard(bool isDark, Color accentColor) {
     final isSelected = _isNoPreference;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.divider;
+    final iconBg = isDark ? AppColors.dividerDark : AppColors.chipFilterDefaultBg;
     return GestureDetector(
       onTap: _onNoPreferenceSelected,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: surface,
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
           border: Border.all(
-            color: isSelected ? accentColor : const Color(0xFFE5E7EB),
+            color: isSelected ? accentColor : borderColor,
             width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: const [
@@ -449,43 +462,36 @@ class _DoctorSelectionScreenWidgetState
             ),
           ],
         ),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.space16),
         child: Row(
           children: [
             Container(
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(16),
+                color: iconBg,
+                borderRadius: BorderRadius.circular(AppRadius.radiusLG),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.groups,
                 size: 28,
-                color: Color(0xFF6B7280),
+                color: secondaryText,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.space16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'No Preference',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F1B3D),
-                    ),
+                    style: AppTextStyles.heading3.copyWith(color: textColor),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  const SizedBox(height: AppSpacing.space4),
+                  Text(
                     'We will find the earliest available slot for you',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
-                    ),
+                    style: AppTextStyles.body2.copyWith(color: secondaryText),
                   ),
                 ],
               ),
@@ -505,16 +511,23 @@ class _DoctorSelectionScreenWidgetState
   Widget _buildDoctorCard(
     DoctorItem doctor,
     bool isSelected,
+    bool isDark,
     Color accentColor,
   ) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.divider;
+    final avatarBg = isDark ? AppColors.dividerDark : AppColors.divider;
     return GestureDetector(
       onTap: () => _onDoctorSelected(doctor),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: surface,
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
           border: Border.all(
-            color: isSelected ? accentColor : const Color(0xFFE5E7EB),
+            color: isSelected ? accentColor : borderColor,
             width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: const [
@@ -525,12 +538,12 @@ class _DoctorSelectionScreenWidgetState
             ),
           ],
         ),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppSpacing.space12),
         child: Row(
           children: [
             CircleAvatar(
               radius: 32,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: avatarBg,
               backgroundImage: doctor.photoUrl.isNotEmpty
                   ? NetworkImage(doctor.photoUrl)
                   : null,
@@ -540,14 +553,14 @@ class _DoctorSelectionScreenWidgetState
                       doctor.name.isNotEmpty
                           ? doctor.name[0].toUpperCase()
                           : '?',
-                      style: const TextStyle(
+                      style: AppTextStyles.heading1.copyWith(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF6B7280),
+                        color: secondaryText,
                       ),
                     ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.space16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,22 +568,15 @@ class _DoctorSelectionScreenWidgetState
                 children: [
                   Text(
                     doctor.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F1B3D),
-                    ),
+                    style: AppTextStyles.heading3.copyWith(color: textColor),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (doctor.specialty.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.space4),
                     Text(
                       doctor.specialty,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF6B7280),
-                      ),
+                      style: AppTextStyles.body2.copyWith(color: secondaryText),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -590,44 +596,25 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildNextButton(Color accentColor) {
+  Widget _buildNextButton(bool isDark, Color accentColor) {
     final isEnabled = _isNoPreference || _selectedDoctorId != null;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FC),
+        color: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: isEnabled ? _onNextPressed : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isEnabled ? accentColor : const Color(0xFFE5E7EB),
-              foregroundColor:
-                  isEnabled ? Colors.white : const Color(0xFF9CA3AF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Next',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        child: AppButton.primary(
+          label: 'Next',
+          onPressed: isEnabled ? _onNextPressed : null,
+          backgroundColor: accentColor,
         ),
       ),
     );

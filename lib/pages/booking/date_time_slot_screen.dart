@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/env_config.dart';
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_radius.dart';
+import '/core/widgets/app_button.dart';
 import 'booking_flow_model.dart';
 
 class DateTimeSlotSelectionScreenWidget extends StatefulWidget {
@@ -186,24 +190,22 @@ class _DateTimeSlotSelectionScreenWidgetState
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xFF00C9A7);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const accentColor = AppColors.accent;
     final stepIndicator = _buildStepIndicator(accentColor);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor:
+          isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1B3D),
+        backgroundColor: AppColors.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Book Appointment',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.heading3.copyWith(color: Colors.white),
         ),
         centerTitle: false,
         elevation: 0,
@@ -211,14 +213,19 @@ class _DateTimeSlotSelectionScreenWidgetState
       body: Column(
         children: [
           Container(
-            color: const Color(0xFF0F1B3D),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            color: AppColors.primary,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space16,
+              0,
+              AppSpacing.space16,
+              AppSpacing.space24,
+            ),
             child: stepIndicator,
           ),
           Expanded(
-            child: _buildBody(accentColor),
+            child: _buildBody(isDark, accentColor),
           ),
-          _buildContinueButton(accentColor),
+          _buildContinueButton(isDark, accentColor),
         ],
       ),
     );
@@ -251,7 +258,7 @@ class _DateTimeSlotSelectionScreenWidgetState
                 alignment: Alignment.center,
                 child: Text(
                   '${step.number}',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: step.isActive ? Colors.white : Colors.white70,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -261,7 +268,7 @@ class _DateTimeSlotSelectionScreenWidgetState
               const SizedBox(width: 6),
               Text(
                 step.label,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: step.isActive ? Colors.white : Colors.white60,
                   fontSize: 11,
                   fontWeight: step.isActive ? FontWeight.w600 : FontWeight.w400,
@@ -274,33 +281,40 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildBody(Color accentColor) {
+  Widget _buildBody(bool isDark, Color accentColor) {
     return Column(
       children: [
-        _buildMonthHeader(accentColor),
-        _buildCalendar(),
-        const SizedBox(height: 16),
-        if (_selectedDay != null) _buildSelectedDateLabel(),
-        const SizedBox(height: 8),
-        Expanded(child: _buildSlotSection(accentColor)),
+        _buildMonthHeader(isDark, accentColor),
+        _buildCalendar(isDark, accentColor),
+        const SizedBox(height: AppSpacing.space16),
+        if (_selectedDay != null) _buildSelectedDateLabel(isDark),
+        const SizedBox(height: AppSpacing.space8),
+        Expanded(child: _buildSlotSection(isDark, accentColor)),
       ],
     );
   }
 
-  Widget _buildMonthHeader(Color accentColor) {
+  Widget _buildMonthHeader(bool isDark, Color accentColor) {
     final canGoBack = _canGoToPreviousMonth();
     final canGoForward = _canGoToNextMonth();
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final disabledColor =
+        isDark ? AppColors.dividerDark : const Color(0xFFD1D5DB);
 
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: surface,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space16,
+        vertical: AppSpacing.space8,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
             icon: Icon(
               Icons.chevron_left,
-              color: canGoBack ? const Color(0xFF0F1B3D) : const Color(0xFFD1D5DB),
+              color: canGoBack ? textColor : disabledColor,
             ),
             onPressed: canGoBack
                 ? () {
@@ -311,14 +325,13 @@ class _DateTimeSlotSelectionScreenWidgetState
           ),
           Text(
             _formatMonth(_focusedDay),
-            style: const TextStyle(
+            style: AppTextStyles.heading2.copyWith(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF0F1B3D),
+              color: textColor,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right, color: Color(0xFF0F1B3D)),
+            icon: Icon(Icons.chevron_right, color: textColor),
             onPressed: canGoForward
                 ? () {
                     final next = DateTime(_focusedDay.year, _focusedDay.month + 1);
@@ -349,9 +362,13 @@ class _DateTimeSlotSelectionScreenWidgetState
     }
   }
 
-  Widget _buildCalendar() {
+  Widget _buildCalendar(bool isDark, Color accentColor) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Container(
-      color: Colors.white,
+      color: surface,
       child: TableCalendar(
         firstDay: DateTime.now(),
         lastDay: DateTime.now().add(const Duration(days: 365)),
@@ -375,34 +392,32 @@ class _DateTimeSlotSelectionScreenWidgetState
         headerVisible: false,
         calendarStyle: CalendarStyle(
           todayDecoration: BoxDecoration(
-            color: const Color(0xFF00C9A7).withOpacity(0.2),
+            color: accentColor.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
-          selectedDecoration: const BoxDecoration(
-            color: Color(0xFF00C9A7),
+          selectedDecoration: BoxDecoration(
+            color: accentColor,
             shape: BoxShape.circle,
           ),
-          weekendTextStyle: const TextStyle(
-            color: Color(0xFF0F1B3D),
+          weekendTextStyle: TextStyle(
+            color: textColor,
           ),
-          defaultTextStyle: const TextStyle(
-            color: Color(0xFF0F1B3D),
+          defaultTextStyle: TextStyle(
+            color: textColor,
           ),
           outsideDaysVisible: false,
-          markerDecoration: const BoxDecoration(
-            color: Color(0xFF00C9A7),
+          markerDecoration: BoxDecoration(
+            color: accentColor,
             shape: BoxShape.circle,
           ),
         ),
-        daysOfWeekStyle: const DaysOfWeekStyle(
-          weekdayStyle: TextStyle(
-            color: Color(0xFF6B7280),
-            fontSize: 12,
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: AppTextStyles.body2.copyWith(
+            color: secondaryText,
             fontWeight: FontWeight.w600,
           ),
-          weekendStyle: TextStyle(
-            color: Color(0xFF6B7280),
-            fontSize: 12,
+          weekendStyle: AppTextStyles.body2.copyWith(
+            color: secondaryText,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -415,8 +430,8 @@ class _DateTimeSlotSelectionScreenWidgetState
                 child: Container(
                   width: 6,
                   height: 6,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF00C9A7),
+                  decoration: BoxDecoration(
+                    color: accentColor,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -429,24 +444,27 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildSelectedDateLabel() {
+  Widget _buildSelectedDateLabel(bool isDark) {
     final hasSlots = _availableSlots.isNotEmpty;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final activeColor = hasSlots ? textColor : secondaryText;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space16),
       child: Row(
         children: [
           Icon(
             Icons.calendar_today,
             size: 14,
-            color: hasSlots ? const Color(0xFF0F1B3D) : const Color(0xFF9CA3AF),
+            color: activeColor,
           ),
           const SizedBox(width: 6),
           Text(
             _formatDate(_selectedDay!),
-            style: TextStyle(
-              fontSize: 14,
+            style: AppTextStyles.body1.copyWith(
               fontWeight: FontWeight.w600,
-              color: hasSlots ? const Color(0xFF0F1B3D) : const Color(0xFF9CA3AF),
+              color: activeColor,
             ),
           ),
         ],
@@ -454,40 +472,42 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildSlotSection(Color accentColor) {
+  Widget _buildSlotSection(bool isDark, Color accentColor) {
     if (_isLoadingSlots) {
-      return _buildSkeletonLoader();
+      return _buildSkeletonLoader(isDark);
     }
     if (_hasError) {
-      return _buildErrorState(accentColor);
+      return _buildErrorState(isDark, accentColor);
     }
     if (_selectedDay == null) {
-      return _buildSelectDayPrompt();
+      return _buildSelectDayPrompt(isDark);
     }
     if (_availableSlots.isEmpty) {
-      return _buildEmptySlots(accentColor);
+      return _buildEmptySlots(isDark, accentColor);
     }
-    return _buildSlotChips(accentColor);
+    return _buildSlotChips(isDark, accentColor);
   }
 
-  Widget _buildSelectDayPrompt() {
+  Widget _buildSelectDayPrompt(bool isDark) {
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.touch_app,
               size: 48,
-              color: Colors.grey.shade400,
+              color: secondaryText,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'Select a date to view available time slots',
-              style: TextStyle(
+              style: AppTextStyles.body1.copyWith(
                 fontSize: 15,
-                color: Color(0xFF6B7280),
+                color: secondaryText,
               ),
               textAlign: TextAlign.center,
             ),
@@ -497,9 +517,10 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildSkeletonLoader() {
+  Widget _buildSkeletonLoader(bool isDark) {
+    final skeleton = isDark ? AppColors.dividerDark : AppColors.divider;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       child: Wrap(
         spacing: 10,
         runSpacing: 10,
@@ -508,8 +529,8 @@ class _DateTimeSlotSelectionScreenWidgetState
             width: 80,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
-              borderRadius: BorderRadius.circular(8),
+              color: skeleton,
+              borderRadius: BorderRadius.circular(AppRadius.radiusSM),
             ),
           );
         }),
@@ -517,37 +538,33 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildErrorState(Color accentColor) {
+  Widget _buildErrorState(bool isDark, Color accentColor) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.error_outline,
               size: 48,
-              color: Color(0xFFEF4444),
+              color: AppColors.error,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'Failed to load time slots',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F1B3D),
-              ),
+              style: AppTextStyles.heading3.copyWith(color: textColor),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.space8),
             Text(
               _errorMessage,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.space24),
             TextButton.icon(
               onPressed: () {
                 if (_selectedDay != null) _fetchSlots(_selectedDay!);
@@ -564,37 +581,37 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildEmptySlots(Color accentColor) {
+  Widget _buildEmptySlots(bool isDark, Color accentColor) {
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.event_busy,
               size: 64,
-              color: Colors.grey.shade400,
+              color: secondaryText,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            const SizedBox(height: AppSpacing.space16),
+            Text(
               'No available slots this month',
-              style: TextStyle(
+              style: AppTextStyles.heading2.copyWith(
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF0F1B3D),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Try selecting a different date or contact the clinic for assistance.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
+                color: textColor,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.space8),
+            Text(
+              'Try selecting a different date or contact the clinic for assistance.',
+              style: AppTextStyles.body1.copyWith(color: secondaryText),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.space24),
             TextButton.icon(
               onPressed: () {
                 if (_selectedDay != null) _fetchSlots(_selectedDay!);
@@ -611,9 +628,12 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildSlotChips(Color accentColor) {
+  Widget _buildSlotChips(bool isDark, Color accentColor) {
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final borderColor = isDark ? AppColors.dividerDark : AppColors.divider;
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       child: Wrap(
         spacing: 10,
         runSpacing: 10,
@@ -626,21 +646,23 @@ class _DateTimeSlotSelectionScreenWidgetState
               });
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.space16,
+                vertical: AppSpacing.space8,
+              ),
               decoration: BoxDecoration(
-                color: isSelected ? accentColor : Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                color: isSelected ? accentColor : surface,
+                borderRadius: BorderRadius.circular(AppRadius.radiusSM),
                 border: Border.all(
-                  color: isSelected ? accentColor : const Color(0xFFE5E7EB),
+                  color: isSelected ? accentColor : borderColor,
                   width: isSelected ? 1.5 : 1.0,
                 ),
               ),
               child: Text(
                 slot,
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTextStyles.body1.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: isSelected ? Colors.white : const Color(0xFF0F1B3D),
+                  color: isSelected ? Colors.white : textColor,
                 ),
               ),
             ),
@@ -650,45 +672,26 @@ class _DateTimeSlotSelectionScreenWidgetState
     );
   }
 
-  Widget _buildContinueButton(Color accentColor) {
+  Widget _buildContinueButton(bool isDark, Color accentColor) {
     final isEnabled = _selectedSlot != null;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FC),
+        color: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: ElevatedButton(
-            onPressed: isEnabled ? _onContinuePressed : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isEnabled ? accentColor : const Color(0xFFE5E7EB),
-              foregroundColor:
-                  isEnabled ? Colors.white : const Color(0xFF9CA3AF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Continue',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        child: AppButton.primary(
+          label: 'Continue',
+          onPressed: isEnabled ? _onContinuePressed : null,
+          backgroundColor: accentColor,
         ),
       ),
     );

@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '/app_state.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_radius.dart';
+import '/core/widgets/app_button.dart';
+import '/core/widgets/app_dialog.dart';
+import '/core/widgets/app_toast.dart';
 import '/utils/whatsapp_helper.dart';
 import 'booking_flow_model.dart';
 
@@ -50,11 +56,9 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     final whatsAppNumber = bookingModel.selectedBranchWhatsApp;
     if (whatsAppNumber.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('WhatsApp number not available for this branch.'),
-            duration: Duration(seconds: 2),
-          ),
+        AppToast.error(
+          context,
+          message: 'WhatsApp number not available for this branch.',
         );
       }
       return;
@@ -102,35 +106,23 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     }
   }
 
-  void _showWhatsAppNotInstalledDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('WhatsApp Not Found'),
-        content: const Text(
+  Future<void> _showWhatsAppNotInstalledDialog(BuildContext context) async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'WhatsApp Not Found',
+      message:
           'WhatsApp is not installed. Please install WhatsApp to complete your booking.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              final installUrl = WhatsAppHelper.getWhatsAppInstallUrl();
-              try {
-                await launchUrl(
-                  Uri.parse(installUrl),
-                  mode: LaunchMode.externalApplication,
-                );
-              } catch (_) {}
-            },
-            child: const Text('Install WhatsApp'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Install WhatsApp',
     );
+    if (confirmed == true) {
+      final installUrl = WhatsAppHelper.getWhatsAppInstallUrl();
+      try {
+        await launchUrl(
+          Uri.parse(installUrl),
+          mode: LaunchMode.externalApplication,
+        );
+      } catch (_) {}
+    }
   }
 
   Widget _buildStepIndicator() {
@@ -141,7 +133,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
       _StepData(4, 'Confirm'),
     ];
 
-    const accentColor = Color(0xFF00C9A7);
+    const accentColor = AppColors.accent;
 
     return Row(
       children: steps.map((step) {
@@ -154,14 +146,14 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isLastStep ? accentColor : accentColor,
+                  color: accentColor,
                   border: Border.all(
                     color: accentColor,
                     width: 1.5,
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Icon(
+                child: const Icon(
                   Icons.check,
                   color: Colors.white,
                   size: 14,
@@ -170,7 +162,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 step.label,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: isLastStep ? Colors.white : Colors.white60,
                   fontSize: 11,
                   fontWeight:
@@ -186,7 +178,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final appState = FFAppState();
     final bookingModel = BookingFlowModel();
 
@@ -203,20 +195,17 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
         : '—';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FC),
+      backgroundColor:
+          isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F1B3D),
+        backgroundColor: AppColors.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Book Appointment',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.heading3.copyWith(color: Colors.white),
         ),
         centerTitle: false,
         elevation: 0,
@@ -224,17 +213,23 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
       body: Column(
         children: [
           Container(
-            color: const Color(0xFF0F1B3D),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            color: AppColors.primary,
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space16,
+              0,
+              AppSpacing.space16,
+              AppSpacing.space24,
+            ),
             child: _buildStepIndicator(),
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.space16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildSummaryCard(
+                    isDark,
                     bookingModel,
                     doctorDisplay,
                     formattedDate,
@@ -242,19 +237,20 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
                     patientName,
                     patientNric,
                   ),
-                  const SizedBox(height: 16),
-                  _buildInfoBanner(),
+                  const SizedBox(height: AppSpacing.space16),
+                  _buildInfoBanner(isDark),
                 ],
               ),
             ),
           ),
-          _buildBookButton(),
+          _buildBookButton(isDark),
         ],
       ),
     );
   }
 
   Widget _buildSummaryCard(
+    bool isDark,
     BookingFlowModel model,
     String doctorDisplay,
     String formattedDate,
@@ -262,14 +258,17 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     String patientName,
     String patientNric,
   ) {
-    const primaryColor = Color(0xFF0F1B3D);
-    const secondaryColor = Color(0xFF6B7280);
-    const dividerColor = Color(0xFFE5E7EB);
+    final primaryColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final dividerColor = isDark ? AppColors.dividerDark : AppColors.divider;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: surface,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
         border: Border.all(color: dividerColor),
         boxShadow: const [
           BoxShadow(
@@ -279,19 +278,18 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Appointment Summary',
-            style: TextStyle(
+            style: AppTextStyles.heading2.copyWith(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
               color: primaryColor,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.space16),
           _buildSummaryRow(
             'Branch',
             model.selectedBranchName.isNotEmpty
@@ -346,7 +344,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -354,19 +352,13 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
                 width: 72,
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
+                  style: AppTextStyles.body2.copyWith(color: secondaryColor),
                 ),
               ),
               Expanded(
                 child: Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF0F1B3D),
-                  ),
+                  style: AppTextStyles.body1.copyWith(color: primaryColor),
                 ),
               ),
             ],
@@ -382,32 +374,31 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoBanner() {
+  Widget _buildInfoBanner(bool isDark) {
+    const accentColor = AppColors.accent;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.space12),
       decoration: BoxDecoration(
-        color: const Color(0xFF00C9A7).withOpacity(0.12),
-        borderRadius: BorderRadius.circular(8),
+        color: accentColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
         border: Border.all(
-          color: const Color(0xFF00C9A7).withOpacity(0.3),
+          color: accentColor.withValues(alpha: 0.3),
         ),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline,
-            color: Color(0xFF00C9A7),
+            color: accentColor,
             size: 16,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
               'Your preferred slot is not confirmed until our team responds via WhatsApp.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF0F1B3D),
-              ),
+              style: AppTextStyles.body2.copyWith(color: textColor),
             ),
           ),
         ],
@@ -415,45 +406,25 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildBookButton() {
-    const accentColor = Color(0xFF00C9A7);
-
+  Widget _buildBookButton(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.space16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FC),
+        color: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: Builder(
-            builder: (context) => ElevatedButton.icon(
-              onPressed: () => _onBookViaWhatsApp(context),
-              icon: const Icon(Icons.chat, size: 20),
-              label: const Text(
-                'Book via WhatsApp',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: accentColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                elevation: 0,
-              ),
-            ),
+        child: Builder(
+          builder: (context) => AppButton.whatsApp(
+            label: 'Book via WhatsApp',
+            onPressed: () => _onBookViaWhatsApp(context),
+            icon: const Icon(Icons.chat, size: 20, color: Colors.white),
           ),
         ),
       ),
