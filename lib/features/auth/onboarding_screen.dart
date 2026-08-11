@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -307,7 +308,10 @@ class _SlideMediaState extends State<_SlideMedia> {
   String _debugLastError = '';
   bool _mounted = true;
 
-  static const _kInitTimeout = Duration(seconds: 15);
+  // Shorter than before: a healthy fast-start MP4 initialises in 1–3s. 15s
+  // just made a dead URL freeze the slide on a spinner.
+  static const _kInitTimeout = Duration(seconds: 8);
+  static const _kProbeTimeout = Duration(seconds: 4);
 
   @override
   void initState() {
@@ -347,6 +351,18 @@ class _SlideMediaState extends State<_SlideMedia> {
     if (cached != null && await cached.file.exists()) {
       controller = VideoPlayerController.file(cached.file);
     } else {
+      // Cheap liveness probe. A missing/stale upload 404s; without this the
+      // player would block for the full init timeout before giving up and
+      // showing the fallback. Skipped when we already have a cached file.
+      if (!await _urlIsPlayable(url)) {
+        if (_mounted) {
+          _debugLastError = 'Video not reachable (probe failed): $url';
+          _loadState = VideoLoadState.failed;
+          setState(() {});
+        }
+        return;
+      }
+
       controller = VideoPlayerController.networkUrl(
         Uri.parse(url),
         httpHeaders: {
@@ -390,6 +406,22 @@ class _SlideMediaState extends State<_SlideMedia> {
       }
     }
     if (_mounted) setState(() {});
+  }
+
+  /// Fast reachability check using a ranged GET of the first byte. Returns
+  /// false on 404/timeout/network error so the caller can fall back instantly
+  /// instead of waiting on the video player's own long init timeout.
+  Future<bool> _urlIsPlayable(String url) async {
+    try {
+      final resp = await http.get(
+        Uri.parse(url),
+        headers: {'Range': 'bytes=0-1'},
+      ).timeout(_kProbeTimeout);
+      // 200 (full) or 206 (partial) both mean the file is served.
+      return resp.statusCode == 200 || resp.statusCode == 206;
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
