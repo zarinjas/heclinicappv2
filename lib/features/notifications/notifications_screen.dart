@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
@@ -86,9 +87,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (ok) {
       _syncBadge(0);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not mark all as read.')),
-      );
+      AppToast.error(context, message: 'Could not mark all as read.');
     }
   }
 

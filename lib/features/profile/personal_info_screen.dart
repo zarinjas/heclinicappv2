@@ -10,6 +10,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_input.dart';
+import '../../core/widgets/app_toast.dart';
 
 /// Personal Information.
 ///
@@ -201,13 +202,11 @@ class _PersonalInfoScreenState extends State<PersonalInfoScreen> {
 
   void _snack(String message, {bool isError = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? AppColors.error : AppColors.primary,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    if (isError) {
+      AppToast.error(context, message: message);
+    } else {
+      AppToast.success(context, message: message);
+    }
   }
 
   @override

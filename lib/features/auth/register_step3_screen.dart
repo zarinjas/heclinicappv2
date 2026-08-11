@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
@@ -92,10 +93,9 @@ class _RegisterStep3ScreenState extends State<RegisterStep3Screen> {
   Future<void> _onCreateAccount() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_termsAccepted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please accept the Terms and Privacy Policy to continue.'),
-        ),
+      AppToast.warning(
+        context,
+        message: 'Please accept the Terms and Privacy Policy to continue.',
       );
       return;
     }

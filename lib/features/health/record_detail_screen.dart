@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -60,7 +61,7 @@ class RecordDetailScreen extends StatelessWidget {
   }
 
   void _notify(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    AppToast.info(context, message: message);
   }
 
   @override

@@ -4,6 +4,7 @@ import '/features/profile/biometric_screen.dart';
 import '/features/profile/notification_prefs_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '/core/widgets/app_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -65,36 +66,15 @@ class _ProfileWidgetState extends State<ProfileWidget> {
   }
 
   void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.radiusXL),
-        ),
-        title: Text(
-          'Are you sure?',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.heading3.copyWith(color: AppColors.primary),
-        ),
-        content: Text(
-          'This action cannot be undone.',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.body1.copyWith(color: AppColors.textSecondary),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text('Cancel', style: AppTextStyles.button),
-          ),
-          AppButton.destructive(
-            label: 'Log Out',
-            onPressed: () => Navigator.pop(dialogContext, true),
-          ),
-        ],
-      ),
+    AppDialog.confirm(
+      context,
+      title: 'Log out?',
+      message: 'You can sign back in anytime with your password'
+          ' or Face ID.',
+      confirmLabel: 'Log Out',
+      isDestructive: true,
     ).then((confirmed) {
-      if (confirmed == true) _performLogout(context);
+      if (confirmed == true && context.mounted) _performLogout(context);
     });
   }
 

@@ -1,6 +1,11 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/material.dart';
+
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_radius.dart';
+import '/core/theme/app_shadows.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/widgets/app_button.dart';
 
 class DoctorDetailSheet extends StatelessWidget {
   const DoctorDetailSheet({
@@ -53,22 +58,19 @@ class DoctorDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.secondaryBackground,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24.0),
-          topRight: Radius.circular(24.0),
+        color: surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.radiusXL),
         ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 32.0,
-            color: Colors.black.withOpacity(0.16),
-            offset: const Offset(0.0, -8.0),
-          ),
-        ],
+        boxShadow: AppShadows.shadowHigh,
       ),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.9,
@@ -76,116 +78,77 @@ class DoctorDetailSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHandleBar(theme),
+          _handleBar(isDark),
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 16.0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.space20,
+                0,
+                AppSpacing.space20,
+                AppSpacing.space16,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildAvatar(context),
-                  const SizedBox(height: 12.0),
+                  _avatar(isDark),
+                  const SizedBox(height: AppSpacing.space12),
                   Text(
                     doctorName,
                     textAlign: TextAlign.center,
-                    style: theme.headlineMedium.override(
-                      fontFamily: theme.headlineMediumFamily,
-                      color: theme.primaryText,
-                      letterSpacing: 0.0,
-                      useGoogleFonts: !theme.headlineMediumIsCustom,
-                    ),
+                    style: AppTextStyles.heading2.copyWith(color: textColor),
                   ),
-                  if (specialty != null) ...[
-                    const SizedBox(height: 4.0),
+                  if (specialty != null && specialty!.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.space4),
                     Text(
                       specialty!,
                       textAlign: TextAlign.center,
-                      style: theme.bodyMedium.override(
-                        fontFamily: theme.bodyMediumFamily,
-                        color: theme.secondaryText,
-                        letterSpacing: 0.0,
-                        useGoogleFonts: !theme.bodyMediumIsCustom,
-                      ),
+                      style: AppTextStyles.body1.copyWith(color: secondary),
                     ),
                   ],
-                  if (branchName != null) ...[
-                    const SizedBox(height: 4.0),
+                  if (branchName != null && branchName!.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.space4),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on_outlined,
-                          size: 16.0,
-                          color: theme.primary,
+                          size: 16,
+                          color: AppColors.accent,
                         ),
-                        const SizedBox(width: 4.0),
+                        const SizedBox(width: AppSpacing.space4),
                         Flexible(
                           child: Text(
                             branchName!,
                             textAlign: TextAlign.center,
-                            style: theme.bodySmall.override(
-                              fontFamily: theme.bodySmallFamily,
-                              color: theme.secondaryText,
-                              letterSpacing: 0.0,
-                              useGoogleFonts: !theme.bodySmallIsCustom,
-                            ),
+                            style:
+                                AppTextStyles.body2.copyWith(color: secondary),
                           ),
                         ),
                       ],
                     ),
                   ],
-                  if (qualifications != null && qualifications!.isNotEmpty) ...[
-                    const SizedBox(height: 16.0),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Qualifications',
-                        style: theme.headlineSmall.override(
-                          fontFamily: theme.headlineSmallFamily,
-                          color: theme.primaryText,
-                          letterSpacing: 0.0,
-                          useGoogleFonts: !theme.headlineSmallIsCustom,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
+                  if (qualifications != null &&
+                      qualifications!.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.space16),
+                    _sectionTitle('Qualifications', textColor),
+                    const SizedBox(height: AppSpacing.space8),
                     Text(
                       qualifications!,
-                      style: theme.bodyMedium.override(
-                        fontFamily: theme.bodyMediumFamily,
-                        color: theme.primaryText,
-                        letterSpacing: 0.0,
-                        useGoogleFonts: !theme.bodyMediumIsCustom,
-                      ),
+                      style: AppTextStyles.body1.copyWith(color: textColor),
                     ),
                   ],
                   if (bio != null && bio!.isNotEmpty) ...[
-                    const SizedBox(height: 16.0),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'About',
-                        style: theme.headlineSmall.override(
-                          fontFamily: theme.headlineSmallFamily,
-                          color: theme.primaryText,
-                          letterSpacing: 0.0,
-                          useGoogleFonts: !theme.headlineSmallIsCustom,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
+                    const SizedBox(height: AppSpacing.space16),
+                    _sectionTitle('About', textColor),
+                    const SizedBox(height: AppSpacing.space8),
                     Text(
                       bio!,
-                      style: theme.bodyMedium.override(
-                        fontFamily: theme.bodyMediumFamily,
-                        color: theme.primaryText,
-                        letterSpacing: 0.0,
-                        useGoogleFonts: !theme.bodyMediumIsCustom,
-                      ),
+                      style: AppTextStyles.body1.copyWith(color: textColor),
                     ),
                   ],
-                  const SizedBox(height: 20.0),
-                  FFButtonWidget(
+                  const SizedBox(height: AppSpacing.space24),
+                  AppButton.primary(
+                    label: 'Book Appointment',
                     onPressed: () {
                       if (onBookAppointment != null) {
                         onBookAppointment!();
@@ -193,26 +156,6 @@ class DoctorDetailSheet extends StatelessWidget {
                         Navigator.of(context).pop();
                       }
                     },
-                    text: 'Book Appointment',
-                    options: FFButtonOptions(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      height: 52.0,
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                          24.0, 0.0, 24.0, 0.0),
-                      iconPadding: const EdgeInsetsDirectional.fromSTEB(
-                          0.0, 0.0, 0.0, 0.0),
-                      color: const Color(0xFF00C9A7),
-                      textStyle: theme.titleSmall.override(
-                        fontFamily: theme.titleSmallFamily,
-                        color: Colors.white,
-                        fontSize: 15.0,
-                        letterSpacing: 0.0,
-                        fontWeight: FontWeight.w600,
-                        useGoogleFonts: !theme.titleSmallIsCustom,
-                      ),
-                      elevation: 0.0,
-                      borderRadius: BorderRadius.circular(24.0),
-                    ),
                   ),
                 ],
               ),
@@ -223,29 +166,35 @@ class DoctorDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildHandleBar(FlutterFlowTheme theme) {
+  Widget _sectionTitle(String text, Color color) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(text, style: AppTextStyles.heading3.copyWith(color: color)),
+    );
+  }
+
+  Widget _handleBar(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
       child: Container(
-        width: 36.0,
-        height: 4.0,
+        width: 36,
+        height: 4,
         decoration: BoxDecoration(
-          color: const Color(0xFFE5E7EB),
-          borderRadius: BorderRadius.circular(2.0),
+          color: isDark ? AppColors.dividerDark : AppColors.divider,
+          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
         ),
       ),
     );
   }
 
-  Widget _buildAvatar(BuildContext context) {
-    final theme = FlutterFlowTheme.of(context);
+  Widget _avatar(bool isDark) {
     if (photoUrl != null && photoUrl!.isNotEmpty) {
       return Container(
-        width: 100.0,
-        height: 100.0,
+        width: 100,
+        height: 100,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color(0xFFDBE2E7),
+          color: isDark ? AppColors.surfaceDark : AppColors.scaffoldBg,
           image: DecorationImage(
             fit: BoxFit.cover,
             image: NetworkImage(photoUrl!),
@@ -255,29 +204,24 @@ class DoctorDetailSheet extends StatelessWidget {
       );
     }
     return Container(
-      width: 100.0,
-      height: 100.0,
+      width: 100,
+      height: 100,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.primary.withOpacity(0.1),
+        color: AppColors.accent.withValues(alpha: 0.1),
       ),
       child: Center(
         child: Text(
-          _initialsFromName(doctorName),
-          style: theme.headlineLarge.override(
-            fontFamily: theme.headlineLargeFamily,
-            color: theme.primary,
-            letterSpacing: 0.0,
-            useGoogleFonts: !theme.headlineLargeIsCustom,
-          ),
+          _initials(doctorName),
+          style: AppTextStyles.heading1.copyWith(color: AppColors.accent),
         ),
       ),
     );
   }
 
-  String _initialsFromName(String name) {
+  String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.isEmpty) return '?';
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
     if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase();
     return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }

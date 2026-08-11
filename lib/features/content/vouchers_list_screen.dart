@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -63,13 +64,7 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
     final gradient = p.placeholderGradient;
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Claimed: ${p.title}'),
-            backgroundColor: AppColors.primary,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        AppToast.success(context, message: 'Claimed: ${p.title}');
       },
       child: Container(
         decoration: BoxDecoration(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -281,13 +282,7 @@ class _MainShellState extends State<MainShell> {
       router.pushNamed(routeName);
     } catch (_) {
       if (ctx.mounted) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(
-            content: Text('Coming soon'),
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        AppToast.info(ctx, message: 'Coming soon');
       }
     }
   }

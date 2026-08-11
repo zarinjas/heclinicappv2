@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -74,12 +75,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   void _shareArticle() {
     if (_article == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sharing: ${_article!.title}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    AppToast.info(context, message: 'Sharing: ${_article!.title}');
   }
 
   Widget _buildSkeleton() {

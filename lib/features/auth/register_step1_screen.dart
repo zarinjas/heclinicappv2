@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
@@ -205,9 +206,7 @@ class _RegisterStep1ScreenState extends State<RegisterStep1Screen> {
   void _onNext() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedNationality == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select your nationality.')),
-      );
+      AppToast.warning(context, message: 'Please select your nationality.');
       return;
     }
 

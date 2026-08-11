@@ -1,5 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../../core/widgets/app_toast.dart';
+import '../../core/widgets/app_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -315,31 +317,12 @@ class _DocumentsTabState extends State<DocumentsTab> {
       return;
     }
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Delete document?'),
-        content: Text(
-          'Are you sure you want to delete "${doc.name}"? This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(
-              'Delete',
-              style: TextStyle(
-                color: AppColors.error,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Delete document?',
+      message: 'Delete "${doc.name}"? This cannot be undone.',
+      confirmLabel: 'Delete',
+      isDestructive: true,
     );
 
     if (confirmed != true || !mounted) return;
@@ -356,15 +339,15 @@ class _DocumentsTabState extends State<DocumentsTab> {
       setState(() {
         _documents = _documents.where((d) => d.id != doc.id).toList();
       });
-      _showMessage('Document deleted');
+      AppToast.success(context, message: 'Document deleted');
     } else {
-      _showMessage('Failed to delete document');
+      AppToast.error(context, message: 'Failed to delete document');
     }
   }
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    AppToast.info(context, message: message);
   }
 
   @override

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import '../../core/widgets/app_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -231,25 +232,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final label = await bio.biometricLabel();
     if (!mounted) return;
 
-    final wantsIt = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Enable $label login?'),
-        content: Text(
-          'Sign in faster next time using $label. '
+    final wantsIt = await AppDialog.confirm(
+      context,
+      title: 'Enable $label login?',
+      message: 'Sign in faster next time using $label. '
           'Your password is never stored on this device.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Not now'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Enable'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Enable',
     );
 
     if (wantsIt == true) {
