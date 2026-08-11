@@ -5,9 +5,13 @@ import '../../core/services/biometric_auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_app_bar.dart';
+import '../../core/widgets/app_toast.dart';
 
 class BiometricScreen extends StatefulWidget {
   const BiometricScreen({super.key});
+
+  static String routeName = 'BiometricScreen';
+  static String routePath = '/biometric';
 
   @override
   State<BiometricScreen> createState() => _BiometricScreenState();
@@ -50,7 +54,10 @@ class _BiometricScreenState extends State<BiometricScreen> {
       if (value) {
         final token = FFAppState().tokenauth;
         if (token.isEmpty) {
-          _snack('Please sign in again before enabling $_label login.');
+          AppToast.warning(
+            context,
+            message: 'Please sign in again before enabling $_label login.',
+          );
           return;
         }
 
@@ -61,27 +68,26 @@ class _BiometricScreenState extends State<BiometricScreen> {
 
         setState(() => _enabled = ok);
         FFAppState().fingerprint = ok;
-        _snack(ok
-            ? '$_label login enabled.'
-            : 'Could not verify your identity. $_label login is still off.');
+        if (ok) {
+          AppToast.success(context, message: '$_label login enabled.');
+        } else {
+          AppToast.error(
+            context,
+            message:
+                'Could not verify your identity. $_label login is still off.',
+          );
+        }
       } else {
         await _bio.disable();
         if (!mounted) return;
 
         setState(() => _enabled = false);
         FFAppState().fingerprint = false;
-        _snack('$_label login disabled.');
+        AppToast.info(context, message: '$_label login disabled.');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
-  }
-
-  void _snack(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-    );
   }
 
   @override

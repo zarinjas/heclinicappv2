@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_app_bar.dart';
+import '../../core/widgets/app_toast.dart';
 
 class NotificationPrefsScreen extends StatefulWidget {
   const NotificationPrefsScreen({super.key});
+
+  static String routeName = 'NotificationPrefsScreen';
+  static String routePath = '/notification-prefs';
 
   @override
   State<NotificationPrefsScreen> createState() => _NotificationPrefsScreenState();
@@ -37,7 +41,10 @@ class _NotificationPrefsScreenState extends State<NotificationPrefsScreen> {
             value: p.enabled, activeColor: AppColors.accent,
             onChanged: (v) {
               setState(() => _prefs[i] = _NP(p.title, p.subtitle, v));
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${p.title} ${v ? "enabled" : "disabled"}')));
+              AppToast.info(
+                context,
+                message: '${p.title} ${v ? "enabled" : "disabled"}',
+              );
             },
           );
         }),

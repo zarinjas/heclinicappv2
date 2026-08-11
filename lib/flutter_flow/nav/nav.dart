@@ -288,10 +288,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) =>
               const MainShell(initialTab: 'myBookingPage'),
         ),
+        // Legacy biometric route; the FlutterFlow setup page is gone. Kept as
+        // a push-notification target, pointing at the new BiometricScreen.
         FFRoute(
-          name: BiometricSetupPageWidget.routeName,
-          path: BiometricSetupPageWidget.routePath,
-          builder: (context, params) => BiometricSetupPageWidget(),
+          name: 'BiometricSetupPage',
+          path: '/biometricSetupPage',
+          builder: (context, params) => const BiometricScreen(),
         ),
         FFRoute(
           name: ProfileWidget.routeName,
@@ -454,8 +456,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const MyPointsScreen(),
         ),
         FFRoute(
-          name: '/biometric',
-          path: '/biometric',
+          name: BiometricScreen.routeName,
+          path: BiometricScreen.routePath,
           builder: (context, params) => const BiometricScreen(),
         ),
         FFRoute(
@@ -474,8 +476,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const TermsScreen(),
         ),
         FFRoute(
-          name: '/notification-prefs',
-          path: '/notification-prefs',
+          name: NotificationPrefsScreen.routeName,
+          path: NotificationPrefsScreen.routePath,
           builder: (context, params) => const NotificationPrefsScreen(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),

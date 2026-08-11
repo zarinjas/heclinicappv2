@@ -1,15 +1,14 @@
-import '/backend/backend.dart';
-import '/flutter_flow/flutter_flow_expanded_image_view.dart';
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
-import 'hemed_info_model.dart';
-export 'hemed_info_model.dart';
+
+import '/backend/backend.dart';
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_radius.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/widgets/app_app_bar.dart';
+import '/core/widgets/app_empty_state.dart';
+import '/flutter_flow/flutter_flow_expanded_image_view.dart';
 
 class HemedInfoWidget extends StatefulWidget {
   const HemedInfoWidget({super.key});
@@ -22,148 +21,106 @@ class HemedInfoWidget extends StatefulWidget {
 }
 
 class _HemedInfoWidgetState extends State<HemedInfoWidget> {
-  late HemedInfoModel _model;
-
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => HemedInfoModel());
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
+    return Scaffold(
+      backgroundColor: bg,
+      appBar: AppAppBar.sub(title: 'He Clinic Info'),
+      body: SafeArea(
+        child: StreamBuilder<List<InfoRecord>>(
+          stream: queryInfoRecord(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final records = snapshot.data!;
+            if (records.isEmpty) {
+              return const AppEmptyState(
+                icon: Icons.info_outline_rounded,
+                title: 'Nothing here yet',
+                subtitle:
+                    'Clinic information will appear here once published.',
+              );
+            }
+
+            return GridView.builder(
+              padding: const EdgeInsets.all(AppSpacing.space16),
+              gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: AppSpacing.space12,
+                mainAxisSpacing: AppSpacing.space12,
+                childAspectRatio: 0.8,
+              ),
+              itemCount: records.length,
+              itemBuilder: (context, index) {
+                final record = records[index];
+                return _InfoTile(imageUrl: record.img, isDark: isDark);
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
+}
 
-  @override
-  void dispose() {
-    _model.dispose();
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({required this.imageUrl, required this.isDark});
 
-    super.dispose();
-  }
+  final String imageUrl;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        appBar: AppBar(
-          backgroundColor: FlutterFlowTheme.of(context).primary,
-          automaticallyImplyLeading: false,
-          leading: InkWell(
-            splashColor: Colors.transparent,
-            focusColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () async {
-              context.safePop();
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: FlutterFlowTheme.of(context).alternate,
-              size: 24.0,
-            ),
-          ),
-          title: Text(
-            'Hemed Info',
-            style: FlutterFlowTheme.of(context).headlineMedium.override(
-                  fontFamily: FlutterFlowTheme.of(context).headlineMediumFamily,
-                  color: Colors.white,
-                  fontSize: 22.0,
-                  letterSpacing: 0.0,
-                  useGoogleFonts:
-                      !FlutterFlowTheme.of(context).headlineMediumIsCustom,
-                ),
-          ),
-          actions: [],
-          centerTitle: true,
-          elevation: 3.0,
-        ),
-        body: SafeArea(
-          top: true,
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(10.0, 0.0, 10.0, 0.0),
-            child: StreamBuilder<List<InfoRecord>>(
-              stream: queryInfoRecord(),
-              builder: (context, snapshot) {
-                // Customize what your widget looks like when it's loading.
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: SizedBox(
-                      width: 50.0,
-                      height: 50.0,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          FlutterFlowTheme.of(context).primary,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                List<InfoRecord> gridViewInfoRecordList = snapshot.data!;
+    final placeholderBg = isDark ? AppColors.surfaceDark : AppColors.surface;
 
-                return GridView.builder(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    10.0,
-                    0,
-                    0,
+    return GestureDetector(
+      onTap: imageUrl.isEmpty
+          ? null
+          : () => Navigator.push(
+                context,
+                PageTransition(
+                  type: PageTransitionType.fade,
+                  child: FlutterFlowExpandedImageView(
+                    image: Image.network(imageUrl, fit: BoxFit.contain),
+                    allowRotation: false,
+                    tag: imageUrl,
+                    useHeroAnimation: true,
                   ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 0.8,
-                  ),
-                  scrollDirection: Axis.vertical,
-                  itemCount: gridViewInfoRecordList.length,
-                  itemBuilder: (context, gridViewIndex) {
-                    final gridViewInfoRecord =
-                        gridViewInfoRecordList[gridViewIndex];
-                    return InkWell(
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          PageTransition(
-                            type: PageTransitionType.fade,
-                            child: FlutterFlowExpandedImageView(
-                              image: Image.network(
-                                gridViewInfoRecord.img,
-                                fit: BoxFit.contain,
-                              ),
-                              allowRotation: false,
-                              tag: gridViewInfoRecord.img,
-                              useHeroAnimation: true,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Hero(
-                        tag: gridViewInfoRecord.img,
-                        transitionOnUserGestures: true,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(0.0),
-                          child: Image.network(
-                            gridViewInfoRecord.img,
-                            width: 170.0,
-                            height: 210.0,
-                            fit: BoxFit.cover,
-                          ),
+                ),
+              ),
+      child: Hero(
+        tag: imageUrl.isEmpty ? UniqueKey().toString() : imageUrl,
+        transitionOnUserGestures: true,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+          child: Container(
+            color: placeholderBg,
+            child: imageUrl.isEmpty
+                ? Icon(Icons.image_not_supported_outlined,
+                    color: AppColors.textSecondary)
+                : Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Icon(Icons.broken_image_outlined,
+                          color: AppColors.textSecondary),
+                    ),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Center(
+                        child: Text(
+                          '',
+                          style: AppTextStyles.caption,
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                      );
+                    },
+                  ),
           ),
         ),
       ),

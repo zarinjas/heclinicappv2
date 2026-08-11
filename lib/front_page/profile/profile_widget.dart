@@ -1,5 +1,7 @@
 import '/features/auth/splash_screen.dart';
 import '/features/profile/personal_info_screen.dart';
+import '/features/profile/biometric_screen.dart';
+import '/features/profile/notification_prefs_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +9,6 @@ import 'package:provider/provider.dart';
 
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
-import '/component/notification_setting/notification_setting_widget.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
@@ -162,24 +163,14 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   ),
                 ),
                 onTap: () => context.pushNamed(
-                  BiometricSetupPageWidget.routeName,
+                  BiometricScreen.routeName,
                 ),
               ),
               _profileTile(
                 icon: Icons.notifications_outlined,
                 label: 'Notification Preferences',
-                onTap: () async {
-                  await showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    enableDrag: false,
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: MediaQuery.viewInsetsOf(context),
-                      child: const NotificationSettingWidget(),
-                    ),
-                  );
-                },
+                onTap: () =>
+                    context.pushNamed(NotificationPrefsScreen.routeName),
               ),
               _profileTile(
                 icon: Icons.lock_outline_rounded,
