@@ -132,61 +132,29 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, _) =>
               appStateNotifier.loggedIn ? const MainShell() : const SplashScreen(),
         ),
+        // Legacy article route kept as a push-notification target.
         FFRoute(
-          name: ArticleDetailPageWidget.routeName,
-          path: ArticleDetailPageWidget.routePath,
-          builder: (context, params) => ArticleDetailPageWidget(
-            title: params.getParam(
-              'title',
-              ParamType.String,
-            ),
-            content: params.getParam(
-              'content',
-              ParamType.String,
-            ),
-            imageUrl: params.getParam(
-              'imageUrl',
-              ParamType.String,
-            ),
-            referenceLabel: params.getParam(
-              'referenceLabel',
-              ParamType.String,
-            ),
-            referenceUrl: params.getParam(
-              'referenceUrl',
-              ParamType.String,
-            ),
+          name: 'ArticleDetailPage',
+          path: '/articleDetailPage',
+          builder: (context, params) => ArticleDetailScreen(
+            articleTitle: params.getParam('title', ParamType.String),
+            articleSlug: params.getParam('slug', ParamType.String),
           ),
         ),
+        // Legacy FlutterFlow booking route. The old screen is gone; both the
+        // saved links and push notifications now land on the Visits tab.
         FFRoute(
-          name: BookingPageWidget.routeName,
-          path: BookingPageWidget.routePath,
-          builder: (context, params) => params.isEmpty
-              ? const MainShell(initialTab: 'myBookingPage')
-              : BookingPageWidget(
-                  cas: params.getParam(
-                    'cas',
-                    ParamType.String,
-                  ),
-                ),
+          name: 'bookingPage',
+          path: '/bookingPage',
+          builder: (context, params) =>
+              const MainShell(initialTab: 'myBookingPage'),
         ),
+        // Legacy date-picker route; the booking flow now lives in
+        // lib/pages/booking/. Send stale links to the branch step.
         FFRoute(
-          name: SelectDateWidget.routeName,
-          path: SelectDateWidget.routePath,
-          builder: (context, params) => SelectDateWidget(
-            branch: params.getParam(
-              'branch',
-              ParamType.String,
-            ),
-            namecase: params.getParam(
-              'namecase',
-              ParamType.String,
-            ),
-            isReschedule: params.getParam(
-              'isReschedule',
-              ParamType.bool,
-            ) == true,
-          ),
+          name: 'SelectDate',
+          path: '/selectDate',
+          builder: (context, params) => const BranchSelectionScreenWidget(),
         ),
         FFRoute(
           name: AppointmentsScreenWidget.routeName,
@@ -213,14 +181,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const SplashScreen(),
         ),
         FFRoute(
-          name: AllDoctorWidget.routeName,
-          path: AllDoctorWidget.routePath,
-          builder: (context, params) => AllDoctorWidget(),
+          name: 'allDoctor',
+          path: '/allDoctor',
+          builder: (context, params) => const DoctorsListScreen(),
         ),
         FFRoute(
-          name: ServicePackageWidget.routeName,
-          path: ServicePackageWidget.routePath,
-          builder: (context, params) => ServicePackageWidget(),
+          name: 'servicePackage',
+          path: '/servicePackage',
+          builder: (context, params) => const PackagesScreen(),
         ),
         FFRoute(
           name: ChangePasswordWidget.routeName,
@@ -239,22 +207,22 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                   ),
                 ),
         ),
+        // Legacy FlutterFlow home route, kept as a push-notification target.
         FFRoute(
-          name: HomepageNewWidget.routeName,
-          path: HomepageNewWidget.routePath,
-          builder: (context, params) => params.isEmpty
-              ? const MainShell(initialTab: 'HomepageNew')
-              : HomepageNewWidget(),
+          name: 'HomepageNew',
+          path: '/homepageNew',
+          builder: (context, params) =>
+              const MainShell(initialTab: 'HomepageNew'),
         ),
         FFRoute(
-          name: AllArticlePageNewWidget.routeName,
-          path: AllArticlePageNewWidget.routePath,
-          builder: (context, params) => AllArticlePageNewWidget(),
+          name: 'allArticlePageNew',
+          path: '/allArticlePageNew',
+          builder: (context, params) => const ArticlesListScreen(),
         ),
         FFRoute(
-          name: AllContentMediaWidget.routeName,
-          path: AllContentMediaWidget.routePath,
-          builder: (context, params) => AllContentMediaWidget(),
+          name: 'allContentMedia',
+          path: '/allContentMedia',
+          builder: (context, params) => const VideosListScreen(),
         ),
         FFRoute(
           name: HemedInfoWidget.routeName,
@@ -274,21 +242,51 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => const PersonalInfoScreen(),
         ),
         FFRoute(
-          name: BranchLocationNewCopyWidget.routeName,
-          path: BranchLocationNewCopyWidget.routePath,
-          builder: (context, params) => BranchLocationNewCopyWidget(),
+          name: 'branchLocationNewCopy',
+          path: '/branchLocationNewCopy',
+          builder: (context, params) => const ClinicInfoScreen(),
         ),
         FFRoute(
-          name: NotificationPageWidget.routeName,
-          path: NotificationPageWidget.routePath,
-          builder: (context, params) => params.isEmpty
-              ? const MainShell(initialTab: 'notificationPage')
-              : NotificationPageWidget(),
+          name: 'notificationPage',
+          path: '/notificationPage',
+          builder: (context, params) =>
+              const MainShell(initialTab: 'notificationPage'),
+        ),
+        // 'Visits' is a documented push-notification target. The old widget
+        // was unreachable in-app; send it to the Visits tab instead.
+        // Legacy push-notification targets from the FlutterFlow build. Their
+        // screens are gone, so each maps to its current equivalent. Without
+        // these, a push using an old name throws on navigation.
+        FFRoute(
+          name: 'LoginPage',
+          path: '/loginPage',
+          builder: (context, params) => const LoginScreen(),
         ),
         FFRoute(
-          name: VisitsWidget.routeName,
-          path: VisitsWidget.routePath,
-          builder: (context, params) => VisitsWidget(),
+          name: 'RegisterPage',
+          path: '/registerPage',
+          builder: (context, params) => const RegisterStep1Screen(),
+        ),
+        FFRoute(
+          name: 'ForgotPassword',
+          path: '/forgotPassword',
+          builder: (context, params) => const ForgotEmailScreen(),
+        ),
+        FFRoute(
+          name: 'onBoarding',
+          path: '/onBoardingLegacy',
+          builder: (context, params) => const OnboardingScreen(),
+        ),
+        FFRoute(
+          name: 'onBoardingNew',
+          path: '/onBoardingNew',
+          builder: (context, params) => const OnboardingScreen(),
+        ),
+        FFRoute(
+          name: 'Visits',
+          path: '/visits',
+          builder: (context, params) =>
+              const MainShell(initialTab: 'myBookingPage'),
         ),
         FFRoute(
           name: BiometricSetupPageWidget.routeName,
@@ -303,9 +301,9 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : ProfileWidget(),
         ),
         FFRoute(
-          name: HemedInfoCopyWidget.routeName,
-          path: HemedInfoCopyWidget.routePath,
-          builder: (context, params) => HemedInfoCopyWidget(),
+          name: 'hemedInfoCopy',
+          path: '/hemedInfoCopy',
+          builder: (context, params) => const ClinicInfoScreen(),
         ),
         FFRoute(
           name: BranchSelectionScreenWidget.routeName,

@@ -372,7 +372,7 @@ class _ChangePasswordWidgetState extends State<ChangePasswordWidget> {
                           if (Navigator.of(context).canPop()) {
                             context.pop();
                           } else {
-                            context.goNamed(HomepageNewWidget.routeName);
+                            context.go('/');
                           }
                         }
                       } else {

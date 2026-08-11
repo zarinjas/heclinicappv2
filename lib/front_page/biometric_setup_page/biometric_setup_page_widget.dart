@@ -483,7 +483,7 @@ class _BiometricSetupPageWidgetState extends State<BiometricSetupPageWidget> {
                     if (Navigator.of(context).canPop()) {
                       context.pop();
                     }
-                    context.pushNamed(HomepageNewWidget.routeName);
+                    context.go('/');
                   },
                   text: 'Continue',
                   options: FFButtonOptions(
