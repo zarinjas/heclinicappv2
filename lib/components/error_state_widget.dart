@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '/theme/app_theme.dart';
+import '/core/theme/app_text_styles.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final String message;
@@ -29,9 +29,7 @@ class ErrorStateWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.heading3.copyWith(
                 color: AppColors.textPrimary,
               ),
             ),
@@ -39,9 +37,7 @@ class ErrorStateWidget extends StatelessWidget {
             Text(
               'Please check your connection and try again.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
+              style: AppTextStyles.body1.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),

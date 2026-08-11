@@ -1,16 +1,15 @@
-import '/flutter_flow/flutter_flow_theme.dart';
-import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_web_view.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'alert_report_model.dart';
-export 'alert_report_model.dart';
 
-class AlertReportWidget extends StatefulWidget {
+import '/core/theme/app_colors.dart';
+import '/core/theme/app_radius.dart';
+import '/core/theme/app_spacing.dart';
+import '/core/theme/app_text_styles.dart';
+import '/flutter_flow/flutter_flow_web_view.dart';
+
+/// A single clinical case note. The note body is HTML from Plato, rendered by
+/// FlutterFlowWebView — that stays; only the surrounding chrome was migrated
+/// off FlutterFlowTheme onto the design system.
+class AlertReportWidget extends StatelessWidget {
   const AlertReportWidget({
     super.key,
     required this.author,
@@ -27,208 +26,108 @@ class AlertReportWidget extends StatefulWidget {
   final List<String>? diagnosis;
 
   @override
-  State<AlertReportWidget> createState() => _AlertReportWidgetState();
-}
-
-class _AlertReportWidgetState extends State<AlertReportWidget> {
-  late AlertReportModel _model;
-
-  @override
-  void setState(VoidCallback callback) {
-    super.setState(callback);
-    _model.onUpdate();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _model = createModel(context, () => AlertReportModel());
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _model.maybeDispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final divider = isDark ? AppColors.dividerDark : AppColors.divider;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final diag = diagnosis ?? const [];
+
     return Container(
       width: 500.0,
       decoration: BoxDecoration(
-        color: FlutterFlowTheme.of(context).secondaryBackground,
-        borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(
-          color: FlutterFlowTheme.of(context).alternate,
-          width: 1.0,
-        ),
+        color: surface,
+        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+        border: Border.all(color: divider),
       ),
       child: Padding(
-        padding: EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(AppSpacing.space4),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(12.0, 8.0, 12.0, 12.0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.space12,
+                AppSpacing.space8,
+                AppSpacing.space12,
+                AppSpacing.space12,
+              ),
               child: Row(
-                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     flex: 4,
                     child: Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 12.0, 0.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RichText(
-                            textScaler: MediaQuery.of(context).textScaler,
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Author: ',
-                                  style: TextStyle(),
-                                ),
-                                TextSpan(
-                                  text: widget!.author!,
-                                  style: TextStyle(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              ],
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyLarge
-                                  .override(
-                                    fontFamily: FlutterFlowTheme.of(context)
-                                        .bodyLargeFamily,
-                                    letterSpacing: 0.0,
-                                    useGoogleFonts:
-                                        !FlutterFlowTheme.of(context)
-                                            .bodyLargeIsCustom,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 32.0,
-                    decoration: BoxDecoration(
-                      color: FlutterFlowTheme.of(context).accent1,
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(
-                        color: FlutterFlowTheme.of(context).primary,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Align(
-                      alignment: AlignmentDirectional(0.0, 0.0),
-                      child: Padding(
-                        padding:
-                            EdgeInsetsDirectional.fromSTEB(8.0, 0.0, 8.0, 0.0),
-                        child: Text(
-                          valueOrDefault<String>(
-                            widget!.kategori,
-                            'Case Note',
-                          ),
-                          style: FlutterFlowTheme.of(context)
-                              .bodyMedium
-                              .override(
-                                fontFamily: FlutterFlowTheme.of(context)
-                                    .bodyMediumFamily,
-                                color: FlutterFlowTheme.of(context).primary,
-                                letterSpacing: 0.0,
-                                useGoogleFonts: !FlutterFlowTheme.of(context)
-                                    .bodyMediumIsCustom,
+                      padding: const EdgeInsets.only(right: AppSpacing.space12),
+                      child: RichText(
+                        textScaler: MediaQuery.of(context).textScaler,
+                        text: TextSpan(
+                          style: AppTextStyles.body1.copyWith(color: textColor),
+                          children: [
+                            const TextSpan(text: 'Author: '),
+                            TextSpan(
+                              text: author ?? '-',
+                              style: AppTextStyles.body1.copyWith(
+                                color: AppColors.accent,
+                                fontWeight: FontWeight.bold,
                               ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
+                  _tag(kategori?.isNotEmpty == true ? kategori! : 'Case Note'),
                 ],
               ),
             ),
-            Divider(
-              height: 2.0,
-              thickness: 1.0,
-              color: FlutterFlowTheme.of(context).alternate,
-            ),
-            Container(
-              width: MediaQuery.sizeOf(context).width * 1.0,
-              height: 50.0,
-              decoration: BoxDecoration(
-                color: FlutterFlowTheme.of(context).secondaryBackground,
-              ),
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(10.0, 5.0, 0.0, 10.0),
-                child: Builder(
-                  builder: (context) {
-                    final diag = widget!.diagnosis?.toList() ?? [];
-
-                    return Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: List.generate(diag.length, (diagIndex) {
-                        final diagItem = diag[diagIndex];
-                        return Container(
-                          height: 32.0,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context).accent1,
-                            borderRadius: BorderRadius.circular(12.0),
-                            border: Border.all(
-                              color: FlutterFlowTheme.of(context).primary,
-                              width: 2.0,
-                            ),
-                          ),
-                          child: Align(
-                            alignment: AlignmentDirectional(0.0, 0.0),
-                            child: Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  8.0, 0.0, 8.0, 0.0),
-                              child: Text(
-                                valueOrDefault<String>(
-                                  widget!.diagnosis?.elementAtOrNull(diagIndex),
-                                  'test',
-                                ),
-                                style: FlutterFlowTheme.of(context)
-                                    .bodyMedium
-                                    .override(
-                                      fontFamily: FlutterFlowTheme.of(context)
-                                          .bodyMediumFamily,
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      letterSpacing: 0.0,
-                                      useGoogleFonts:
-                                          !FlutterFlowTheme.of(context)
-                                              .bodyMediumIsCustom,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    );
-                  },
+            Divider(height: 1, thickness: 1, color: divider),
+            if (diag.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.space8,
+                  AppSpacing.space8,
+                  AppSpacing.space8,
+                  AppSpacing.space8,
+                ),
+                child: Wrap(
+                  spacing: AppSpacing.space8,
+                  runSpacing: AppSpacing.space8,
+                  children: diag.map(_tag).toList(),
                 ),
               ),
-            ),
             FlutterFlowWebView(
-              content: widget!.note!,
-              width: MediaQuery.sizeOf(context).width * 1.0,
+              content: note ?? '',
+              width: MediaQuery.sizeOf(context).width,
               height: 380.38,
               verticalScroll: false,
               horizontalScroll: false,
               html: true,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tag(String label) {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+        border: Border.all(color: AppColors.accent),
+      ),
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space8),
+        child: Text(
+          label,
+          style: AppTextStyles.body2.copyWith(
+            color: AppColors.accent,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

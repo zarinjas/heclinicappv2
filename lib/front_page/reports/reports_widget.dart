@@ -7,11 +7,13 @@ import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
 import '/component/alert_report/alert_report_widget.dart';
 import '/theme/app_theme.dart';
+import '/core/theme/app_text_styles.dart';
+import '/core/widgets/app_dialog.dart';
+import '/core/widgets/app_toast.dart';
 import '/core/widgets/branch_picker_sheet.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
@@ -405,9 +407,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                       padding: const EdgeInsets.all(AppSpacing.md),
                       child: Text(
                         record.title,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: AppTextStyles.heading3.copyWith(
                           fontSize: 18.0,
-                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -464,9 +465,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                       children: [
                         Text(
                           record.title,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: AppTextStyles.heading3.copyWith(
                             fontSize: 18.0,
-                            fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -515,9 +515,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
             child: ChoiceChip(
               label: Text(
                 label,
-                style: GoogleFonts.plusJakartaSans(
+                style: AppTextStyles.label.copyWith(
                   fontSize: 14.0,
-                  fontWeight: FontWeight.w500,
                   color: isSelected
                       ? AppColors.textInverse
                       : AppColors.textPrimary,
@@ -600,8 +599,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         record.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14.0,
+                        style: AppTextStyles.body1.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -610,9 +608,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           dateFormatted,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
+                          style: AppTextStyles.body2.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -621,9 +617,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           record.author,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
+                          style: AppTextStyles.body2.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -713,9 +707,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
             children: [
               Text(
                 vital.name,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.heading3.copyWith(
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -723,9 +715,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   vital.unit,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w400,
+                  style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -760,8 +750,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                           getTitlesWidget: (value, meta) {
                             return Text(
                               value.toStringAsFixed(vital.unit == 'mmHg' || vital.unit == 'bpm' ? 0 : 1),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10.0,
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.w400,
                                 color: AppColors.textSecondary,
                               ),
                             );
@@ -782,13 +772,13 @@ class _ReportsWidgetState extends State<ReportsWidget>
                                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                             return Padding(
                               padding: const EdgeInsets.only(top: AppSpacing.xs),
-                              child: Text(
-                                '${months[date.month - 1]} ${date.day}',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 10.0,
-                                  color: AppColors.textSecondary,
+                                child: Text(
+                                  '${months[date.month - 1]} ${date.day}',
+                                  style: AppTextStyles.caption.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
-                              ),
                             );
                           },
                         ),
@@ -903,8 +893,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         doc.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14.0,
+                        style: AppTextStyles.body1.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -913,9 +902,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           'Uploaded $dateFormatted',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
+                          style: AppTextStyles.body2.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -926,9 +913,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                           doc.adminNote!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
+                          style: AppTextStyles.body2.copyWith(
                             color: AppColors.textSecondary,
                           ),
                         ),
@@ -959,49 +944,17 @@ class _ReportsWidgetState extends State<ReportsWidget>
   Future<void> _onDeleteDocument(PatientDocument doc) async {
     // Guard against invalid IDs to avoid accidentally hitting DELETE /documents/0.
     if (doc.id <= 0) {
-      showSnackbar(context, 'Unable to delete this document.');
+      AppToast.error(context, message: 'Unable to delete this document.');
       return;
     }
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text(
-          'Delete document?',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        content: Text(
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Delete document?',
+      message:
           'Are you sure you want to delete "${doc.name}"? This cannot be undone.',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14.0,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.plusJakartaSans(color: AppColors.textSecondary),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(
-              'Delete',
-              style: GoogleFonts.plusJakartaSans(
-                color: AppColors.error,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
+      isDestructive: true,
     );
 
     if (confirmed != true || !mounted) return;
@@ -1018,9 +971,9 @@ class _ReportsWidgetState extends State<ReportsWidget>
       setState(() {
         _model.documentsList.removeWhere((d) => d.id == doc.id);
       });
-      showSnackbar(context, 'Document deleted');
+      AppToast.success(context, message: 'Document deleted');
     } else {
-      showSnackbar(context, 'Failed to delete document');
+      AppToast.error(context, message: 'Failed to delete document');
     }
   }
 
@@ -1057,9 +1010,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Upload Document',
-                style: GoogleFonts.plusJakartaSans(
+                style: AppTextStyles.heading3.copyWith(
                   fontSize: 18.0,
-                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -1068,16 +1020,14 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
                 title: Text(
                   'PDF file',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15.0,
+                  style: AppTextStyles.button.copyWith(
                     fontWeight: FontWeight.w500,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   'Blood test, MC, lab report...',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.0,
+                  style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -1087,16 +1037,14 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 leading: const Icon(Icons.photo_outlined, color: AppColors.accent),
                 title: Text(
                   'Photo from gallery',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15.0,
+                  style: AppTextStyles.button.copyWith(
                     fontWeight: FontWeight.w500,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   'Photo of a report or scan',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12.0,
+                  style: AppTextStyles.body2.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -1168,10 +1116,10 @@ class _ReportsWidgetState extends State<ReportsWidget>
     });
 
     if (response.succeeded) {
-      showSnackbar(context, 'Document uploaded');
+      AppToast.success(context, message: 'Document uploaded');
       await _loadDocuments(forceRefresh: true);
     } else {
-      showSnackbar(context, 'Upload failed');
+      AppToast.error(context, message: 'Upload failed');
     }
   }
 
@@ -1264,9 +1212,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                       doc.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.plusJakartaSans(
+                      style: AppTextStyles.heading3.copyWith(
                         fontSize: 18.0,
-                        fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                     ),
@@ -1335,8 +1282,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                     icon: const Icon(Icons.upload_file, size: 20),
                     label: Text(
                       'Upload Document',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14.0,
+                      style: AppTextStyles.body1.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1386,9 +1332,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
         automaticallyImplyLeading: false,
         title: Text(
           'My Health',
-          style: GoogleFonts.plusJakartaSans(
+          style: AppTextStyles.heading1.copyWith(
             fontSize: 22.0,
-            fontWeight: FontWeight.w700,
             color: AppColors.textInverse,
           ),
         ),
@@ -1404,12 +1349,10 @@ class _ReportsWidgetState extends State<ReportsWidget>
               isScrollable: false,
               labelColor: AppColors.textInverse,
               unselectedLabelColor: AppColors.textInverse.withValues(alpha: 0.6),
-              labelStyle: GoogleFonts.plusJakartaSans(
-                fontSize: 14.0,
+              labelStyle: AppTextStyles.body1.copyWith(
                 fontWeight: FontWeight.w600,
               ),
-              unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-                fontSize: 14.0,
+              unselectedLabelStyle: AppTextStyles.body1.copyWith(
                 fontWeight: FontWeight.w600,
               ),
               indicatorColor: AppColors.accent,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/theme/app_theme.dart';
+import '/core/theme/app_text_styles.dart';
 import '/components/skeleton_loaders.dart';
 import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
@@ -83,10 +83,9 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
         iconTheme: const IconThemeData(color: AppColors.textInverse),
         title: Text(
           'Queue Tracker',
-          style: GoogleFonts.plusJakartaSans(
+          style: AppTextStyles.heading3.copyWith(
             color: AppColors.textInverse,
-            fontWeight: FontWeight.w600,
-          ),
+            ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -186,8 +185,7 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
         children: [
           Text(
             'Your Queue Number',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14.0,
+            style: AppTextStyles.body1.copyWith(
               fontWeight: FontWeight.w500,
               color: AppColors.textInverse.withAlpha(200),
             ),
@@ -195,7 +193,8 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
           const SizedBox(height: AppSpacing.sm),
           Text(
             _queueNumber ?? '—',
-            style: GoogleFonts.plusJakartaSans(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 48.0,
               fontWeight: FontWeight.w700,
               color: AppColors.textInverse,
@@ -213,8 +212,7 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
             ),
             child: Text(
               isCurrentlyServing ? 'Now Serving' : 'Waiting',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12.0,
+              style: AppTextStyles.body2.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.textInverse,
               ),
@@ -224,7 +222,8 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
             const SizedBox(height: AppSpacing.md),
             Text(
               _patientName!,
-              style: GoogleFonts.plusJakartaSans(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 16.0,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textInverse.withAlpha(220),
@@ -286,8 +285,7 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
         Expanded(
           child: Text(
             label,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14.0,
+            style: AppTextStyles.body1.copyWith(
               fontWeight: FontWeight.w500,
               color: AppColors.textSecondary,
             ),
@@ -295,7 +293,7 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
         ),
         Text(
           value,
-          style: GoogleFonts.plusJakartaSans(
+          style: AppTextStyles.label.copyWith(
             fontSize: 14.0,
             fontWeight: FontWeight.w600,
             color: valueColor ?? AppColors.textPrimary,
@@ -313,10 +311,9 @@ class _QueueTrackerScreenWidgetState extends State<QueueTrackerScreenWidget> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Pull down to refresh',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 12.0,
+            style: AppTextStyles.body2.copyWith(
               color: AppColors.textSecondary.withAlpha(150),
-            ),
+              ),
           ),
         ],
       ),
