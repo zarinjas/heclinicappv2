@@ -47,17 +47,17 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
   Future<void> _askQuestion() async {
     await _openWhatsApp(
       message: 'Hi He Clinic!\n\n'
-          'I have a question about the "${package.name}" package.\n'
+          'I\'m interested in the "${package.name}" package.\n'
           '${package.description.isEmpty ? '' : '\n${package.description}\n'}'
-          '\nCould you help me? Thank you!',
+          '\nCould you share the price and more details? Thank you!',
     );
   }
 
   Future<void> _bookAppointment() async {
     await _openWhatsApp(
       message: 'Hi He Clinic!\n\n'
-          'I would like to book an appointment for the "${package.name}" package.\n'
-          '\nPlease advise on availability and next steps. Thank you!',
+          'I would like to enquire about the "${package.name}" package.\n'
+          '\nCould you share the price and availability, and how I can proceed? Thank you!',
     );
   }
 
@@ -92,13 +92,16 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.space8),
-                        Text(
-                          package.price,
-                          style: AppTextStyles.heading3.copyWith(
-                            color: AppColors.accent,
+                        if (package.description.isNotEmpty) ...[
+                          Text(
+                            package.description,
+                            style: AppTextStyles.body1.copyWith(
+                              color: titleColor,
+                              height: 1.5,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.space16),
+                          const SizedBox(height: AppSpacing.space16),
+                        ],
                         Text(
                           'Includes:',
                           style: AppTextStyles.label.copyWith(
@@ -106,13 +109,21 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: AppSpacing.space8),
+                        if (package.items.isNotEmpty)
+                          ..._buildItems()
+                        else
+                          Text(
+                            'Contact us for more details about this package.',
+                            style: AppTextStyles.body1.copyWith(
+                              color: titleColor,
+                              height: 1.5,
+                            ),
+                          ),
+                        const SizedBox(height: AppSpacing.space16),
                         Text(
-                          package.description.isEmpty
-                              ? 'Contact us for more details about this package.'
-                              : package.description,
-                          style: AppTextStyles.body1.copyWith(
-                            color: titleColor,
-                            height: 1.5,
+                          'Price available on request. Contact us for pricing and availability.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: secondaryTextColor,
                           ),
                         ),
                       ],
@@ -126,6 +137,36 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildItems() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return [
+      for (final item in package.items)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.space8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.check_circle_outline,
+                  size: 18, color: AppColors.accent),
+              const SizedBox(width: AppSpacing.space8),
+              Expanded(
+                child: Text(
+                  item,
+                  style: AppTextStyles.body1.copyWith(
+                    color: textColor,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+    ];
   }
 
   Widget _buildGallery(bool isDark) {

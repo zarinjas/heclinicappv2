@@ -40,6 +40,8 @@ class CmsServicePackageController extends Controller
 
         $data['gallery'] = $this->storeGallery($request);
 
+        $data['items'] = $this->parseItems($request->input('items'));
+
         $data['is_active'] = $request->boolean('is_active');
 
         CmsServicePackage::create($data);
@@ -69,6 +71,8 @@ class CmsServicePackageController extends Controller
 
         $data['gallery'] = $this->storeGallery($request, $service_package);
 
+        $data['items'] = $this->parseItems($request->input('items'));
+
         $data['is_active'] = $request->boolean('is_active');
 
         $service_package->update($data);
@@ -95,6 +99,18 @@ class CmsServicePackageController extends Controller
         return redirect()
             ->route('admin.cms.service-packages.index')
             ->with('success', 'Service package deleted successfully.');
+    }
+
+    private function parseItems(?string $items): array
+    {
+        if (! $items) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map('trim', preg_split('/\r\n|\r|\n/', $items)),
+            fn (string $line) => $line !== ''
+        ));
     }
 
     private function storeGallery(Request $request, ?CmsServicePackage $service_package = null): array

@@ -17,6 +17,7 @@ class StoreCmsServicePackageRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'items' => ['nullable', 'string'],
             'image' => [$this->isMethod('put') ? 'nullable' : 'required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'gallery' => ['nullable', 'array', 'max:12'],
             'gallery.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],

@@ -18,6 +18,7 @@ class CmsServicePackageController extends Controller
                 'id' => $package->id,
                 'name' => $package->name,
                 'description' => $package->description,
+                'items' => $package->items ?? [],
                 'image' => $package->image_url,
                 'gallery' => $package->gallery_urls,
                 'whatsapp_number' => $package->whatsapp_number,

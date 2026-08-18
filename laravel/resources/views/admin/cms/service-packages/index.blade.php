@@ -78,7 +78,14 @@
                                         </div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 font-medium text-[#0F1B3D]">{{ $package->name }}</td>
+                                <td class="px-6 py-4 font-medium text-[#0F1B3D]">
+                                    {{ $package->name }}
+                                    @if ($package->items && count($package->items) > 0)
+                                        <span class="ml-2 px-2 py-0.5 rounded-full bg-[#00C9A7]/10 text-[#0B8B75] text-[10px] font-semibold">
+                                            {{ count($package->items) }} item{{ count($package->items) > 1 ? 's' : '' }}
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 text-gray-500">
                                     <span class="truncate block max-w-[200px]">{{ Str::limit($package->description, 60) ?: '—' }}</span>
                                 </td>

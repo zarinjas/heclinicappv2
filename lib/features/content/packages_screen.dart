@@ -140,6 +140,45 @@ class _PackagesScreenState extends State<PackagesScreen> {
     );
   }
 
+  List<Widget> _buildItems(List<String> items, bool isDark) {
+    const visible = 3;
+    final shown = items.take(visible).toList();
+    final remaining = items.length - shown.length;
+    final textColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return [
+      for (final item in shown)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.space4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.check_circle_outline, size: 16, color: AppColors.accent),
+              const SizedBox(width: AppSpacing.space8),
+              Expanded(
+                child: Text(
+                  item,
+                  style: AppTextStyles.body2.copyWith(color: textColor),
+                ),
+              ),
+            ],
+          ),
+        ),
+      if (remaining > 0)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.space4),
+          child: Text(
+            '+$remaining more',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.accent,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+    ];
+  }
+
   Widget _buildEmpty() {
     return const Center(
       child: AppEmptyState(
@@ -194,9 +233,8 @@ class _PackagesScreenState extends State<PackagesScreen> {
         itemCount: _packages.length,
         itemBuilder: (context, index) {
           final pkg = _packages[index];
-          final imageUrl = pkg.imageUrl;
           return Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.space16,
               vertical: AppSpacing.space8,
             ),
@@ -234,13 +272,6 @@ class _PackagesScreenState extends State<PackagesScreen> {
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.space4),
-                        Text(
-                          pkg.price,
-                          style: AppTextStyles.heading3.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -250,19 +281,32 @@ class _PackagesScreenState extends State<PackagesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Includes:',
-                          style: AppTextStyles.label.copyWith(
-                            color: secondaryTextColor,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.space8),
-                        Text(
                           pkg.description,
                           style: AppTextStyles.body1.copyWith(
                             color: titleColor,
                           ),
                         ),
+                        if (pkg.items.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.space16),
+                          Text(
+                            'Includes:',
+                            style: AppTextStyles.label.copyWith(
+                              color: secondaryTextColor,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.space8),
+                          ..._buildItems(pkg.items, isDark),
+                        ],
                         const SizedBox(height: AppSpacing.space16),
+                        Text(
+                          'Price available on request',
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.space12),
                         SizedBox(
                           width: double.infinity,
                           child: AppButton.ghost(

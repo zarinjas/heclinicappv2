@@ -10,6 +10,7 @@ class CmsServicePackage extends Model
     protected $fillable = [
         'name',
         'description',
+        'items',
         'image',
         'gallery',
         'whatsapp_number',
@@ -20,6 +21,7 @@ class CmsServicePackage extends Model
     {
         return [
             'is_active' => 'boolean',
+            'items' => 'array',
             'gallery' => 'array',
         ];
     }
