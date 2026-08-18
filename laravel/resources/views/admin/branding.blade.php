@@ -135,38 +135,38 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="col-span-2">
                                 <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Background Image</label>
-                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                                    <div id="preview-welcome_bg_image" class="w-24 h-24 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                                <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                                    <div id="preview-welcome_bg_image" class="w-12 h-12 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
                                         @if($branding['welcome_bg_image_url'])
                                         <img src="{{ $branding['welcome_bg_image_url'] }}" alt="Welcome Background" class="w-full h-full object-cover">
                                         @else
-                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-[10px]">No</div>
                                         @endif
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-xs text-gray-500">Full-screen background image (recommended 1080×1920px). Leave empty to use only the color overlay.</p>
+                                    <div class="flex-1 min-w-0">
                                         <input type="file" name="welcome_bg_image" accept="image/png,image/jpeg,image/webp,image/gif"
                                                onchange="previewImage(event, 'welcome_bg_image'); updateWelcomePreviewImage(event)"
-                                               class="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                               class="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                        <p class="text-[11px] text-gray-400 truncate mt-1">Full-screen background. 1080×1920px recommended. Empty = overlay only.</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-span-2">
                                 <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Welcome Logo</label>
-                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                                    <div id="preview-welcome_logo" class="w-16 h-16 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                                <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                                    <div id="preview-welcome_logo" class="w-12 h-12 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
                                         @if($previewLogoUrl)
                                         <img src="{{ $previewLogoUrl }}" alt="Welcome Logo" class="w-full h-full object-contain">
                                         @else
-                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-[10px]">No</div>
                                         @endif
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-xs text-gray-500">Logo shown on the welcome screen. Falls back to the main app logo if left empty.</p>
+                                    <div class="flex-1 min-w-0">
                                         <input type="file" name="welcome_logo" accept="image/png,image/svg+xml,image/jpeg,image/webp,image/gif"
                                                onchange="previewImage(event, 'welcome_logo'); updateWelcomePreviewLogo(event)"
-                                               class="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                               class="text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                        <p class="text-[11px] text-gray-400 truncate mt-1">Falls back to the main app logo if left empty.</p>
                                     </div>
                                 </div>
                             </div>
