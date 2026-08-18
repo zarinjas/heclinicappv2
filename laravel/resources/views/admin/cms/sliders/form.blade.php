@@ -22,7 +22,7 @@
             <div class="p-6 space-y-6">
                 <div>
                     <label for="image" class="block text-sm font-medium text-[#0F1B3D] mb-1">
-                        Slider Image {{ $isEdit ? '' : '<span class="text-red-500">*</span>' }}
+                        Slider Image {!! $isEdit ? '' : '<span class="text-red-500">*</span>' !!}
                     </label>
                     <input
                         type="file"
@@ -31,7 +31,7 @@
                         accept="image/jpeg,image/png,image/webp"
                         class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('image') border-red-300 @enderror"
                     >
-                    <p class="mt-1 text-xs text-gray-400">Recommended size: 1200×400px (full-width banner). Max 5MB. JPEG, PNG, or WebP.</p>
+                    <p class="mt-1 text-xs text-gray-400">Ratio: 2:1. Recommended size: 1080×540px (sharp on all screens). Max 5MB. JPEG, PNG, or WebP.</p>
                     @error('image')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror

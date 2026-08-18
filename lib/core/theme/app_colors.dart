@@ -39,6 +39,14 @@ class AppColors {
   static const Color tierSilver = Color(0xFFC0C0C0);
   static const Color tierGold = Color(0xFFF5A623);
 
+  // Additional common text/surface colors for general use
+  static const Color textPrimary = Color(0xFF0F1B3D);
+  static const Color textPrimaryDark = Color(0xFFFFFFFF);
+  static const Color textSecondaryDark = Color(0xFF9CA3AF);
+  static const Color scaffoldBg = Color(0xFFF8F9FC);
+  static const Color scaffoldBgDark = Color(0xFF0A0E1A);
+  static const Color surfaceInverse = Color(0xFFFFFFFF);
+
   static const Color whatsappGreen = Color(0xFF25D366);
 
   static const Color chipConfirmedBg = Color(0xFFECFDF5);

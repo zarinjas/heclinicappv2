@@ -3,12 +3,10 @@ import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/api_manager.dart';
 import '/env_config.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/theme/app_theme.dart';
 import '/core/theme/app_text_styles.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
-import '/core/theme/app_shadows.dart';
 import '/core/widgets/app_button.dart';
 import '/core/widgets/modern_toast.dart';
 import '/components/empty_state_widget.dart';
@@ -521,7 +519,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
-        leading: IconButton(onTap: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24)),
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24)),
         title: Text('My Appointments', style: AppTextStyles.heading1.copyWith(fontSize: 22, color: Colors.white)),
         centerTitle: true,
       ),
