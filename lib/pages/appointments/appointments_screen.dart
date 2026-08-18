@@ -4,14 +4,15 @@ import '/backend/api_requests/api_manager.dart';
 import '/env_config.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/core/theme/app_text_styles.dart';
-import '/core/theme/app_colors.dart';
-import '/core/theme/app_radius.dart';
-import '/core/theme/app_spacing.dart';
+import '/core/theme/app_colors.dart' as core;
+import '/core/theme/app_radius.dart' as core;
+import '/core/theme/app_spacing.dart' as core;
 import '/core/widgets/app_button.dart';
 import '/core/widgets/modern_toast.dart';
+import '/core/widgets/app_app_bar.dart';
+import '/core/widgets/app_chip.dart';
 import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
-import '/app_state.dart';
 
 class AppointmentsScreenWidget extends StatefulWidget {
   const AppointmentsScreenWidget({super.key});
@@ -25,8 +26,8 @@ class AppointmentsScreenWidget extends StatefulWidget {
 }
 
 class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+    {
+  int _currentTab = 0;
 
   bool _isLoading = true;
   bool _hasError = false;
@@ -42,14 +43,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAppointments());
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadAppointments() async {
@@ -183,7 +177,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   }
 
   Color _getColorForCode(String code) {
-    if (code.isEmpty) return AppColors.accent;
+    if (code.isEmpty) return core.AppColors.accent;
     final colorIndex = code.hashCode.abs();
     const colors = [
       Color(0xFF10B981),
@@ -235,7 +229,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   }
 
   Color _statusColor(Map<String, dynamic> appointment) {
-    return appointment['isUpcoming'] == true ? AppColors.success : AppColors.textSecondary;
+    return appointment['isUpcoming'] == true ? core.AppColors.success : core.AppColors.textSecondary;
   }
 
   void _showAppointmentDetail(Map<String, dynamic> appointment) {
@@ -247,15 +241,15 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
     final statusLabel = _statusLabel(appointment);
     final statusColor = _statusColor(appointment);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppColors.surfaceDark : AppColors.surface;
-    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final cardColor = isDark ? core.AppColors.surfaceDark : core.AppColors.surface;
+    final textColor = isDark ? core.AppColors.textSecondaryDark : core.AppColors.primary;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.radiusXL)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(core.AppRadius.radiusXL)),
       ),
       builder: (_) => Container(
         constraints: BoxConstraints(
@@ -263,7 +257,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
         ),
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.radiusXL)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(core.AppRadius.radiusXL)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -273,13 +267,13 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
               height: 4.0,
               margin: const EdgeInsets.fromLTRB(0, 12, 0, 8),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.dividerDark : AppColors.divider,
+                color: isDark ? core.AppColors.dividerDark : core.AppColors.divider,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.space16),
+              padding: const EdgeInsets.all(core.AppSpacing.space16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -298,7 +292,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                         BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 4)),
                       ],
                     ),
-                    child: Icon(Icons.calendar_month, color: Colors.white, size: 32),
+                    child: const Icon(Icons.calendar_month, color: Colors.white, size: 32),
                   ),
                 ],
               ),
@@ -307,7 +301,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
               'Appointment Details',
               style: AppTextStyles.heading2.copyWith(color: textColor, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: AppSpacing.space16),
+            const SizedBox(height: core.AppSpacing.space16),
             Container(
               width: 64,
               height: 3,
@@ -316,9 +310,9 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: AppSpacing.space12),
+            const SizedBox(height: core.AppSpacing.space12),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space16),
+              padding: const EdgeInsets.symmetric(horizontal: core.AppSpacing.space16),
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
@@ -335,17 +329,17 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                       color: statusColor,
                       context: context,
                     ),
-                    const SizedBox(height: AppSpacing.space16),
+                    const SizedBox(height: core.AppSpacing.space16),
                     if (appointment['isUpcoming'] == true && (appointment['appointmentId'] as String? ?? '').isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.all(AppSpacing.space16),
+                        padding: const EdgeInsets.all(core.AppSpacing.space16),
                         child: Material(
                           elevation: 4,
-                          color: AppColors.error,
-                          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+                          color: core.AppColors.error,
+                          borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
                           child: InkWell(
                             onTap: () => _onCancelAppointment(appointment),
-                            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+                            borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                               child: Row(
@@ -360,7 +354,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                           ),
                         ),
                       ),
-                    const SizedBox(height: AppSpacing.space16 + AppSpacing.space8),
+                    const SizedBox(height: core.AppSpacing.space16 + core.AppSpacing.space8),
                   ],
                 ),
               ),
@@ -408,20 +402,20 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
       context: context,
       builder: (dialogContext) {
         final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
-        final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+        final surface = isDark ? core.AppColors.surfaceDark : core.AppColors.surface;
 
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) => Dialog(
             backgroundColor: surface,
             insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.radiusXL)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(core.AppRadius.radiusXL)),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Why are you cancelling?', style: AppTextStyles.heading3.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary)),
+                  Text('Why are you cancelling?', style: AppTextStyles.heading3.copyWith(color: isDark ? core.AppColors.textSecondaryDark : core.AppColors.primary)),
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
@@ -433,12 +427,12 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                         selected: isSelected,
                         showCheckmark: false,
                         onSelected: (_) => setDialogState(() => selected = reason),
-                        labelStyle: AppTextStyles.body2.copyWith(color: isSelected ? Colors.white : AppColors.textSecondary),
-                        selectedColor: AppColors.error,
+                        labelStyle: AppTextStyles.body2.copyWith(color: isSelected ? Colors.white : core.AppColors.textSecondary),
+                        selectedColor: core.AppColors.error,
                         backgroundColor: surface,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
-                          side: BorderSide(color: isSelected ? AppColors.error : AppColors.divider),
+                          borderRadius: BorderRadius.circular(core.AppRadius.radiusFull),
+                          side: BorderSide(color: isSelected ? core.AppColors.error : core.AppColors.divider),
                         ),
                       );
                     }).toList(),
@@ -448,14 +442,14 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                     TextField(
                       controller: controller,
                       maxLines: 2,
-                      style: AppTextStyles.body1.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary),
+                      style: AppTextStyles.body1.copyWith(color: isDark ? core.AppColors.textSecondaryDark : core.AppColors.primary),
                       decoration: InputDecoration(
                         hintText: 'Tell us the reason…',
-                        hintStyle: AppTextStyles.body1.copyWith(color: AppColors.textSecondary),
+                        hintStyle: AppTextStyles.body1.copyWith(color: core.AppColors.textSecondary),
                         contentPadding: const EdgeInsets.all(12),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.radiusMD), borderSide: const BorderSide(color: AppColors.inputBorder)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.radiusMD), borderSide: const BorderSide(color: AppColors.inputBorder)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.radiusMD), borderSide: const BorderSide(color: AppColors.inputBorderFocus)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(core.AppRadius.radiusMD), borderSide: const BorderSide(color: core.AppColors.inputBorder)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(core.AppRadius.radiusMD), borderSide: const BorderSide(color: core.AppColors.inputBorder)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(core.AppRadius.radiusMD), borderSide: const BorderSide(color: core.AppColors.inputBorderFocus)),
                       ),
                     ),
                   ],
@@ -513,15 +507,13 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
+    final bgColor = isDark ? core.AppColors.scaffoldBgDark : core.AppColors.scaffoldBg;
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24)),
-        title: Text('My Appointments', style: AppTextStyles.heading1.copyWith(fontSize: 22, color: Colors.white)),
-        centerTitle: true,
+      appBar: AppAppBar.sub(
+        title: 'Visits',
+        onBack: () => context.goNamed('HomepageNew'),
       ),
       body: _isLoading ? _buildLoadingSkeleton() : _hasError ? ErrorStateWidget(message: _errorMessage ?? 'Something went wrong', onRetry: _loadAppointments) : _buildContent(),
     );
@@ -533,74 +525,70 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        // Gradient header skeleton
-        Container(
-          width: double.infinity,
-          height: 80,
-          margin: const EdgeInsets.fromLTRB(16, 16 + MediaQuery.of(context).padding.top, 16, 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppColors.primary.withValues(alpha: 0.9), AppColors.primary.withValues(alpha: 0.75)]),
-            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-          ),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _SkeletonTab(isDark: isDark),
-                const SizedBox(width: 12),
-                _SkeletonTab(isDark: isDark),
-              ],
-            ),
-          ),
-        ),
+        _buildTabSkeleton(isDark: isDark),
         const SizedBox(height: 16),
-        ...List.generate(3, (index) => _ModernSkeletonCard(isDark: isDark)),
+        ...List.generate(3, (index) => _modernSkeletonCard(isDark: isDark)),
       ],
     );
   }
 
-  Widget _SkeletonTab({required bool isDark}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white12 : Colors.black12,
-        borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+  Widget _buildTabSkeleton({required bool isDark}) {
+    final color = isDark ? core.AppColors.skeletonBaseDark : core.AppColors.skeletonBase;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        children: [
+          Expanded(child: _skeletonTab(color)),
+          const SizedBox(width: 8),
+          Expanded(child: _skeletonTab(color)),
+        ],
       ),
     );
   }
 
-  Widget _ModernSkeletonCard({required bool isDark}) {
+  Widget _skeletonTab(Color color) {
+    return Container(
+      height: 32,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(core.AppRadius.radiusSM),
+      ),
+    );
+  }
+
+  Widget _modernSkeletonCard({required bool isDark}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-        border: Border.all(color: isDark ? const Color(0xFF1F2937) : AppColors.divider),
+        color: isDark ? core.AppColors.surfaceDark : core.AppColors.surface,
+        borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
+        border: Border.all(color: isDark ? const Color(0xFF1F2937) : core.AppColors.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(width: 56, height: 56, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM))),
+              Container(width: 56, height: 56, decoration: BoxDecoration(color: core.AppColors.divider, borderRadius: BorderRadius.circular(core.AppRadius.radiusSM))),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(width: double.infinity, height: 16, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM))),
+                    Container(width: double.infinity, height: 16, decoration: BoxDecoration(color: core.AppColors.divider, borderRadius: BorderRadius.circular(core.AppRadius.radiusSM))),
                     const SizedBox(height: 8),
-                    Container(width: 120, height: 14, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM))),
+                    Container(width: 120, height: 14, decoration: BoxDecoration(color: core.AppColors.divider, borderRadius: BorderRadius.circular(core.AppRadius.radiusSM))),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Container(height: 1, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM))),
+          Container(height: 1, decoration: BoxDecoration(color: core.AppColors.divider, borderRadius: BorderRadius.circular(core.AppRadius.radiusSM))),
           const SizedBox(height: 16),
-          Container(height: 14, decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM))),
+          Container(height: 14, decoration: BoxDecoration(color: core.AppColors.divider, borderRadius: BorderRadius.circular(core.AppRadius.radiusSM))),
         ],
       ),
     );
@@ -609,24 +597,38 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   Widget _buildContent() {
     return Column(
       children: [
-        // Modern Gradient Header Section
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16, 16 + MediaQuery.of(context).padding.top, 16, 16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppColors.primary.withValues(alpha: 0.9), AppColors.primary.withValues(alpha: 0.75)]),
-            boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 4))],
-          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _ModernTabButton(icon: Icons.event_available, label: 'Upcoming', isSelected: _tabController.index == 0, onTap: () => _tabController.animateTo(0), context: context),
-              _ModernTabButton(icon: Icons.history, label: 'Past', isSelected: _tabController.index == 1, onTap: () => _tabController.animateTo(1), context: context),
+              Expanded(
+                child: AppChip(
+                  label: 'Upcoming',
+                  type: AppChipType.filter,
+                  isSelected: _currentTab == 0,
+                  onTap: () => setState(() => _currentTab = 0),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: AppChip(
+                  label: 'Past',
+                  type: AppChipType.filter,
+                  isSelected: _currentTab == 1,
+                  onTap: () => setState(() => _currentTab = 1),
+                ),
+              ),
             ],
           ),
         ),
         Expanded(
-          child: TabBarView(controller: _tabController, children: [_buildAppointmentList(_upcomingAppointments, true), _buildAppointmentList(_pastAppointments, false)]),
+          child: IndexedStack(
+            index: _currentTab,
+            children: [
+              _buildAppointmentList(_upcomingAppointments, true),
+              _buildAppointmentList(_pastAppointments, false),
+            ],
+          ),
         ),
       ],
     );
@@ -636,7 +638,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
     if (appointments.isEmpty) {
       return RefreshIndicator(
         onRefresh: _loadAppointments,
-        child: SingleChildScrollView(physics: const AlwaysScrollableScrollPhysics(), child: SizedBox(height: MediaQuery.of(context).size.height * 0.6, child: EmptyStateWidget(icon: Icons.event_busy, title: isUpcoming ? 'No upcoming appointments' : 'No past appointments', subtitle: isUpcoming ? 'Book your first visit today' : 'Your completed appointments will appear here', actionLabel: isUpcoming ? 'Book Now' : null, onAction: isUpcoming ? () {} : null))),
+        child: SingleChildScrollView(physics: const AlwaysScrollableScrollPhysics(), child: SizedBox(height: MediaQuery.of(context).size.height * 0.6, child: EmptyStateWidget(icon: Icons.event_busy, title: isUpcoming ? 'No upcoming appointments' : 'No past appointments', subtitle: isUpcoming ? 'Book your first visit today' : 'Your completed appointments will appear here', actionLabel: isUpcoming ? 'Book Now' : null, onAction: isUpcoming ? () => context.push('/branchSelectionScreen') : null))),
       );
     }
 
@@ -659,26 +661,25 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
     final locationName = appointment['locationName'] as String? ?? '';
     final statusLabel = _statusLabel(appointment);
     final statusColor = _statusColor(appointment);
-    final isUpcoming = appointment['isUpcoming'] == true;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
-    final cardColor = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final textColor = isDark ? core.AppColors.textSecondaryDark : core.AppColors.primary;
+    final cardColor = isDark ? core.AppColors.surfaceDark : core.AppColors.surface;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
         boxShadow: [
           BoxShadow(color: isDark ? Colors.black.withValues(alpha: 0.3) : color.withValues(alpha: 0.12), blurRadius: 12, offset: const Offset(0, 4)),
         ],
       ),
       child: Material(
         color: cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => _showAppointmentDetail(appointment),
-          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+          borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
@@ -690,7 +691,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppRadius.radiusSM)),
+                        decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(core.AppRadius.radiusSM)),
                         child: Column(mainAxisSize: MainAxisSize.min, children: [
                           Text(_getShortDate(start), style: AppTextStyles.label.copyWith(color: color, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
                           Text(_getDateNum(start).toString(), style: AppTextStyles.heading1.copyWith(color: color, fontSize: 20, fontWeight: FontWeight.w800)),
@@ -701,14 +702,14 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_formatDate(start), style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                            Text(_formatDate(start), style: AppTextStyles.body2.copyWith(color: core.AppColors.textSecondary, fontWeight: FontWeight.w500)),
                             const SizedBox(height: 2),
                             Row(children: [
                               Icon(Icons.schedule, size: 14, color: color),
                               const SizedBox(width: 4),
                               Text(_formatTime(start), style: AppTextStyles.heading3.copyWith(color: textColor, fontWeight: FontWeight.w700)),
                               if (end != null) ...[
-                                Text(' → ${_formatTime(end)}', style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+                                Text(' → ${_formatTime(end)}', style: AppTextStyles.body2.copyWith(color: core.AppColors.textSecondary, fontWeight: FontWeight.w500)),
                               ],
                             ])
                           ],
@@ -721,7 +722,7 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                    borderRadius: BorderRadius.circular(core.AppRadius.radiusFull),
                     border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -761,41 +762,9 @@ class _CardInfoRow extends StatelessWidget {
         Icon(icon, size: 16, color: color.withValues(alpha: 0.7)),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(text, style: AppTextStyles.body2.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+          child: Text(text, style: AppTextStyles.body2.copyWith(color: isDark ? core.AppColors.textSecondaryDark : core.AppColors.textSecondary, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
       ],
-    );
-  }
-}
-
-class _ModernTabButton extends StatelessWidget {
-  const _ModernTabButton({required this.icon, required this.label, required this.isSelected, required this.onTap, required this.context});
-
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-  final BuildContext context;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
-          border: Border.all(color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.3)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 16, color: isSelected ? AppColors.primary : Colors.white),
-          const SizedBox(width: 4),
-          Text(label, style: AppTextStyles.label.copyWith(color: isSelected ? AppColors.primary : Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
-        ]),
-      ),
     );
   }
 }
@@ -818,21 +787,21 @@ class _InfoCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [isDark ? AppColors.surfaceDark.withValues(alpha: 0.85) : AppColors.scaffoldBg.withValues(alpha: 0.7), isDark ? AppColors.surfaceDark.withValues(alpha: 0.7) : AppColors.scaffoldBg.withValues(alpha: 0.5)],
+          colors: [isDark ? core.AppColors.surfaceDark.withValues(alpha: 0.85) : core.AppColors.scaffoldBg.withValues(alpha: 0.7), isDark ? core.AppColors.surfaceDark.withValues(alpha: 0.7) : core.AppColors.scaffoldBg.withValues(alpha: 0.5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        borderRadius: BorderRadius.circular(core.AppRadius.radiusLG),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppRadius.radiusSM)), child: Icon(icon, size: 20, color: color)),
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(core.AppRadius.radiusSM)), child: Icon(icon, size: 20, color: color)),
         const SizedBox(width: 16),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(title, style: AppTextStyles.body2.copyWith(color: core.AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            Text(value, style: AppTextStyles.label.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(value, style: AppTextStyles.label.copyWith(color: isDark ? core.AppColors.textSecondaryDark : core.AppColors.primary, fontWeight: FontWeight.w700, fontSize: 14)),
           ]),
         ),
       ]),

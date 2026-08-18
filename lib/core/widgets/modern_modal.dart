@@ -21,7 +21,7 @@ class ModernModal extends StatelessWidget {
     bool isDestructive = false,
     Color? accentColor,
   }) async {
-    accentColor ??= AppColors.primary;
+    final Color accent = accentColor ?? AppColors.primary;
 
     return showModalBottomSheet<bool>(
       context: context,
@@ -33,7 +33,7 @@ class ModernModal extends StatelessWidget {
       builder: (context) => ModernModal._(
         child: Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          child: _buildDialogContent(context, title, message, cancelLabel, confirmLabel, isDestructive, accentColor),
+          child: _buildDialogContent(context, title, message, cancelLabel, confirmLabel, isDestructive, accent),
         ),
       ),
     );

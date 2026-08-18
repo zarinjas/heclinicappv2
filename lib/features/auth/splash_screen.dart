@@ -51,7 +51,9 @@ class _SplashScreenState extends State<SplashScreen> {
       _prefetchOnboardingMedia();
     }
 
-    Future.delayed(const Duration(seconds: 2), () {
+    // Brief pause so the branded loading GIF is visible, but short enough that
+    // the splash never feels like it is artificially holding the app back.
+    Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       // Logged-in users go straight home — onboarding only shows for
       // logged-out users (first launch / after logout).

@@ -87,7 +87,7 @@ class _ModernToastState extends State<ModernToast>
             onPanEnd: (_) => Navigator.of(context).pop(),
             child: Container(
               width: MediaQuery.of(context).size.width * 0.9,
-              margin: const EdgeInsets.fromLTRB(
+              margin: EdgeInsets.fromLTRB(
                 AppSpacing.space16,
                 0,
                 AppSpacing.space16,

@@ -44,13 +44,11 @@ class ModernBottomSheet extends StatefulWidget {
         ),
       ),
       builder: (context) => DraggableScrollableSheet(
-        initialChildSize: MediaQuery.of(context).size.height * 0.4,
-        minChildSize: MediaQuery.of(context).size.height * minHeight,
-        maxChildSize: MediaQuery.of(context).size.height * (maxHeight ?? 0.85),
-        buildBackdrop: (context) => Container(
-          color: Colors.black.withValues(alpha: 0.3),
-        ),
-        itemBuilder: (context, scrollController) => ModernBottomSheet(
+        initialChildSize: maxHeight ?? 0.85,
+        minChildSize: minHeight ?? 0.3,
+        maxChildSize: 1.0,
+        expand: true,
+        builder: (context, scrollController) => ModernBottomSheet(
           child: ListView(
             controller: scrollController,
             physics: const BouncingScrollPhysics(),
@@ -153,7 +151,7 @@ class _ModernBottomSheetState extends State<ModernBottomSheet> {
     return Center(
       child: GestureDetector(
         onTap: () {
-          Scaffold.of(context).pop();
+          Navigator.of(context).pop();
         },
         child: Container(
           width: 36,

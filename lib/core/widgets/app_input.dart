@@ -125,6 +125,15 @@ class _AppInputState extends State<AppInput> {
     final showHelperText = widget.helperText != null && _errorText == null;
     final isMultiline = widget.maxLines != null && widget.maxLines! > 1;
 
+    // A multiline TextField with TextInputAction.newline must use
+    // TextInputType.multiline or Flutter asserts during build:
+    //   "Use keyboardType TextInputType.multiline when using
+    //    TextInputAction.newline on a multiline TextField."
+    final effectiveKeyboardType =
+        isMultiline && widget.keyboardType == TextInputType.text
+            ? TextInputType.multiline
+            : widget.keyboardType;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -151,7 +160,7 @@ class _AppInputState extends State<AppInput> {
             focusNode: _focusNode,
             enabled: widget.enabled,
             obscureText: isPasswordField ? _obscureText : false,
-            keyboardType: widget.keyboardType,
+            keyboardType: effectiveKeyboardType,
             textInputAction: widget.textInputAction,
             onSubmitted: (value) {
               _validate();

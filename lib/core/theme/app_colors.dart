@@ -11,6 +11,7 @@ class AppColors {
   static const Color success = Color(0xFF27F5A3);
   static const Color warning = Color(0xFFF5A623);
   static const Color error = Color(0xFFF54636);
+  static const Color textPrimary = Color(0xFF131C3C);
   static const Color textSecondary = Color(0xFF8B7380);
 
   static const Color background = Color(0xFF587380);
@@ -38,14 +39,6 @@ class AppColors {
   static const Color pointsGradientEnd = Color(0xFF3B8DFF);
   static const Color tierSilver = Color(0xFFC0C0C0);
   static const Color tierGold = Color(0xFFF5A623);
-
-  // Additional common text/surface colors for general use
-  static const Color textPrimary = Color(0xFF0F1B3D);
-  static const Color textPrimaryDark = Color(0xFFFFFFFF);
-  static const Color textSecondaryDark = Color(0xFF9CA3AF);
-  static const Color scaffoldBg = Color(0xFFF8F9FC);
-  static const Color scaffoldBgDark = Color(0xFF0A0E1A);
-  static const Color surfaceInverse = Color(0xFFFFFFFF);
 
   static const Color whatsappGreen = Color(0xFF25D366);
 

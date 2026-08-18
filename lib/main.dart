@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '/custom_code/actions/index.dart' as actions;
 import 'package:provider/provider.dart';
 import 'package:flutter/gestures.dart';
@@ -32,8 +34,23 @@ import 'core/services/telehealth_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/device_token_service.dart';
 
+/// Runs a CMS/branding init in the background and swallows failures — every
+/// service falls back to cached/fallback data on its own, so a slow or broken
+/// network must never delay the first frame.
+Future<void> _safeInit(Future<void> Function() init) async {
+  try {
+    await init();
+  } catch (_) {
+    // A failed background init just falls back to cached data.
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Never fetch fonts over the network at runtime — all families used by the
+  // app (Poppins, Plus Jakarta Sans, Roboto) are bundled in assets/fonts, so
+  // the first frame is not blocked waiting on Google Fonts.
+  GoogleFonts.config.allowRuntimeFetching = false;
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
@@ -53,25 +70,23 @@ void main() async {
   // the first frame; the call no-ops when there is no auth token yet.
   DeviceTokenService.instance.register();
 
-  // Load all CMS + branding data BEFORE the first frame so the app renders
-  // with real production content (logo, colors, sliders) instead of fallbacks.
-  try {
-    await Future.wait([
-      BrandingService.instance.init(),
-      HeroService.instance.init(),
-      DoctorService.instance.init(),
-      BranchService.instance.init(),
-      ArticleService.instance.init(),
-      VideoService.instance.init(),
-      PackageService.instance.init(),
-      PromotionService.instance.init(),
-      OnboardingService.instance.init(),
-      TelehealthService.instance.init(),
-      LegalService.instance.init(),
-    ]).timeout(const Duration(seconds: 20));
-    debugPrint('[CMS] Services initialized');
-  } catch (_) {
-    debugPrint('[CMS] Services init skipped/failed — using cached data');
+  // Load all CMS + branding data in the background so the app renders with
+  // cached/fallback content immediately and refreshes in place once the
+  // network responds — the first frame must never wait on a fetch.
+  for (final init in <Future<void> Function()>[
+    BrandingService.instance.init,
+    HeroService.instance.init,
+    DoctorService.instance.init,
+    BranchService.instance.init,
+    ArticleService.instance.init,
+    VideoService.instance.init,
+    PackageService.instance.init,
+    PromotionService.instance.init,
+    OnboardingService.instance.init,
+    TelehealthService.instance.init,
+    LegalService.instance.init,
+  ]) {
+    unawaited(_safeInit(init));
   }
 
   runApp(ChangeNotifierProvider(

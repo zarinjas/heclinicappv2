@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  badges:
-    dependency: "direct main"
-    description:
-      name: badges
-      sha256: "03d0df98532607db96a16b9a6b725f844defac5590c757ae7b4e6b2117dc3038"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -81,14 +73,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
-  carousel_slider:
-    dependency: "direct main"
-    description:
-      name: carousel_slider
-      sha256: "7b006ec356205054af5beaef62e2221160ea36b90fb70a35e4deacd49d0349ae"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.0"
   characters:
     dependency: transitive
     description:
@@ -106,7 +90,7 @@ packages:
     source: hosted
     version: "2.0.3"
   circle_flags:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: circle_flags
       sha256: "22268452bb0c0146251c01969e9b85dd36c76e13bd13f543bd0af8b7b334c181"
@@ -202,7 +186,7 @@ packages:
     source: hosted
     version: "2.1.0"
   cross_file:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cross_file
       sha256: "942a4791cd385a68ccb3b32c71c427aba508a1bb949b86dff2adbe4049f16239"
@@ -218,7 +202,7 @@ packages:
     source: hosted
     version: "3.0.6"
   csslib:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: csslib
       sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
@@ -266,14 +250,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.2"
-  easy_debounce:
-    dependency: "direct main"
-    description:
-      name: easy_debounce
-      sha256: "476ea3a9062023be76d9d3f48188af75137ad0b57bc250a0fb7adcc471923f51"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   equatable:
     dependency: "direct main"
     description:
@@ -346,30 +322,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.9.3+4"
-  firebase_analytics:
-    dependency: "direct main"
-    description:
-      name: firebase_analytics
-      sha256: "2a212f572fd9ac3a74945f2a723b4305fe70e2a2271bf08a51fac89de63dd17b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "11.5.0"
-  firebase_analytics_platform_interface:
-    dependency: transitive
-    description:
-      name: firebase_analytics_platform_interface
-      sha256: a3b2d55c041ac22c75dcdb918e79d0684a443609f6c8e7b680f8f5af12ef3101
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.4.0"
-  firebase_analytics_web:
-    dependency: transitive
-    description:
-      name: firebase_analytics_web
-      sha256: "19aa234677b2d186c70e08ac47017d7ed5f307439376e2613556b0b8b451fcb5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.10+13"
   firebase_auth:
     dependency: "direct main"
     description:
@@ -442,54 +394,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.10.7"
-  firebase_performance:
-    dependency: "direct main"
-    description:
-      name: firebase_performance
-      sha256: "2cdbab6ad8c3ee8bc9e806b250e5aaa9b2b1312ed10ae5d5367b2dc89c2307e3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1+7"
-  firebase_performance_platform_interface:
-    dependency: "direct main"
-    description:
-      name: firebase_performance_platform_interface
-      sha256: a8c2f68d40b2f2c40cbba12e349d0c94a5feb74d06baaf275b201817ea9c8cc5
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.5+7"
-  firebase_performance_web:
-    dependency: "direct main"
-    description:
-      name: firebase_performance_web
-      sha256: "040ea6082dd5968a1d73e40fd5bf8e8fcdb3067b22e20f2d9901c8b4fba3dfb7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.7+13"
-  firebase_storage:
-    dependency: "direct main"
-    description:
-      name: firebase_storage
-      sha256: a14390edb4b7a119297ddd09773421233ffddcfa1f8dcb670d9ce71672fdb624
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.4.7"
-  firebase_storage_platform_interface:
-    dependency: "direct main"
-    description:
-      name: firebase_storage_platform_interface
-      sha256: d6c7a32c714cd7d59b61a5c610137695547986b8a5abe71aaf71197d6d255006
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.7"
-  firebase_storage_web:
-    dependency: "direct main"
-    description:
-      name: firebase_storage_web
-      sha256: "45ad71124862ef6d3a68770edc0aaefb854c0b4781aa96e9b0ec10400af03861"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.10.14"
   fixnum:
     dependency: transitive
     description:
@@ -596,14 +500,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.28"
-  flutter_rating_bar:
-    dependency: "direct main"
-    description:
-      name: flutter_rating_bar
-      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.1"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -1215,7 +1111,7 @@ packages:
     source: hosted
     version: "2.1.8"
   pointer_interceptor:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pointer_interceptor
       sha256: "57210410680379aea8b1b7ed6ae0c3ad349bfd56fe845b8ea934a53344b9d523"
@@ -1223,7 +1119,7 @@ packages:
     source: hosted
     version: "0.10.1+2"
   pointer_interceptor_ios:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pointer_interceptor_ios
       sha256: a6906772b3205b42c44614fcea28f818b1e5fdad73a4ca742a7bd49818d9c917
@@ -1231,7 +1127,7 @@ packages:
     source: hosted
     version: "0.10.1"
   pointer_interceptor_platform_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pointer_interceptor_platform_interface
       sha256: "0597b0560e14354baeb23f8375cd612e8bd4841bf8306ecb71fcd0bb78552506"
@@ -1239,7 +1135,7 @@ packages:
     source: hosted
     version: "0.10.0+1"
   pointer_interceptor_web:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: pointer_interceptor_web
       sha256: "7a7087782110f8c1827170660b09f8aa893e0e9a61431dbbe2ac3fc482e8c044"
@@ -1363,14 +1259,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  smooth_page_indicator:
-    dependency: "direct main"
-    description:
-      name: smooth_page_indicator
-      sha256: "725bc638d5e79df0c84658e1291449996943f93bacbc2cec49963dbbab48d8ae"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   source_span:
     dependency: transitive
     description:
@@ -1380,7 +1268,7 @@ packages:
     source: hosted
     version: "1.10.1"
   sqflite:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: sqflite
       sha256: a43e5a27235518c03ca238e7b4732cf35eabe863a369ceba6cbefa537a66f16d
@@ -1388,7 +1276,7 @@ packages:
     source: hosted
     version: "2.3.3+1"
   sqflite_common:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: sqflite_common
       sha256: "4058172e418eb7e7f2058dcb7657d451a8fc264afa0dea4dbd0f304a57131611"
@@ -1548,7 +1436,7 @@ packages:
     source: hosted
     version: "3.1.4"
   uuid:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: uuid
       sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
