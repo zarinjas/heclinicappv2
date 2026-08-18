@@ -443,6 +443,17 @@ app.get("/api/v2/cms/promotions", (req, res) => {
   res.json(mockPromotions.filter(p => p.is_active));
 });
 
+const mockClinicInfo = [
+  { id: 1, image: "https://placehold.co/800x800/3B8DFF/FFFFFF?text=Clinic+Info+1", is_active: true },
+  { id: 2, image: "https://placehold.co/800x800/27F5A3/131C3C?text=Clinic+Info+2", is_active: true },
+  { id: 3, image: "https://placehold.co/800x800/F5A623/131C3C?text=Clinic+Info+3", is_active: true },
+];
+
+app.get("/api/v2/cms/clinic-info", (req, res) => {
+  console.log(`[CMS] GET clinic-info`);
+  res.json(mockClinicInfo.filter(i => i.is_active));
+});
+
 // ──────────────────────────────────────────────
 // LARAVEL CONFIG API — /api/v2/config/*
 // ──────────────────────────────────────────────

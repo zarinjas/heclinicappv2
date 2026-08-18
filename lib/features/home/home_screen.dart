@@ -17,6 +17,7 @@ import '/core/services/branch_service.dart';
 import '/core/services/hero_service.dart';
 import '/core/services/video_service.dart';
 import '/core/services/promotion_service.dart';
+import '/core/services/clinic_info_service.dart';
 import '/core/services/notification_inbox_service.dart';
 import '/core/services/models/article.dart';
 import '/core/services/models/doctor.dart';
@@ -24,6 +25,7 @@ import '/core/services/models/branch.dart';
 import '/core/services/models/hero_banner.dart';
 import '/core/services/models/video.dart';
 import '/core/services/models/promotion.dart';
+import '/core/services/models/clinic_info.dart';
 import '/core/widgets/app_app_bar.dart';
 import '/core/widgets/app_chip.dart';
 import '/core/widgets/app_empty_state.dart';
@@ -40,6 +42,7 @@ import '/core/widgets/mini_article_card.dart';
 import '/core/widgets/section_header.dart';
 import '/core/widgets/video_card.dart';
 import '/components/doctor_detail_sheet.dart';
+import '/info_page/hemed_info/hemed_info_widget.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -58,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _articleLoaded = false;
   bool _videoLoaded = false;
   bool _promoLoaded = false;
+  bool _clinicInfoLoaded = false;
   bool _loyaltyLoaded = false;
 
   bool _heroErr = false;
@@ -67,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _articleErr = false;
   bool _videoErr = false;
   bool _loyaltyErr = false;
+  bool _clinicInfoErr = false;
 
   List<HeroBanner> _heroes = HeroBanner.fallbackList;
   List<Doctor> _doctors = Doctor.fallbackList;
@@ -74,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Article> _articles = Article.fallbackList;
   List<Video> _videos = Video.fallbackList;
   List<Promotion> _promos = Promotion.fallbackList;
+  List<ClinicInfo> _clinicInfos = ClinicInfo.fallbackList;
 
   int _loyaltyBalance = 0;
 
@@ -95,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadArticles(),
       _loadVideos(),
       _loadPromotions(),
+      _loadClinicInfo(),
       _loadLoyalty(),
       _loadUnreadNotifications(),
     ]);
@@ -234,6 +241,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadClinicInfo() async {
+    try {
+      await ClinicInfoService.instance.init();
+      if (mounted) setState(() {
+        _clinicInfos = ClinicInfoService.instance.items;
+        _clinicInfoLoaded = true;
+      });
+    } catch (_) {
+      if (mounted) setState(() { _clinicInfoLoaded = true; _clinicInfoErr = true; });
+    }
+  }
+
   String _getGreeting() {
     final h = DateTime.now().hour;
     if (h < 12) return 'Good morning';
@@ -316,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildDoctorsSection(isDark),
                 _buildBranchesSection(isDark),
                 _buildArticlesSection(isDark),
+                _buildClinicInfoSection(isDark),
                 _buildVideosSection(isDark),
                 const SizedBox(height: 120),
               ],
@@ -853,6 +873,106 @@ class _HomeScreenState extends State<HomeScreen> {
                     platformLabel: 'TikTok',
                     durationLabel: '0:30',
                     onTap: () => context.pushNamed('/videosList'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClinicInfoSection(bool isDark) {
+    final itemWidth = (MediaQuery.sizeOf(context).width - 32) * 0.45;
+    final itemHeight = itemWidth * 1.1;
+
+    if (!_clinicInfoLoaded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SectionHeader(
+              title: 'He Clinic Info',
+              onSeeAll: () => context.pushNamed(HemedInfoWidget.routeName),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: itemHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 2,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, i) => SizedBox(
+                  width: itemWidth,
+                  child: AppSkeleton.card(
+                    height: itemHeight,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(AppRadius.radiusLG),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (_clinicInfoErr || _clinicInfos.isEmpty) return const SizedBox.shrink();
+
+    final items = _clinicInfos.take(6).toList();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(
+            title: 'He Clinic Info',
+            onSeeAll: () => context.pushNamed(HemedInfoWidget.routeName),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: itemHeight,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (_, i) {
+                final item = items[i];
+                return SizedBox(
+                  width: itemWidth,
+                  child: GestureDetector(
+                    onTap: item.imageUrl.isEmpty
+                        ? null
+                        : () => context.pushNamed(HemedInfoWidget.routeName),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+                      child: item.imageUrl.isEmpty
+                          ? Container(
+                              color: isDark
+                                  ? AppColors.surfaceDark
+                                  : AppColors.surface,
+                              child: const Icon(
+                                Icons.image_not_supported_outlined,
+                                color: AppColors.textSecondary,
+                              ),
+                            )
+                          : Image.network(
+                              item.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: isDark
+                                    ? AppColors.surfaceDark
+                                    : AppColors.surface,
+                                child: const Icon(
+                                  Icons.broken_image_outlined,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                    ),
                   ),
                 );
               },

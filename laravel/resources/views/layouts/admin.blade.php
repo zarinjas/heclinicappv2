@@ -141,11 +141,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                 </svg>
                 Content
-                <svg id="content-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="content-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') || request()->routeIs('admin.cms.clinic-info.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
             </a>
-            <div id="content-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') ? '' : 'hidden' }}">
+            <div id="content-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.sliders.*') || request()->routeIs('admin.cms.videos.*') || request()->routeIs('admin.cms.articles.*') || request()->routeIs('admin.cms.article-categories.*') || request()->routeIs('admin.cms.clinic-info.*') ? '' : 'hidden' }}">
                 <a href="{{ route('admin.cms.sliders.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
                           {{ request()->routeIs('admin.cms.sliders.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
@@ -153,6 +153,14 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     Sliders
+                </a>
+                <a href="{{ route('admin.cms.clinic-info.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.cms.clinic-info.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    He Clinic Info
                 </a>
                 <a href="{{ route('admin.cms.videos.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm

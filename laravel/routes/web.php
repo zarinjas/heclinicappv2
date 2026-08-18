@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\CalendarSetupController;
 use App\Http\Controllers\Admin\CmsArticleController;
 use App\Http\Controllers\Admin\CmsArticleCategoryController;
+use App\Http\Controllers\Admin\CmsClinicInfoController;
 use App\Http\Controllers\Admin\CmsLegalPageController;
 use App\Http\Controllers\Admin\CmsOnboardingSlideController;
 use App\Http\Controllers\Admin\CmsPromotionController;
@@ -80,6 +81,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::prefix('cms')->name('cms.')->group(function (): void {
             Route::resource('sliders', CmsSliderController::class);
+            Route::resource('clinic-info', CmsClinicInfoController::class);
             Route::resource('service-packages', CmsServicePackageController::class);
             Route::resource('articles', CmsArticleController::class);
             Route::resource('article-categories', CmsArticleCategoryController::class);

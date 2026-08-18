@@ -25,11 +25,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    match /info/{doc} {
-      allow read: if isAuthenticated();
-      allow create, update, delete: if false;
-    }
-
     match /users/{userId} {
       allow read, write: if isAuthenticated() && isOwnerDoc(userId);
     }

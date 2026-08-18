@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../env_config.dart';
+import 'models/clinic_info.dart';
 import 'models/hero_banner.dart';
 import 'models/article.dart';
 import 'models/video.dart';
@@ -224,6 +225,16 @@ class CmsApi {
     final list = jsonDecode(body) as List<dynamic>;
     return list
         .map((e) => Promotion.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  // ── Clinic Info ──
+
+  static Future<List<ClinicInfo>> fetchClinicInfos() async {
+    final body = await _fetch('cms/clinic-info');
+    final list = jsonDecode(body) as List<dynamic>;
+    return list
+        .map((e) => ClinicInfo.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

@@ -14,7 +14,6 @@ import 'schema/branch_record.dart';
 import 'schema/fcm_record.dart';
 import 'schema/historynotif_record.dart';
 import 'schema/biometric_record.dart';
-import 'schema/info_record.dart';
 
 export 'dart:async' show StreamSubscription;
 export 'package:cloud_firestore/cloud_firestore.dart' hide Order;
@@ -32,7 +31,6 @@ export 'schema/branch_record.dart';
 export 'schema/fcm_record.dart';
 export 'schema/historynotif_record.dart';
 export 'schema/biometric_record.dart';
-export 'schema/info_record.dart';
 
 /// Functions to query UsersRecords (as a Stream and as a Future).
 Future<int> queryUsersRecordCount({
@@ -362,43 +360,6 @@ Future<List<BiometricRecord>> queryBiometricRecordOnce({
     queryCollectionOnce(
       BiometricRecord.collection,
       BiometricRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-/// Functions to query InfoRecords (as a Stream and as a Future).
-Future<int> queryInfoRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
-    queryCollectionCount(
-      InfoRecord.collection,
-      queryBuilder: queryBuilder,
-      limit: limit,
-    );
-
-Stream<List<InfoRecord>> queryInfoRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollection(
-      InfoRecord.collection,
-      InfoRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-Future<List<InfoRecord>> queryInfoRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollectionOnce(
-      InfoRecord.collection,
-      InfoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,

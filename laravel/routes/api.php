@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
+use App\Http\Controllers\Api\CmsClinicInfoController as ApiCmsClinicInfoController;
 use App\Http\Controllers\Api\CmsServicePackageController as ApiCmsServicePackageController;
 use App\Http\Controllers\Api\CmsVideoController as ApiCmsVideoController;
 use App\Http\Controllers\Api\CmsPromotionController as ApiCmsPromotionController;
@@ -177,6 +178,8 @@ Route::get('/v2/cms/articles/{slug}', [ApiCmsArticleController::class, 'show'])
     ->name('cms.articles.show');
 Route::get('/v2/cms/sliders', [ApiCmsSliderController::class, 'index'])
     ->name('cms.sliders');
+Route::get('/v2/cms/clinic-info', [ApiCmsClinicInfoController::class, 'index'])
+    ->name('cms.clinic-info');
 
 Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, 'index'])
     ->name('cms.service-packages');
