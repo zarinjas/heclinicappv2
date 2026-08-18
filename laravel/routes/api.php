@@ -104,6 +104,15 @@ Route::get('/v2/config/branding', function () {
         'welcome_bg_gradient_color',
         'welcome_button_color',
         'welcome_logo_size',
+        'welcome_logo_url',
+        'welcome_bg_image_url',
+        'welcome_overlay_type',
+        'welcome_overlay_color',
+        'welcome_linear_start_color',
+        'welcome_linear_end_color',
+        'welcome_radial_center_color',
+        'welcome_radial_edge_color',
+        'welcome_overlay_opacity',
         'clinic_whatsapp',
     ])->pluck('value', 'key');
 
@@ -124,6 +133,15 @@ Route::get('/v2/config/branding', function () {
         'welcome_bg_gradient_color' => $settings['welcome_bg_gradient_color'] ?? '#1D2B5F',
         'welcome_button_color' => $settings['welcome_button_color'] ?? '#3B8DFF',
         'welcome_logo_size' => $settings['welcome_logo_size'] ?? '120',
+        'welcome_logo_url' => $settings['welcome_logo_url'] ?? null,
+        'welcome_bg_image_url' => $settings['welcome_bg_image_url'] ?? null,
+        'welcome_overlay_type' => $settings['welcome_overlay_type'] ?? 'linear',
+        'welcome_overlay_color' => $settings['welcome_overlay_color'] ?? '#131C3C',
+        'welcome_linear_start_color' => $settings['welcome_linear_start_color'] ?? ($settings['welcome_bg_color'] ?? '#131C3C'),
+        'welcome_linear_end_color' => $settings['welcome_linear_end_color'] ?? ($settings['welcome_bg_gradient_color'] ?? '#1D2B5F'),
+        'welcome_radial_center_color' => $settings['welcome_radial_center_color'] ?? '#3B8DFF',
+        'welcome_radial_edge_color' => $settings['welcome_radial_edge_color'] ?? '#131C3C',
+        'welcome_overlay_opacity' => $settings['welcome_overlay_opacity'] ?? '100',
         'clinic_whatsapp' => $settings['clinic_whatsapp'] ?? '601167208860',
     ]);
 });

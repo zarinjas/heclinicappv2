@@ -25,6 +25,15 @@ class AppBranding {
   final String? welcomeBgGradientHex;
   final String? welcomeButtonColorHex;
   final double? welcomeLogoSize;
+  final String? welcomeLogoUrl;
+  final String? welcomeBgImageUrl;
+  final String? welcomeOverlayType;
+  final String? welcomeOverlayColorHex;
+  final String? welcomeLinearStartColorHex;
+  final String? welcomeLinearEndColorHex;
+  final String? welcomeRadialCenterColorHex;
+  final String? welcomeRadialEdgeColorHex;
+  final double? welcomeOverlayOpacity;
   final String? clinicWhatsapp;
 
   const AppBranding({
@@ -43,6 +52,15 @@ class AppBranding {
     this.welcomeBgGradientHex,
     this.welcomeButtonColorHex,
     this.welcomeLogoSize,
+    this.welcomeLogoUrl,
+    this.welcomeBgImageUrl,
+    this.welcomeOverlayType,
+    this.welcomeOverlayColorHex,
+    this.welcomeLinearStartColorHex,
+    this.welcomeLinearEndColorHex,
+    this.welcomeRadialCenterColorHex,
+    this.welcomeRadialEdgeColorHex,
+    this.welcomeOverlayOpacity,
     this.clinicWhatsapp,
   });
 
@@ -70,6 +88,15 @@ class AppBranding {
       welcomeBgGradientHex: json['welcome_bg_gradient_color'] as String?,
       welcomeButtonColorHex: json['welcome_button_color'] as String?,
       welcomeLogoSize: parseDouble(json['welcome_logo_size']),
+      welcomeLogoUrl: json['welcome_logo_url'] as String?,
+      welcomeBgImageUrl: json['welcome_bg_image_url'] as String?,
+      welcomeOverlayType: json['welcome_overlay_type'] as String?,
+      welcomeOverlayColorHex: json['welcome_overlay_color'] as String?,
+      welcomeLinearStartColorHex: json['welcome_linear_start_color'] as String?,
+      welcomeLinearEndColorHex: json['welcome_linear_end_color'] as String?,
+      welcomeRadialCenterColorHex: json['welcome_radial_center_color'] as String?,
+      welcomeRadialEdgeColorHex: json['welcome_radial_edge_color'] as String?,
+      welcomeOverlayOpacity: parseDouble(json['welcome_overlay_opacity']),
       clinicWhatsapp: json['clinic_whatsapp'] as String? ?? '601167208860',
     );
   }
@@ -90,6 +117,15 @@ class AppBranding {
     'welcome_bg_gradient_color': welcomeBgGradientHex,
     'welcome_button_color': welcomeButtonColorHex,
     'welcome_logo_size': welcomeLogoSize,
+    'welcome_logo_url': welcomeLogoUrl,
+    'welcome_bg_image_url': welcomeBgImageUrl,
+    'welcome_overlay_type': welcomeOverlayType,
+    'welcome_overlay_color': welcomeOverlayColorHex,
+    'welcome_linear_start_color': welcomeLinearStartColorHex,
+    'welcome_linear_end_color': welcomeLinearEndColorHex,
+    'welcome_radial_center_color': welcomeRadialCenterColorHex,
+    'welcome_radial_edge_color': welcomeRadialEdgeColorHex,
+    'welcome_overlay_opacity': welcomeOverlayOpacity,
     'clinic_whatsapp': clinicWhatsapp,
   };
 
@@ -265,6 +301,53 @@ class BrandingService {
 
   /// Welcome screen logo size in pixels.
   double get welcomeLogoSize => branding.welcomeLogoSize ?? 120;
+
+  /// Dedicated welcome-screen logo (falls back to app bar logo / app logo in UI).
+  String? get welcomeLogoUrl => branding.welcomeLogoUrl;
+
+  /// Background image for the welcome screen.
+  String? get welcomeBgImageUrl => branding.welcomeBgImageUrl;
+
+  /// Overlay style: solid / linear / radial.
+  String get welcomeOverlayType {
+    final t = branding.welcomeOverlayType;
+    return (t == 'solid' || t == 'radial' || t == 'linear') ? t! : 'linear';
+  }
+
+  /// Opacity (0–1) applied to the color overlay over the background image.
+  double get welcomeOverlayOpacity {
+    final v = branding.welcomeOverlayOpacity;
+    if (v == null) return 1.0;
+    return v.clamp(0.0, 1.0);
+  }
+
+  /// Solid overlay color.
+  Color get welcomeOverlayColor =>
+      colorFromHex(branding.welcomeOverlayColorHex) ?? primaryColor;
+
+  /// Linear gradient start color (falls back to legacy welcome_bg_color).
+  Color get welcomeLinearStartColor =>
+      colorFromHex(branding.welcomeLinearStartColorHex) ?? welcomeBgColor;
+
+  /// Linear gradient end color (falls back to legacy gradient color).
+  Color get welcomeLinearEndColor =>
+      colorFromHex(branding.welcomeLinearEndColorHex) ?? welcomeBgGradientColor;
+
+  /// Radial gradient center color.
+  Color get welcomeRadialCenterColor =>
+      colorFromHex(branding.welcomeRadialCenterColorHex) ?? accentColor;
+
+  /// Radial gradient edge color.
+  Color get welcomeRadialEdgeColor =>
+      colorFromHex(branding.welcomeRadialEdgeColorHex) ?? welcomeLinearEndColor;
+
+  /// Parse a `#RRGGBB` hex string into a Color, or null when invalid.
+  static Color? colorFromHex(String? hex) {
+    if (hex == null || hex.length != 7) return null;
+    final c = hex.replaceFirst('#', '');
+    if (c.length != 6) return null;
+    return Color(int.parse('FF$c', radix: 16));
+  }
 
   // ── Refresh from API ──
 

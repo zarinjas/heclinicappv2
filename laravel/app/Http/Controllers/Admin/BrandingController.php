@@ -13,6 +13,11 @@ class BrandingController extends Controller
 {
     public function index(): View
     {
+        // Legacy welcome colors — new linear-gradient fields fall back to these
+        // so admin-panel values saved by older versions are preserved.
+        $legacyWelcomeBg = Setting::where('key', 'welcome_bg_color')->value('value') ?? '#131C3C';
+        $legacyWelcomeGradient = Setting::where('key', 'welcome_bg_gradient_color')->value('value') ?? '#1D2B5F';
+
         $branding = [
             'app_name' => Setting::where('key', 'branding_app_name')->value('value') ?? 'He Medical Clinic',
             'app_short_name' => Setting::where('key', 'branding_app_short_name')->value('value') ?? 'HE',
@@ -26,8 +31,17 @@ class BrandingController extends Controller
             'appbar_logo_url' => Setting::where('key', 'branding_appbar_logo_url')->value('value'),
             'loading_gif_url' => Setting::where('key', 'branding_loading_gif_url')->value('value'),
             'favicon_url' => Setting::where('key', 'branding_favicon_url')->value('value'),
-            'welcome_bg_color' => Setting::where('key', 'welcome_bg_color')->value('value') ?? '#131C3C',
-            'welcome_bg_gradient_color' => Setting::where('key', 'welcome_bg_gradient_color')->value('value') ?? '#1D2B5F',
+            'welcome_logo_url' => Setting::where('key', 'welcome_logo_url')->value('value'),
+            'welcome_bg_image_url' => Setting::where('key', 'welcome_bg_image_url')->value('value'),
+            'welcome_overlay_type' => Setting::where('key', 'welcome_overlay_type')->value('value') ?? 'linear',
+            'welcome_overlay_color' => Setting::where('key', 'welcome_overlay_color')->value('value') ?? '#131C3C',
+            'welcome_linear_start_color' => Setting::where('key', 'welcome_linear_start_color')->value('value') ?: $legacyWelcomeBg,
+            'welcome_linear_end_color' => Setting::where('key', 'welcome_linear_end_color')->value('value') ?: $legacyWelcomeGradient,
+            'welcome_radial_center_color' => Setting::where('key', 'welcome_radial_center_color')->value('value') ?? '#3B8DFF',
+            'welcome_radial_edge_color' => Setting::where('key', 'welcome_radial_edge_color')->value('value') ?? '#131C3C',
+            'welcome_overlay_opacity' => Setting::where('key', 'welcome_overlay_opacity')->value('value') ?? '100',
+            'welcome_bg_color' => $legacyWelcomeBg,
+            'welcome_bg_gradient_color' => $legacyWelcomeGradient,
             'welcome_button_color' => Setting::where('key', 'welcome_button_color')->value('value') ?? '#3B8DFF',
             'welcome_logo_size' => Setting::where('key', 'welcome_logo_size')->value('value') ?? '120',
             'telehealth_title' => Setting::where('key', 'telehealth_title')->value('value') ?? 'Telehealth Consultation',
@@ -61,6 +75,15 @@ class BrandingController extends Controller
             'appbar_logo' => 'nullable|image|mimes:png,svg,jpg,webp|max:2048',
             'loading_gif' => 'nullable|image|mimes:gif,webp,png|max:10240',
             'favicon' => 'nullable|image|mimes:png,ico,svg|max:1024',
+            'welcome_bg_image' => 'nullable|image|mimes:png,jpg,jpeg,webp,gif|max:10240',
+            'welcome_logo' => 'nullable|image|mimes:png,svg,jpg,jpeg,webp,gif|max:5120',
+            'welcome_overlay_type' => 'nullable|string|in:solid,linear,radial',
+            'welcome_overlay_color' => 'nullable|string|max:7',
+            'welcome_linear_start_color' => 'nullable|string|max:7',
+            'welcome_linear_end_color' => 'nullable|string|max:7',
+            'welcome_radial_center_color' => 'nullable|string|max:7',
+            'welcome_radial_edge_color' => 'nullable|string|max:7',
+            'welcome_overlay_opacity' => 'nullable|integer|min:0|max:100',
             'welcome_bg_color' => 'nullable|string|max:7',
             'welcome_bg_gradient_color' => 'nullable|string|max:7',
             'welcome_button_color' => 'nullable|string|max:7',
@@ -84,10 +107,31 @@ class BrandingController extends Controller
         $this->saveSetting('branding_primary_color', $validated['primary_color'] ?? '#131C3C');
         $this->saveSetting('branding_accent_color', $validated['accent_color'] ?? '#3B8DFF');
         $this->saveSetting('branding_splash_bg_color', $validated['splash_bg_color'] ?? '#131C3C');
-        $this->saveSetting('welcome_bg_color', $validated['welcome_bg_color'] ?? '#131C3C');
-        $this->saveSetting('welcome_bg_gradient_color', $validated['welcome_bg_gradient_color'] ?? '#1D2B5F');
         $this->saveSetting('welcome_button_color', $validated['welcome_button_color'] ?? '#3B8DFF');
         $this->saveSetting('welcome_logo_size', $validated['welcome_logo_size'] ?? '120');
+
+        // Welcome screen background & overlay. Linear colors fall back to the
+        // legacy welcome_bg_color / welcome_bg_gradient_color so older saved
+        // values are never wiped.
+        $overlayType = $validated['welcome_overlay_type'] ?? 'linear';
+        $solidColor = $validated['welcome_overlay_color'] ?? '#131C3C';
+        $linearStart = $validated['welcome_linear_start_color']
+            ?: (Setting::where('key', 'welcome_bg_color')->value('value') ?: '#131C3C');
+        $linearEnd = $validated['welcome_linear_end_color']
+            ?: (Setting::where('key', 'welcome_bg_gradient_color')->value('value') ?: '#1D2B5F');
+
+        $this->saveSetting('welcome_overlay_type', $overlayType);
+        $this->saveSetting('welcome_overlay_color', $solidColor);
+        $this->saveSetting('welcome_linear_start_color', $linearStart);
+        $this->saveSetting('welcome_linear_end_color', $linearEnd);
+        $this->saveSetting('welcome_radial_center_color', $validated['welcome_radial_center_color'] ?? '#3B8DFF');
+        $this->saveSetting('welcome_radial_edge_color', $validated['welcome_radial_edge_color'] ?? '#131C3C');
+        $this->saveSetting('welcome_overlay_opacity', (string) ($validated['welcome_overlay_opacity'] ?? 100));
+
+        // Mirror into the legacy keys so older app builds keep rendering
+        // a reasonable background (they only understand solid/gradient pair).
+        $this->saveSetting('welcome_bg_color', $overlayType === 'solid' ? $solidColor : $linearStart);
+        $this->saveSetting('welcome_bg_gradient_color', $overlayType === 'solid' ? $solidColor : $linearEnd);
 
         $textFields = [
             'telehealth_title' => 'telehealth_title',
@@ -116,6 +160,8 @@ class BrandingController extends Controller
             'appbar_logo' => 'branding_appbar_logo_url',
             'loading_gif' => 'branding_loading_gif_url',
             'favicon' => 'branding_favicon_url',
+            'welcome_logo' => 'welcome_logo_url',
+            'welcome_bg_image' => 'welcome_bg_image_url',
         ];
 
         foreach ($imageFields as $field => $key) {
