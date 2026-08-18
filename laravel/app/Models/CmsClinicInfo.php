@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 
 class CmsClinicInfo extends Model
 {
+    protected $table = 'cms_clinic_info';
+
     protected $fillable = [
         'image',
         'is_active',
