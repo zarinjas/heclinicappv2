@@ -28,6 +28,7 @@ class ApiInterceptor {
     'HeclinicResetPassword',
     'HeclinicChangePasswordFirst',
     'HeclinicLogout',
+    'HeclinicRegisterDeviceToken',
   };
 
   OnUnauthorizedCallback? onUnauthorized;
