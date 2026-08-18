@@ -75,8 +75,6 @@
                                            'url' => $branding['appbar_logo_url'] ?? null],
                         'loading_gif' => ['label' => 'Loading GIF', 'desc' => 'Animated GIF shown on every loading screen (splash + in-app loaders)',
                                           'url' => $branding['loading_gif_url'] ?? null],
-                        'welcome_logo' => ['label' => 'Welcome Screen Logo', 'desc' => 'Logo on the welcome screen (falls back to the app logo if empty)',
-                                           'url' => $branding['welcome_logo_url'] ?? null],
                         'favicon' => ['label' => 'Favicon (browser tab icon)', 'desc' => 'Favicon for the admin panel',
                                       'url' => $branding['favicon_url'] ?? null],
                     ];
@@ -118,123 +116,155 @@
                 </div>
                 <p class="text-white/60 text-xs mt-4 italic">{{ $branding['tagline'] ?? '' }}</p>
             </div>
-
-            <h2 class="text-lg font-semibold text-[#0F1B3D] mt-8 mb-4">Welcome Screen Live Preview</h2>
-            <div class="relative rounded-2xl overflow-hidden border border-gray-200" style="height: 460px">
-                @if($branding['welcome_bg_image_url'])
-                <img id="welcome-preview-image" src="{{ $branding['welcome_bg_image_url'] }}" alt="Welcome BG" class="absolute inset-0 w-full h-full object-cover">
-                @else
-                <img id="welcome-preview-image" src="" alt="" class="absolute inset-0 w-full h-full object-cover hidden">
-                @endif
-                <div id="welcome-preview-overlay" class="absolute inset-0"></div>
-                <div class="relative z-10 flex flex-col items-center justify-between h-full p-6">
-                    <div class="flex-1"></div>
-                    <div class="flex flex-col items-center">
-                        @if($branding['welcome_logo_url'])
-                        <img src="{{ $branding['welcome_logo_url'] }}" alt="Welcome Logo" class="object-contain mb-3" style="width: {{ $branding['welcome_logo_size'] ?? 120 }}px; height: {{ $branding['welcome_logo_size'] ?? 120 }}px">
-                        @elseif($branding['logo_url'])
-                        <img src="{{ $branding['logo_url'] }}" alt="Logo" class="object-contain mb-3" style="width: {{ $branding['welcome_logo_size'] ?? 120 }}px; height: {{ $branding['welcome_logo_size'] ?? 120 }}px">
-                        @else
-                        <div class="rounded-lg bg-gradient-to-br from-[#00C9A7] to-[#00b897] mb-3 flex items-center justify-center text-white font-extrabold" style="width: {{ $branding['welcome_logo_size'] ?? 120 }}px; height: {{ $branding['welcome_logo_size'] ?? 120 }}px; font-size: {{ ($branding['welcome_logo_size'] ?? 120) * 0.35 }}px">
-                            {{ substr($branding['app_short_name'] ?? 'HE', 0, 2) }}
-                        </div>
-                        @endif
-                        <p class="text-white font-bold text-sm">{{ $branding['app_name'] ?? 'He Medical Clinic' }}</p>
-                    </div>
-                    <div class="flex-1"></div>
-                    <div class="w-full max-w-xs space-y-3">
-                        <div class="w-full h-12 rounded-xl bg-white text-[#0F1B3D] flex items-center justify-center text-sm font-semibold">Log In</div>
-                        <div class="w-full h-12 rounded-xl border border-white/70 text-white flex items-center justify-center text-sm font-semibold">Create Account</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Welcome Screen Settings -->
+        @php
+            $welcomeLogoSize = (int) ($branding['welcome_logo_size'] ?? 120);
+            $previewLogoUrl = $branding['welcome_logo_url'] ?: ($branding['logo_url'] ?? null);
+        @endphp
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm mt-6">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h2 class="text-lg font-semibold text-[#0F1B3D]">Welcome Screen Settings</h2>
                 <p class="text-xs text-gray-400 mt-1">Customize the welcome screen: background image, color overlay (solid / linear / radial gradient), logo, and buttons.</p>
             </div>
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Background Image</label>
-                        <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                            <div id="preview-welcome_bg_image" class="w-24 h-24 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
-                                @if($branding['welcome_bg_image_url'])
-                                <img src="{{ $branding['welcome_bg_image_url'] }}" alt="Welcome Background" class="w-full h-full object-cover">
-                                @else
-                                <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
-                                @endif
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    {{-- Controls --}}
+                    <div class="lg:col-span-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Background Image</label>
+                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                    <div id="preview-welcome_bg_image" class="w-24 h-24 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                                        @if($branding['welcome_bg_image_url'])
+                                        <img src="{{ $branding['welcome_bg_image_url'] }}" alt="Welcome Background" class="w-full h-full object-cover">
+                                        @else
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-gray-500">Full-screen background image (recommended 1080×1920px). Leave empty to use only the color overlay.</p>
+                                        <input type="file" name="welcome_bg_image" accept="image/png,image/jpeg,image/webp,image/gif"
+                                               onchange="previewImage(event, 'welcome_bg_image'); updateWelcomePreviewImage(event)"
+                                               class="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-xs text-gray-500">Upload a full-screen background image (recommended 1080×1920px). Leave empty to use only the color overlay.</p>
-                                <input type="file" name="welcome_bg_image" accept="image/png,image/jpeg,image/webp,image/gif"
-                                       onchange="previewImage(event, 'welcome_bg_image'); updateWelcomePreviewImage(event)"
-                                       class="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Welcome Logo</label>
+                                <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                    <div id="preview-welcome_logo" class="w-16 h-16 rounded-lg border border-gray-200 bg-white overflow-hidden flex items-center justify-center shrink-0">
+                                        @if($previewLogoUrl)
+                                        <img src="{{ $previewLogoUrl }}" alt="Welcome Logo" class="w-full h-full object-contain">
+                                        @else
+                                        <div class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No</div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-gray-500">Logo shown on the welcome screen. Falls back to the main app logo if left empty.</p>
+                                        <input type="file" name="welcome_logo" accept="image/png,image/svg+xml,image/jpeg,image/webp,image/gif"
+                                               onchange="previewImage(event, 'welcome_logo'); updateWelcomePreviewLogo(event)"
+                                               class="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b897]">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Overlay Type</label>
+                                <select name="welcome_overlay_type" id="welcome_overlay_type" onchange="toggleOverlayFields(); updateWelcomePreview()"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent">
+                                    <option value="solid" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'solid' ? 'selected' : '' }}>Solid Color</option>
+                                    <option value="linear" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'linear' ? 'selected' : '' }}>Linear Gradient (top → bottom)</option>
+                                    <option value="radial" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'radial' ? 'selected' : '' }}>Radial Gradient (center → edge)</option>
+                                </select>
+                            </div>
+
+                            <div id="field-welcome_overlay_color" class="field-overlay-solid">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Solid Color</label>
+                                <input type="color" name="welcome_overlay_color" value="{{ old('welcome_overlay_color', $branding['welcome_overlay_color']) }}"
+                                       oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                            </div>
+
+                            <div id="field-linear-start" class="field-overlay-linear">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Gradient Start Color (top)</label>
+                                <input type="color" name="welcome_linear_start_color" value="{{ old('welcome_linear_start_color', $branding['welcome_linear_start_color']) }}"
+                                       oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                            </div>
+                            <div id="field-linear-end" class="field-overlay-linear">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Gradient End Color (bottom)</label>
+                                <input type="color" name="welcome_linear_end_color" value="{{ old('welcome_linear_end_color', $branding['welcome_linear_end_color']) }}"
+                                       oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                            </div>
+
+                            <div id="field-radial-center" class="field-overlay-radial">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Radial Center Color</label>
+                                <input type="color" name="welcome_radial_center_color" value="{{ old('welcome_radial_center_color', $branding['welcome_radial_center_color']) }}"
+                                       oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                            </div>
+                            <div id="field-radial-edge" class="field-overlay-radial">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Radial Edge Color</label>
+                                <input type="color" name="welcome_radial_edge_color" value="{{ old('welcome_radial_edge_color', $branding['welcome_radial_edge_color']) }}"
+                                       oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Overlay Opacity: <span id="opacity_value" class="text-[#00C9A7]">{{ $branding['welcome_overlay_opacity'] ?? 100 }}%</span></label>
+                                <input type="range" name="welcome_overlay_opacity" min="0" max="100" value="{{ old('welcome_overlay_opacity', $branding['welcome_overlay_opacity']) }}"
+                                       oninput="document.getElementById('opacity_value').textContent = this.value + '%'; updateWelcomePreview()"
+                                       class="w-full accent-[#00C9A7]">
+                                <p class="text-xs text-gray-500 mt-1">Higher = more solid overlay. Lower lets the background image show through.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Button Color</label>
+                                <input type="color" name="welcome_button_color" value="{{ old('welcome_button_color', $branding['welcome_button_color']) }}"
+                                       class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
+                                <p class="text-xs text-gray-500 mt-1">Accent color used around the welcome screen buttons.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Logo Size (px)</label>
+                                <input type="number" name="welcome_logo_size" value="{{ old('welcome_logo_size', $welcomeLogoSize) }}"
+                                       min="60" max="260" oninput="updateWelcomePreviewLogoSize()"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Logo size on the welcome screen (60–260 px).</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Overlay Type</label>
-                        <select name="welcome_overlay_type" id="welcome_overlay_type" onchange="toggleOverlayFields(); updateWelcomePreview()"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent">
-                            <option value="solid" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'solid' ? 'selected' : '' }}>Solid Color</option>
-                            <option value="linear" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'linear' ? 'selected' : '' }}>Linear Gradient (top → bottom)</option>
-                            <option value="radial" {{ ($branding['welcome_overlay_type'] ?? 'linear') === 'radial' ? 'selected' : '' }}>Radial Gradient (center → edge)</option>
-                        </select>
-                    </div>
-
-                    <div id="field-welcome_overlay_color" class="field-overlay-solid">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Solid Color</label>
-                        <input type="color" name="welcome_overlay_color" value="{{ old('welcome_overlay_color', $branding['welcome_overlay_color']) }}"
-                               oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                    </div>
-
-                    <div id="field-linear-start" class="field-overlay-linear">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Gradient Start Color (top)</label>
-                        <input type="color" name="welcome_linear_start_color" value="{{ old('welcome_linear_start_color', $branding['welcome_linear_start_color']) }}"
-                               oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                    </div>
-                    <div id="field-linear-end" class="field-overlay-linear">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Gradient End Color (bottom)</label>
-                        <input type="color" name="welcome_linear_end_color" value="{{ old('welcome_linear_end_color', $branding['welcome_linear_end_color']) }}"
-                               oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                    </div>
-
-                    <div id="field-radial-center" class="field-overlay-radial">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Radial Center Color</label>
-                        <input type="color" name="welcome_radial_center_color" value="{{ old('welcome_radial_center_color', $branding['welcome_radial_center_color']) }}"
-                               oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                    </div>
-                    <div id="field-radial-edge" class="field-overlay-radial">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Radial Edge Color</label>
-                        <input type="color" name="welcome_radial_edge_color" value="{{ old('welcome_radial_edge_color', $branding['welcome_radial_edge_color']) }}"
-                               oninput="updateWelcomePreview()" class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                    </div>
-
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Overlay Opacity: <span id="opacity_value" class="text-[#00C9A7]">{{ $branding['welcome_overlay_opacity'] ?? 100 }}%</span></label>
-                        <input type="range" name="welcome_overlay_opacity" min="0" max="100" value="{{ old('welcome_overlay_opacity', $branding['welcome_overlay_opacity']) }}"
-                               oninput="document.getElementById('opacity_value').textContent = this.value + '%'; updateWelcomePreview()"
-                               class="w-full accent-[#00C9A7]">
-                        <p class="text-xs text-gray-500 mt-1">Higher = more solid overlay. Lower lets the background image show through.</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Button Color</label>
-                        <input type="color" name="welcome_button_color" value="{{ old('welcome_button_color', $branding['welcome_button_color']) }}"
-                               class="w-full h-10 px-1 border border-gray-300 rounded-lg cursor-pointer">
-                        <p class="text-xs text-gray-500 mt-1">Accent color used around the welcome screen buttons.</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Logo Size (px)</label>
-                        <input type="number" name="welcome_logo_size" value="{{ old('welcome_logo_size', $branding['welcome_logo_size']) }}"
-                               min="60" max="260"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent">
-                        <p class="text-xs text-gray-500 mt-1">Logo size on the welcome screen (60–260 px).</p>
+                    {{-- Live phone preview --}}
+                    <div class="lg:col-span-2">
+                        <div class="lg:sticky lg:top-6">
+                            <p class="text-sm font-semibold text-[#0F1B3D] mb-2">Live Preview</p>
+                            <div class="relative mx-auto w-56 rounded-[2rem] border-[10px] border-gray-800 shadow-2xl overflow-hidden" style="height: 460px">
+                                @if($branding['welcome_bg_image_url'])
+                                <img id="welcome-preview-image" src="{{ $branding['welcome_bg_image_url'] }}" alt="Welcome BG" class="absolute inset-0 w-full h-full object-cover">
+                                @else
+                                <img id="welcome-preview-image" src="" alt="" class="absolute inset-0 w-full h-full object-cover hidden">
+                                @endif
+                                <div id="welcome-preview-overlay" class="absolute inset-0"></div>
+                                <div class="relative z-10 flex flex-col items-center justify-between h-full p-5">
+                                    <div class="flex-1"></div>
+                                    <div class="flex flex-col items-center">
+                                        <img id="welcome-preview-logo" src="{{ $previewLogoUrl ?? '' }}" alt="Logo"
+                                             class="object-contain mb-3 {{ $previewLogoUrl ? '' : 'hidden' }}"
+                                             style="width: {{ $welcomeLogoSize }}px; height: {{ $welcomeLogoSize }}px">
+                                        <div id="welcome-preview-logo-fallback"
+                                             class="rounded-lg bg-gradient-to-br from-[#00C9A7] to-[#00b897] mb-3 flex items-center justify-center text-white font-extrabold {{ $previewLogoUrl ? 'hidden' : '' }}"
+                                             style="width: {{ $welcomeLogoSize }}px; height: {{ $welcomeLogoSize }}px; font-size: {{ (int) ($welcomeLogoSize * 0.35) }}px">
+                                            {{ substr($branding['app_short_name'] ?? 'HE', 0, 2) }}
+                                        </div>
+                                        <p class="text-white font-bold text-sm">{{ $branding['app_name'] ?? 'He Medical Clinic' }}</p>
+                                    </div>
+                                    <div class="flex-1"></div>
+                                    <div class="w-full space-y-3">
+                                        <div class="w-full h-12 rounded-xl bg-white text-[#0F1B3D] flex items-center justify-center text-sm font-semibold">Log In</div>
+                                        <div class="w-full h-12 rounded-xl border border-white/70 text-white flex items-center justify-center text-sm font-semibold">Create Account</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -381,6 +411,36 @@
             img.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
+    }
+
+    function updateWelcomePreviewLogo(event) {
+        const file = event.target.files && event.target.files[0];
+        const img = document.getElementById('welcome-preview-logo');
+        const fallback = document.getElementById('welcome-preview-logo-fallback');
+        if (!file || !img) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+            if (fallback) fallback.classList.add('hidden');
+            updateWelcomePreviewLogoSize();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateWelcomePreviewLogoSize() {
+        const size = document.querySelector('[name="welcome_logo_size"]').value || 120;
+        const img = document.getElementById('welcome-preview-logo');
+        const fallback = document.getElementById('welcome-preview-logo-fallback');
+        if (img) {
+            img.style.width = size + 'px';
+            img.style.height = size + 'px';
+        }
+        if (fallback) {
+            fallback.style.width = size + 'px';
+            fallback.style.height = size + 'px';
+            fallback.style.fontSize = Math.round(size * 0.35) + 'px';
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
