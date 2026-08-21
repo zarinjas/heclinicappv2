@@ -11,6 +11,7 @@ use Firebase\JWT\JWT;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -240,6 +241,15 @@ class AuthController extends Controller
         $identifier = trim($request->input('identifier'));
         $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $patient = $this->findPatientByIdentifier($identifier, $countryCode);
+
+        // A soft-deleted account must not be recreated or authenticated through
+        // the Plato fallback path.
+        if ($this->findDeletedPatientByIdentifier($identifier, $countryCode) !== null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This account has been deleted and cannot be used to sign in.',
+            ], 401);
+        }
 
         // If the patient exists in Plato but has no local account yet, they
         // can't login until they set a password via Forgot Password / claim.
@@ -536,6 +546,46 @@ class AuthController extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // DELETE /api/v2/auth/account
+    // Protected. Requires the current password, then soft-deletes the patient
+    // and revokes every active Sanctum token immediately.
+    // -------------------------------------------------------------------------
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        /** @var Patient|null $patient */
+        $patient = $request->user();
+
+        if ($patient === null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        if (! Hash::check($data['password'], $patient->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'The password is incorrect.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($patient): void {
+            $patient->tokens()->delete();
+            $patient->update(['fcm_token' => null]);
+            $patient->delete();
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Your account has been deleted successfully.',
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
     // POST /api/v2/auth/device-token
     // Protected. Registers/refreshes the caller's FCM device token.
     //
@@ -829,6 +879,22 @@ class AuthController extends Controller
 
         if ($patient === null && ! empty($email)) {
             $patient = Patient::where('email', $email)->first();
+        }
+
+        $deletedPatient = null;
+        if ($appleSub !== null) {
+            $deletedPatient = Patient::withTrashed()->where('apple_sub', $appleSub)
+                ->whereNotNull('deleted_at')->first();
+        }
+        if ($deletedPatient === null && ! empty($email)) {
+            $deletedPatient = Patient::withTrashed()->where('email', $email)
+                ->whereNotNull('deleted_at')->first();
+        }
+        if ($deletedPatient !== null) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This account has been deleted and cannot be used to sign in.',
+            ], 401);
         }
 
         // Without a known account and without an email there is nothing to
@@ -1241,6 +1307,34 @@ class AuthController extends Controller
         }
 
         return $query->first() ?? Patient::where('nric', $identifier)->first();
+    }
+
+    private function findDeletedPatientByIdentifier(string $identifier, ?string $countryCode = null): ?Patient
+    {
+        $type = Patient::detectIdentifierType($identifier);
+
+        if ($type === 'email') {
+            return Patient::withTrashed()
+                ->whereRaw('LOWER(email) = ?', [strtolower($identifier)])
+                ->whereNotNull('deleted_at')
+                ->first();
+        }
+
+        $normalised = Patient::normalisePhone($identifier, $countryCode);
+        $digits = preg_replace('/\D/', '', $identifier);
+        $variants = [$normalised, $digits, $identifier, '+'.$normalised, '+'.$digits];
+
+        if (str_starts_with($normalised, '60')) {
+            $variants[] = '0'.substr($normalised, 2);
+        }
+
+        return Patient::withTrashed()
+            ->where(function ($query) use ($variants, $identifier): void {
+                $query->whereIn('telephone', array_values(array_unique($variants)))
+                    ->orWhere('nric', $identifier);
+            })
+            ->whereNotNull('deleted_at')
+            ->first();
     }
 
     // -------------------------------------------------------------------------

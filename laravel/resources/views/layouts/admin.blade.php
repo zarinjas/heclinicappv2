@@ -278,6 +278,15 @@
                 Branding
             </a>
 
+            <a href="{{ route('admin.settings.contact-info') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      {{ request()->routeIs('admin.settings.contact-info') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm5 8h8m-8-4h8m-8 8h4"/>
+                </svg>
+                Contact &amp; About
+            </a>
+
             @if (auth()->user()?->isSuperAdmin())
                 <a href="{{ route('admin.settings.system') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium

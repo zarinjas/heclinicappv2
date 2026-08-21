@@ -4,7 +4,7 @@ import '/backend/api_requests/api_manager.dart';
 
 export '/backend/api_requests/api_manager.dart' show ApiCallResponse;
 
-/// New auth API group — points to Laravel backend (heclinic.cyberoket.cloud/api/v2/auth)
+/// New auth API group — points to Laravel backend (hemedicalapps.com/api/v2/auth)
 /// Replaces old MedicalAppsApiGroup auth calls (hemedicalapps.com)
 
 class HeclinicAuthApi {
@@ -18,15 +18,19 @@ class HeclinicAuthApi {
   static final MeCall meCall = MeCall();
   static final UpdateMeCall updateMeCall = UpdateMeCall();
   static final LogoutCall logoutCall = LogoutCall();
+  static final DeleteAccountCall deleteAccountCall = DeleteAccountCall();
   static final ForgotPasswordCall forgotPasswordCall = ForgotPasswordCall();
   static final ClaimAccountCall claimAccountCall = ClaimAccountCall();
   static final VerifyOtpCall verifyOtpCall = VerifyOtpCall();
   static final ResetPasswordCall resetPasswordCall = ResetPasswordCall();
-  static final ChangePasswordFirstCall changePasswordFirstCall = ChangePasswordFirstCall();
-  static final LinkEmailRequestCall linkEmailRequestCall = LinkEmailRequestCall();
+  static final ChangePasswordFirstCall changePasswordFirstCall =
+      ChangePasswordFirstCall();
+  static final LinkEmailRequestCall linkEmailRequestCall =
+      LinkEmailRequestCall();
   static final LinkEmailVerifyCall linkEmailVerifyCall = LinkEmailVerifyCall();
   static final SendFcmOtpCall sendFcmOtpCall = SendFcmOtpCall();
-  static final RegisterDeviceTokenCall registerDeviceTokenCall = RegisterDeviceTokenCall();
+  static final RegisterDeviceTokenCall registerDeviceTokenCall =
+      RegisterDeviceTokenCall();
 }
 
 // ---------------------------------------------------------------------------
@@ -36,7 +40,8 @@ class HeclinicAuthApi {
 // login and again whenever FCM rotates the token.
 // ---------------------------------------------------------------------------
 class RegisterDeviceTokenCall {
-  Future<ApiCallResponse> call({String? token = '', String? fcmToken = ''}) async {
+  Future<ApiCallResponse> call(
+      {String? token = '', String? fcmToken = ''}) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicRegisterDeviceToken',
       apiUrl: '${HeclinicAuthApi.baseUrl}/device-token',
@@ -145,7 +150,7 @@ class RegisterCall {
     String? foodAllergiesSelect = '',
     String? foodAllergies = '',
     String? referredBy = '',
-    String? idplato = '',      // pre-resolved from check-nric (walk-in link)
+    String? idplato = '', // pre-resolved from check-nric (walk-in link)
     String? password = '',
     String? fcmToken = '',
     String? countryCode = '60',
@@ -243,8 +248,8 @@ class LoginCall {
       castToType<String>(getJsonField(response, r'''$.message'''));
 
   /// Whether the patient has ever changed their password (first login check).
-  static String? passwordChangedAt(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.user.password_changed_at'''));
+  static String? passwordChangedAt(dynamic response) => castToType<String>(
+      getJsonField(response, r'''$.user.password_changed_at'''));
 }
 
 // ---------------------------------------------------------------------------
@@ -424,11 +429,43 @@ class LogoutCall {
 }
 
 // ---------------------------------------------------------------------------
+// DELETE /v2/auth/account (requires Bearer token and current password)
+// ---------------------------------------------------------------------------
+class DeleteAccountCall {
+  Future<ApiCallResponse> call(
+      {String? token = '', String? password = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicDeleteAccount',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/account',
+      callType: ApiCallType.DELETE,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: {'password': password},
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: true,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
 // POST /v2/auth/forgot-password
 // Sends OTP to the patient's email (or WhatsApp if configured server-side).
 // ---------------------------------------------------------------------------
 class ForgotPasswordCall {
-  Future<ApiCallResponse> call({String? identifier = '', String? countryCode = '60'}) async {
+  Future<ApiCallResponse> call(
+      {String? identifier = '', String? countryCode = '60'}) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicForgotPassword',
       apiUrl: '${HeclinicAuthApi.baseUrl}/forgot-password',
@@ -459,7 +496,8 @@ class ForgotPasswordCall {
 // For existing Plato patients without an app account yet. Sends an OTP.
 // ---------------------------------------------------------------------------
 class ClaimAccountCall {
-  Future<ApiCallResponse> call({String? identifier = '', String? countryCode = '60'}) async {
+  Future<ApiCallResponse> call(
+      {String? identifier = '', String? countryCode = '60'}) async {
     return ApiManager.instance.makeApiCall(
       callName: 'HeclinicClaimAccount',
       apiUrl: '${HeclinicAuthApi.baseUrl}/claim-account',

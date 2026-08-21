@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\AppInfoController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CmsArticleController as ApiCmsArticleController;
 use App\Http\Controllers\Api\CmsSliderController as ApiCmsSliderController;
@@ -45,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'patch'], '/v2/auth/me', [AuthController::class, 'updateMe'])
         ->name('auth.me.update');
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    Route::delete('/v2/auth/account', [AuthController::class, 'deleteAccount'])
+        ->name('auth.account.delete');
     Route::post('/v2/auth/change-password-first', [AuthController::class, 'changePasswordFirst'])
         ->name('auth.change-password-first');
     Route::post('/v2/auth/device-token', [AuthController::class, 'registerDeviceToken'])
@@ -240,6 +243,11 @@ Route::get('/v2/config/clinic-info', function () {
         'contact_email'    => $settings['clinic_contact_email'] ?? 'info@heclinic.com',
     ]);
 })->name('config.clinic-info');
+
+// Public contact & about info for the app's About screen. Values are managed
+// from Admin → Settings → Contact & About.
+Route::get('/v2/config/app-info', [AppInfoController::class, 'index'])
+    ->name('config.app-info');
 
 Route::get('/v2/config/branches', [BranchConfigController::class, 'index'])
     ->name('config.branches');

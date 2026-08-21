@@ -23,9 +23,12 @@ use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserVoucherController;
+use App\Http\Controllers\Admin\ContactInfoController;
+use App\Http\Controllers\AccountDeletionController;
 use App\Http\Controllers\Admin\WhatsAppController;
 use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\PatientDocumentFileController;
+use App\Http\Controllers\PublicInfoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +43,20 @@ Route::get('/privacy-policy', [LegalPageController::class, 'show'])
 Route::get('/terms-of-service', [LegalPageController::class, 'show'])
     ->defaults('slug', 'terms')
     ->name('legal.terms');
+
+// Public, admin-editable contact & about pages. Values are managed in the
+// admin panel under Settings → Contact & About and stored in `settings`.
+Route::get('/contact', [PublicInfoController::class, 'contact'])->name('contact');
+Route::get('/about', [PublicInfoController::class, 'about'])->name('about');
+
+// Public account-deletion request page. Google Play requires a web URL where
+// users can request deletion of their account in addition to the in-app flow.
+// The POST route is rate-limited to slow down password guessing.
+Route::get('/account-deletion', [AccountDeletionController::class, 'index'])
+    ->name('account-deletion');
+Route::post('/account-deletion', [AccountDeletionController::class, 'destroy'])
+    ->middleware('throttle:10,1')
+    ->name('account-deletion.submit');
 
 // Signed, expiring download link for patient documents. Replaces the previous
 // permanent public storage URLs, which exposed medical files to anyone holding
@@ -114,6 +131,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::get('branding', [BrandingController::class, 'index'])->name('branding');
         Route::post('branding', [BrandingController::class, 'update'])->name('branding.update');
+
+        Route::get('settings/contact-info', [ContactInfoController::class, 'index'])
+            ->name('settings.contact-info');
+        Route::post('settings/contact-info', [ContactInfoController::class, 'update'])
+            ->name('settings.contact-info.update');
     });
 
     Route::middleware(['auth', 'role:super_admin'])->group(function (): void {

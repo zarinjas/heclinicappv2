@@ -481,6 +481,28 @@ app.get("/api/v2/config/branding", (req, res) => {
   res.json(mockBranding);
 });
 
+app.get("/api/v2/config/app-info", (req, res) => {
+  console.log(`[CONFIG] GET app-info`);
+  res.json({
+    app_name: mockBranding.app_name,
+    app_short_name: mockBranding.app_short_name,
+    tagline: mockBranding.tagline,
+    logo_url: mockBranding.logo_url,
+    app_description: "He Clinic is your trusted digital healthcare companion. Book appointments, view health records, and stay connected with He Medical Clinic from the comfort of your home.",
+    app_version: "1.0.1",
+    company_name: "He Medical Clinic",
+    support_email: "info@heclinic.com",
+    phone: "+60 11-6720 8860",
+    website: "https://hemedicalclinic.com",
+    address: "No. 12, Jalan Pahlawan, 55100 Kuala Lumpur, Malaysia",
+    operating_hours: [
+      "Mon-Fri: 8:00am - 8:00pm",
+      "Sat: 9:00am - 1:00pm",
+      "Sun & Public Holidays: Closed",
+    ],
+  });
+});
+
 app.get("/api/v2/config/doctors", (req, res) => {
   const { branch_id, visible } = req.query;
   console.log(`[CONFIG] GET doctors branch=${branch_id} visible=${visible}`);

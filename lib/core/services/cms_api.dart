@@ -14,6 +14,7 @@ import 'models/promotion.dart';
 import 'models/onboarding_slide.dart';
 import 'models/telehealth_config.dart';
 import 'models/legal_page.dart';
+import 'models/app_info.dart';
 
 class CmsApiException implements Exception {
   final String path;
@@ -262,6 +263,14 @@ class CmsApi {
     final body = await _fetch('cms/legal/$slug');
     final json = jsonDecode(body) as Map<String, dynamic>;
     return LegalPage.fromJson(json);
+  }
+
+  // ── Contact & About (App Info) ──
+
+  static Future<AppInfo> fetchAppInfo() async {
+    final body = await _fetch('config/app-info');
+    final json = jsonDecode(body) as Map<String, dynamic>;
+    return AppInfo.fromJson(json);
   }
 }
 

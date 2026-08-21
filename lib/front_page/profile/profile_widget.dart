@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/backend/api_requests/heclinic_auth_api.dart';
 import '/core/services/biometric_auth_service.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
@@ -18,6 +19,7 @@ import '/core/theme/app_text_styles.dart';
 import '/core/widgets/app_button.dart';
 import '/custom_code/actions/index.dart' as actions;
 import '/features/auth/bind_email_screen.dart';
+import '/features/profile/about_screen.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/index.dart';
 
@@ -93,6 +95,84 @@ class _ProfileWidgetState extends State<ProfileWidget> {
     });
   }
 
+  Future<void> _showDeleteAccountConfirmation(BuildContext context) async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Delete Account',
+      message: 'This action is permanent and cannot be undone.',
+      confirmLabel: 'Delete Account',
+      isDestructive: true,
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final passwordController = TextEditingController();
+    final password = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm your password'),
+        content: TextField(
+          controller: passwordController,
+          autofocus: true,
+          obscureText: true,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(labelText: 'Password'),
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              Navigator.of(dialogContext).pop(value);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (passwordController.text.isNotEmpty) {
+                Navigator.of(dialogContext).pop(passwordController.text);
+              }
+            },
+            child: const Text('Delete Account'),
+          ),
+        ],
+      ),
+    );
+    passwordController.dispose();
+
+    if (password == null || password.isEmpty || !mounted) return;
+
+    AppDialog.loading(context, message: 'Deleting your account...');
+    try {
+      final response = await HeclinicAuthApi.deleteAccountCall.call(
+        token: FFAppState().tokenauth,
+        password: password,
+      );
+      if (!mounted) return;
+      AppDialog.hideLoading(context);
+
+      if (!response.succeeded ||
+          DeleteAccountCall.status(response.jsonBody) != true) {
+        final message = DeleteAccountCall.message(response.jsonBody) ??
+            'Unable to delete your account. Please try again.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+        return;
+      }
+
+      await actions.logout();
+      if (mounted) context.goNamed(SplashScreen.legacyRouteName);
+    } catch (_) {
+      if (!mounted) return;
+      AppDialog.hideLoading(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Network error. Please try again.')),
+      );
+    }
+  }
+
   Future<void> _performLogout(BuildContext context) async {
     await actions.logout();
     if (context.mounted) {
@@ -125,8 +205,7 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               _profileTile(
                 icon: Icons.person_outline_rounded,
                 label: 'Personal Information',
-                onTap: () =>
-                    context.pushNamed(PersonalInfoScreen.routeName),
+                onTap: () => context.pushNamed(PersonalInfoScreen.routeName),
               ),
               const SizedBox(height: AppSpacing.space16),
               _buildSectionHeader('Settings', isDark),
@@ -176,6 +255,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               _buildSectionHeader('About', isDark),
               _profileTile(
                 icon: Icons.info_outline_rounded,
+                label: 'About App',
+                onTap: () => context.pushNamed(AboutScreen.routeName),
+              ),
+              _profileTile(
+                icon: Icons.local_hospital_outlined,
                 label: 'He Clinic Info',
                 onTap: () => context.pushNamed(HemedInfoWidget.routeName),
               ),
@@ -201,6 +285,17 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 child: AppButton.destructive(
                   label: 'Log Out',
                   onPressed: () => _showLogoutConfirmation(context),
+                  isFullWidth: true,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.space12),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.space16,
+                ),
+                child: AppButton.ghost(
+                  label: 'Delete Account',
+                  onPressed: () => _showDeleteAccountConfirmation(context),
                   isFullWidth: true,
                 ),
               ),
@@ -325,11 +420,11 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                   ],
                   const SizedBox(height: AppSpacing.space16),
                   AppButton(
-                     label: 'Edit Profile',
-                     variant: AppButtonVariant.whiteSolid,
-                     onPressed: () =>
-                         context.pushNamed(PersonalInfoScreen.routeName),
-                   ),
+                    label: 'Edit Profile',
+                    variant: AppButtonVariant.whiteSolid,
+                    onPressed: () =>
+                        context.pushNamed(PersonalInfoScreen.routeName),
+                  ),
                 ],
               );
             },
@@ -376,7 +471,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
       trailing: trailing ??
           Icon(
             Icons.chevron_right,
-            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+            color:
+                isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
             size: 22,
           ),
       onTap: onTap,

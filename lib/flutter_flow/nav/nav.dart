@@ -56,6 +56,7 @@ import '/features/profile/clinic_info_screen.dart';
 import '/features/profile/privacy_screen.dart';
 import '/features/profile/terms_screen.dart';
 import '/features/profile/notification_prefs_screen.dart';
+import '/features/profile/about_screen.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -479,6 +480,11 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: NotificationPrefsScreen.routeName,
           path: NotificationPrefsScreen.routePath,
           builder: (context, params) => const NotificationPrefsScreen(),
+        ),
+        FFRoute(
+          name: AboutScreen.routeName,
+          path: AboutScreen.routePath,
+          builder: (context, params) => const AboutScreen(),
         ),
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
