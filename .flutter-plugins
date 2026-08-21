@@ -43,6 +43,7 @@ path_provider_android=/Users/user/.pub-cache/hosted/pub.dev/path_provider_androi
 path_provider_foundation=/Users/user/.pub-cache/hosted/pub.dev/path_provider_foundation-2.4.0/
 path_provider_linux=/Users/user/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
 path_provider_windows=/Users/user/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+pdfx=/Users/user/.pub-cache/hosted/pub.dev/pdfx-2.11.0/
 permission_handler=/Users/user/.pub-cache/hosted/pub.dev/permission_handler-12.0.3/
 permission_handler_android=/Users/user/.pub-cache/hosted/pub.dev/permission_handler_android-13.0.1/
 permission_handler_apple=/Users/user/.pub-cache/hosted/pub.dev/permission_handler_apple-9.4.10/

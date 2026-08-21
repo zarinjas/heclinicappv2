@@ -53,6 +53,13 @@ jobs:
           cd "$DST"
           sudo -u hemed2668 composer install --no-dev --optimize-autoloader --no-interaction
           sudo -u hemed2668 php artisan migrate --force --no-interaction || true
+
+          # Seed the admin-editable legal pages (Privacy Policy & Terms of
+          # Service). Deployed by `php artisan migrate` alone, the
+          # `cms_legal_pages` table exists but stays empty on the production
+          # SQLite DB, which makes /privacy-policy and /terms-of-service 404.
+          sudo -u hemed2668 php artisan db:seed --class=LegalPageSeeder --force --no-interaction || true
+
           sudo -u hemed2668 php artisan storage:link || true
 
           # Ensure OneSender (WhatsApp OTP) config exists in the production .env.

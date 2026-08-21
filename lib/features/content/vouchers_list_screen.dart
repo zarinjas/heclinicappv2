@@ -84,32 +84,35 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
                   color: Colors.white.withValues(alpha: 0.1)),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  p.ctaText ?? p.title,
-                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, height: 1),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  p.description,
-                  style: AppTextStyles.body2.copyWith(color: Colors.white.withValues(alpha: 0.9)),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    p.ctaText ?? p.title,
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, height: 1),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    p.description,
+                    style: AppTextStyles.body2.copyWith(color: Colors.white.withValues(alpha: 0.9)),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                        ),
+                        child: Text('Claim', style: TextStyle(fontWeight: FontWeight.w700, color: gradient[0])),
                       ),
-                      child: Text('Claim', style: TextStyle(fontWeight: FontWeight.w700, color: gradient[0])),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
