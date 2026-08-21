@@ -9,14 +9,10 @@
 @section('subtitle', $isEdit ? 'Update article content, image, category, or status' : 'Write a new health article or blog post')
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/core@2.9.1/dist/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@2.9.1/dist/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/extension-link@2.9.1/dist/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tiptap/extension-image@2.9.1/dist/index.umd.min.js"></script>
 <style>
     .tiptap-editor { min-height: 300px; }
-    .tiptap-editor p.is-editor-empty:first-child::before {
-        color: #adb5bd; content: attr(data-placeholder); float: left; height: 0; pointer-events: none;
+    .tiptap-editor.is-editor-empty::before {
+        content: attr(data-placeholder); color: #adb5bd; float: left; height: 0; pointer-events: none;
     }
     .tiptap-editor h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
     .tiptap-editor h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
@@ -114,7 +110,7 @@
                             </button>
                             <button type="button" data-action="code-block" class="p-1.5 rounded hover:bg-gray-200" title="Code Block">&lt;/&gt;</button>
                         </div>
-                        <div id="editor" class="tiptap-editor px-4 py-3 focus:outline-none prose prose-sm max-w-none">{!! old('body', $article->body ?? '') !!}</div>
+                        <div id="editor" contenteditable="true" data-placeholder="Write article content here..." class="tiptap-editor px-4 py-3 focus:outline-none prose prose-sm max-w-none min-h-[300px]">{!! old('body', $article->body ?? '') !!}</div>
                     </div>
                     <input type="hidden" name="body" id="body-input" value="{{ old('body', $article->body ?? '') }}">
                     @error('body')
@@ -260,48 +256,110 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const { Editor } = window['@tiptap/core'];
-            const { StarterKit } = window['@tiptap/starter-kit'];
-            const { Link } = window['@tiptap/extension-link'];
+            var editor = document.getElementById('editor');
+            var bodyInput = document.getElementById('body-input');
 
-            const editor = new Editor({
-                element: document.getElementById('editor'),
-                extensions: [
-                    StarterKit.configure({
-                        heading: { levels: [1, 2, 3] },
-                    }),
-                    Link.configure({ openOnClick: false }),
-                ],
-                content: document.getElementById('body-input').value,
-                editorProps: {
-                    attributes: {
-                        class: 'focus:outline-none min-h-[300px]',
-                    },
-                },
-                onUpdate: function ({ editor }) {
-                    document.getElementById('body-input').value = editor.getHTML();
-                },
-            });
+            if (editor) {
+                function syncBody() {
+                    bodyInput.value = editor.innerHTML;
+                    editor.classList.toggle('is-editor-empty', !editor.textContent.trim());
+                }
 
-            document.querySelectorAll('#editor-toolbar [data-action]').forEach(function (btn) {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    var action = this.dataset.action;
-                    var chain = editor.chain().focus();
-                    switch (action) {
-                        case 'bold': chain.toggleBold().run(); break;
-                        case 'italic': chain.toggleItalic().run(); break;
-                        case 'heading-1': chain.toggleHeading({ level: 1 }).run(); break;
-                        case 'heading-2': chain.toggleHeading({ level: 2 }).run(); break;
-                        case 'heading-3': chain.toggleHeading({ level: 3 }).run(); break;
-                        case 'bullet-list': chain.toggleBulletList().run(); break;
-                        case 'ordered-list': chain.toggleOrderedList().run(); break;
-                        case 'blockquote': chain.toggleBlockquote().run(); break;
-                        case 'code-block': chain.toggleCodeBlock().run(); break;
+                function exec(command, value) {
+                    editor.focus();
+                    document.execCommand(command, false, value || null);
+                    syncBody();
+                    updateToolbarState();
+                }
+
+                function toggleHeading(level) {
+                    editor.focus();
+                    var tag = currentBlock();
+                    var isHeading = /^H[1-6]$/.test(tag);
+                    if (isHeading && tag === 'H' + level) {
+                        document.execCommand('formatBlock', false, 'p');
+                    } else {
+                        document.execCommand('formatBlock', false, 'H' + level);
                     }
-                    btn.classList.toggle('bg-gray-200', editor.isActive(action) || editor.isActive(action.replace('-', '')));
+                    syncBody();
+                    updateToolbarState();
+                }
+
+                function currentBlock() {
+                    var v = document.queryCommandState('formatBlock');
+                    return v ? String(v).toUpperCase().replace(/"/g, '') : '';
+                }
+
+                function updateToolbarState() {
+                    document.querySelectorAll('#editor-toolbar [data-action]').forEach(function (btn) {
+                        var action = btn.dataset.action;
+                        var block = currentBlock();
+                        var active = false;
+                        switch (action) {
+                            case 'bold': active = document.queryCommandState('bold'); break;
+                            case 'italic': active = document.queryCommandState('italic'); break;
+                            case 'heading-1': active = block === 'H1'; break;
+                            case 'heading-2': active = block === 'H2'; break;
+                            case 'heading-3': active = block === 'H3'; break;
+                            case 'bullet-list': active = document.queryCommandState('insertUnorderedList'); break;
+                            case 'ordered-list': active = document.queryCommandState('insertOrderedList'); break;
+                            case 'blockquote': active = block === 'BLOCKQUOTE'; break;
+                            case 'code-block': active = false; break;
+                        }
+                        btn.classList.toggle('bg-gray-200', active);
+                    });
+                }
+
+                document.querySelectorAll('#editor-toolbar [data-action]').forEach(function (btn) {
+                    btn.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        var action = this.dataset.action;
+                        switch (action) {
+                            case 'bold': exec('bold'); break;
+                            case 'italic': exec('italic'); break;
+                            case 'heading-1': toggleHeading(1); break;
+                            case 'heading-2': toggleHeading(2); break;
+                            case 'heading-3': toggleHeading(3); break;
+                            case 'bullet-list': exec('insertUnorderedList'); break;
+                            case 'ordered-list': exec('insertOrderedList'); break;
+                            case 'blockquote': exec('formatBlock', 'blockquote'); break;
+                            case 'code-block': {
+                                var sel = window.getSelection();
+                                var text = sel ? sel.toString() : '';
+                                if (text) {
+                                    var pre = document.createElement('pre');
+                                    pre.textContent = text;
+                                    var range = sel.getRangeAt(0);
+                                    range.deleteContents();
+                                    range.insertNode(pre);
+                                    syncBody();
+                                }
+                                break;
+                            }
+                        }
+                    });
                 });
-            });
+
+                editor.addEventListener('input', syncBody);
+                editor.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                    document.execCommand('insertText', false, text || '');
+                    syncBody();
+                });
+                editor.addEventListener('keydown', function (e) {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        document.execCommand('insertText', false, '\t');
+                        syncBody();
+                    }
+                });
+                document.addEventListener('selectionchange', function () {
+                    if (document.activeElement === editor) {
+                        updateToolbarState();
+                    }
+                });
+            }
 
             var titleInput = document.getElementById('title');
             var slugInput = document.getElementById('slug');
