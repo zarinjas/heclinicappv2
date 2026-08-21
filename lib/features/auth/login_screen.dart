@@ -179,6 +179,8 @@ class _LoginScreenState extends State<LoginScreen> {
       appState.tokenauth = token;
       appState.name = MeCall.name(response.jsonBody) ?? appState.name;
       appState.idplato = MeCall.idplato(response.jsonBody) ?? appState.idplato;
+      appState.userEmail =
+          MeCall.email(response.jsonBody) ?? appState.userEmail;
       appState.isLoggedIn = true;
       appState.update(() {});
 
@@ -276,6 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.tokenauth = token;
         appState.idplato = idplato;
         appState.name = name;
+        appState.userEmail = LoginCall.email(response.jsonBody) ?? appState.userEmail;
         appState.isLoggedIn = true;
         appState.update(() {});
 
@@ -485,6 +488,7 @@ class _LoginScreenState extends State<LoginScreen> {
         appState.tokenauth = token;
         appState.idplato = idplato;
         appState.name = name;
+        appState.userEmail = SocialLoginCall.email(response.jsonBody) ?? appState.userEmail;
         appState.isLoggedIn = true;
         appState.update(() {});
 

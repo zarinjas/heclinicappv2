@@ -12,6 +12,7 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_input.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/otp_input_row.dart';
 
 /// Add or change the email bound to the account.
@@ -116,7 +117,7 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
         if (LinkEmailRequestCall.emailBound(result.jsonBody) == true) {
           FFAppState().userEmail = _emailController.text.trim();
           if (mounted) {
-            _finishAndClose();
+            _boundAndClose();
           }
           return;
         }
@@ -221,7 +222,7 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
 
       if (result.succeeded && (LinkEmailVerifyCall.status(result.jsonBody) == true)) {
         FFAppState().userEmail = _emailController.text.trim();
-        _finishAndClose();
+        _boundAndClose();
       } else {
         final message = LinkEmailVerifyCall.message(result.jsonBody);
         setState(() {
@@ -249,6 +250,11 @@ class _BindEmailScreenState extends State<BindEmailScreen> {
   }
 
   void _retry() => setState(() => _apiError = null);
+
+  void _boundAndClose() {
+    AppToast.success(context, message: 'Email address added');
+    _finishAndClose();
+  }
 
   void _finishAndClose() {
     if (_fromExternal) {

@@ -24,6 +24,7 @@ final class AppointmentService
                 'patient_name' => $data['patient_name'],
                 'patient_nric' => $data['patient_nric'] ?? null,
                 'patient_phone' => $data['patient_phone'],
+                'patient_plato_id' => $this->resolvePatientPlatoId($data),
                 'branch_id' => $data['branch_id'] ?? null,
                 'branch_name' => $data['branch_name'] ?? null,
                 'doctor_id' => $data['doctor_id'] ?? null,
@@ -102,5 +103,42 @@ final class AppointmentService
         }
 
         return $payload;
+    }
+
+    /**
+     * Resolve the patient's Plato _id from the booking form so push
+     * notifications (confirmation + reminders) can be targeted at the right
+     * device instead of falling back to a broadcast.
+     */
+    private function resolvePatientPlatoId(array $data): ?string
+    {
+        $nric = trim((string) ($data['patient_nric'] ?? ''));
+        $phone = trim((string) ($data['patient_phone'] ?? ''));
+
+        if ($nric !== '') {
+            $result = $this->plato->proxy('GET', 'search/patient', ['nric' => $nric]);
+
+            if (empty($result['error'])) {
+                $first = collect($result['data'] ?? [])->sortBy('created_on')->first();
+
+                if (! empty($first['_id'])) {
+                    return (string) $first['_id'];
+                }
+            }
+        }
+
+        if ($phone !== '') {
+            $result = $this->plato->proxy('GET', 'search/patient', ['telephone' => \App\Models\Patient::normalisePhone($phone)]);
+
+            if (empty($result['error'])) {
+                $first = collect($result['data'] ?? [])->sortBy('created_on')->first();
+
+                if (! empty($first['_id'])) {
+                    return (string) $first['_id'];
+                }
+            }
+        }
+
+        return null;
     }
 }

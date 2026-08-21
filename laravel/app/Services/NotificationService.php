@@ -604,22 +604,53 @@ final class NotificationService
             return null;
         }
 
+        // Preferred path: the local patients table already stores idplato +
+        // fcm_token, so a match there is exact and needs no Plato round-trip.
+        $local = Patient::query()
+            ->when(preg_match('/^\d{12}$/', $term), fn ($q) => $q->where('nric', $term))
+            ->when(
+                ! preg_match('/^\d{12}$/', $term) && ! str_contains($term, '@'),
+                fn ($q) => $q->where('name', 'like', "%{$term}%"),
+            )
+            ->whereNotNull('idplato')
+            ->first();
+
+        if ($local !== null) {
+            return (string) $local->idplato;
+        }
+
+        // Fall back to Plato search. The `patient` endpoint ignores nric/name
+        // filters and just returns the paged list, so lookups must go through
+        // `search/patient` instead.
         $query = ['current_page' => 1];
 
         if (preg_match('/^\d{12}$/', $term)) {
-            $query['ic'] = $term;
+            $query['nric'] = $term;
         } else {
             $query['name'] = $term;
         }
 
         try {
-            $result = $this->platoProxy->proxy('GET', 'patient', $query);
+            $result = $this->platoProxy->proxy('GET', 'search/patient', $query);
             $patients = $this->extractPatients($result);
 
-            foreach ($patients as $patient) {
-                if (! empty($patient['_id'])) {
-                    return (string) $patient['_id'];
-                }
+            // Plato can hold several records for one NRIC. Prefer the record
+            // already linked to a local app account (patients.idplato), since
+            // that account is the one that registered a device token. Fall back
+            // to the earliest-created record, mirroring the check-nric flow.
+            $linked = Patient::whereIn(
+                'idplato',
+                array_values(array_filter(array_column($patients, '_id'))),
+            )->pluck('idplato')->first();
+
+            if ($linked !== null) {
+                return (string) $linked;
+            }
+
+            $first = collect($patients)->sortBy('created_on')->first();
+
+            if (! empty($first['_id'])) {
+                return (string) $first['_id'];
             }
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Failed to resolve patient id from Plato', [
@@ -635,11 +666,12 @@ final class NotificationService
     {
         try {
             $result = $this->platoProxy->proxy('GET', "patient/{$patientId}");
+            $patients = $this->extractPatients($result);
 
-            $patient = $result['data'] ?? [];
-
-            if (is_array($patient) && ! empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
-                return $patient['email'];
+            foreach ($patients as $patient) {
+                if (! empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
+                    return $patient['email'];
+                }
             }
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Failed to resolve patient email by id from Plato', [
@@ -681,13 +713,12 @@ final class NotificationService
         try {
             $query = ['current_page' => 1];
             if (!empty($appointment->patient_nric)) {
-                $query['ic'] = $appointment->patient_nric;
-            }
-            if (!empty($appointment->patient_name)) {
+                $query['nric'] = $appointment->patient_nric;
+            } elseif (!empty($appointment->patient_name)) {
                 $query['name'] = $appointment->patient_name;
             }
 
-            $result = $this->platoProxy->proxy('GET', 'patient', $query);
+            $result = $this->platoProxy->proxy('GET', 'search/patient', $query);
             $patients = $this->extractPatients($result);
 
             foreach ($patients as $patient) {

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
+import '/core/services/biometric_auth_service.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
@@ -33,10 +34,24 @@ class ProfileWidget extends StatefulWidget {
 class _ProfileWidgetState extends State<ProfileWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _biometricEnabled = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+    _loadBiometricStatus();
+  }
+
+  Future<void> _loadBiometricStatus() async {
+    final enabled = await BiometricAuthService.instance.isEnabled();
+    if (!mounted) return;
+    setState(() => _biometricEnabled = enabled);
+  }
+
+  Future<void> _openBiometricScreen() async {
+    await context.pushNamed(BiometricScreen.routeName);
+    if (mounted) _loadBiometricStatus();
   }
 
   Future<String?> _fetchAvatarUrl() async {
@@ -136,15 +151,13 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 icon: Icons.fingerprint,
                 label: 'Biometric Login',
                 trailing: Text(
-                  appState.fingerprint || appState.faceid ? 'ON' : 'OFF',
+                  _biometricEnabled ? 'ON' : 'OFF',
                   style: AppTextStyles.body2.copyWith(
                     color: AppColors.accent,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                onTap: () => context.pushNamed(
-                  BiometricScreen.routeName,
-                ),
+                onTap: _openBiometricScreen,
               ),
               _profileTile(
                 icon: Icons.notifications_outlined,
@@ -170,14 +183,14 @@ class _ProfileWidgetState extends State<ProfileWidget> {
                 icon: Icons.privacy_tip_outlined,
                 label: 'Privacy Policy',
                 onTap: () async {
-                  await launchURL('https://hemedicalapps.com/term.html');
+                  await launchURL('https://hemedicalapps.com/privacy-policy');
                 },
               ),
               _profileTile(
                 icon: Icons.description_outlined,
                 label: 'Terms of Service',
                 onTap: () async {
-                  await launchURL('https://hemedicalapps.com/term.html');
+                  await launchURL('https://hemedicalapps.com/terms-of-service');
                 },
               ),
               const SizedBox(height: AppSpacing.space48),

@@ -63,6 +63,16 @@ final class AppSettingsService
         return $this->has('firebase_web_api_key');
     }
 
+    public function firebaseServiceAccount(): string
+    {
+        return $this->decrypt($this->get('firebase_service_account'));
+    }
+
+    public function firebaseServiceAccountConfigured(): bool
+    {
+        return $this->has('firebase_service_account');
+    }
+
     public function mailMailer(): string
     {
         return (string) $this->get('mail_mailer', config('mail.default'));
@@ -138,6 +148,11 @@ final class AppSettingsService
                 config(['firebase.web_api_key' => $webApiKey]);
             }
 
+            $serviceAccount = $this->firebaseServiceAccount();
+            if ($serviceAccount !== '') {
+                config(['firebase.service_account' => $serviceAccount]);
+            }
+
             config(['mail.default' => $this->mailMailer()]);
             config(['mail.mailers.smtp.host' => $this->mailHost()]);
             config(['mail.mailers.smtp.port' => $this->mailPort()]);
@@ -188,7 +203,7 @@ final class AppSettingsService
             );
         }
 
-        foreach (['firebase_web_api_key', 'mail_password'] as $secretKey) {
+        foreach (['firebase_web_api_key', 'firebase_service_account', 'mail_password'] as $secretKey) {
             if (empty($values[$secretKey] ?? '')) {
                 continue;
             }

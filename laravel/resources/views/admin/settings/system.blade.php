@@ -51,6 +51,24 @@
                     @error('firebase_web_api_key') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-[#0F1B3D] mb-1">Service Account JSON</label>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full {{ $settings['firebase_service_account_configured'] ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        {{ $settings['firebase_service_account_configured'] ? 'Configured' : 'Not set' }}
+                    </span>
+                    <span class="text-xs text-gray-400">This is what actually sends push notifications (FCM HTTP v1).</span>
+                </div>
+                <textarea name="firebase_service_account" rows="8"
+                          placeholder='Paste the full contents of your Firebase service account JSON here, e.g. {"type":"service_account","project_id":"heclinicapps-8be27","private_key":"...","client_email":"..."}'
+                          class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none font-mono">{{ old('firebase_service_account') }}</textarea>
+                <p class="mt-1 text-xs text-gray-400">
+                    Stored encrypted. Leave empty to keep the current one. Get it from
+                    Firebase Console → Project Settings → Service accounts → Generate new private key.
+                </p>
+                @error('firebase_service_account') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
         </div>
 
         {{-- Mail / SMTP --}}

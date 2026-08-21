@@ -227,10 +227,37 @@ final class FcmService
     /**
      * Load and validate the service account JSON.
      *
+     * The service account can be provided two ways:
+     *  1. Pasted into the admin panel (System Settings → Firebase), which is
+     *     stored encrypted in the settings table and read via config. This is
+     *     the deploy-safe option — no file to keep in sync with git.
+     *  2. A file path in `FIREBASE_SERVICE_ACCOUNT_PATH` (.env). The file must
+     *     survive deploys (keep it outside the rsync'd Laravel folder).
+     *
      * @return array<string, mixed>|null
      */
     private function serviceAccount(): ?array
     {
+        $stored = (string) config('firebase.service_account', '');
+
+        if ($stored !== '') {
+            try {
+                $decoded = json_decode($stored, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                Log::channel('plato')->error('Firebase service account stored in settings is not valid JSON.', ['error' => $e->getMessage()]);
+
+                return null;
+            }
+
+            if (is_array($decoded) && ! empty($decoded['client_email']) && ! empty($decoded['private_key'])) {
+                return $decoded;
+            }
+
+            Log::channel('plato')->error('Firebase service account stored in settings is missing client_email or private_key.');
+
+            return null;
+        }
+
         $path = (string) config('firebase.service_account_path');
 
         if ($path === '') {

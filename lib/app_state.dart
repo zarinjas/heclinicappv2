@@ -22,6 +22,9 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _isLoggedIn = prefs.getBool('ff_isLoggedIn') ?? _isLoggedIn;
     });
+    _safeInit(() {
+      _userEmail = prefs.getString('ff_userEmail') ?? _userEmail;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -35,6 +38,10 @@ class FFAppState extends ChangeNotifier {
   String get userEmail => _userEmail;
   set userEmail(String value) {
     _userEmail = value;
+    try {
+      prefs.setString('ff_userEmail', value);
+    } catch (_) {}
+    notifyListeners();
   }
 
   bool _isLoggedIn = false;
@@ -188,12 +195,14 @@ class FFAppState extends ChangeNotifier {
   bool get fingerprint => _fingerprint;
   set fingerprint(bool value) {
     _fingerprint = value;
+    notifyListeners();
   }
 
   bool _faceid = false;
   bool get faceid => _faceid;
   set faceid(bool value) {
     _faceid = value;
+    notifyListeners();
   }
 
   bool _passwordChanged = false;

@@ -23,6 +23,7 @@ class SystemSettingsController extends Controller
                 'app_url' => $this->settings->appUrl(),
                 'firebase_project_id' => $this->settings->firebaseProjectId(),
                 'firebase_web_api_key_configured' => $this->settings->firebaseWebApiKeyConfigured(),
+                'firebase_service_account_configured' => $this->settings->firebaseServiceAccountConfigured(),
                 'mail_mailer' => $this->settings->mailMailer(),
                 'mail_host' => $this->settings->mailHost(),
                 'mail_port' => $this->settings->mailPort(),
@@ -47,7 +48,23 @@ class SystemSettingsController extends Controller
             'app_url' => ['nullable', 'url', 'max:255'],
             'firebase_project_id' => ['nullable', 'string', 'max:191'],
             'firebase_web_api_key' => ['nullable', 'string', 'max:500'],
-            'mail_mailer' => ['required', 'in:smtp,log'],
+            'firebase_service_account' => ['nullable', 'string', 'max:20000', function (string $attribute, mixed $value, \Closure $fail) {
+                if ($value === null || $value === '') {
+                    return;
+                }
+
+                try {
+                    $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+                } catch (\JsonException) {
+                    $fail('The service account must be valid JSON.');
+
+                    return;
+                }
+
+                if (! is_array($decoded) || empty($decoded['client_email']) || empty($decoded['private_key'])) {
+                    $fail('The service account must be a Firebase service account JSON containing client_email and private_key.');
+                }
+            }],            'mail_mailer' => ['required', 'in:smtp,log'],
             'mail_host' => ['nullable', 'string', 'max:255'],
             'mail_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'mail_username' => ['nullable', 'string', 'max:255'],

@@ -25,8 +25,21 @@ rotates it.
 
 ## Required setup
 
-### 1. Create a service account key
+### 1. Add the service account key
 
+There are two ways to give the backend a service account key:
+
+**Option A — Admin panel (recommended, deploy-safe)**
+1. Firebase Console → Project Settings → **Service accounts**
+2. **Generate new private key** → downloads a JSON file
+3. Open the JSON file, copy its entire contents
+4. Admin panel → System Settings → **Firebase** → paste it into **Service Account JSON** → Save
+
+   The JSON is stored encrypted in the `settings` table, so it survives deploys
+   and never needs to touch the server filesystem. `php artisan push:diagnose`
+   will read it from there automatically.
+
+**Option B — `.env` file path**
 1. Firebase Console → Project Settings → **Service accounts**
 2. **Generate new private key** → downloads a JSON file
 3. Upload it to the server **outside the app folder** and outside the web root.
@@ -44,7 +57,7 @@ rotates it.
 
 ### 2. Point the app at it
 
-In `.env`:
+In `.env` (only needed for **Option B** above):
 
 ```env
 FIREBASE_PROJECT_ID=heclinicapps-8be27
@@ -52,6 +65,9 @@ FIREBASE_SERVICE_ACCOUNT_PATH=/home/hemedicalapps.com/.secrets/firebase-service-
 ```
 
 A path without a leading `/` is resolved relative to the Laravel root.
+
+If you used **Option A** (admin panel), the project id can also be set from the
+panel — no `.env` edit needed.
 
 Then:
 
@@ -122,7 +138,8 @@ Expected output when healthy:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `FIREBASE_SERVICE_ACCOUNT_PATH is not set` | Step 2 skipped | Set it, then `php artisan config:clear` |
+| `No Firebase service account configured` | Neither the admin panel field nor `FIREBASE_SERVICE_ACCOUNT_PATH` is set | Paste the service account JSON in Admin → System Settings → Firebase, then `php artisan config:clear` |
+| Admin shows "Configured" but push still fails | The badge only reflects the **Web API Key**, not the service account JSON | Add the Service Account JSON field — that is what sends FCM messages |
 | `Could not obtain an OAuth access token` | Key revoked, or server clock skewed | Regenerate the key; check `timedatectl` — JWT auth fails if the clock drifts |
 | `0 of N patients have a device token` | No one has logged in on a build that includes `DeviceTokenService` | Log in on the new build, then re-run |
 | Patient has no token | Never logged in since the update, or denied notification permission | Ask them to reopen the app and allow notifications |

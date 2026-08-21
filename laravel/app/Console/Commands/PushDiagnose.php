@@ -31,11 +31,26 @@ class PushDiagnose extends Command
 
         // 1. Service account -------------------------------------------------
         $path = (string) config('firebase.service_account_path');
+        $stored = (string) config('firebase.service_account', '');
 
-        if ($path === '') {
-            $this->line('  [FAIL] FIREBASE_SERVICE_ACCOUNT_PATH is not set in .env');
-            $this->line('         Push will fall back to the legacy Firestore relay, which is broken.');
+        if ($stored === '' && $path === '') {
+            $this->line('  [FAIL] No Firebase service account configured.');
+            $this->line('         Paste the service account JSON in Admin → System Settings → Firebase,');
+            $this->line('         or set FIREBASE_SERVICE_ACCOUNT_PATH in .env (file must survive deploys).');
             $ok = false;
+        } elseif ($stored !== '') {
+            try {
+                $decoded = json_decode($stored, true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($decoded) && ! empty($decoded['client_email']) && ! empty($decoded['private_key'])) {
+                    $this->line('  [ OK ] Service account JSON from admin settings is valid');
+                } else {
+                    $this->line('  [FAIL] Service account JSON in admin settings is missing client_email or private_key.');
+                    $ok = false;
+                }
+            } catch (\JsonException $e) {
+                $this->line('  [FAIL] Service account JSON in admin settings is not valid JSON.');
+                $ok = false;
+            }
         } else {
             $resolved = str_starts_with($path, '/') ? $path : base_path($path);
 

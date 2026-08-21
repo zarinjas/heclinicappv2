@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/app_dialog.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../backend/api_requests/api_calls.dart';
 import '../../core/theme/app_colors.dart';
@@ -15,6 +14,7 @@ import '../../core/widgets/app_skeleton.dart';
 import '../../core/widgets/branch_picker_sheet.dart';
 import '../../core/widgets/document_item.dart';
 import '../../flutter_flow/flutter_flow_util.dart';
+import 'document_viewer_screen.dart';
 
 /// A document belonging to the logged-in patient, as returned by
 /// `GET /api/v2/patients/{id}/documents`.
@@ -168,24 +168,26 @@ class _DocumentsTabState extends State<DocumentsTab> {
     ];
   }
 
-  Future<void> _openDocument(_PatientDocument doc) async {
+  void _openDocument(_PatientDocument doc) {
     if (doc.url.isEmpty) {
       _showMessage('This document has no file attached.');
       return;
     }
 
-    final uri = Uri.tryParse(doc.url);
-    if (uri == null) {
+    if (Uri.tryParse(doc.url) == null) {
       _showMessage('This document link is invalid.');
       return;
     }
 
-    try {
-      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!opened) _showMessage('Could not open this document.');
-    } catch (_) {
-      _showMessage('Could not open this document.');
-    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DocumentViewerScreen(
+          name: doc.name,
+          url: doc.url,
+          mimeType: doc.mimeType ?? '',
+        ),
+      ),
+    );
   }
 
   Future<void> _onUploadDocument() async {

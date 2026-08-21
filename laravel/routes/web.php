@@ -23,12 +23,22 @@ use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WhatsAppController;
+use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\PatientDocumentFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('admin.login');
 });
+
+// Public, admin-editable legal pages. Content is managed in the admin panel
+// under CMS → Legal Pages and stored in the `cms_legal_pages` table.
+Route::get('/privacy-policy', [LegalPageController::class, 'show'])
+    ->defaults('slug', 'privacy')
+    ->name('legal.privacy');
+Route::get('/terms-of-service', [LegalPageController::class, 'show'])
+    ->defaults('slug', 'terms')
+    ->name('legal.terms');
 
 // Signed, expiring download link for patient documents. Replaces the previous
 // permanent public storage URLs, which exposed medical files to anyone holding

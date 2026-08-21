@@ -237,6 +237,8 @@ class LoginCall {
       castToType<String>(getJsonField(response, r'''$.user.idplato'''));
   static String? name(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.user.name'''));
+  static String? email(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.email'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
 
@@ -289,6 +291,8 @@ class SocialLoginCall {
       castToType<String>(getJsonField(response, r'''$.user.idplato'''));
   static String? name(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.user.name'''));
+  static String? email(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.user.email'''));
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
 }
