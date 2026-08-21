@@ -1,14 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
+import '../../backend/api_requests/voucher_api.dart';
+import '../../core/services/models/claimed_voucher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_app_bar.dart';
-import '../../core/widgets/app_button.dart';
+import '../../core/widgets/app_empty_state.dart';
+import '../../core/widgets/app_loader.dart';
+import '../../core/widgets/app_toast.dart';
+import 'widgets/voucher_code_sheet.dart';
 
-class MyVouchersScreen extends StatelessWidget {
+class MyVouchersScreen extends StatefulWidget {
   const MyVouchersScreen({super.key});
+
+  @override
+  State<MyVouchersScreen> createState() => _MyVouchersScreenState();
+}
+
+class _MyVouchersScreenState extends State<MyVouchersScreen> {
+  List<ClaimedVoucher> _vouchers = [];
+  bool _loading = true;
+  String? _error;
+
+  List<ClaimedVoucher> get _active =>
+      _vouchers.where((v) => v.isActive).toList();
+  List<ClaimedVoucher> get _closed =>
+      _vouchers.where((v) => !v.isActive).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final response = await VoucherApi.getMyVouchersCall.call();
+      if (!mounted) return;
+
+      if (response.succeeded) {
+        final raw = GetMyVouchersCall.rawList(response.jsonBody) ?? [];
+        final vouchers = raw
+            .whereType<Map<String, dynamic>>()
+            .map(ClaimedVoucher.fromJson)
+            .toList();
+        setState(() {
+          _vouchers = vouchers;
+          _loading = false;
+        });
+      } else if (response.statusCode == 401) {
+        setState(() {
+          _loading = false;
+          _error = 'Please login to view your vouchers.';
+        });
+      } else {
+        setState(() {
+          _loading = false;
+          _error = 'Unable to load your vouchers.';
+        });
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = 'Something went wrong. Please try again.';
+      });
+    }
+  }
+
+  Future<void> _refresh() async {
+    if (!mounted) return;
+
+    try {
+      final response = await VoucherApi.getMyVouchersCall.call();
+      if (!mounted) return;
+      final raw = GetMyVouchersCall.rawList(response.jsonBody) ?? [];
+      final vouchers = raw
+          .whereType<Map<String, dynamic>>()
+          .map(ClaimedVoucher.fromJson)
+          .toList();
+      setState(() {
+        _vouchers = vouchers;
+        _error = null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      AppToast.error(context, message: 'Refresh failed. Please try again.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,193 +115,207 @@ class MyVouchersScreen extends StatelessWidget {
                 Tab(text: 'Used / Expired'),
               ],
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _buildActiveTab(context, isDark),
-                  _buildExpiredTab(isDark),
-                ],
-              ),
-            ),
+            Expanded(child: _buildBody(isDark)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActiveTab(BuildContext context, bool isDark) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
+  Widget _buildBody(bool isDark) {
+    if (_loading) {
+      return const Center(child: AppLoader());
+    }
+
+    if (_error != null) {
+      return AppEmptyState(
+        icon: Icons.error_outline,
+        title: 'Something went wrong',
+        subtitle: _error!,
+        ctaLabel: 'Try Again',
+        onCtaTap: _load,
+      );
+    }
+
+    if (_vouchers.isEmpty) {
+      return const AppEmptyState(
+        icon: Icons.confirmation_num_outlined,
+        title: 'No vouchers yet',
+        subtitle: 'Claim an offer from the Vouchers screen to see it here.',
+      );
+    }
+
+    return TabBarView(
       children: [
-        _ClaimedCard(discount: 'RM 30 OFF', title: 'Basic Health Screening',
-            code: 'HEC-V001-2025', expiry: 'Valid until 20 Jul 2025',
-            gradient: const [Color(0xFF3B8DFF), Color(0xFF27F5A3)],
-            isDark: isDark, context: context),
-        const SizedBox(height: 12),
-        _ClaimedCard(discount: '20% OFF', title: 'GP Consultation',
-            code: 'HEC-V002-2025', expiry: 'Valid until 25 Jul 2025',
-            gradient: const [Color(0xFF131C3C), Color(0xFF3B8DFF)],
-            isDark: isDark, context: context),
-        const SizedBox(height: 12),
-        _ClaimedCard(discount: 'FREE', title: 'Blood Pressure Check',
-            code: 'HEC-V003-2025', expiry: 'Valid until 01 Aug 2025',
-            gradient: const [Color(0xFF27F5A3), Color(0xFF2868F5)],
-            isDark: isDark, context: context),
+        _buildList(_active, isDark),
+        _buildList(_closed, isDark),
       ],
     );
   }
 
-  Widget _buildExpiredTab(bool isDark) {
+  Widget _buildList(List<ClaimedVoucher> vouchers, bool isDark) {
+    return RefreshIndicator(
+      color: AppColors.accent,
+      onRefresh: _refresh,
+      child: _buildListContent(vouchers, isDark),
+    );
+  }
+
+  Widget _buildListContent(List<ClaimedVoucher> vouchers, bool isDark) {
+    if (vouchers.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: const [
+          SizedBox(height: 80),
+          AppEmptyState(
+            icon: Icons.confirmation_num_outlined,
+            title: 'Nothing here yet',
+            subtitle: 'Claim a voucher to see it in this tab.',
+          ),
+        ],
+      );
+    }
+
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
-        _ExpiredCard(discount: 'RM 20 OFF', title: 'Pharmacy Purchase', used: 'Used on 10 Jun 2025', isDark: isDark),
-        const SizedBox(height: 12),
-        _ExpiredCard(discount: '10% OFF', title: 'Flu Vaccination', used: 'Expired on 01 Jun 2025', isDark: isDark),
+        for (var i = 0; i < vouchers.length; i++) ...[
+          _ClaimedCard(
+            voucher: vouchers[i],
+            isDark: isDark,
+            onTap: vouchers[i].isActive ? () => _showCode(vouchers[i]) : null,
+          ),
+          if (i < vouchers.length - 1) const SizedBox(height: 12),
+        ],
       ],
+    );
+  }
+
+  void _showCode(ClaimedVoucher voucher) {
+    VoucherCodeSheet.show(
+      context,
+      code: voucher.code,
+      discount: voucher.discount,
+      title: voucher.title,
     );
   }
 }
 
 class _ClaimedCard extends StatelessWidget {
-  final String discount, title, code, expiry;
-  final List<Color> gradient;
+  final ClaimedVoucher voucher;
   final bool isDark;
-  final BuildContext context;
+  final VoidCallback? onTap;
 
-  const _ClaimedCard({required this.discount, required this.title, required this.code, required this.expiry, required this.gradient, required this.isDark, required this.context});
+  const _ClaimedCard({
+    required this.voucher,
+    required this.isDark,
+    this.onTap,
+  });
+
+  List<Color> get _gradient {
+    const colors = [
+      [Color(0xFF3B8DFF), Color(0xFF27F5A3)],
+      [Color(0xFF131C3C), Color(0xFF3B8DFF)],
+      [Color(0xFF27F5A3), Color(0xFF2868F5)],
+      [Color(0xFFF5A623), Color(0xFFF54636)],
+    ];
+    return colors[voucher.id % colors.length];
+  }
+
+  String get _discount => voucher.discount ?? '';
+
+  String get _subtitle {
+    if (voucher.isUsed) {
+      final used = voucher.usedAt;
+      return used != null ? 'Used on ${DateFormat('d MMM yyyy').format(used)}' : 'Used';
+    }
+    if (!voucher.isActive) {
+      final expired = voucher.expiresAt;
+      return expired != null
+          ? 'Expired on ${DateFormat('d MMM yyyy').format(expired)}'
+          : 'Expired';
+    }
+    final expires = voucher.expiresAt;
+    return expires != null
+        ? 'Valid until ${DateFormat('d MMM yyyy').format(expires)}'
+        : 'No expiry';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showQR(context),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-          border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.divider),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 100, padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: gradient),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.radiusLG),
-                  bottomLeft: Radius.circular(AppRadius.radiusLG),
-                ),
-              ),
-              child: Center(
-                child: Text(discount, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800)),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTextStyles.heading3.copyWith(fontSize: 14, color: isDark ? AppColors.textPrimaryDark : AppColors.primary)),
-                    const SizedBox(height: 4),
-                    Text(code, style: AppTextStyles.caption.copyWith(color: AppColors.accent, fontWeight: FontWeight.w600, letterSpacing: 0.8)),
-                    const SizedBox(height: 4),
-                    Text(expiry, style: AppTextStyles.caption.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
-                  ],
-                ),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(right: 12),
-              child: Icon(Icons.qr_code_rounded, color: AppColors.accent, size: 24),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showQR(BuildContext ctx) {
-    showModalBottomSheet(
-      context: ctx, backgroundColor: Colors.transparent, isScrollControlled: true,
-      builder: (c) => Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.radiusXL),
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 36, height: 4,
-            decoration: BoxDecoration(color: isDark ? AppColors.dividerDark : AppColors.divider, borderRadius: BorderRadius.circular(2)),
-          ),
-          const SizedBox(height: 24),
-          Text('Show at Counter', style: AppTextStyles.heading3.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary)),
-          const SizedBox(height: 4),
-          Text('$discount — $title', style: AppTextStyles.body2.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary), textAlign: TextAlign.center),
-          const SizedBox(height: 24),
-          Container(width: 200, height: 200,
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.radiusMD)),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Icon(Icons.qr_code_2_rounded, size: 120, color: Colors.white),
-              const SizedBox(height: 8),
-              Text(code, style: AppTextStyles.label.copyWith(color: AppColors.accent, letterSpacing: 1.5)),
-            ]),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.radiusSM)),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              const Icon(Icons.info_outline, size: 16, color: AppColors.accent),
-              const SizedBox(width: 8),
-              Text('Show this to the staff at the counter', style: AppTextStyles.body2.copyWith(color: AppColors.accent, fontWeight: FontWeight.w500)),
-            ]),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(width: double.infinity, height: 48,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.radiusXL))),
-              onPressed: () => Navigator.pop(c),
-              child: const Text('Done', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
-}
-
-class _ExpiredCard extends StatelessWidget {
-  final String discount, title, used;
-  final bool isDark;
-  const _ExpiredCard({required this.discount, required this.title, required this.used, required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
+    final opacity = voucher.isActive ? 1.0 : 0.55;
     return Opacity(
-      opacity: 0.5,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-          border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.divider),
-        ),
-        child: Row(
-          children: [
-            Container(width: 48, height: 48,
-              decoration: BoxDecoration(color: AppColors.divider, borderRadius: BorderRadius.circular(AppRadius.radiusSM)),
-              alignment: Alignment.center,
-              child: Text(discount, style: const TextStyle(color: AppColors.textSecondary, fontSize: 8, fontWeight: FontWeight.w700)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: AppTextStyles.body1.copyWith(color: isDark ? AppColors.textPrimaryDark : AppColors.primary)),
-              const SizedBox(height: 2),
-              Text(used, style: AppTextStyles.caption.copyWith(color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary)),
-            ])),
-          ],
+      opacity: opacity,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+            border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.divider),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 100,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: _gradient),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppRadius.radiusLG),
+                    bottomLeft: Radius.circular(AppRadius.radiusLG),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    _discount,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        voucher.title,
+                        style: AppTextStyles.heading3.copyWith(
+                          fontSize: 14,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        voucher.code,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _subtitle,
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (voucher.isActive)
+                const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Icon(Icons.qr_code_rounded, color: AppColors.accent, size: 24),
+                ),
+            ],
+          ),
         ),
       ),
     );

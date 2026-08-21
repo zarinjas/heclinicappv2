@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\PlatoSettingsController;
 use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserVoucherController;
 use App\Http\Controllers\Admin\WhatsAppController;
 use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\PatientDocumentFileController;
@@ -75,6 +76,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::resource('appointments', AdminAppointmentController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('calendars/sync', [CalendarSetupController::class, 'sync'])->name('calendars.sync');
         Route::resource('calendars', CalendarSetupController::class);
+
+        Route::get('voucher-claims', [UserVoucherController::class, 'index'])
+            ->name('voucher-claims.index');
+        Route::post('voucher-claims/{voucher}/used', [UserVoucherController::class, 'markUsed'])
+            ->name('voucher-claims.used');
 
         Route::get('notifications/compose', [NotificationController::class, 'compose'])
             ->name('notifications.compose');

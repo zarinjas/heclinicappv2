@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\LoyaltyController;
 use App\Http\Controllers\Api\NotificationInboxController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
+use App\Http\Controllers\Api\UserVoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +83,14 @@ Route::middleware('auth:sanctum')->group(function () {
 // ─── Loyalty webhook (public, secret-gated via header) ──────────────────────
 Route::post('/v2/loyalty/webhook', [LoyaltyController::class, 'webhook'])
     ->name('loyalty.webhook');
+
+// ─── Mobile Vouchers (protected) ────────────────────────────────────────────
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/v2/vouchers', [UserVoucherController::class, 'index'])
+        ->name('vouchers.index');
+    Route::post('/v2/vouchers/claim', [UserVoucherController::class, 'claim'])
+        ->name('vouchers.claim');
+});
 
 Route::get('/v2/plato/health', [PlatoProxyController::class, 'health'])
     ->name('plato.health');
