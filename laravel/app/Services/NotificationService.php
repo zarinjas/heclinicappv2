@@ -294,7 +294,43 @@ final class NotificationService
         $patientIds = array_filter((array) ($payload['patient_ids'] ?? []));
 
         if ($patientIds !== []) {
-            return $query->whereIn('idplato', $patientIds)->pluck('fcm_token')->all();
+            $tokens = Patient::query()
+                ->whereNotNull('fcm_token')
+                ->where('fcm_token', '!=', '')
+                ->whereIn('idplato', $patientIds)
+                ->pluck('fcm_token')
+                ->all();
+
+            if ($tokens !== []) {
+                return $tokens;
+            }
+
+            // patient_ids resolved to a patient without a device token — fall
+            // through to term-based lookup below so we still hit the right
+            // account when duplicates share the same NRIC.
+        }
+
+        // Specific-patient targeting may also carry the raw term (NRIC / phone /
+        // name) the admin typed. Match the local patients table directly so a
+        // token registered for that account is always found.
+        $targetTerm = trim((string) ($payload['target_term'] ?? ''));
+
+        if ($targetTerm !== '') {
+            if (preg_match('/^\d{12}$/', $targetTerm)) {
+                return $query->where('nric', $targetTerm)->pluck('fcm_token')->all();
+            }
+
+            if (str_contains($targetTerm, '@')) {
+                return $query->whereRaw('LOWER(email) = ?', [strtolower($targetTerm)])->pluck('fcm_token')->all();
+            }
+
+            $digits = preg_replace('/\D/', '', $targetTerm);
+
+            if ($digits !== '' && strlen($digits) >= 8) {
+                return $query->where('telephone', $digits)->pluck('fcm_token')->all();
+            }
+
+            return $query->where('name', 'like', "%{$targetTerm}%")->pluck('fcm_token')->all();
         }
 
         $branchIds = array_filter((array) ($payload['branch_ids'] ?? []));
@@ -424,8 +460,10 @@ final class NotificationService
         $targetIds = $log->target_ids ?? [];
 
         $patientId = null;
+        $targetTerm = null;
         if ($targetType === 'specific_patient' && ! empty($log->target_ids)) {
-            $patientId = $this->resolvePatientIdByTerm((string) $log->target_ids[0]);
+            $targetTerm = trim((string) $log->target_ids[0]);
+            $patientId = $this->resolvePatientIdByTerm($targetTerm);
         }
 
         $delivered = [];
@@ -445,6 +483,10 @@ final class NotificationService
                     'target_audience' => 'All',
                     'type' => 'manual',
                 ];
+
+                if ($targetType === 'specific_patient') {
+                    $pushData['target_term'] = $targetTerm;
+                }
 
                 if ($targetType === 'branch') {
                     $pushData['branch_ids'] = $targetIds;
@@ -604,8 +646,18 @@ final class NotificationService
             return null;
         }
 
+        // The compose form's autocomplete submits the Plato _id directly — if
+        // the term is an exact idplato match, use it straight away.
+        $byId = Patient::where('idplato', $term)->first();
+
+        if ($byId !== null) {
+            return (string) $byId->idplato;
+        }
+
         // Preferred path: the local patients table already stores idplato +
         // fcm_token, so a match there is exact and needs no Plato round-trip.
+        // Prefer a patient that actually has a registered device token — that
+        // is the account that will receive the push.
         $local = Patient::query()
             ->when(preg_match('/^\d{12}$/', $term), fn ($q) => $q->where('nric', $term))
             ->when(
@@ -613,7 +665,22 @@ final class NotificationService
                 fn ($q) => $q->where('name', 'like', "%{$term}%"),
             )
             ->whereNotNull('idplato')
+            ->whereNotNull('fcm_token')
+            ->where('fcm_token', '!=', '')
             ->first();
+
+        if ($local === null) {
+            // No token-bearing match — still fall back to any local idplato so
+            // email/in-app channels can use the account.
+            $local = Patient::query()
+                ->when(preg_match('/^\d{12}$/', $term), fn ($q) => $q->where('nric', $term))
+                ->when(
+                    ! preg_match('/^\d{12}$/', $term) && ! str_contains($term, '@'),
+                    fn ($q) => $q->where('name', 'like', "%{$term}%"),
+                )
+                ->whereNotNull('idplato')
+                ->first();
+        }
 
         if ($local !== null) {
             return (string) $local->idplato;

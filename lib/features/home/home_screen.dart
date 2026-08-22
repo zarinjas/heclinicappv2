@@ -231,9 +231,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadPromotions() async {
     try {
-      await PromotionService.instance.init();
+      final service = PromotionService.instance;
+      final wasInitialised = service.isInitialised;
+      await service.init();
+      // Always re-fetch once the service has loaded before, so promotions
+      // created in the Admin Panel appear without needing an app restart.
+      if (wasInitialised) {
+        await service.refresh();
+      }
       if (mounted) setState(() {
-        _promos = PromotionService.instance.promotions;
+        _promos = service.promotions;
         _promoLoaded = true;
       });
     } catch (_) {

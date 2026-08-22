@@ -1,10 +1,13 @@
-import 'dart:typed_data';
+import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pdfx/pdfx.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -17,11 +20,15 @@ enum _DocKind { image, pdf, other }
 
 /// In-app viewer for a patient document (PDF or image) with a download action.
 ///
-/// The file bytes are downloaded through the signed, time-limited URL (which is
-/// self-authenticating, so no auth header is needed) and then rendered natively
-/// with [Image] / [pdfx], instead of relying on a WebView that cannot display
-/// PDFs on every platform. A "Open / Download" action always remains available
-/// for external viewing and saving.
+/// The file bytes are downloaded first through the signed, time-limited URL so
+/// we can verify it is a real PDF/image (and surface a clear error otherwise,
+/// instead of a blank screen). PDFs are then previewed in a [WebView]:
+/// - iOS' WKWebView renders PDFs natively from the already-downloaded bytes;
+/// - Android's WebView cannot, so it falls back to Google Docs' embedded
+///   viewer.
+///
+/// "Download" saves the file through the system share sheet (Save to Files /
+/// Drive etc.) and "Open in Browser" opens the signed URL externally.
 class DocumentViewerScreen extends StatefulWidget {
   final String name;
   final String url;
@@ -40,10 +47,12 @@ class DocumentViewerScreen extends StatefulWidget {
 
 class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
   bool _loading = true;
+  bool _downloading = false;
   String? _error;
   Uint8List? _bytes;
   _DocKind _kind = _DocKind.other;
-  PdfController? _pdfController;
+  WebViewController? _webController;
+  File? _tempPdfFile;
 
   @override
   void initState() {
@@ -53,8 +62,26 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
   @override
   void dispose() {
-    _pdfController?.dispose();
+    _webController = null;
+    final temp = _tempPdfFile;
+    if (temp != null) {
+      try {
+        temp.delete();
+      } catch (_) {}
+    }
     super.dispose();
+  }
+
+  /// URL the WebView loads for a PDF. iOS renders PDFs natively from the local
+  /// file; Android routes through Google's embedded viewer (the signed URL is
+  /// time-limited and public, matching what the external browser would already
+  /// receive).
+  String get _webUrl {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return 'https://docs.google.com/viewer?url='
+          '${Uri.encodeComponent(widget.url)}&embedded=true';
+    }
+    return widget.url;
   }
 
   Future<void> _load() async {
@@ -97,14 +124,47 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       }
 
       if (kind == _DocKind.pdf) {
-        final document = await PdfDocument.openData(bytes);
-        if (!mounted) {
-          await document.close();
-          return;
+        final controller = WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onWebResourceError: (details) {
+                if (mounted) {
+                  _fail(
+                    'Could not preview this document. '
+                    'Use "Open in Browser" or "Download" instead.',
+                  );
+                }
+              },
+            ),
+          );
+
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+          // WKWebView renders PDFs natively. Loading the downloaded bytes from
+          // a local file is more reliable than re-fetching the signed URL
+          // (no expiry, redirect or CORS concerns inside the WebView).
+          final dir = await getTemporaryDirectory();
+          final file = File(
+            '${dir.path}/doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
+          );
+          await file.writeAsBytes(bytes, flush: true);
+          if (!mounted) {
+            try {
+              file.delete();
+            } catch (_) {}
+            return;
+          }
+          _tempPdfFile = file;
+          await controller.loadFile(file.path);
+        } else {
+          await controller.loadRequest(Uri.parse(_webUrl));
         }
+
+        if (!mounted) return;
         setState(() {
+          _bytes = bytes;
           _kind = kind;
-          _pdfController = PdfController(document: Future.value(document));
+          _webController = controller;
           _loading = false;
         });
         return;
@@ -112,7 +172,7 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
       setState(() {
         _error = 'This file type is not supported for in-app preview. '
-            'Use "Open / Download" to view it in another app.';
+            'Use "Open in Browser" or "Download" to view it in another app.';
         _loading = false;
       });
     } catch (_) {
@@ -155,6 +215,75 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       bytes[2] == 0x44 &&
       bytes[3] == 0x46; // %PDF
 
+  String get _fileExtension {
+    switch (_kind) {
+      case _DocKind.pdf:
+        return 'pdf';
+      case _DocKind.image:
+        final m = widget.mimeType.toLowerCase();
+        if (m.contains('png')) return 'png';
+        if (m.contains('webp')) return 'webp';
+        if (m.contains('gif')) return 'gif';
+        return 'jpg';
+      case _DocKind.other:
+        return 'bin';
+    }
+  }
+
+  String _safeFileName() {
+    final base = widget.name.trim().isNotEmpty ? widget.name.trim() : 'document';
+    final cleaned = base.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+    final hasExtension = RegExp(r'\.[a-zA-Z0-9]{1,5}$').hasMatch(cleaned);
+    return hasExtension ? cleaned : '$cleaned.$_fileExtension';
+  }
+
+  Future<void> _download() async {
+    final bytes = _bytes;
+    if (bytes == null) {
+      AppToast.error(context, message: 'Document is not ready yet.');
+      return;
+    }
+    if (_downloading) return;
+    setState(() => _downloading = true);
+
+    try {
+      final dir = await getTemporaryDirectory();
+      final fileName = _safeFileName();
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(bytes, flush: true);
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile(
+              file.path,
+              mimeType: _kind == _DocKind.pdf ? 'application/pdf' : null,
+              name: fileName,
+            ),
+          ],
+          title: widget.name,
+          subject: widget.name,
+          sharePositionOrigin: _shareOrigin,
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        AppToast.error(context, message: 'Could not save this document.');
+      }
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
+  /// Anchor rect for the share sheet (required on iPad to avoid a crash).
+  Rect? get _shareOrigin {
+    final box = context.findRenderObject();
+    if (box is RenderBox && box.hasSize) {
+      return box.localToGlobal(Offset.zero) & box.size;
+    }
+    return null;
+  }
+
   Future<void> _openExternally() async {
     final uri = Uri.tryParse(widget.url);
     if (uri == null) {
@@ -182,9 +311,12 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       backgroundColor: bg,
       appBar: AppAppBar.sub(
         title: widget.name,
+        // The default back button resolves the go_router navigator, which does
+        // not pop this MaterialPageRoute. Use this screen's own navigator.
+        onBack: () => Navigator.of(context).maybePop(),
         trailing: IconButton(
           icon: const Icon(Icons.open_in_new, color: AppColors.primary),
-          tooltip: 'Open / Download',
+          tooltip: 'Open in Browser',
           onPressed: _loading ? null : _openExternally,
         ),
       ),
@@ -195,11 +327,24 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
             top: false,
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.space16),
-              child: AppButton.secondary(
-                label: 'Open / Download',
-                icon: const Icon(Icons.file_download_outlined, size: 20),
-                onPressed: _loading ? null : _openExternally,
-                isFullWidth: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppButton.primary(
+                    label: 'Download',
+                    icon: const Icon(Icons.download_outlined, size: 20),
+                    onPressed: (_loading || _downloading) ? null : _download,
+                    isLoading: _downloading,
+                    isFullWidth: true,
+                  ),
+                  const SizedBox(height: AppSpacing.space8),
+                  AppButton.secondary(
+                    label: 'Open in Browser',
+                    icon: const Icon(Icons.open_in_new, size: 20),
+                    onPressed: _loading ? null : _openExternally,
+                    isFullWidth: true,
+                  ),
+                ],
               ),
             ),
           ),
@@ -227,11 +372,6 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
                 style: AppTextStyles.body1,
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: AppSpacing.space16),
-              AppButton.secondary(
-                label: 'Open in browser',
-                onPressed: _openExternally,
-              ),
             ],
           ),
         ),
@@ -240,12 +380,16 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
     switch (_kind) {
       case _DocKind.image:
+        final bytes = _bytes;
+        if (bytes == null) {
+          return _buildUnsupported();
+        }
         return Center(
           child: InteractiveViewer(
             minScale: 0.5,
             maxScale: 5,
             child: Image.memory(
-              _bytes!,
+              bytes,
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) => const Icon(
                 Icons.broken_image_outlined,
@@ -256,30 +400,38 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
           ),
         );
       case _DocKind.pdf:
-        return PdfView(controller: _pdfController!);
+        final controller = _webController;
+        if (controller == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return WebViewWidget(controller: controller);
       case _DocKind.other:
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.space24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.insert_drive_file_outlined,
-                  size: 56,
-                  color: AppColors.textSecondary,
-                ),
-                const SizedBox(height: AppSpacing.space16),
-                Text(
-                  'This file type is not supported for in-app preview. '
-                  'Use "Open / Download" to view it in another app.',
-                  style: AppTextStyles.body1,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
+        return _buildUnsupported();
     }
+  }
+
+  Widget _buildUnsupported() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.space24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.insert_drive_file_outlined,
+              size: 56,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            Text(
+              'This file type is not supported for in-app preview. '
+              'Use "Download" to save it.',
+              style: AppTextStyles.body1,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

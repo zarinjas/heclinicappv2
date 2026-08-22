@@ -1,12 +1,14 @@
 <?php
 
+use App\Http\Controllers\AccountDeletionController;
 use App\Http\Controllers\Admin\AdminAppointmentController;
+use App\Http\Controllers\Admin\AppAccountController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BranchController;
 use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\CalendarSetupController;
-use App\Http\Controllers\Admin\CmsArticleController;
 use App\Http\Controllers\Admin\CmsArticleCategoryController;
+use App\Http\Controllers\Admin\CmsArticleController;
 use App\Http\Controllers\Admin\CmsClinicInfoController;
 use App\Http\Controllers\Admin\CmsLegalPageController;
 use App\Http\Controllers\Admin\CmsOnboardingSlideController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\Admin\CmsPromotionController;
 use App\Http\Controllers\Admin\CmsServicePackageController;
 use App\Http\Controllers\Admin\CmsSliderController;
 use App\Http\Controllers\Admin\CmsVideoController;
+use App\Http\Controllers\Admin\ContactInfoController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -23,8 +26,6 @@ use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\UserVoucherController;
-use App\Http\Controllers\Admin\ContactInfoController;
-use App\Http\Controllers\AccountDeletionController;
 use App\Http\Controllers\Admin\WhatsAppController;
 use App\Http\Controllers\LegalPageController;
 use App\Http\Controllers\PatientDocumentFileController;
@@ -78,6 +79,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('branches/sync', [BranchController::class, 'syncFromPlato'])->name('branches.sync');
         Route::resource('doctors', DoctorController::class);
         Route::post('doctors/sync', [DoctorController::class, 'syncFromPlato'])->name('doctors.sync');
+        Route::get('patients/search', [PatientController::class, 'search'])
+            ->name('patients.search');
         Route::resource('patients', PatientController::class)->only(['index', 'show']);
         Route::post('patients/{patient}/metadata', [PatientController::class, 'updateMetadata'])
             ->name('patients.metadata');
@@ -87,6 +90,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('patients.documents.delete');
         Route::post('patients/{patient}/reset-password', [PatientController::class, 'resetPassword'])
             ->name('patients.reset-password');
+        Route::get('app-accounts', [AppAccountController::class, 'index'])->name('app-accounts.index');
+        Route::get('app-accounts/{account}', [AppAccountController::class, 'show'])->name('app-accounts.show');
+        Route::post('app-accounts/merge', [AppAccountController::class, 'merge'])->name('app-accounts.merge');
         Route::get('records', [RecordController::class, 'index'])->name('records.index');
         Route::post('records/email', [RecordController::class, 'updateDefaultEmail'])->name('records.email.update');
         Route::delete('records/{record}', [RecordController::class, 'destroy'])->name('records.destroy');

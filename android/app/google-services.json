@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:254839499256:android:395ce8fd68e86f31528e0d",
+        "mobilesdk_app_id": "1:254839499256:android:7cbcbdf8f40afb85528e0d",
         "android_client_info": {
-          "package_name": "com.hemedgroup.heclinic"
+          "package_name": "com.heclinicapp"
         }
       },
       "oauth_client": [],
@@ -26,9 +26,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:254839499256:android:6688bb01fbbf6394528e0d",
+        "mobilesdk_app_id": "1:254839499256:android:395ce8fd68e86f31528e0d",
         "android_client_info": {
-          "package_name": "com.hemedgroup.heclinicapps"
+          "package_name": "com.hemedgroup.heclinic"
         }
       },
       "oauth_client": [],

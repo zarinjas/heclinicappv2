@@ -30,8 +30,14 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
   }
 
   Future<void> _load() async {
-    await PromotionService.instance.init();
-    if (mounted) setState(() => _promos = PromotionService.instance.promotions);
+    final service = PromotionService.instance;
+    final wasInitialised = service.isInitialised;
+    await service.init();
+    // Re-fetch once loaded before so new admin promotions appear immediately.
+    if (wasInitialised) {
+      await service.refresh();
+    }
+    if (mounted) setState(() => _promos = service.promotions);
   }
 
   @override

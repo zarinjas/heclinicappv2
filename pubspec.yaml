@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # ios/Runner/Info.plist reads it straight from here via FLUTTER_BUILD_NUMBER.
 # The last shipped build was 37, so this continues from 38 rather than
 # restarting at 1 — even though Android ships as a brand new listing.
-version: 1.0.1+39
+version: 1.0.2+42
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -148,7 +148,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
   qr_flutter: ^4.1.0
-  pdfx: ^2.11.0
+  share_plus: ^12.0.2
 
 dependency_overrides:
   http: 1.4.0

@@ -14,6 +14,8 @@ class PromotionService {
 
   bool _initialised = false;
 
+  bool get isInitialised => _initialised;
+
   List<Promotion> get promotions => _base.data;
 
   Future<void> init() async {

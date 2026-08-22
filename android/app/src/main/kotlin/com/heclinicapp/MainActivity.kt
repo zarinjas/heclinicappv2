@@ -1,4 +1,4 @@
-package com.hemedgroup.heclinic
+package com.heclinicapp
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

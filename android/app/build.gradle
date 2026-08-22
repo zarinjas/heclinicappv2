@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     // Namespace only scopes the generated R class and BuildConfig; it is not
     // the Play Store identity. Kept aligned with applicationId for clarity.
-    namespace "com.hemedgroup.heclinic"
+    namespace "com.heclinicapp"
     // 36 is required by androidx.core:core:1.18.0 (pulled in via connectivity_plus).
     // Raising compileSdk only allows newer APIs to be referenced at compile time;
     // runtime behaviour is still governed by targetSdk below.
@@ -70,7 +70,7 @@ android {
         //
         // iOS is unaffected and keeps com.hemedgroup.heclinicapps, so that
         // listing continues to receive ordinary version updates.
-        applicationId "com.hemedgroup.heclinic"
+        applicationId "com.heclinicapp"
         minSdkVersion 23
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()

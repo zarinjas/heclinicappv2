@@ -82,6 +82,123 @@ class PatientController extends Controller
         return view('admin.patients.index', compact('patients', 'linked'));
     }
 
+    public function search(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $term = trim((string) $request->input('q'));
+
+        if ($term === '') {
+            return response()->json([]);
+        }
+
+        $plato = app(PlatoProxyService::class);
+        $patients = [];
+        $seen = [];
+
+        $add = static function (array $p) use (&$patients, &$seen): void {
+            $id = $p['id'] ?? null;
+            if ($id === null || $id === '') {
+                return;
+            }
+            if (isset($seen[$id])) {
+                return;
+            }
+            $seen[$id] = true;
+            $patients[] = $p;
+        };
+
+        // 1) Local app accounts — the ones that can actually receive pushes.
+        //    Match by name / NRIC / phone / email.
+        $localQuery = Patient::query()
+            ->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('nric', $term)
+                  ->orWhere('telephone', 'like', "%{$term}%")
+                  ->orWhereRaw('LOWER(email) = ?', [strtolower($term)]);
+            })
+            ->limit(20)
+            ->get();
+
+        foreach ($localQuery as $p) {
+            $add([
+                'id' => (string) $p->idplato,
+                'name' => $p->name,
+                'nric' => $p->nric,
+                'telephone' => $p->telephone,
+                'email' => $p->email,
+                'has_token' => ! empty($p->fcm_token),
+            ]);
+        }
+
+        // 2) Plato search. `search/patient` honours nric/telephone/email but
+        //    ignores `name`, so a name term is filtered client-side.
+        $attempts = [];
+        if (preg_match('/^\d{12}$/', $term)) {
+            $attempts[] = ['nric' => $term];
+        } elseif (str_contains($term, '@')) {
+            $attempts[] = ['email' => $term];
+        } else {
+            $digits = preg_replace('/\D/', '', $term);
+            if ($digits !== '') {
+                $attempts[] = ['telephone' => Patient::normalisePhone($digits)];
+            }
+            $attempts[] = ['name' => $term];
+        }
+
+        foreach ($attempts as $query) {
+            $query['current_page'] = 1;
+
+            $response = $plato->proxy('GET', 'search/patient', $query);
+            $rows = is_array($response['data'] ?? null) ? $response['data'] : [];
+
+            $isNameQuery = array_key_exists('name', $query);
+            $nameNeedle = strtolower($term);
+
+            foreach ($rows as $patient) {
+                if ($isNameQuery) {
+                    // Plato ignores the name filter, so keep only real matches.
+                    $patientName = strtolower((string) ($patient['name'] ?? ''));
+
+                    if ($patientName === '' || ! str_contains($patientName, $nameNeedle)) {
+                        continue;
+                    }
+                }
+
+                $id = $patient['_id'] ?? null;
+                if ($id === null || $id === '') {
+                    continue;
+                }
+
+                $add([
+                    'id' => (string) $id,
+                    'name' => $patient['name'] ?? '',
+                    'nric' => $patient['nric'] ?? '',
+                    'telephone' => $patient['telephone'] ?? '',
+                    'email' => $patient['email'] ?? '',
+                    'has_token' => Patient::where('idplato', (string) $id)
+                        ->whereNotNull('fcm_token')
+                        ->where('fcm_token', '!=', '')
+                        ->exists(),
+                ]);
+            }
+
+            // Stop early once an exact-match attempt returned results.
+            if ($patients !== []) {
+                break;
+            }
+        }
+
+        // Sort: token-bearing accounts first, then by name.
+        usort($patients, static function (array $a, array $b): int {
+            if ($a['has_token'] !== $b['has_token']) {
+                return $a['has_token'] ? -1 : 1;
+            }
+
+            return strcasecmp($a['name'], $b['name']);
+        });
+
+        return response()->json(array_slice($patients, 0, 20));
+    }
+
     public function show(Request $request, string $id): View
     {
         $plato = app(PlatoProxyService::class);

@@ -206,16 +206,35 @@
                     </div>
 
                     <div id="target_patient_section" class="mt-4 hidden">
-                        <label for="target_patient" class="block text-sm font-medium text-[#0F1B3D] mb-1">Patient Name or NRIC</label>
-                        <input
-                            type="text"
-                            name="target_patient"
-                            id="target_patient"
-                            value="{{ old('target_patient') }}"
-                            maxlength="255"
-                            class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('target_patient') border-red-300 @enderror"
-                            placeholder="Enter patient name or NRIC"
-                        >
+                        <label for="patient_search" class="block text-sm font-medium text-[#0F1B3D] mb-1">Search Patient</label>
+
+                        <div class="relative">
+                            <input
+                                type="text"
+                                id="patient_search"
+                                autocomplete="off"
+                                maxlength="255"
+                                class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none"
+                                placeholder="Type name, NRIC or phone to search..."
+                            >
+                            <div id="patient_results" class="hidden absolute z-20 mt-1 w-full max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+                            </div>
+                        </div>
+
+                        {{-- Selected patient is stored here as the Plato _id. --}}
+                        <input type="hidden" name="target_patient" id="target_patient" value="{{ old('target_patient') }}">
+
+                        <div id="patient_selected" class="hidden mt-3 flex items-center justify-between bg-[#00C9A7]/10 border border-[#00C9A7]/30 rounded-lg px-4 py-3">
+                            <div>
+                                <p id="selected_patient_name" class="text-sm font-semibold text-[#0F1B3D]"></p>
+                                <p id="selected_patient_meta" class="text-xs text-gray-500"></p>
+                            </div>
+                            <button type="button" id="patient_clear" class="text-xs font-medium text-gray-500 hover:text-red-500">
+                                Clear
+                            </button>
+                        </div>
+
+                        <p class="mt-1 text-xs text-gray-400">Search for the patient to send this notification to.</p>
                         @error('target_patient')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
@@ -287,6 +306,143 @@
         if (targetTypeSelect) {
             targetTypeSelect.addEventListener('change', toggleTargetFields);
             toggleTargetFields();
+        }
+
+        // ── Specific-patient autocomplete ─────────────────────────────────────
+        const patientSearch = document.getElementById('patient_search');
+        const patientResults = document.getElementById('patient_results');
+        const patientSelected = document.getElementById('patient_selected');
+        const patientNameEl = document.getElementById('selected_patient_name');
+        const patientMetaEl = document.getElementById('selected_patient_meta');
+        const patientClear = document.getElementById('patient_clear');
+        const targetPatient = document.getElementById('target_patient');
+
+        let searchTimer = null;
+        let selectedPatient = null;
+
+        function showSelected(patient) {
+            selectedPatient = patient;
+            targetPatient.value = patient.id;
+            patientNameEl.textContent = patient.name || 'Unnamed patient';
+            const bits = [];
+            if (patient.nric) bits.push(patient.nric);
+            if (patient.telephone) bits.push(patient.telephone);
+            if (patient.email) bits.push(patient.email);
+            patientMetaEl.textContent = bits.join(' · ') || 'No additional details';
+            patientSelected.classList.remove('hidden');
+            patientSearch.value = '';
+            patientSearch.placeholder = patient.name || 'Search patient...';
+            patientResults.classList.add('hidden');
+            patientResults.innerHTML = '';
+        }
+
+        function clearSelected() {
+            selectedPatient = null;
+            targetPatient.value = '';
+            patientSelected.classList.add('hidden');
+            patientSearch.value = '';
+            patientSearch.placeholder = 'Type name, NRIC or phone to search...';
+            patientSearch.focus();
+        }
+
+        function renderResults(items) {
+            patientResults.innerHTML = '';
+
+            if (!items.length) {
+                patientResults.innerHTML =
+                    '<div class="px-4 py-3 text-sm text-gray-500">No patients found. ' +
+                    'If the patient is not listed, they may not exist in Plato.</div>';
+                patientResults.classList.remove('hidden');
+                return;
+            }
+
+            items.forEach(function (p) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left px-4 py-3 hover:bg-[#00C9A7]/10 border-b border-gray-100 last:border-0';
+
+                const meta = [p.nric, p.telephone].filter(Boolean).join(' · ');
+                const tokenBadge = p.has_token
+                    ? '<span class="ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-100 text-green-700">Push ready</span>'
+                    : '';
+
+                btn.innerHTML =
+                    '<div class="text-sm font-medium text-[#0F1B3D]">' + escapeHtml(p.name) + tokenBadge + '</div>' +
+                    (meta ? '<div class="text-xs text-gray-500">' + escapeHtml(meta) + '</div>' : '');
+
+                btn.addEventListener('click', function () {
+                    showSelected(p);
+                });
+
+                patientResults.appendChild(btn);
+            });
+
+            patientResults.classList.remove('hidden');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function (ch) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+            });
+        }
+
+        if (patientSearch) {
+            patientSearch.addEventListener('input', function () {
+                clearTimeout(searchTimer);
+
+                if (selectedPatient) {
+                    clearSelected();
+                }
+
+                const q = patientSearch.value.trim();
+                if (q.length < 2) {
+                    patientResults.classList.add('hidden');
+                    patientResults.innerHTML = '';
+                    return;
+                }
+
+                searchTimer = setTimeout(function () {
+                    fetch('{{ route('admin.patients.search') }}?q=' + encodeURIComponent(q), {
+                        headers: { 'Accept': 'application/json' }
+                    })
+                    .then(function (res) { return res.json(); })
+                    .then(function (items) { renderResults(Array.isArray(items) ? items : []); })
+                    .catch(function () {
+                        patientResults.innerHTML =
+                            '<div class="px-4 py-3 text-sm text-red-500">Search failed. Please try again.</div>';
+                        patientResults.classList.remove('hidden');
+                    });
+                }, 300);
+            });
+
+            patientSearch.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    patientResults.classList.add('hidden');
+                    patientResults.innerHTML = '';
+                }
+            });
+
+            patientClear.addEventListener('click', clearSelected);
+
+            document.addEventListener('click', function (e) {
+                if (!patientResults.classList.contains('hidden') &&
+                    !patientSearch.contains(e.target) &&
+                    !patientResults.contains(e.target)) {
+                    patientResults.classList.add('hidden');
+                    patientResults.innerHTML = '';
+                }
+            });
+
+            // If the admin typed a value but didn't pick from the dropdown,
+            // submit what they typed (keeps old name/NRIC input working).
+            const form = patientSearch.closest('form');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    if (!targetPatient.value && patientSearch.value.trim()) {
+                        targetPatient.value = patientSearch.value.trim();
+                    }
+                });
+            }
         }
     });
 </script>

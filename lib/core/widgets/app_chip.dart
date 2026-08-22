@@ -31,7 +31,7 @@ class AppChip extends StatelessWidget {
   Color _backgroundColor() {
     switch (type) {
       case AppChipType.status:
-        switch (statusVariant!) {
+        switch (statusVariant) {
           case StatusChipVariant.confirmed:
             return AppColors.chipConfirmedBg;
           case StatusChipVariant.pending:
@@ -40,19 +40,23 @@ class AppChip extends StatelessWidget {
             return AppColors.chipCancelledBg;
           case StatusChipVariant.completed:
             return AppColors.chipCompletedBg;
+          case null:
+            return AppColors.chipFilterDefaultBg;
         }
       case AppChipType.filter:
         return isSelected
             ? AppColors.accent
             : AppColors.chipFilterDefaultBg;
       case AppChipType.tier:
-        switch (tierVariant!) {
+        switch (tierVariant) {
           case TierChipVariant.standard:
             return AppColors.chipFilterDefaultBg;
           case TierChipVariant.silver:
             return const Color(0xFFF0F0F0);
           case TierChipVariant.gold:
             return AppColors.chipPendingBg;
+          case null:
+            return AppColors.chipFilterDefaultBg;
         }
     }
   }
@@ -60,7 +64,7 @@ class AppChip extends StatelessWidget {
   Color _textColor() {
     switch (type) {
       case AppChipType.status:
-        switch (statusVariant!) {
+        switch (statusVariant) {
           case StatusChipVariant.confirmed:
             return AppColors.chipConfirmedText;
           case StatusChipVariant.pending:
@@ -69,19 +73,23 @@ class AppChip extends StatelessWidget {
             return AppColors.chipCancelledText;
           case StatusChipVariant.completed:
             return AppColors.chipCompletedText;
+          case null:
+            return AppColors.chipFilterDefaultText;
         }
       case AppChipType.filter:
         return isSelected
             ? Colors.white
             : AppColors.chipFilterDefaultText;
       case AppChipType.tier:
-        switch (tierVariant!) {
+        switch (tierVariant) {
           case TierChipVariant.standard:
             return AppColors.chipFilterDefaultText;
           case TierChipVariant.silver:
             return const Color(0xFF9CA3AF);
           case TierChipVariant.gold:
             return AppColors.tierGold;
+          case null:
+            return AppColors.chipFilterDefaultText;
         }
     }
   }
