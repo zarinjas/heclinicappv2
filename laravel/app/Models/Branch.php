@@ -7,6 +7,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
 {
+    /**
+     * Default operating hours applied to every branch unless an admin sets
+     * per-day hours. Mon–Fri 9AM–7PM, Sat–Sun 9AM–4PM.
+     */
+    public const DEFAULT_OPERATING_HOURS = [
+        'monday' => '09:00-19:00',
+        'tuesday' => '09:00-19:00',
+        'wednesday' => '09:00-19:00',
+        'thursday' => '09:00-19:00',
+        'friday' => '09:00-19:00',
+        'saturday' => '09:00-16:00',
+        'sunday' => '09:00-16:00',
+    ];
+
     protected $fillable = [
         'name',
         'address',

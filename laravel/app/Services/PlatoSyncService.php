@@ -147,21 +147,18 @@ final class PlatoSyncService
                     'branch_id' => $branchId,
                     'plato_facility_id' => $facilityId,
                     'is_active' => true,
-                    'is_visible_in_app' => false,
+                    'is_visible_in_app' => true,
                 ]);
                 $created++;
 
                 continue;
             }
 
+            // On updates, only keep the branch mapping in sync. Name,
+            // specialty, photo, bio etc. are admin-edited in the panel and must
+            // survive repeated re-syncs from Plato.
             $syncFields = [];
 
-            if ($name !== '' && $doctor->name !== $name) {
-                $syncFields['name'] = $name;
-            }
-            if ($specialty !== null && $doctor->specialty !== $specialty) {
-                $syncFields['specialty'] = $specialty;
-            }
             if ($branchId !== null && $doctor->branch_id !== $branchId) {
                 $syncFields['branch_id'] = $branchId;
             }

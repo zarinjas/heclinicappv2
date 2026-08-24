@@ -23,7 +23,7 @@ class BranchConfigController extends Controller
                 'phone' => $branch->phone,
                 'whatsapp_number' => $branch->whatsapp_number,
                 'image' => $branch->image ? Storage::disk('public')->url($branch->image) : null,
-                'operating_hours' => $branch->operating_hours,
+                'operating_hours' => $branch->operating_hours ?: Branch::DEFAULT_OPERATING_HOURS,
                 'google_maps_link' => $branch->google_maps_link,
                 'plato_facility_id' => $branch->plato_facility_id,
             ]);

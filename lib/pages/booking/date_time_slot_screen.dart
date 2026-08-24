@@ -172,20 +172,42 @@ class _DateTimeSlotSelectionScreenWidgetState
   }
 
   /// Open/close window ("HH:mm" pair) for the branch on [day], falling back to
-  /// 08:00–18:00 when the branch has no hours defined for that day.
+  /// the clinic default when the branch has no hours defined for that day.
   (String, String) _branchWindowFor(DateTime day) {
     final range = _bookingModel.selectedBranchOperatingHours[_dayKey(day)];
     final parts = range?.split('-') ?? const [];
     if (parts.length == 2) {
       return (parts[0].trim(), parts[1].trim());
     }
-    return ('08:00', '18:00');
+    final def = _defaultRange(day);
+    final dParts = def.split('-');
+    return (dParts[0], dParts[1]);
+  }
+
+  /// Clinic default hours: Mon–Fri 09:00-19:00, Sat–Sun 09:00-16:00.
+  String _defaultRange(DateTime day) {
+    final isWeekend = day.weekday == DateTime.saturday || day.weekday == DateTime.sunday;
+    return isWeekend ? '09:00-16:00' : '09:00-19:00';
   }
 
   /// Generates 30-minute slot labels for the branch hours on [day].
+  ///
+  /// Falls back so the list is never empty: if the selected day has no hours
+  /// (branch map empty or day missing), the branch's first defined day is used,
+  /// then the clinic default (Mon–Fri 09:00-19:00, Sat–Sun 09:00-16:00). The
+  /// chosen time is just a preference for the admin anyway.
   List<String> _slotsFromBranchHours(DateTime day) {
-    final range = _bookingModel.selectedBranchOperatingHours[_dayKey(day)];
-    if (range == null || range.trim().isEmpty) return [];
+    final hours = _bookingModel.selectedBranchOperatingHours;
+
+    var range = hours[_dayKey(day)];
+    if (range == null || range.trim().isEmpty) {
+      final firstRange = hours.values
+          .where((v) => v.trim().isNotEmpty)
+          .firstOrNull;
+      range = (firstRange != null && firstRange.trim().isNotEmpty)
+          ? firstRange
+          : _defaultRange(day);
+    }
 
     final parts = range.split('-');
     if (parts.length != 2) return [];

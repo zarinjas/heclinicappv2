@@ -57,12 +57,14 @@ class _DoctorSelectionScreenWidgetState
 
       final selectedBranchId = _bookingModel.selectedBranchId;
       final selectedBranchName = _bookingModel.selectedBranchName;
-      final doctors = <DoctorItem>[];
+
+      // Doctors mapped to the selected branch first.
+      final matched = <DoctorItem>[];
       for (final d in service.doctors) {
         if (!_matchesBranch(d, selectedBranchId, selectedBranchName)) {
           continue;
         }
-        doctors.add(DoctorItem(
+        matched.add(DoctorItem(
           id: d.id,
           name: d.name,
           specialty: d.specialty,
@@ -70,6 +72,20 @@ class _DoctorSelectionScreenWidgetState
           calendarColorIds: d.calendarColorIds,
         ));
       }
+
+      // If the branch mapping is missing/empty (e.g. doctors not toggled
+      // visible or branch_id not synced), fall back to ALL doctors so the
+      // list is never empty. "No Preference" is always available anyway.
+      final doctors = matched.isNotEmpty ? matched : [
+        for (final d in service.doctors)
+          DoctorItem(
+            id: d.id,
+            name: d.name,
+            specialty: d.specialty,
+            photoUrl: d.photoUrl ?? '',
+            calendarColorIds: d.calendarColorIds,
+          ),
+      ];
 
       String? lastConsultedName;
       if (FFAppState().idplato.isNotEmpty) {
