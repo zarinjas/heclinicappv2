@@ -45,6 +45,13 @@ final class DoctorConfigController extends Controller
             'is_visible_in_app' => $doctor->is_visible_in_app,
             'branch_id' => $doctor->branch?->plato_facility_id,
             'branch_name' => $doctor->branch?->name,
+            // Active Plato calendar color IDs — used by the app to query
+            // /appointment/slots for this doctor's real availability.
+            'calendar_color_ids' => $doctor->platoCalendars()
+                ->where('is_active', true)
+                ->pluck('plato_calendar_color_id')
+                ->values()
+                ->all(),
         ]);
 
         return response()->json($data);

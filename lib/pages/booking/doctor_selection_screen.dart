@@ -8,6 +8,7 @@ import '/core/theme/app_radius.dart';
 import '/core/widgets/app_button.dart';
 import '/app_state.dart';
 import '/core/services/doctor_service.dart';
+import '/core/services/models/doctor.dart';
 import 'booking_flow_model.dart';
 
 class DoctorSelectionScreenWidget extends StatefulWidget {
@@ -54,21 +55,19 @@ class _DoctorSelectionScreenWidgetState
         await service.refresh();
       }
 
-      final selectedBranch = _bookingModel.selectedBranchName;
+      final selectedBranchId = _bookingModel.selectedBranchId;
+      final selectedBranchName = _bookingModel.selectedBranchName;
       final doctors = <DoctorItem>[];
       for (final d in service.doctors) {
-        // Prefer doctors assigned to the selected branch, but keep doctors
-        // without a branch mapping so the list is never empty.
-        if (d.branchName != null &&
-            d.branchName!.isNotEmpty &&
-            d.branchName != selectedBranch) {
+        if (!_matchesBranch(d, selectedBranchId, selectedBranchName)) {
           continue;
         }
         doctors.add(DoctorItem(
-          id: d.id.toString(),
+          id: d.id,
           name: d.name,
           specialty: d.specialty,
           photoUrl: d.photoUrl ?? '',
+          calendarColorIds: d.calendarColorIds,
         ));
       }
 
@@ -79,7 +78,7 @@ class _DoctorSelectionScreenWidgetState
 
       DoctorItem? preselected;
       if (lastConsultedName != null && lastConsultedName.isNotEmpty) {
-        final needle = lastConsultedName!.trim().toLowerCase();
+        final needle = lastConsultedName.trim().toLowerCase();
         for (final d in doctors) {
           if (d.name.trim().toLowerCase() == needle) {
             preselected = d;
@@ -91,13 +90,15 @@ class _DoctorSelectionScreenWidgetState
       if (mounted) {
         setState(() {
           _doctors = doctors;
-          if (preselected != null) {
+          final selected = preselected;
+          if (selected != null) {
             _isNoPreference = false;
-            _selectedDoctorId = preselected!.id;
+            _selectedDoctorId = selected.id;
             _bookingModel.selectDoctor(
-              id: preselected!.id,
-              name: preselected!.name,
+              id: selected.id,
+              name: selected.name,
               isNoPreference: false,
+              calendarColorIds: selected.calendarColorIds,
             );
           }
           _isLoading = false;
@@ -144,6 +145,35 @@ class _DoctorSelectionScreenWidgetState
     }
   }
 
+  /// Whether [doctor] belongs to the selected branch. Doctors without a branch
+  /// assignment always match, so the list is never blocked — the clinic can
+  /// assign a doctor later. Assigned doctors match by Plato facility id first,
+  /// then by name (case-insensitive).
+  bool _matchesBranch(
+    Doctor d,
+    String selectedBranchId,
+    String selectedBranchName,
+  ) {
+    final branchId = (d.branchId ?? '').trim();
+    final branchName = (d.branchName ?? '').trim();
+
+    if (branchId.isEmpty && branchName.isEmpty) return true;
+
+    if (selectedBranchId.isNotEmpty &&
+        branchId.isNotEmpty &&
+        branchId == selectedBranchId) {
+      return true;
+    }
+
+    if (selectedBranchName.isNotEmpty &&
+        branchName.isNotEmpty &&
+        branchName.toLowerCase() == selectedBranchName.trim().toLowerCase()) {
+      return true;
+    }
+
+    return false;
+  }
+
   String _getErrorMessage(dynamic error) {
     if (error is String) return error;
     return error?.toString() ?? 'An unexpected error occurred';
@@ -158,6 +188,7 @@ class _DoctorSelectionScreenWidgetState
       id: '',
       name: 'No Preference',
       isNoPreference: true,
+      calendarColorIds: const [],
     );
   }
 
@@ -170,6 +201,7 @@ class _DoctorSelectionScreenWidgetState
       id: doctor.id,
       name: doctor.name,
       isNoPreference: false,
+      calendarColorIds: doctor.calendarColorIds,
     );
   }
 
@@ -279,9 +311,9 @@ class _DoctorSelectionScreenWidgetState
     if (_hasError) {
       return _buildErrorState(isDark, accentColor);
     }
-    if (_doctors.isEmpty) {
-      return _buildEmptyState(isDark);
-    }
+    // Always show the list. Even when no doctor is assigned to this branch
+    // yet, the "No Preference" option lets the patient proceed and the admin
+    // assigns a doctor later.
     return _buildDoctorList(isDark, accentColor);
   }
 
@@ -384,55 +416,56 @@ class _DoctorSelectionScreenWidgetState
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
-    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
-    final secondaryText =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.space32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.person_off,
-              size: 64,
-              color: secondaryText,
-            ),
-            const SizedBox(height: AppSpacing.space16),
-            Text(
-              'No doctors available for this branch',
-              style: AppTextStyles.heading2.copyWith(
-                fontSize: 18,
-                color: textColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.space8),
-            Text(
-              'Please check back later or contact the clinic.',
-              style: AppTextStyles.body1.copyWith(color: secondaryText),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildDoctorList(bool isDark, Color accentColor) {
+    final hasDoctors = _doctors.isNotEmpty;
+    final itemCount = hasDoctors ? 1 + _doctors.length : 2;
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.space16),
-      itemCount: 1 + _doctors.length,
+      itemCount: itemCount,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
       itemBuilder: (_, index) {
         if (index == 0) {
           return _buildNoPreferenceCard(isDark, accentColor);
         }
+        if (!hasDoctors) {
+          return _buildNoDoctorsNotice(isDark);
+        }
         final doctor = _doctors[index - 1];
         final isSelected = _selectedDoctorId == doctor.id;
         return _buildDoctorCard(doctor, isSelected, isDark, accentColor);
       },
+    );
+  }
+
+  Widget _buildNoDoctorsNotice(bool isDark) {
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.space16),
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.radiusSM),
+        border: Border.all(
+          color: AppColors.accent.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline,
+            color: AppColors.accent,
+            size: 16,
+          ),
+          const SizedBox(width: AppSpacing.space8),
+          Expanded(
+            child: Text(
+              'No doctor is listed for this branch yet. Choose "No Preference" to continue — our team will assign a doctor for you.',
+              style: AppTextStyles.body2.copyWith(color: secondaryText),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -634,11 +667,13 @@ class DoctorItem {
   final String name;
   final String specialty;
   final String photoUrl;
+  final List<String> calendarColorIds;
 
   DoctorItem({
     required this.id,
     required this.name,
     required this.specialty,
     this.photoUrl = '',
+    this.calendarColorIds = const [],
   });
 }

@@ -62,7 +62,17 @@
 
                     <div class="sm:col-span-2">
                         <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Operating Hours</dt>
-                        <dd class="mt-1 text-sm text-[#0F1B3D]">{{ $branch->operating_hours ?: '—' }}</dd>
+                        <dd class="mt-1 text-sm text-[#0F1B3D]">
+                            @if (is_array($branch->operating_hours) && count($branch->operating_hours))
+                                <ul class="space-y-0.5">
+                                    @foreach ($branch->operating_hours as $day => $hours)
+                                        <li><span class="capitalize">{{ $day }}</span>: {{ $hours }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                —
+                            @endif
+                        </dd>
                     </div>
 
                     <div>

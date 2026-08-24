@@ -199,6 +199,9 @@ Route::get('/v2/cms/service-packages', [ApiCmsServicePackageController::class, '
 Route::get('/v2/cms/videos', [ApiCmsVideoController::class, 'index'])
     ->name('cms.videos');
 
+Route::get('/v2/cms/videos/{video}/thumbnail', [ApiCmsVideoController::class, 'thumbnail'])
+    ->name('cms.videos.thumbnail');
+
 Route::get('/v2/cms/promotions', [ApiCmsPromotionController::class, 'index'])
     ->name('cms.promotions');
 

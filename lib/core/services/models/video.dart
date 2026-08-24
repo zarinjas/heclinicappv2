@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../cms_api.dart';
+
 class Video {
   final int id;
   final String title;
@@ -18,11 +20,14 @@ class Video {
   });
 
   factory Video.fromJson(Map<String, dynamic> json) {
+    final rawThumbnail = json['thumbnail_url'] as String?;
     return Video(
       id: json['id'] as int? ?? 0,
       title: json['title'] as String? ?? '',
       tiktokUrl: json['tiktok_url'] as String? ?? '',
-      thumbnailUrl: json['thumbnail_url'] as String?,
+      thumbnailUrl: rawThumbnail == null || rawThumbnail.isEmpty
+          ? rawThumbnail
+          : CmsApi.resolveMediaUrl(rawThumbnail),
       tiktokAuthor: json['tiktok_author'] as String?,
       publishedAt: json['published_at'] as String?,
     );

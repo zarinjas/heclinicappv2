@@ -90,25 +90,42 @@ class _DateTimeSlotSelectionScreenWidgetState
     });
 
     try {
-      final monthStr = _formatMonth(day);
-      final calendarColors = await _getCalendarColors();
+      final bookingModel = _bookingModel;
+      final calendarColorIds = bookingModel.selectedDoctorCalendarColorIds;
+      final useDoctorCalendar =
+          !bookingModel.isNoPreference && calendarColorIds.isNotEmpty;
 
-      final response = await PostAppointmentSlotsCall.call(
-        month: monthStr,
-        checkForConflicts: calendarColors,
-        simultaneous: 1,
-        interval: 15,
-        starttime: '08:00',
-        endtime: '18:00',
-      );
+      final List<String> slotsForDay;
 
-      if (response.succeeded) {
+      if (useDoctorCalendar) {
+        // Doctor selected → query Plato for this doctor's real availability.
+        final monthStr = _formatMonth(day);
+        final window = _branchWindowFor(day);
+
+        final response = await PostAppointmentSlotsCall.call(
+          month: monthStr,
+          checkForConflicts: calendarColorIds,
+          simultaneous: 1,
+          interval: _slotIntervalMinutes,
+          starttime: window.$1,
+          endtime: window.$2,
+        );
+
+        if (!response.succeeded) {
+          setState(() {
+            _isLoadingSlots = false;
+            _hasError = true;
+            _errorMessage =
+                'Error ${response.statusCode}: Failed to load time slots';
+          });
+          return;
+        }
+
         final slots = PostAppointmentSlotsCall.slots(response.jsonBody) ?? [];
-
-        final slotsForDay = <String>[];
         final targetDateStr =
             '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
 
+        slotsForDay = <String>[];
         for (final slot in slots) {
           if (slot.startsWith(targetDateStr)) {
             final timePart = slot.contains('T')
@@ -117,22 +134,19 @@ class _DateTimeSlotSelectionScreenWidgetState
             slotsForDay.add(timePart);
           }
         }
-
-        setState(() {
-          _availableSlots = slotsForDay;
-          if (slotsForDay.isNotEmpty) {
-            _daysWithSlots = {..._daysWithSlots, _normalizeDay(day)};
-          }
-          _isLoadingSlots = false;
-        });
       } else {
-        setState(() {
-          _isLoadingSlots = false;
-          _hasError = true;
-          _errorMessage =
-              'Error ${response.statusCode}: Failed to load time slots';
-        });
+        // No preference (or doctor has no calendar) → generate slots from the
+        // branch operating hours for the selected day.
+        slotsForDay = _slotsFromBranchHours(day);
       }
+
+      setState(() {
+        _availableSlots = slotsForDay;
+        if (slotsForDay.isNotEmpty) {
+          _daysWithSlots = {..._daysWithSlots, _normalizeDay(day)};
+        }
+        _isLoadingSlots = false;
+      });
     } catch (e) {
       setState(() {
         _isLoadingSlots = false;
@@ -142,18 +156,64 @@ class _DateTimeSlotSelectionScreenWidgetState
     }
   }
 
-  Future<List<String>> _getCalendarColors() async {
-    try {
-      final response = await GetAppointmentCodeCall.call();
-      if (response.succeeded) {
-        return GetAppointmentCodeCall.codes(response.jsonBody) ?? [];
-      }
-    } catch (_) {}
-    return [];
+  static const _slotIntervalMinutes = 30;
+
+  String _dayKey(DateTime day) {
+    const days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+    return days[day.weekday - 1];
   }
 
-  DateTime _normalizeDay(DateTime day) {
-    return DateTime(day.year, day.month, day.day);
+  /// Open/close window ("HH:mm" pair) for the branch on [day], falling back to
+  /// 08:00–18:00 when the branch has no hours defined for that day.
+  (String, String) _branchWindowFor(DateTime day) {
+    final range = _bookingModel.selectedBranchOperatingHours[_dayKey(day)];
+    final parts = range?.split('-') ?? const [];
+    if (parts.length == 2) {
+      return (parts[0].trim(), parts[1].trim());
+    }
+    return ('08:00', '18:00');
+  }
+
+  /// Generates 30-minute slot labels for the branch hours on [day].
+  List<String> _slotsFromBranchHours(DateTime day) {
+    final range = _bookingModel.selectedBranchOperatingHours[_dayKey(day)];
+    if (range == null || range.trim().isEmpty) return [];
+
+    final parts = range.split('-');
+    if (parts.length != 2) return [];
+
+    final open = _minutesOfDay(parts[0]);
+    final close = _minutesOfDay(parts[1]);
+    if (open == null || close == null || close <= open) return [];
+
+    final slots = <String>[];
+    for (var t = open; t + _slotIntervalMinutes <= close; t += _slotIntervalMinutes) {
+      slots.add(_formatMinutes(t));
+    }
+    return slots;
+  }
+
+  int? _minutesOfDay(String hhmm) {
+    final parts = hhmm.trim().split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    return h * 60 + m;
+  }
+
+  String _formatMinutes(int total) {
+    final h = total ~/ 60;
+    final m = total % 60;
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
   }
 
   String _formatMonth(DateTime date) {
@@ -170,6 +230,10 @@ class _DateTimeSlotSelectionScreenWidgetState
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  DateTime _normalizeDay(DateTime day) {
+    return DateTime(day.year, day.month, day.day);
   }
 
   String _getErrorMessage(dynamic error) {
@@ -598,7 +662,7 @@ class _DateTimeSlotSelectionScreenWidgetState
             ),
             const SizedBox(height: AppSpacing.space16),
             Text(
-              'No available slots this month',
+              'No available slots for this date',
               style: AppTextStyles.heading2.copyWith(
                 fontSize: 18,
                 color: textColor,
@@ -607,7 +671,7 @@ class _DateTimeSlotSelectionScreenWidgetState
             ),
             const SizedBox(height: AppSpacing.space8),
             Text(
-              'Try selecting a different date or contact the clinic for assistance.',
+              'This branch may be closed on this day. Try a different date or contact the clinic.',
               style: AppTextStyles.body1.copyWith(color: secondaryText),
               textAlign: TextAlign.center,
             ),

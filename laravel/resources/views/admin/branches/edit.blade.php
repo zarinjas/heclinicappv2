@@ -124,16 +124,25 @@
 
                 <div>
                     <label for="operating_hours" class="block text-sm font-medium text-[#0F1B3D] mb-1">Operating Hours</label>
-                    <textarea
-                        name="operating_hours"
-                        id="operating_hours"
-                        rows="4"
-                        class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('operating_hours') border-red-300 @enderror"
-                    >{{ old('operating_hours', is_array($branch->operating_hours) ? implode("\n", $branch->operating_hours) : $branch->operating_hours) }}</textarea>
-                    <p class="mt-1 text-xs text-gray-400">Enter operating hours as plain text.</p>
-                    @error('operating_hours')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
+                    <p class="mb-2 text-xs text-gray-400">Leave a day blank if closed. Use 24-hour open-close format (e.g. 08:00-17:00).</p>
+                    <div class="space-y-2">
+                        @foreach (['monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday', 'thursday' => 'Thursday', 'friday' => 'Friday', 'saturday' => 'Saturday', 'sunday' => 'Sunday'] as $key => $label)
+                            <div class="flex items-center gap-3">
+                                <span class="w-24 text-sm text-gray-600">{{ $label }}</span>
+                                <input
+                                    type="text"
+                                    name="operating_hours[{{ $key }}]"
+                                    id="operating_hours_{{ $key }}"
+                                    value="{{ old('operating_hours.'.$key, $branch->operating_hours[$key] ?? '') }}"
+                                    class="w-40 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00C9A7] focus:border-transparent outline-none @error('operating_hours.'.$key) border-red-300 @enderror"
+                                    placeholder="08:00-17:00"
+                                >
+                                @error('operating_hours.'.$key)
+                                    <p class="text-xs text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
 
                 <div>

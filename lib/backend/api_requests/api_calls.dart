@@ -2061,31 +2061,33 @@ class GetAppointmentCodeCall {
         ? null
         : await ModifiedSinceHelper.getLastFetchTimestamp('appointment_codes');
 
-    final response = await PaginationHelper.fetchAllPages((currentPage) {
-      final params = <String, String>{
-        'current_page': currentPage.toString(),
-      };
-      if (modifiedSince != null) {
-        params['modified_since'] = modifiedSince.toString();
-      }
-      return ApiManager.instance.makeApiCall(
-        callName: 'Get Appointment Code',
-        apiUrl:
-            '${EnvConfig.platomBaseUrl}/appointment/codes',
-        callType: ApiCallType.GET,
-        headers: {
-          'Authorization': 'Bearer ${FFAppState().tokenauth}',
-          'db': 'hemedclinic',
-        },
-        params: params,
-        returnBody: true,
-        encodeBodyUtf8: false,
-        decodeUtf8: false,
-        cache: false,
-        isStreamingApi: false,
-        alwaysAllowBody: false,
-      );
-    });
+    // The /appointment/codes response is an object shaped like
+    // {"Background": {"codes": [...]}, "Top": {"codes": [...]}}, NOT a flat
+    // paginated list. PaginationHelper wraps a Map body into a single-element
+    // List, which breaks the $.Background/$.Top JSON paths used by codes(),
+    // names(), codelocation() and namelocation(). Call it directly so the
+    // object shape is preserved.
+    final params = <String, String>{};
+    if (modifiedSince != null) {
+      params['modified_since'] = modifiedSince.toString();
+    }
+
+    final response = await ApiManager.instance.makeApiCall(
+      callName: 'Get Appointment Code',
+      apiUrl: '${EnvConfig.platomBaseUrl}/appointment/codes',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+        'db': 'hemedclinic',
+      },
+      params: params,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
 
     if (response.succeeded) {
       await ModifiedSinceHelper.setLastFetchTimestamp(

@@ -26,6 +26,10 @@ class BookingFlowModel extends ChangeNotifier {
   String _selectedBranchHours = '';
   String get selectedBranchHours => _selectedBranchHours;
 
+  Map<String, String> _selectedBranchOperatingHours = {};
+  Map<String, String> get selectedBranchOperatingHours =>
+      _selectedBranchOperatingHours;
+
   String _selectedBranchWhatsApp = '';
   String get selectedBranchWhatsApp => _selectedBranchWhatsApp;
 
@@ -35,6 +39,7 @@ class BookingFlowModel extends ChangeNotifier {
     required String image,
     required String address,
     required String hours,
+    required Map<String, String> operatingHours,
     String whatsApp = '',
   }) {
     _selectedBranchId = id;
@@ -42,6 +47,7 @@ class BookingFlowModel extends ChangeNotifier {
     _selectedBranchImage = image;
     _selectedBranchAddress = address;
     _selectedBranchHours = hours;
+    _selectedBranchOperatingHours = operatingHours;
     _selectedBranchWhatsApp = whatsApp;
     notifyListeners();
   }
@@ -55,14 +61,20 @@ class BookingFlowModel extends ChangeNotifier {
   bool _isNoPreference = false;
   bool get isNoPreference => _isNoPreference;
 
+  List<String> _selectedDoctorCalendarColorIds = [];
+  List<String> get selectedDoctorCalendarColorIds =>
+      _selectedDoctorCalendarColorIds;
+
   void selectDoctor({
     required String id,
     required String name,
     required bool isNoPreference,
+    List<String> calendarColorIds = const [],
   }) {
     _selectedDoctorId = id;
     _selectedDoctorName = name;
     _isNoPreference = isNoPreference;
+    _selectedDoctorCalendarColorIds = calendarColorIds;
     notifyListeners();
   }
 

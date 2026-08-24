@@ -397,7 +397,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
           const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
-              'Your preferred slot is not confirmed until our team responds via WhatsApp.',
+              'The time you pick is your preference — our team will confirm the final slot via WhatsApp.',
               style: AppTextStyles.body2.copyWith(color: textColor),
             ),
           ),

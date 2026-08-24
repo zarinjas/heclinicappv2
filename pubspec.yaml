@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # ios/Runner/Info.plist reads it straight from here via FLUTTER_BUILD_NUMBER.
 # The last shipped build was 37, so this continues from 38 rather than
 # restarting at 1 — even though Android ships as a brand new listing.
-version: 1.0.2+42
+version: 1.0.3+45
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

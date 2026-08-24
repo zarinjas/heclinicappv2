@@ -18,7 +18,7 @@ class DoctorService {
 
   List<Doctor> get doctors => _base.data;
 
-  List<Doctor> doctorsForBranch(int branchId) {
+  List<Doctor> doctorsForBranch(String branchId) {
     return _base.data.where((d) => d.branchId == branchId).toList();
   }
 

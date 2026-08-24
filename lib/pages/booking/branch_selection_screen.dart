@@ -6,6 +6,7 @@ import '/core/theme/app_spacing.dart';
 import '/core/theme/app_radius.dart';
 import '/core/widgets/app_button.dart';
 import '/core/services/branch_service.dart';
+import '/app_state.dart';
 import 'booking_flow_model.dart';
 
 class BranchSelectionScreenWidget extends StatefulWidget {
@@ -32,9 +33,19 @@ class _BranchSelectionScreenWidgetState
   @override
   void initState() {
     super.initState();
-    if (_bookingModel.selectedBranchId.isNotEmpty) {
-      _selectedBranchId = _bookingModel.selectedBranchId;
+    // The booking flow always starts here — clear any leftover selections from
+    // a previous, abandoned booking attempt.
+    BookingFlowModel.reset();
+
+    // Slot availability and patient details need an account. Send guests to
+    // login first; after logging in they can restart the flow.
+    if (!FFAppState().isLoggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/login');
+      });
+      return;
     }
+
     _loadBranches();
   }
 
@@ -56,14 +67,14 @@ class _BranchSelectionScreenWidgetState
 
       final branches = <BranchItem>[];
       for (final b in service.branches) {
+        final operatingHours = b.operatingHours ?? const {};
         branches.add(BranchItem(
           id: b.platoFacilityId ?? b.id.toString(),
           name: b.name,
           address: b.address,
           image: b.imageUrl ?? '',
-          hours: b.operatingHours != null
-              ? _hoursForToday(b.operatingHours!)
-              : '',
+          hours: _formatHoursRange(_hoursForToday(operatingHours)),
+          operatingHours: operatingHours,
           phone: b.whatsappNumber ?? b.phone ?? '',
         ));
       }
@@ -99,6 +110,24 @@ class _BranchSelectionScreenWidgetState
     return hours[today] ?? '';
   }
 
+  /// Formats a stored "HH:mm-HH:mm" range into a friendly "8:00 AM - 5:00 PM".
+  String _formatHoursRange(String range) {
+    final parts = range.split('-');
+    if (parts.length != 2) return range;
+    return '${_formatTime(parts[0])} - ${_formatTime(parts[1])}';
+  }
+
+  String _formatTime(String hhmm) {
+    final parts = hhmm.split(':');
+    if (parts.length != 2) return hhmm;
+    final hour = int.tryParse(parts[0]);
+    final minute = parts[1];
+    if (hour == null) return hhmm;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    return '$displayHour:$minute $period';
+  }
+
   String _getErrorMessage(dynamic error) {
     if (error is String) return error;
     return error?.toString() ?? 'An unexpected error occurred';
@@ -114,6 +143,7 @@ class _BranchSelectionScreenWidgetState
       image: branch.image,
       address: branch.address,
       hours: branch.hours,
+      operatingHours: branch.operatingHours,
       whatsApp: branch.phone,
     );
   }
@@ -572,6 +602,7 @@ class BranchItem {
   final String image;
   final String hours;
   final String phone;
+  final Map<String, String> operatingHours;
 
   BranchItem({
     required this.id,
@@ -580,5 +611,6 @@ class BranchItem {
     required this.image,
     required this.hours,
     this.phone = '',
+    this.operatingHours = const {},
   });
 }
