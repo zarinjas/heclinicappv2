@@ -58,13 +58,15 @@ class _DoctorSelectionScreenWidgetState
       final selectedBranchId = _bookingModel.selectedBranchId;
       final selectedBranchName = _bookingModel.selectedBranchName;
 
-      // Doctors mapped to the selected branch first.
-      final matched = <DoctorItem>[];
+      // Only doctors mapped to the selected branch. If none match, the "No
+      // Preference" card (plus a notice) is shown and the patient can still
+      // proceed — the admin assigns a doctor later.
+      final doctors = <DoctorItem>[];
       for (final d in service.doctors) {
         if (!_matchesBranch(d, selectedBranchId, selectedBranchName)) {
           continue;
         }
-        matched.add(DoctorItem(
+        doctors.add(DoctorItem(
           id: d.id,
           name: d.name,
           specialty: d.specialty,
@@ -72,20 +74,6 @@ class _DoctorSelectionScreenWidgetState
           calendarColorIds: d.calendarColorIds,
         ));
       }
-
-      // If the branch mapping is missing/empty (e.g. doctors not toggled
-      // visible or branch_id not synced), fall back to ALL doctors so the
-      // list is never empty. "No Preference" is always available anyway.
-      final doctors = matched.isNotEmpty ? matched : [
-        for (final d in service.doctors)
-          DoctorItem(
-            id: d.id,
-            name: d.name,
-            specialty: d.specialty,
-            photoUrl: d.photoUrl ?? '',
-            calendarColorIds: d.calendarColorIds,
-          ),
-      ];
 
       String? lastConsultedName;
       if (FFAppState().idplato.isNotEmpty) {
@@ -161,10 +149,9 @@ class _DoctorSelectionScreenWidgetState
     }
   }
 
-  /// Whether [doctor] belongs to the selected branch. Doctors without a branch
-  /// assignment always match, so the list is never blocked — the clinic can
-  /// assign a doctor later. Assigned doctors match by Plato facility id first,
-  /// then by name (case-insensitive).
+  /// Whether [doctor] belongs to the selected branch. Only doctors mapped to
+  /// the branch (by Plato facility id or name, case-insensitive) match —
+  /// doctors without a branch assignment are not shown for a specific branch.
   bool _matchesBranch(
     Doctor d,
     String selectedBranchId,
@@ -172,8 +159,6 @@ class _DoctorSelectionScreenWidgetState
   ) {
     final branchId = (d.branchId ?? '').trim();
     final branchName = (d.branchName ?? '').trim();
-
-    if (branchId.isEmpty && branchName.isEmpty) return true;
 
     if (selectedBranchId.isNotEmpty &&
         branchId.isNotEmpty &&

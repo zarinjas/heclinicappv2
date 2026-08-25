@@ -1,14 +1,33 @@
 import 'package:flutter/material.dart';
 
 class BookingFlowModel extends ChangeNotifier {
-  static BookingFlowModel _instance = BookingFlowModel._internal();
+  static final BookingFlowModel _instance = BookingFlowModel._internal();
 
   factory BookingFlowModel() => _instance;
 
   BookingFlowModel._internal();
 
-  static void reset() {
-    _instance = BookingFlowModel._internal();
+  /// Clears the current booking selection in place. The singleton instance is
+  /// kept so screens that captured `BookingFlowModel()` keep referencing the
+  /// same object (replacing it here broke the flow and dropped the branch).
+  static void reset() => _instance.clear();
+
+  void clear() {
+    _selectedBranchId = '';
+    _selectedBranchName = '';
+    _selectedBranchImage = '';
+    _selectedBranchAddress = '';
+    _selectedBranchHours = '';
+    _selectedBranchOperatingHours = {};
+    _selectedBranchWhatsApp = '';
+    _selectedDoctorId = '';
+    _selectedDoctorName = '';
+    _isNoPreference = false;
+    _selectedDoctorCalendarColorIds = [];
+    _selectedDate = null;
+    _selectedTime = '';
+    _selectedSlotId = '';
+    notifyListeners();
   }
 
   String _selectedBranchId = '';
