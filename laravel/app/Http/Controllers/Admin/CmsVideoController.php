@@ -54,6 +54,56 @@ class CmsVideoController extends Controller
         ]);
     }
 
+    public function fetchAllThumbnails(TiktokOembedService $oembedService): RedirectResponse
+    {
+        $videos = CmsVideo::whereNull('thumbnail_url')
+            ->orWhere('thumbnail_url', '')
+            ->get();
+
+        if ($videos->isEmpty()) {
+            return redirect()
+                ->route('admin.cms.videos.index')
+                ->with('success', 'All videos already have thumbnails.');
+        }
+
+        $updated = 0;
+        $failed = 0;
+
+        foreach ($videos as $video) {
+            if (! $video->tiktok_url) {
+                $failed++;
+
+                continue;
+            }
+
+            $info = $oembedService->fetch($video->tiktok_url);
+
+            if (! $info || ! ($info['thumbnail_url'] ?? null)) {
+                $failed++;
+
+                continue;
+            }
+
+            $video->update([
+                'thumbnail_url' => $info['thumbnail_url'],
+                'title' => $info['title'] ?? $video->title,
+                'tiktok_author' => $info['author_name'] ?? $video->tiktok_author,
+            ]);
+
+            $updated++;
+        }
+
+        $message = "Fetched thumbnails for {$updated} video".($updated !== 1 ? 's' : '').'.';
+
+        if ($failed > 0) {
+            $message .= " {$failed} failed to fetch. Please retry or update manually.";
+        }
+
+        return redirect()
+            ->route('admin.cms.videos.index')
+            ->with($failed > 0 ? 'error' : 'success', $message);
+    }
+
     public function store(StoreCmsVideoRequest $request): RedirectResponse
     {
         $data = $request->validated();

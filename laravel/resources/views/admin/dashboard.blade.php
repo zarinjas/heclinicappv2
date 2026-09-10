@@ -3,6 +3,61 @@
 @section('title', 'Dashboard')
 
 @section('content')
+    <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm mb-8">
+        <h3 class="text-lg font-semibold text-[#0F1B3D] mb-4">Rewards &amp; Vouchers</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <a href="{{ route('admin.redeem-at-counter') }}"
+               class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-[#F8F9FC] p-4 hover:border-[#00C9A7] hover:bg-[#00C9A7]/5 transition-colors text-center">
+                <div class="w-10 h-10 bg-[#00C9A7]/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-[#00C9A7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-medium text-[#0F1B3D] leading-tight">Redeem at Counter</span>
+            </a>
+
+            <a href="{{ route('admin.cms.promotions.index') }}"
+               class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-[#F8F9FC] p-4 hover:border-[#00C9A7] hover:bg-[#00C9A7]/5 transition-colors text-center">
+                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-medium text-[#0F1B3D] leading-tight">Promotions / Vouchers</span>
+            </a>
+
+            <a href="{{ route('admin.voucher-claims.index') }}"
+               class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-[#F8F9FC] p-4 hover:border-[#00C9A7] hover:bg-[#00C9A7]/5 transition-colors text-center">
+                <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-medium text-[#0F1B3D] leading-tight">Voucher Claims</span>
+            </a>
+
+            <a href="{{ route('admin.loyalty.redemptions.index') }}"
+               class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-[#F8F9FC] p-4 hover:border-[#00C9A7] hover:bg-[#00C9A7]/5 transition-colors text-center">
+                <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-medium text-[#0F1B3D] leading-tight">Redemptions</span>
+            </a>
+
+            <a href="{{ route('admin.loyalty.rewards.index') }}"
+               class="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-[#F8F9FC] p-4 hover:border-[#00C9A7] hover:bg-[#00C9A7]/5 transition-colors text-center">
+                <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+                <span class="text-xs font-medium text-[#0F1B3D] leading-tight">Rewards Catalog</span>
+            </a>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div class="flex items-center justify-between">

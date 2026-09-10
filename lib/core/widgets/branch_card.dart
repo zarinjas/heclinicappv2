@@ -219,11 +219,13 @@ class _HorizontalBranchCard extends StatelessWidget {
           boxShadow: AppShadows.shadowLow,
         ),
         clipBehavior: Clip.antiAlias,
-        child: IntrinsicHeight(
+        child: SizedBox(
+          height: 96,
           child: Row(
             children: [
               SizedBox(
                 width: 88,
+                height: 96,
                 child: _buildLeading(),
               ),
               const SizedBox(width: AppSpacing.space12),
@@ -298,7 +300,7 @@ class _HorizontalBranchCard extends StatelessWidget {
         imageUrl!,
         fit: BoxFit.cover,
         width: 88,
-        height: double.infinity,
+        height: 96,
         errorBuilder: (_, __, ___) => _buildLeadingGradient(),
       );
     }

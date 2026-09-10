@@ -161,6 +161,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::post('videos/bulk-store', [CmsVideoController::class, 'bulkStore'])->name('videos.bulk-store');
             Route::resource('videos', CmsVideoController::class);
             Route::post('videos/fetch-info', [CmsVideoController::class, 'fetchInfo'])->name('videos.fetch-info');
+            Route::post('videos/fetch-all-thumbnails', [CmsVideoController::class, 'fetchAllThumbnails'])->name('videos.fetch-all-thumbnails');
             Route::resource('promotions', CmsPromotionController::class);
             Route::resource('onboarding', CmsOnboardingSlideController::class);
             Route::post('onboarding/{onboarding}/remove-media', [CmsOnboardingSlideController::class, 'removeMedia'])
