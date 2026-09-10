@@ -46,11 +46,14 @@ import '/features/content/videos_list_screen.dart';
 import '/features/content/packages_screen.dart';
 import '/features/content/doctors_list_screen.dart';
 import '/features/content/branch_detail_screen.dart';
+import '/features/content/branches_list_screen.dart';
 import '/features/content/telehealth_screen.dart';
 import '/features/content/vouchers_list_screen.dart';
 import '/features/content/my_vouchers_screen.dart';
 import '/features/loyalty/my_points_screen.dart';
 import '/features/loyalty/redeem_points_sheet.dart';
+import '/features/loyalty/rewards_catalog_screen.dart';
+import '/features/loyalty/my_redemptions_screen.dart';
 import '/features/profile/biometric_screen.dart';
 import '/features/profile/clinic_info_screen.dart';
 import '/features/profile/privacy_screen.dart';
@@ -434,7 +437,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: '/branch-detail',
           path: '/branch-detail',
-          builder: (context, params) => const BranchDetailScreen(),
+          builder: (context, params) => BranchDetailScreen(
+            branchName: params.getParam('branchName', ParamType.String) as String?,
+          ),
+        ),
+        FFRoute(
+          name: '/branches',
+          path: '/branches',
+          builder: (context, params) => const BranchesListScreen(),
         ),
         FFRoute(
           name: '/telehealth',
@@ -455,6 +465,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: '/my-points',
           path: '/my-points',
           builder: (context, params) => const MyPointsScreen(),
+        ),
+        FFRoute(
+          name: RewardsCatalogScreen.routeName,
+          path: RewardsCatalogScreen.routeName,
+          builder: (context, params) => const RewardsCatalogScreen(),
+        ),
+        FFRoute(
+          name: MyRedemptionsScreen.routeName,
+          path: MyRedemptionsScreen.routeName,
+          builder: (context, params) => const MyRedemptionsScreen(),
         ),
         FFRoute(
           name: BiometricScreen.routeName,

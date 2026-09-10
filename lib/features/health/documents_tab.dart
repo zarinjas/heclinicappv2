@@ -168,13 +168,51 @@ class _DocumentsTabState extends State<DocumentsTab> {
     ];
   }
 
-  void _openDocument(_PatientDocument doc) {
-    if (doc.url.isEmpty) {
+  /// Signed document URLs expire (default 60 min), so re-fetch a fresh one for
+  /// [documentId] right before opening. Returns null when a fresh URL can't be
+  /// obtained, in which case the caller falls back to the cached URL.
+  Future<String?> _fetchFreshUrl(int documentId) async {
+    final patientId = FFAppState().idplato;
+    if (patientId.isEmpty) return null;
+
+    try {
+      final response = await GetPatientDocumentsCall.call(
+        patientId: patientId,
+        forceRefresh: true,
+      );
+      if (!response.succeeded) return null;
+
+      final ids = GetPatientDocumentsCall.ids(response.jsonBody);
+      final urls = GetPatientDocumentsCall.urls(response.jsonBody);
+      if (ids == null || urls == null) return null;
+
+      final idx = ids.indexOf(documentId);
+      if (idx < 0 || idx >= urls.length) return null;
+
+      final url = urls[idx];
+      return (url.isNotEmpty && Uri.tryParse(url) != null) ? url : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _openDocument(_PatientDocument doc) async {
+    var url = doc.url;
+    if (url.isEmpty) {
       _showMessage('This document has no file attached.');
       return;
     }
 
-    if (Uri.tryParse(doc.url) == null) {
+    // Re-fetch a fresh signed URL when we have a valid id (the cached one may
+    // have expired since the list was loaded).
+    if (doc.id > 0) {
+      final fresh = await _fetchFreshUrl(doc.id);
+      if (fresh != null) url = fresh;
+    }
+
+    if (!mounted) return;
+
+    if (Uri.tryParse(url) == null) {
       _showMessage('This document link is invalid.');
       return;
     }
@@ -183,7 +221,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
       MaterialPageRoute(
         builder: (_) => DocumentViewerScreen(
           name: doc.name,
-          url: doc.url,
+          url: url,
           mimeType: doc.mimeType ?? '',
         ),
       ),

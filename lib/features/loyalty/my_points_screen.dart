@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../backend/api_requests/loyalty_api.dart';
 import '../../core/theme/app_colors.dart';
@@ -225,6 +226,20 @@ class _MyPointsScreenState extends State<MyPointsScreen> {
             AppButton.primary(
               label: 'Redeem Points (min. $_minRedemption pts)',
               onPressed: canRedeem ? _openRedeem : null,
+              isFullWidth: true,
+            ),
+            const SizedBox(height: 12),
+            AppButton.secondary(
+              label: 'He Rewards',
+              icon: const Icon(Icons.card_giftcard_outlined, size: 18),
+              onPressed: () => context.pushNamed('/rewards'),
+              isFullWidth: true,
+            ),
+            const SizedBox(height: 12),
+            AppButton.ghost(
+              label: 'My Redemptions',
+              icon: const Icon(Icons.receipt_long_outlined, size: 18),
+              onPressed: () => context.pushNamed('/my-redemptions'),
               isFullWidth: true,
             ),
             const SizedBox(height: 24),

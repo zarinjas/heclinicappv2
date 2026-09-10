@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\LoyaltyAccount;
+use App\Models\LoyaltyRedemption;
 use App\Models\Patient;
 use App\Models\PatientMetadata;
+use App\Models\UserVoucher;
 use App\Services\NotificationService;
 use App\Services\PatientDocumentService;
 use App\Services\PlatoProxyService;
@@ -230,8 +233,26 @@ class PatientController extends Controller
 
         $metadata = PatientMetadata::where('patient_plato_uid', $id)->first();
 
+        $loyaltyBalance = LoyaltyAccount::where('patient_id', $id)->value('balance') ?? 0;
+        $loyaltyRedemptions = $localPatient
+            ? LoyaltyRedemption::where('patient_id', $localPatient->id)
+                ->with('reward')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+            : collect();
+
+        $vouchers = $localPatient
+            ? UserVoucher::where('patient_id', $localPatient->id)
+                ->with('promotion')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+            : collect();
+
         return view('admin.patients.show', compact(
-            'patient', 'localPatient', 'vitalsCount', 'documents', 'metadata'
+            'patient', 'localPatient', 'vitalsCount', 'documents', 'metadata',
+            'loyaltyBalance', 'loyaltyRedemptions', 'vouchers'
         ));
     }
 

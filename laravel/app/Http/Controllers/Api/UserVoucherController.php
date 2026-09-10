@@ -136,7 +136,7 @@ final class UserVoucherController extends Controller
     private function generateCode(): string
     {
         do {
-            $code = 'HEC-'.strtoupper(Str::random(4)).'-'.now()->year;
+            $code = 'VCH-'.strtoupper(Str::random(4)).'-'.now()->year;
         } while (UserVoucher::where('code', $code)->exists());
 
         return $code;

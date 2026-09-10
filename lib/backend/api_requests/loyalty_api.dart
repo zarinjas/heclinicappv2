@@ -11,6 +11,9 @@ class LoyaltyApi {
   static final GetLoyaltyBalanceCall getLoyaltyBalanceCall = GetLoyaltyBalanceCall();
   static final GetLoyaltyTransactionsCall getLoyaltyTransactionsCall = GetLoyaltyTransactionsCall();
   static final RedeemLoyaltyPointsCall redeemLoyaltyPointsCall = RedeemLoyaltyPointsCall();
+  static final GetLoyaltyRewardsCall getLoyaltyRewardsCall = GetLoyaltyRewardsCall();
+  static final RedeemLoyaltyRewardCall redeemLoyaltyRewardCall = RedeemLoyaltyRewardCall();
+  static final GetLoyaltyRedemptionsCall getLoyaltyRedemptionsCall = GetLoyaltyRedemptionsCall();
 }
 
 // ---------------------------------------------------------------------------
@@ -208,4 +211,101 @@ class RedeemLoyaltyPointsCall {
 
   static String? message(dynamic response) =>
       castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// GET /v2/loyalty/rewards
+// Returns the active He Rewards catalog (products + services).
+// ---------------------------------------------------------------------------
+class GetLoyaltyRewardsCall {
+  Future<ApiCallResponse> call() async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetLoyaltyRewards',
+      apiUrl: '${LoyaltyApi.baseUrl}/rewards',
+      callType: ApiCallType.GET,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<dynamic>? data(dynamic response) =>
+      (getJsonField(response, r'''$.data''', true) as List?)?.withoutNulls;
+}
+
+// ---------------------------------------------------------------------------
+// POST /v2/loyalty/rewards/{rewardId}/redeem
+// Redeems a specific reward and returns a redemption code.
+// ---------------------------------------------------------------------------
+class RedeemLoyaltyRewardCall {
+  Future<ApiCallResponse> call({required int rewardId}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'RedeemLoyaltyReward',
+      apiUrl: '${LoyaltyApi.baseUrl}/rewards/$rewardId/redeem',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: {},
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static bool? status(dynamic response) =>
+      castToType<bool>(getJsonField(response, r'''$.status'''));
+
+  static String? redemptionCode(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.redemption_code'''));
+
+  static int? points(dynamic response) {
+    final value = getJsonField(response, r'''$.points''');
+    return value is num ? value.toInt() : castToType<int>(value);
+  }
+
+  static String? message(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.message'''));
+}
+
+// ---------------------------------------------------------------------------
+// GET /v2/loyalty/redemptions
+// Returns the current patient's redemption history.
+// ---------------------------------------------------------------------------
+class GetLoyaltyRedemptionsCall {
+  Future<ApiCallResponse> call() async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'GetLoyaltyRedemptions',
+      apiUrl: '${LoyaltyApi.baseUrl}/redemptions',
+      callType: ApiCallType.GET,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<dynamic>? data(dynamic response) =>
+      (getJsonField(response, r'''$.data''', true) as List?)?.withoutNulls;
 }

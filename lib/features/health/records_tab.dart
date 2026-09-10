@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../backend/api_requests/api_calls.dart';
+import '../../core/utils/api_url.dart';
+import '../../core/utils/html_text.dart';
+import '../../env_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/widgets/app_chip.dart';
@@ -95,18 +98,21 @@ class _RecordsTabState extends State<RecordsTab> {
     final categories = GetReportCall.kategori(body);
     final authors = GetReportCall.author(body);
     final diagnoses = GetReportCall.diagnosis(body);
+    final attachments = GetReportCall.attachment(body);
 
     return [
       for (var i = 0; i < notes.length; i++)
         HealthRecord(
           type: HealthRecordType.note,
-          // The card shows one line, so keep the title short.
-          title: notes[i].length > 80 ? '${notes[i].substring(0, 80)}...' : notes[i],
+          // Notes arrive as HTML from the WYSIWYG editor; strip the tags first
+          // so the card title never shows raw markup like "<p".
+          title: _shortTitle(stripHtmlToSingleLine(notes[i])),
           date: _at(times, i) ?? '',
           author: _at(authors, i) ?? '',
           detailData: notes[i],
           category: _at(categories, i),
           diagnosis: _diagnosisAt(diagnoses, i),
+          attachments: _attachmentsAt(attachments, i),
         ),
     ];
   }
@@ -127,7 +133,7 @@ class _RecordsTabState extends State<RecordsTab> {
       for (var i = 0; i < subjects.length; i++)
         HealthRecord(
           type: HealthRecordType.letter,
-          title: subjects[i],
+          title: stripHtmlToSingleLine(subjects[i]),
           date: _at(dates, i) ?? '',
           author: _at(authors, i) ?? '',
           detailData: _at(htmls, i),
@@ -151,10 +157,18 @@ class _RecordsTabState extends State<RecordsTab> {
         title: path.split('/').last,
         date: call.tgl(response.jsonBody) ?? '',
         author: '',
-        detailData: path,
+        // Plato returns a relative path (e.g. /pdfs/mc_001.pdf); resolve it to
+        // an absolute URL so the detail screen can actually open the file.
+        detailData: resolveBackendUrl(
+          path,
+          baseUrl: EnvConfig.medicalAppsBaseUrl,
+        ),
       ),
     ];
   }
+
+  static String _shortTitle(String text) =>
+      text.length > 80 ? '${text.substring(0, 80)}...' : text;
 
   static T? _at<T>(List<T>? list, int i) =>
       list != null && i < list.length ? list[i] : null;
@@ -162,6 +176,18 @@ class _RecordsTabState extends State<RecordsTab> {
   static List<String>? _diagnosisAt(List<dynamic>? list, int i) {
     final value = _at(list, i);
     if (value is List) return value.map((e) => e.toString()).toList();
+    return null;
+  }
+
+  /// Plato returns note attachments as either a single URL string or a list of
+  /// URLs. Normalise both into a `List<String>`.
+  static List<String>? _attachmentsAt(List<dynamic>? list, int i) {
+    final value = _at(list, i);
+    if (value is List) {
+      final urls = value.map((e) => e.toString()).where((e) => e.isNotEmpty);
+      return urls.isEmpty ? null : urls.toList();
+    }
+    if (value is String && value.trim().isNotEmpty) return [value.trim()];
     return null;
   }
 

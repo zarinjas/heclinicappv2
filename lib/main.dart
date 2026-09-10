@@ -54,16 +54,30 @@ void main() async {
   GoRouter.optionURLReflectsImperativeAPIs = true;
   usePathUrlStrategy();
 
-  await initFirebase();
-
-  // Start initial custom actions code
-  await actions.loadLoginData();
-  await actions.requestNotificationPermissionsUser();
-  await actions.setupFCMForegroundHandler();
-  // End initial custom actions code
+  // Every startup step below is guarded so an unhandled exception can never
+  // kill the process before the first frame is drawn — Play flags any app
+  // that crashes or hangs during launch as "does not open or load".
+  try {
+    await initFirebase();
+  } catch (e) {
+    debugPrint('initFirebase failed: $e');
+  }
 
   final appState = FFAppState();
-  await appState.initializePersistedState();
+
+  // Start initial custom actions code
+  try {
+    await actions.loadLoginData();
+  } catch (e) {
+    debugPrint('loadLoginData failed: $e');
+  }
+  // End initial custom actions code
+
+  try {
+    await appState.initializePersistedState();
+  } catch (e) {
+    debugPrint('initializePersistedState failed: $e');
+  }
 
   // Push the current FCM token to the backend for already-logged-in users and
   // keep it in sync when FCM rotates it. Fire-and-forget so it never delays
@@ -93,6 +107,16 @@ void main() async {
     create: (context) => appState,
     child: MyApp(),
   ));
+
+  // After the first frame is on screen, request the notification permission
+  // and attach the FCM foreground handler. Doing this before runApp showed a
+  // system permission dialog over a blank window and delayed/crashed the
+  // first frame, which Play reported as "Your app does not open or load".
+  // Both are wrapped in try/catch so they can never take the app down.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _safeInit(actions.requestNotificationPermissionsUser);
+    _safeInit(actions.setupFCMForegroundHandler);
+  });
 }
 
 class MyApp extends StatefulWidget {

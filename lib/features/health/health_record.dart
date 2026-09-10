@@ -17,6 +17,9 @@ class HealthRecord {
   final String? category;
   final List<String>? diagnosis;
 
+  /// File URLs attached to a clinical note (lab results, images, etc.).
+  final List<String>? attachments;
+
   const HealthRecord({
     required this.type,
     required this.title,
@@ -25,6 +28,7 @@ class HealthRecord {
     this.detailData,
     this.category,
     this.diagnosis,
+    this.attachments,
   });
 
   String get typeLabel {

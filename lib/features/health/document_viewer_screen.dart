@@ -3,15 +3,15 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/api_url.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_toast.dart';
@@ -20,25 +20,30 @@ enum _DocKind { image, pdf, other }
 
 /// In-app viewer for a patient document (PDF or image) with a download action.
 ///
-/// The file bytes are downloaded first through the signed, time-limited URL so
-/// we can verify it is a real PDF/image (and surface a clear error otherwise,
-/// instead of a blank screen). PDFs are then previewed in a [WebView]:
-/// - iOS' WKWebView renders PDFs natively from the already-downloaded bytes;
-/// - Android's WebView cannot, so it falls back to Google Docs' embedded
-///   viewer.
+/// The file bytes are downloaded first (with an optional bearer token for
+/// Plato-hosted files) so we can verify it is a real PDF/image and preview it
+/// entirely in-app — no external links required:
+/// - PDFs render natively from the downloaded bytes via `flutter_pdfview`;
+/// - images render from memory with pinch-to-zoom.
 ///
 /// "Download" saves the file through the system share sheet (Save to Files /
-/// Drive etc.) and "Open in Browser" opens the signed URL externally.
+/// Drive etc.), also without leaving the app.
 class DocumentViewerScreen extends StatefulWidget {
   final String name;
   final String url;
   final String mimeType;
+
+  /// Bearer token (without the "Bearer " prefix) added to the download request.
+  /// Needed for Plato-hosted files such as medical certificates, which are not
+  /// covered by the signed document URLs.
+  final String? authToken;
 
   const DocumentViewerScreen({
     super.key,
     required this.name,
     required this.url,
     this.mimeType = '',
+    this.authToken,
   });
 
   @override
@@ -51,7 +56,6 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
   String? _error;
   Uint8List? _bytes;
   _DocKind _kind = _DocKind.other;
-  WebViewController? _webController;
   File? _tempPdfFile;
 
   @override
@@ -62,7 +66,6 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
   @override
   void dispose() {
-    _webController = null;
     final temp = _tempPdfFile;
     if (temp != null) {
       try {
@@ -72,16 +75,15 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
     super.dispose();
   }
 
-  /// URL the WebView loads for a PDF. iOS renders PDFs natively from the local
-  /// file; Android routes through Google's embedded viewer (the signed URL is
-  /// time-limited and public, matching what the external browser would already
-  /// receive).
-  String get _webUrl {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'https://docs.google.com/viewer?url='
-          '${Uri.encodeComponent(widget.url)}&embedded=true';
-    }
-    return widget.url;
+  /// The backend URL rebased onto a host the device can actually reach (see
+  /// [resolveBackendUrl]). Loopback hosts and relative paths are fixed here;
+  /// signed URLs are left untouched to preserve their signature.
+  String get _resolvedUrl => resolveBackendUrl(widget.url);
+
+  Map<String, String>? get _authHeaders {
+    final token = widget.authToken?.trim() ?? '';
+    if (token.isEmpty) return null;
+    return {'Authorization': 'Bearer $token'};
   }
 
   Future<void> _load() async {
@@ -90,15 +92,15 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       _error = null;
     });
 
-    final uri = Uri.tryParse(widget.url);
-    if (uri == null) {
+    final uri = Uri.tryParse(_resolvedUrl);
+    if (uri == null || !uri.hasScheme) {
       _fail('This document link is invalid.');
       return;
     }
 
     try {
       final response = await http
-          .get(uri)
+          .get(uri, headers: _authHeaders)
           .timeout(const Duration(seconds: 60));
       if (response.statusCode != 200) {
         _fail(
@@ -124,47 +126,24 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       }
 
       if (kind == _DocKind.pdf) {
-        final controller = WebViewController()
-          ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          ..setNavigationDelegate(
-            NavigationDelegate(
-              onWebResourceError: (details) {
-                if (mounted) {
-                  _fail(
-                    'Could not preview this document. '
-                    'Use "Open in Browser" or "Download" instead.',
-                  );
-                }
-              },
-            ),
-          );
-
-        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-          // WKWebView renders PDFs natively. Loading the downloaded bytes from
-          // a local file is more reliable than re-fetching the signed URL
-          // (no expiry, redirect or CORS concerns inside the WebView).
-          final dir = await getTemporaryDirectory();
-          final file = File(
-            '${dir.path}/doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
-          );
-          await file.writeAsBytes(bytes, flush: true);
-          if (!mounted) {
-            try {
-              file.delete();
-            } catch (_) {}
-            return;
-          }
-          _tempPdfFile = file;
-          await controller.loadFile(file.path);
-        } else {
-          await controller.loadRequest(Uri.parse(_webUrl));
+        // Write the downloaded bytes to a temp file so the native PDF renderer
+        // can display it on both iOS and Android (no external viewer needed).
+        final dir = await getTemporaryDirectory();
+        final file = File(
+          '${dir.path}/doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        );
+        await file.writeAsBytes(bytes, flush: true);
+        if (!mounted) {
+          try {
+            file.delete();
+          } catch (_) {}
+          return;
         }
 
-        if (!mounted) return;
         setState(() {
           _bytes = bytes;
           _kind = kind;
-          _webController = controller;
+          _tempPdfFile = file;
           _loading = false;
         });
         return;
@@ -172,7 +151,7 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
 
       setState(() {
         _error = 'This file type is not supported for in-app preview. '
-            'Use "Open in Browser" or "Download" to view it in another app.';
+            'Use "Download" to save it.';
         _loading = false;
       });
     } catch (_) {
@@ -284,24 +263,6 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
     return null;
   }
 
-  Future<void> _openExternally() async {
-    final uri = Uri.tryParse(widget.url);
-    if (uri == null) {
-      AppToast.error(context, message: 'This document link is invalid.');
-      return;
-    }
-    try {
-      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!opened && mounted) {
-        AppToast.error(context, message: 'Could not open this document.');
-      }
-    } catch (_) {
-      if (mounted) {
-        AppToast.error(context, message: 'Could not open this document.');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -314,11 +275,6 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
         // The default back button resolves the go_router navigator, which does
         // not pop this MaterialPageRoute. Use this screen's own navigator.
         onBack: () => Navigator.of(context).maybePop(),
-        trailing: IconButton(
-          icon: const Icon(Icons.open_in_new, color: AppColors.primary),
-          tooltip: 'Open in Browser',
-          onPressed: _loading ? null : _openExternally,
-        ),
       ),
       body: Column(
         children: [
@@ -327,24 +283,12 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
             top: false,
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.space16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppButton.primary(
-                    label: 'Download',
-                    icon: const Icon(Icons.download_outlined, size: 20),
-                    onPressed: (_loading || _downloading) ? null : _download,
-                    isLoading: _downloading,
-                    isFullWidth: true,
-                  ),
-                  const SizedBox(height: AppSpacing.space8),
-                  AppButton.secondary(
-                    label: 'Open in Browser',
-                    icon: const Icon(Icons.open_in_new, size: 20),
-                    onPressed: _loading ? null : _openExternally,
-                    isFullWidth: true,
-                  ),
-                ],
+              child: AppButton.primary(
+                label: 'Download',
+                icon: const Icon(Icons.download_outlined, size: 20),
+                onPressed: (_loading || _downloading) ? null : _download,
+                isLoading: _downloading,
+                isFullWidth: true,
               ),
             ),
           ),
@@ -400,11 +344,23 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
           ),
         );
       case _DocKind.pdf:
-        final controller = _webController;
-        if (controller == null) {
+        final file = _tempPdfFile;
+        if (file == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        return WebViewWidget(controller: controller);
+        return PDFView(
+          filePath: file.path,
+          enableSwipe: true,
+          swipeHorizontal: false,
+          autoSpacing: true,
+          pageFling: true,
+          onRender: (_) {},
+          onError: (error) {
+            if (mounted) {
+              _fail('Could not preview this PDF. Use "Download" to save it.');
+            }
+          },
+        );
       case _DocKind.other:
         return _buildUnsupported();
     }

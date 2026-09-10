@@ -194,6 +194,120 @@
 
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
             <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-[#0F1B3D]">Loyalty Points</h3>
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-sm font-semibold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ number_format($loyaltyBalance) }} points
+                    </span>
+                </div>
+
+                @if ($loyaltyRedemptions->isEmpty())
+                    <p class="text-sm text-gray-400">No redemptions yet.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Code</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Reward</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Points</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Status</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($loyaltyRedemptions as $redemption)
+                                    <tr class="border-b border-gray-50">
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono bg-blue-50 text-blue-700">
+                                                {{ $redemption->redemption_code }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-[#0F1B3D]">
+                                            {{ $redemption->reward?->name ?? 'Points discount' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-500">{{ number_format(abs($redemption->points)) }}</td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $redemption->status === 'pending' ? 'bg-green-50 text-green-700' : ($redemption->status === 'fulfilled' ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-600') }}">
+                                                {{ ucfirst($redemption->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-500">{{ $redemption->created_at?->format('d M Y, g:i A') ?: '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="{{ route('admin.loyalty.redemptions.index', ['q' => $patient['nric'] ?? $patient['name'] ?? '']) }}"
+                           class="inline-flex items-center gap-1 text-sm font-medium text-[#00C9A7] hover:text-[#00b093] transition-colors">
+                            View all redemptions
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-[#0F1B3D] mb-4">Vouchers</h3>
+
+                @if ($vouchers->isEmpty())
+                    <p class="text-sm text-gray-400">No vouchers claimed yet.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Code</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Promotion</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Discount</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Status</th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Claimed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($vouchers as $voucher)
+                                    <tr class="border-b border-gray-50">
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono bg-blue-50 text-blue-700">
+                                                {{ $voucher->code }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-[#0F1B3D]">{{ $voucher->promotion?->title ?? '—' }}</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ $voucher->promotion?->cta_text ?? $voucher->promotion?->promo_code ?? '—' }}</td>
+                                        <td class="px-4 py-3">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $voucher->status === 'active' ? 'bg-green-50 text-green-700' : ($voucher->status === 'used' ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-600') }}">
+                                                {{ ucfirst($voucher->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-500">{{ $voucher->created_at?->format('d M Y, g:i A') ?: '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <a href="{{ route('admin.voucher-claims.index', ['q' => $patient['nric'] ?? $patient['name'] ?? '']) }}"
+                           class="inline-flex items-center gap-1 text-sm font-medium text-[#00C9A7] hover:text-[#00b093] transition-colors">
+                            View all vouchers
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+            <div class="p-6">
                 <h3 class="text-lg font-semibold text-[#0F1B3D] mb-4">Documents</h3>
 
                 <form action="{{ route('admin.patients.documents.upload', request()->route('patient')) }}" method="POST" enctype="multipart/form-data" class="mb-6">

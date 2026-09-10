@@ -65,15 +65,15 @@
                         accept="image/jpeg,image/png,image/webp"
                         class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#00C9A7] file:text-white hover:file:bg-[#00b093] file:cursor-pointer @error('image') border-red-300 @enderror"
                     >
-                    <p class="mt-1 text-xs text-gray-400">Optional hero image. Max 5MB. JPEG, PNG, or WebP.</p>
+                    <p class="mt-1 text-xs text-gray-400">Optional hero image. Recommended size <strong>1200×600px (2:1 ratio)</strong> for a clean look in the app. Max 5MB. JPEG, PNG, or WebP.</p>
                     @error('image')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
 
                     @if ($isEdit && $promotion->image_url)
                         <div class="mt-3">
-                            <p class="text-xs text-gray-400 mb-1">Current image:</p>
-                            <img src="{{ $promotion->image_url }}" alt="" class="w-64 h-auto rounded-lg border border-gray-200">
+                            <p class="text-xs text-gray-400 mb-1">Current image (previewed at 2:1 as shown in the app):</p>
+                            <img src="{{ $promotion->image_url }}" alt="" class="w-64 h-32 object-cover rounded-lg border border-gray-200">
                         </div>
                     @endif
                 </div>

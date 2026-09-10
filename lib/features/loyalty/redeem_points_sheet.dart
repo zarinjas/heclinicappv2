@@ -128,7 +128,7 @@ class _RedeemPointsSheetState extends State<RedeemPointsSheet> {
       AppDialog.hideLoading(context);
 
       if (response.succeeded && (RedeemLoyaltyPointsCall.status(response.jsonBody) == true)) {
-        final code = RedeemLoyaltyPointsCall.redemptionCode(response.jsonBody) ?? 'HEC-REDEEM';
+        final code = RedeemLoyaltyPointsCall.redemptionCode(response.jsonBody) ?? 'RDM-REDEEM';
         final discount = RedeemLoyaltyPointsCall.discount(response.jsonBody) ?? _discount;
 
         Navigator.pop(context, true);

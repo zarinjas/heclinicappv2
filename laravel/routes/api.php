@@ -81,6 +81,13 @@ Route::middleware('auth:sanctum')->group(function () {
         ->name('loyalty.transactions');
     Route::post('/v2/loyalty/redeem', [LoyaltyController::class, 'redeem'])
         ->name('loyalty.redeem');
+    Route::get('/v2/loyalty/rewards', [LoyaltyController::class, 'rewards'])
+        ->name('loyalty.rewards');
+    Route::post('/v2/loyalty/rewards/{reward}/redeem', [LoyaltyController::class, 'redeemReward'])
+        ->whereNumber('reward')
+        ->name('loyalty.rewards.redeem');
+    Route::get('/v2/loyalty/redemptions', [LoyaltyController::class, 'redemptions'])
+        ->name('loyalty.redemptions');
 });
 
 // ─── Loyalty webhook (public, secret-gated via header) ──────────────────────

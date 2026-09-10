@@ -39,6 +39,15 @@
                 Dashboard
             </a>
 
+            <a href="{{ route('admin.redeem-at-counter') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      {{ request()->routeIs('admin.redeem-at-counter') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                </svg>
+                Redeem at Counter
+            </a>
+
             <a href="{{ route('admin.branches.index') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                       {{ request()->routeIs('admin.branches.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}">
@@ -241,7 +250,48 @@
                 </svg>
             </a>
             <div id="setup-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.cms.service-packages.*') || request()->routeIs('admin.cms.onboarding.*') || request()->routeIs('admin.cms.legal.*') ? '' : 'hidden' }}">
-                <a href="{{ route('admin.cms.service-packages.index') }}"
+            <a href="{{ route('admin.loyalty.redemptions.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                      {{ request()->routeIs('admin.loyalty.*') ? 'bg-[#00C9A7] text-white' : 'text-gray-300 hover:bg-[#1e2d52] hover:text-white' }}"
+               onclick="event.preventDefault(); toggleLoyaltySubmenu()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                He Rewards
+                <svg id="loyalty-chevron" class="w-4 h-4 ml-auto transition-transform {{ request()->routeIs('admin.loyalty.*') ? 'rotate-90' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+            <div id="loyalty-submenu" class="ml-4 space-y-1 {{ request()->routeIs('admin.loyalty.*') ? '' : 'hidden' }}">
+                <a href="{{ route('admin.loyalty.redemptions.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.loyalty.redemptions.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    Redemptions
+                </a>
+                <a href="{{ route('admin.loyalty.rewards.index') }}"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                          {{ request()->routeIs('admin.loyalty.rewards.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    Rewards Catalog
+                </a>
+                @if (auth()->user()?->isSuperAdmin())
+                    <a href="{{ route('admin.loyalty.config') }}"
+                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
+                              {{ request()->routeIs('admin.loyalty.config') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        </svg>
+                        Settings
+                    </a>
+                @endif
+            </div>
+
+            <a href="{{ route('admin.cms.service-packages.index') }}"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm
                           {{ request()->routeIs('admin.cms.service-packages.*') ? 'text-[#00C9A7] font-medium' : 'text-gray-400 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,6 +422,12 @@
         function toggleOffersSubmenu() {
             const submenu = document.getElementById('offers-submenu');
             const chevron = document.getElementById('offers-chevron');
+            submenu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-90');
+        }
+        function toggleLoyaltySubmenu() {
+            const submenu = document.getElementById('loyalty-submenu');
+            const chevron = document.getElementById('loyalty-chevron');
             submenu.classList.toggle('hidden');
             chevron.classList.toggle('rotate-90');
         }

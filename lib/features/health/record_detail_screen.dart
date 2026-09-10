@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import '/core/widgets/app_toast.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../app_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/api_url.dart';
+import '../../core/utils/html_text.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_chip.dart';
 import '../../core/widgets/app_empty_state.dart';
+import '../../env_config.dart';
+import 'document_viewer_screen.dart';
 import 'health_record.dart';
 
 /// Shows the full content of a single clinical record.
@@ -20,48 +24,59 @@ class RecordDetailScreen extends StatelessWidget {
 
   const RecordDetailScreen({super.key, required this.record});
 
-  /// Letters come back as HTML. Rendering a full engine for them is overkill,
-  /// so tags are stripped and entities decoded for readable plain text.
-  static String _stripHtml(String html) {
-    var text = html
-        .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
-        .replaceAll(RegExp(r'</p>', caseSensitive: false), '\n\n')
-        .replaceAll(RegExp(r'<[^>]+>'), '');
+  /// Opens the record's attached file (the medical certificate) in the same
+  /// in-app viewer used for documents, with Download / Open in Browser actions.
+  void _openFile(BuildContext context) {
+    final url = record.detailData;
+    if (url == null || url.isEmpty) return;
 
-    const entities = {
-      '&nbsp;': ' ',
-      '&amp;': '&',
-      '&lt;': '<',
-      '&gt;': '>',
-      '&quot;': '"',
-      '&#39;': "'",
-    };
-    entities.forEach((k, v) => text = text.replaceAll(k, v));
-
-    // Collapse the blank-line runs left behind by stripping tags.
-    return text.replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
-  }
-
-  Future<void> _openFile(BuildContext context) async {
-    final path = record.detailData;
-    if (path == null || path.isEmpty) return;
-
-    final uri = Uri.tryParse(path);
-    if (uri == null) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) {
       _notify(context, 'This file link is invalid.');
       return;
     }
 
-    try {
-      final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!opened && context.mounted) _notify(context, 'Could not open this file.');
-    } catch (_) {
-      if (context.mounted) _notify(context, 'Could not open this file.');
-    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DocumentViewerScreen(
+          name: record.title,
+          url: url,
+          // The MC is served by Plato behind the patient's bearer token.
+          authToken: FFAppState().tokenauth,
+        ),
+      ),
+    );
   }
 
   void _notify(BuildContext context, String message) {
     AppToast.info(context, message: message);
+  }
+
+  /// Opens an attached file (lab result, image, etc.) in the in-app viewer.
+  void _openAttachment(BuildContext context, String url) {
+    final resolved = resolveBackendUrl(url, baseUrl: EnvConfig.platomBaseUrl);
+    final uri = Uri.tryParse(resolved);
+    if (uri == null || !uri.hasScheme) {
+      _notify(context, 'This attachment link is invalid.');
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DocumentViewerScreen(
+          name: _fileNameFromUrl(url),
+          url: resolved,
+          // Plato-hosted files sit behind the patient's bearer token.
+          authToken: FFAppState().tokenauth,
+        ),
+      ),
+    );
+  }
+
+  static String _fileNameFromUrl(String url) {
+    final withoutQuery = url.split('?').first;
+    final name = withoutQuery.split('/').last;
+    return name.isEmpty ? 'Attachment' : name;
   }
 
   @override
@@ -79,8 +94,50 @@ class RecordDetailScreen extends StatelessWidget {
             _buildHeader(isDark),
             const SizedBox(height: AppSpacing.space16),
             _buildContent(context, isDark),
+            if (record.attachments != null && record.attachments!.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.space16),
+              _buildAttachments(context, isDark),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAttachments(BuildContext context, bool isDark) {
+    final secondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Attachments', style: AppTextStyles.label),
+          const SizedBox(height: AppSpacing.space4),
+          for (final url in record.attachments!)
+            InkWell(
+              onTap: () => _openAttachment(context, url),
+              borderRadius: BorderRadius.circular(AppSpacing.space8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.attach_file,
+                        size: 20, color: AppColors.accent),
+                    const SizedBox(width: AppSpacing.space12),
+                    Expanded(
+                      child: Text(
+                        _fileNameFromUrl(url),
+                        style: AppTextStyles.body1.copyWith(color: secondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, size: 20, color: secondary),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -186,7 +243,7 @@ class RecordDetailScreen extends StatelessWidget {
           Text('Details', style: AppTextStyles.label),
           const SizedBox(height: AppSpacing.space8),
           SelectableText(
-            record.isHtml ? _stripHtml(content) : content,
+            record.isHtml ? stripHtml(content) : content,
             style: AppTextStyles.body1.copyWith(height: 1.5),
           ),
         ],

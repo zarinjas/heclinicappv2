@@ -17,8 +17,12 @@ use App\Http\Controllers\Admin\CmsServicePackageController;
 use App\Http\Controllers\Admin\CmsSliderController;
 use App\Http\Controllers\Admin\CmsVideoController;
 use App\Http\Controllers\Admin\ContactInfoController;
+use App\Http\Controllers\Admin\CounterRedemptionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\LoyaltyConfigController;
+use App\Http\Controllers\Admin\LoyaltyRedemptionController;
+use App\Http\Controllers\Admin\LoyaltyRewardController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\PlatoSettingsController;
@@ -102,8 +106,37 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::get('voucher-claims', [UserVoucherController::class, 'index'])
             ->name('voucher-claims.index');
-        Route::post('voucher-claims/{voucher}/used', [UserVoucherController::class, 'markUsed'])
-            ->name('voucher-claims.used');
+        Route::get('voucher-claims/print-all', [UserVoucherController::class, 'printAll'])
+            ->name('voucher-claims.print-all');
+        Route::get('voucher-claims/{voucher}/print', [UserVoucherController::class, 'print'])
+            ->name('voucher-claims.print');
+        Route::post('voucher-claims/{voucher}/fulfill', [UserVoucherController::class, 'fulfill'])
+            ->name('voucher-claims.fulfill');
+        Route::post('voucher-claims/{voucher}/cancel', [UserVoucherController::class, 'cancel'])
+            ->name('voucher-claims.cancel');
+
+        Route::get('redeem-at-counter', [CounterRedemptionController::class, 'index'])
+            ->name('redeem-at-counter');
+        Route::post('redeem-at-counter/{type}/{id}/fulfill', [CounterRedemptionController::class, 'fulfill'])
+            ->whereIn('type', ['voucher', 'redemption'])
+            ->name('redeem-at-counter.fulfill');
+        Route::post('redeem-at-counter/{type}/{id}/cancel', [CounterRedemptionController::class, 'cancel'])
+            ->whereIn('type', ['voucher', 'redemption'])
+            ->name('redeem-at-counter.cancel');
+
+        Route::prefix('loyalty')->name('loyalty.')->group(function (): void {
+            Route::get('redemptions', [LoyaltyRedemptionController::class, 'index'])
+                ->name('redemptions.index');
+            Route::get('redemptions/print-all', [LoyaltyRedemptionController::class, 'printAll'])
+                ->name('redemptions.print-all');
+            Route::get('redemptions/{redemption}/print', [LoyaltyRedemptionController::class, 'print'])
+                ->name('redemptions.print');
+            Route::post('redemptions/{redemption}/fulfill', [LoyaltyRedemptionController::class, 'fulfill'])
+                ->name('redemptions.fulfill');
+            Route::post('redemptions/{redemption}/cancel', [LoyaltyRedemptionController::class, 'cancel'])
+                ->name('redemptions.cancel');
+            Route::resource('rewards', LoyaltyRewardController::class)->except(['show']);
+        });
 
         Route::get('notifications/compose', [NotificationController::class, 'compose'])
             ->name('notifications.compose');
@@ -152,5 +185,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('settings/system', [SystemSettingsController::class, 'update'])->name('settings.system.update');
         Route::post('settings/system/test-whatsapp', [SystemSettingsController::class, 'testWhatsapp'])->name('settings.system.test-whatsapp');
         Route::resource('users', UserController::class);
+        Route::get('loyalty/settings', [LoyaltyConfigController::class, 'index'])->name('loyalty.config');
+        Route::post('loyalty/settings', [LoyaltyConfigController::class, 'update'])->name('loyalty.config.update');
     });
 });

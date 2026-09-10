@@ -4,8 +4,11 @@ namespace App\Services;
 
 use App\Models\LoyaltyAccount;
 use App\Models\LoyaltyConfig;
+use App\Models\LoyaltyRedemption;
+use App\Models\LoyaltyReward;
 use App\Models\LoyaltyTransaction;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -148,8 +151,10 @@ final class LoyaltyService
         }
 
         $code = $this->generateRedemptionCode();
+        $discount = round($points * $rate, 2);
+        $expiresAt = now()->addDays($this->redemptionExpiryDays());
 
-        DB::transaction(function () use ($account, $patient, $points, $code, $rate) {
+        DB::transaction(function () use ($account, $patient, $points, $code, $discount, $expiresAt) {
             $newBalance = $account->balance - $points;
             $account->update(['balance' => $newBalance]);
 
@@ -161,6 +166,16 @@ final class LoyaltyService
                 'reason'        => $code,
             ]);
 
+            LoyaltyRedemption::create([
+                'patient_id'      => $patient->id,
+                'reward_id'       => null,
+                'redemption_code' => $code,
+                'points'          => -$points,
+                'discount_value'  => $discount,
+                'status'          => 'pending',
+                'expires_at'      => $expiresAt,
+            ]);
+
             $this->mirrorToFirestore($account);
         });
 
@@ -168,9 +183,200 @@ final class LoyaltyService
             'status'          => true,
             'redemption_code' => $code,
             'points'          => $points,
-            'discount'        => round($points * $rate, 2),
+            'discount'        => $discount,
             'balance_after'   => $account->fresh()->balance,
         ];
+    }
+
+    // -------------------------------------------------------------------------
+    // He Rewards catalog
+    // -------------------------------------------------------------------------
+
+    public function listRewards(): array
+    {
+        return LoyaltyReward::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn (LoyaltyReward $reward) => $this->rewardPayload($reward))
+            ->values()
+            ->all();
+    }
+
+    public function rewardPayload(LoyaltyReward $reward): array
+    {
+        return [
+            'id'          => $reward->id,
+            'name'        => $reward->name,
+            'description' => $reward->description,
+            'image'       => $reward->image_url,
+            'type'        => $reward->type,
+            'points_cost' => $reward->points_cost,
+            'stock'       => $reward->stock,
+            'cta_text'    => $reward->cta_text,
+            'service_package' => $reward->servicePackage
+                ? ['id' => $reward->servicePackage->id, 'name' => $reward->servicePackage->name]
+                : null,
+        ];
+    }
+
+    /**
+     * Redeem a He Reward (service/product) in exchange for points.
+     * Points are deducted immediately; a pending redemption code is generated
+     * for the patient to present at the counter. Product stock is decremented
+     * atomically (out-of-stock redemptions are rejected).
+     */
+    public function redeemReward(Patient $patient, LoyaltyReward $reward): array
+    {
+        if (! $reward->is_active) {
+            return ['status' => false, 'message' => 'This reward is not currently available.'];
+        }
+
+        $points = (int) $reward->points_cost;
+
+        if ($points <= 0) {
+            return ['status' => false, 'message' => 'This reward has no points cost configured.'];
+        }
+
+        if ($reward->type === 'product' && $reward->stock !== null && $reward->stock < 1) {
+            return ['status' => false, 'message' => 'This reward is out of stock.'];
+        }
+
+        $account = $this->getOrCreateAccount($patient->idplato, $patient->nric);
+
+        if ($account->balance < $points) {
+            return ['status' => false, 'message' => 'Insufficient points balance.'];
+        }
+
+        $code = $this->generateRedemptionCode();
+        $expiresAt = now()->addDays($this->redemptionExpiryDays());
+
+        try {
+            DB::transaction(function () use ($patient, $reward, $points, $code, $expiresAt) {
+                if ($reward->type === 'product' && $reward->stock !== null) {
+                    $locked = LoyaltyReward::whereKey($reward->id)->lockForUpdate()->first();
+
+                    if ($locked === null || $locked->stock < 1) {
+                        throw new \RuntimeException('out_of_stock');
+                    }
+
+                    $locked->decrement('stock');
+                }
+
+                $account = $this->getOrCreateAccount($patient->idplato, $patient->nric);
+                $newBalance = $account->balance - $points;
+
+                if ($newBalance < 0) {
+                    throw new \RuntimeException('insufficient_balance');
+                }
+
+                $account->update(['balance' => $newBalance]);
+
+                LoyaltyTransaction::create([
+                    'patient_id'    => $patient->idplato,
+                    'type'          => 'redeem',
+                    'points'        => -$points,
+                    'balance_after' => $newBalance,
+                    'reason'        => $code,
+                ]);
+
+                LoyaltyRedemption::create([
+                    'patient_id'      => $patient->id,
+                    'reward_id'       => $reward->id,
+                    'redemption_code' => $code,
+                    'points'          => -$points,
+                    'discount_value'  => null,
+                    'status'          => 'pending',
+                    'expires_at'      => $expiresAt,
+                ]);
+
+                $this->mirrorToFirestore($account);
+            });
+        } catch (\RuntimeException $e) {
+            return match ($e->getMessage()) {
+                'out_of_stock'        => ['status' => false, 'message' => 'This reward is out of stock.'],
+                'insufficient_balance' => ['status' => false, 'message' => 'Insufficient points balance.'],
+                default               => ['status' => false, 'message' => 'Unable to redeem this reward. Please try again.'],
+            };
+        } catch (\Exception $e) {
+            Log::channel('plato')->error('Loyalty reward redeem failed', [
+                'patient_id' => $patient->idplato,
+                'reward_id'  => $reward->id,
+                'error'      => $e->getMessage(),
+            ]);
+
+            return ['status' => false, 'message' => 'Unable to redeem this reward. Please try again.'];
+        }
+
+        return [
+            'status'          => true,
+            'redemption_code' => $code,
+            'points'          => $points,
+            'balance_after'   => LoyaltyAccount::where('patient_id', $patient->idplato)->value('balance') ?? 0,
+            'reward'          => $this->rewardPayload($reward->fresh()),
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    // Fulfilment (staff at counter)
+    // -------------------------------------------------------------------------
+
+    public function fulfillRedemption(LoyaltyRedemption $redemption, User $admin): array
+    {
+        if ($redemption->status !== 'pending') {
+            return ['status' => false, 'message' => 'This redemption has already been '.$redemption->status.'.'];
+        }
+
+        $redemption->update([
+            'status'       => 'fulfilled',
+            'fulfilled_by' => $admin->id,
+            'fulfilled_at' => now(),
+        ]);
+
+        return ['status' => true, 'redemption_code' => $redemption->redemption_code];
+    }
+
+    public function cancelRedemption(LoyaltyRedemption $redemption, User $admin): array
+    {
+        if ($redemption->status !== 'pending') {
+            return ['status' => false, 'message' => 'This redemption has already been '.$redemption->status.'.'];
+        }
+
+        $points = abs($redemption->points);
+        $patient = $redemption->patient;
+
+        DB::transaction(function () use ($redemption, $points, $patient) {
+            if ($redemption->reward && $redemption->reward->type === 'product' && $redemption->reward->stock !== null) {
+                $redemption->reward->increment('stock');
+            }
+
+            $account = LoyaltyAccount::where('patient_id', $patient->idplato)->first();
+
+            if ($account !== null) {
+                $newBalance = $account->balance + $points;
+                $account->update(['balance' => $newBalance]);
+
+                LoyaltyTransaction::create([
+                    'patient_id'    => $patient->idplato,
+                    'type'          => 'adjust',
+                    'points'        => $points,
+                    'balance_after' => $newBalance,
+                    'reason'        => 'Refund '.$redemption->redemption_code,
+                ]);
+
+                $this->mirrorToFirestore($account);
+            }
+
+            $redemption->update(['status' => 'cancelled']);
+        });
+
+        return ['status' => true, 'redemption_code' => $redemption->redemption_code];
+    }
+
+    private function redemptionExpiryDays(): int
+    {
+        return (int) LoyaltyConfig::value('redemption_expiry_days', 30);
     }
 
     // -------------------------------------------------------------------------
@@ -234,8 +440,9 @@ final class LoyaltyService
     private function generateRedemptionCode(): string
     {
         do {
-            $code = 'HEC-' . strtoupper(Str::random(4)) . '-' . now()->year;
-        } while (LoyaltyTransaction::where('reason', $code)->exists());
+            $code = 'RDM-' . strtoupper(Str::random(4)) . '-' . now()->year;
+        } while (LoyaltyRedemption::where('redemption_code', $code)->exists()
+            || LoyaltyTransaction::where('reason', $code)->exists());
 
         return $code;
     }

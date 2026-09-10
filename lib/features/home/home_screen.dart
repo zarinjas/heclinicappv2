@@ -17,6 +17,7 @@ import '/core/services/branch_service.dart';
 import '/core/services/hero_service.dart';
 import '/core/services/video_service.dart';
 import '/core/services/promotion_service.dart';
+import '/core/services/cms_api.dart';
 import '/core/services/clinic_info_service.dart';
 import '/core/services/notification_inbox_service.dart';
 import '/core/services/models/article.dart';
@@ -538,17 +539,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 160,
+            height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (_, i) {
                 final p = items[i];
+                final imageUrl = p.imageUrl;
+                if (imageUrl != null && imageUrl.isNotEmpty) {
+                  return _buildPromoImageCard(p, imageUrl);
+                }
                 final gradient = p.placeholderGradient;
                 final discount = p.ctaText ?? p.promoCode ?? p.title;
-                final isLimited = i.isEven;
-                final expiry = isLimited ? '3 days left' : '7 days left';
                 return GestureDetector(
                   onTap: () => context.pushNamed('/vouchers'),
                   child: Container(
@@ -561,49 +564,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (isLimited)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                margin: const EdgeInsets.only(bottom: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.local_fire_department, size: 10, color: Colors.white),
-                                    const SizedBox(width: 3),
-                                    const Text('Limited', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w700)),
-                                  ],
-                                ),
-                              ),
-                            Text(
-                              discount,
-                              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800, height: 1),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              p.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.body2.copyWith(color: Colors.white.withValues(alpha: 0.9)),
-                            ),
-                          ],
+                        Text(
+                          discount,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, height: 1),
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.timer_outlined, size: 12, color: Colors.white70),
-                            const SizedBox(width: 4),
-                            Text(expiry, style: const TextStyle(color: Colors.white70, fontSize: 10)),
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -623,6 +596,36 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPromoImageCard(Promotion p, String imageUrl) {
+    return GestureDetector(
+      onTap: () => context.pushNamed('/vouchers'),
+      child: SizedBox(
+        width: 200,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 2,
+            child: Image.network(
+              CmsApi.resolveMediaUrl(imageUrl),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: p.placeholderGradient,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.image_not_supported_outlined, color: Colors.white70),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -708,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(title: 'Our Branch', onSeeAll: () => context.pushNamed('/branch-detail')),
+          SectionHeader(title: 'Our Branch', onSeeAll: () => context.pushNamed('/branches')),
           const SizedBox(height: 12),
           SizedBox(
             height: 150,
@@ -725,7 +728,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   leadingGradient: b.leadingGradient,
                   leadingLabel: 'Branch',
                   variant: BranchCardVariant.vertical,
-                  onTap: () => context.pushNamed('/branch-detail'),
+                  onTap: () => context.pushNamed(
+                    '/branch-detail',
+                    queryParameters: {'branchName': b.name},
+                  ),
                 );
               },
             ),

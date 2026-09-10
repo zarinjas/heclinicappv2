@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -57,11 +58,18 @@ class VideoCard extends StatelessWidget {
                   child: AspectRatio(
                     aspectRatio: videoAspectRatio,
                     child: hasThumbnail
-                        ? Image.network(
-                            thumbnailUrl,
+                        ? CachedNetworkImage(
+                            imageUrl: thumbnailUrl,
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            errorBuilder: (_, __, ___) =>
+                            // Some TikTok CDN hosts reject non-browser clients,
+                            // so send a browser User-Agent when loading directly.
+                            httpHeaders: const {
+                              'User-Agent':
+                                  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                            },
+                            placeholder: (context, url) => _buildGradientThumbnail(context),
+                            errorWidget: (context, url, error) =>
                                 _buildGradientThumbnail(context),
                           )
                         : placeholderGradient != null
@@ -187,14 +195,28 @@ class VideoCard extends StatelessWidget {
   }
 
   Widget _buildGradientThumbnail(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gradient = placeholderGradient;
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: placeholderGradient!,
-        ),
+        gradient: gradient != null
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradient,
+              )
+            : null,
+        color: gradient == null
+            ? (isDark ? AppColors.surfaceDark : AppColors.divider)
+            : null,
       ),
+      child: gradient == null
+          ? Icon(
+              Icons.play_circle_outline,
+              size: 36,
+              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+            )
+          : null,
     );
   }
 }

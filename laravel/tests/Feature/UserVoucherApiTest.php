@@ -54,7 +54,7 @@ class UserVoucherApiTest extends TestCase
             ->assertJsonPath('voucher.status', 'active');
 
         $code = $response->json('voucher.code');
-        $this->assertStringStartsWith('HEC-', $code);
+        $this->assertStringStartsWith('VCH-', $code);
         $this->assertDatabaseHas('user_vouchers', [
             'patient_id' => $patient->id,
             'promotion_id' => $promotion->id,

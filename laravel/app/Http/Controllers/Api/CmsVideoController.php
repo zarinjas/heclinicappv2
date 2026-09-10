@@ -8,12 +8,13 @@ use App\Services\TiktokOembedService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CmsVideoController extends Controller
 {
-    private const THUMBNAIL_CACHE_HOURS = 12;
+    private const THUMBNAIL_DIR = 'video-thumbnails';
 
     public function index(Request $request): JsonResponse
     {
@@ -57,26 +58,36 @@ class CmsVideoController extends Controller
             abort(404);
         }
 
-        $cacheKey = 'video_thumbnail_'.$video->id;
+        $disk = Storage::disk('public');
+        $path = self::THUMBNAIL_DIR.'/'.$video->id.'.jpg';
 
-        $cached = Cache::get($cacheKey);
-        if (! is_array($cached) || empty($cached['bytes'])) {
-            $cached = $this->fetchThumbnail($this->resolveFreshThumbnailUrl($video));
-            // Only cache a successful fetch. Failed/expired fetches are retried
-            // on the next request instead of being stuck for N hours.
-            if (! empty($cached['bytes'])) {
-                Cache::put($cacheKey, $cached, now()->addHours(self::THUMBNAIL_CACHE_HOURS));
+        try {
+            // TikTok CDN URLs carry an `x-expires`/`x-signature` and go stale
+            // after a few hours. Download the thumbnail once and keep a local
+            // copy so the app never has to depend on TikTok's CDN or on the
+            // oEmbed endpoint at render time.
+            if (! $disk->exists($path)) {
+                $image = $this->fetchThumbnail($this->resolveFreshThumbnailUrl($video));
+                if (! empty($image['bytes'])) {
+                    $disk->put($path, $image['bytes']);
+                }
             }
+        } catch (\Throwable $e) {
+            // Never let a thumbnail request bubble up as a 500 — log it and
+            // fall through to the 404 below so the app can show its fallback.
+            Log::error('cms_video_thumbnail_failed', [
+                'video_id' => $video->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
-        if (empty($cached['bytes'])) {
+        if (! $disk->exists($path)) {
             abort(404);
         }
 
-        return response($cached['bytes'], 200, [
-            'Content-Type' => $cached['type'] ?? 'image/jpeg',
+        return response($disk->get($path), 200, [
+            'Content-Type' => $disk->mimeType($path) ?: 'image/jpeg',
             'Cache-Control' => 'public, max-age=86400',
-            'Content-Length' => (string) strlen($cached['bytes']),
         ]);
     }
 

@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
 import '../../backend/api_requests/voucher_api.dart';
+import '../../core/services/cms_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -69,6 +71,14 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
   }
 
   Widget _buildVoucherCard(Promotion p, bool isDark) {
+    final imageUrl = p.imageUrl;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      return _buildImageCard(p, imageUrl, isDark);
+    }
+    return _buildGradientCard(p);
+  }
+
+  Widget _buildGradientCard(Promotion p) {
     final gradient = p.placeholderGradient;
     return GestureDetector(
       onTap: () => _onClaim(context, p),
@@ -126,6 +136,71 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
     );
   }
 
+  Widget _buildImageCard(Promotion p, String imageUrl, bool isDark) {
+    final titleColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+
+    return GestureDetector(
+      onTap: () => _onClaim(context, p),
+      child: Container(
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+          border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.divider),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 2,
+              child: CachedNetworkImage(
+                imageUrl: CmsApi.resolveMediaUrl(imageUrl),
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => Container(
+                  color: isDark ? AppColors.dividerDark : AppColors.divider,
+                  child: const Icon(Icons.image_outlined, color: Colors.grey),
+                ),
+                placeholder: (_, __) => Container(
+                  color: isDark ? AppColors.dividerDark : AppColors.divider,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    p.ctaText ?? p.title,
+                    style: AppTextStyles.heading2.copyWith(color: titleColor, fontSize: 20),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    p.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.body2.copyWith(color: secondaryColor),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                    ),
+                    child: const Text('Claim', style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _onClaim(BuildContext ctx, Promotion p) async {
     if (FFAppState().tokenauth.isEmpty) {
       final goLogin = await AppDialog.confirm(
@@ -150,7 +225,7 @@ class _VouchersListScreenState extends State<VouchersListScreen> {
       AppDialog.hideLoading(ctx);
 
       if (response.succeeded && ClaimVoucherCall.status(response.jsonBody) == true) {
-        final code = ClaimVoucherCall.code(response.jsonBody) ?? p.promoCode ?? 'HEC-VOUCHER';
+        final code = ClaimVoucherCall.code(response.jsonBody) ?? p.promoCode ?? 'VCH-VOUCHER';
         await VoucherCodeSheet.show(
           ctx,
           code: code,

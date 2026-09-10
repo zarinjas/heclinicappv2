@@ -72,7 +72,7 @@ android {
         // listing continues to receive ordinary version updates.
         applicationId "com.heclinicapp"
         minSdkVersion 23
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

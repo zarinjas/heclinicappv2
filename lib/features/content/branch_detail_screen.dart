@@ -31,9 +31,12 @@ class _BranchDetailScreenState extends State<BranchDetailScreen> {
     if (!mounted) return;
 
     final branches = BranchService.instance.branches;
-    if (widget.branchName != null) {
+    if (widget.branchName != null && widget.branchName!.isNotEmpty) {
+      final requested = widget.branchName!.trim().toLowerCase();
       _branch = branches.cast<Branch?>().firstWhere(
-            (branch) => branch?.name == widget.branchName,
+            (branch) =>
+                branch?.name.trim().toLowerCase() == requested ||
+                branch?.platoFacilityId?.trim().toLowerCase() == requested,
             orElse: () => null,
           );
     }

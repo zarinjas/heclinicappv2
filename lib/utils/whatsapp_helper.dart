@@ -8,6 +8,7 @@ class WhatsAppHelper {
     required String doctorName,
     required String date,
     required String time,
+    String remark = '',
   }) {
     final buffer = StringBuffer();
     buffer.writeln('Hi He Clinic $branchName!');
@@ -19,6 +20,9 @@ class WhatsAppHelper {
     buffer.writeln('- Doctor: $doctorName');
     buffer.writeln('- Date: $date');
     buffer.writeln('- Time: $time');
+    if (remark.isNotEmpty) {
+      buffer.writeln('- Remark: $remark');
+    }
     buffer.writeln();
     buffer.write('Please confirm my appointment. Thank you!');
     return buffer.toString();

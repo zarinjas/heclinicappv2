@@ -83,6 +83,7 @@ class BookingConfirmationScreenWidget extends StatelessWidget {
       doctorName: doctorDisplay,
       date: formattedDate,
       time: formattedTime,
+      remark: bookingModel.bookingRemark,
     );
 
     final deepLink = WhatsAppHelper.buildDeepLink(

@@ -27,6 +27,7 @@ class BookingFlowModel extends ChangeNotifier {
     _selectedDate = null;
     _selectedTime = '';
     _selectedSlotId = '';
+    _bookingRemark = '';
     notifyListeners();
   }
 
@@ -114,6 +115,14 @@ class BookingFlowModel extends ChangeNotifier {
     _selectedDate = date;
     _selectedTime = time;
     _selectedSlotId = slotId;
+    notifyListeners();
+  }
+
+  String _bookingRemark = '';
+  String get bookingRemark => _bookingRemark;
+
+  void setRemark(String remark) {
+    _bookingRemark = remark;
     notifyListeners();
   }
 }

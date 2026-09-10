@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\LoyaltyConfig;
+use App\Models\LoyaltyRedemption;
+use App\Models\LoyaltyReward;
 use App\Models\Patient;
 use App\Services\LoyaltyService;
 use App\Services\PlatoProxyService;
@@ -89,6 +91,73 @@ final class LoyaltyController extends Controller
         $httpCode = $result['status'] ? 200 : 422;
 
         return response()->json($result, $httpCode);
+    }
+
+    // -------------------------------------------------------------------------
+    // GET /api/v2/loyalty/rewards
+    // Protected. Lists the active He Rewards catalog.
+    // -------------------------------------------------------------------------
+    public function rewards(): JsonResponse
+    {
+        return response()->json([
+            'status' => true,
+            'data'   => $this->loyalty->listRewards(),
+        ]);
+    }
+
+    // -------------------------------------------------------------------------
+    // POST /api/v2/loyalty/rewards/{reward}/redeem
+    // Protected. Redeems a specific reward for the current patient.
+    // -------------------------------------------------------------------------
+    public function redeemReward(Request $request, LoyaltyReward $reward): JsonResponse
+    {
+        /** @var Patient $patient */
+        $patient = $request->user();
+
+        if (empty($patient->idplato)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'No Plato patient linked to this account.',
+            ], 422);
+        }
+
+        $result = $this->loyalty->redeemReward($patient, $reward);
+
+        $httpCode = $result['status'] ? 200 : 422;
+
+        return response()->json($result, $httpCode);
+    }
+
+    // -------------------------------------------------------------------------
+    // GET /api/v2/loyalty/redemptions
+    // Protected. Lists the current patient's redemption history.
+    // -------------------------------------------------------------------------
+    public function redemptions(Request $request): JsonResponse
+    {
+        /** @var Patient $patient */
+        $patient = $request->user();
+
+        $redemptions = LoyaltyRedemption::query()
+            ->where('patient_id', $patient->id)
+            ->with('reward')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn (LoyaltyRedemption $r) => [
+                'id'              => $r->id,
+                'redemption_code' => $r->redemption_code,
+                'points'          => $r->points,
+                'discount_value'  => $r->discount_value,
+                'status'          => $r->status,
+                'expires_at'      => $r->expires_at?->toIso8601String(),
+                'fulfilled_at'    => $r->fulfilled_at?->toIso8601String(),
+                'created_at'      => $r->created_at->toIso8601String(),
+                'reward'          => $r->reward ? $this->loyalty->rewardPayload($r->reward) : null,
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'data'   => $redemptions,
+        ]);
     }
 
     // -------------------------------------------------------------------------
