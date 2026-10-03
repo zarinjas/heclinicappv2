@@ -55,4 +55,23 @@ return [
 
     'duplicate_snapshot_path' => env('PLATO_DUPLICATE_SNAPSHOT_PATH'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Duplicate scan pacing
+    |--------------------------------------------------------------------------
+    |
+    | The duplicate scan pages through the entire Plato patient list, which is
+    | the most rate-limit-prone operation in the app. throttle_ms inserts a
+    | pause between pages; when Plato still answers 429 we retry with
+    | exponential backoff up to max_retries times, honouring any retry-after
+    | header Plato sends. Delays are in milliseconds.
+    |
+    */
+
+    'duplicate_scan' => [
+        'throttle_ms' => env('PLATO_DUPLICATE_THROTTLE_MS', 250),
+        'max_retries' => env('PLATO_DUPLICATE_MAX_RETRIES', 5),
+        'retry_base_ms' => env('PLATO_DUPLICATE_RETRY_BASE_MS', 1000),
+    ],
+
 ];

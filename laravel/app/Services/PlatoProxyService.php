@@ -273,6 +273,11 @@ final class PlatoProxyService
             $headers['x-ratelimit-remaining'] = $remaining;
         }
 
+        $retryAfter = $response->header('retry-after');
+        if ($retryAfter !== null) {
+            $headers['retry-after'] = $retryAfter;
+        }
+
         return $headers;
     }
 

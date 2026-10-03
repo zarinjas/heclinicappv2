@@ -97,4 +97,100 @@ class PlatoDuplicateServiceTest extends TestCase
         $this->assertSame('60123456789', $service->normalisePhone('+60 12 345 6789'));
         $this->assertNull($service->normalisePhone('   '));
     }
+
+    public function test_fetch_all_patients_retries_on_rate_limit_then_succeeds(): void
+    {
+        config([
+            'plato.duplicate_scan.max_retries' => 5,
+            'plato.duplicate_scan.retry_base_ms' => 10,
+            'plato.duplicate_scan.throttle_ms' => 5,
+        ]);
+
+        $service = $this->fakeScanService([
+            ['error' => true, 'code' => 429, 'message' => 'rate limited', 'headers' => []],
+            ['data' => [$this->patient('a', ['nric' => '900101141234'])], 'status' => 200],
+            ['data' => [], 'status' => 200],
+        ]);
+
+        $records = $service->fetchAllPatients();
+
+        $this->assertCount(1, $records);
+        $this->assertSame([10, 5], $service->pauses);
+    }
+
+    public function test_fetch_all_patients_gives_up_after_max_retries(): void
+    {
+        config([
+            'plato.duplicate_scan.max_retries' => 3,
+            'plato.duplicate_scan.retry_base_ms' => 10,
+            'plato.duplicate_scan.throttle_ms' => 0,
+        ]);
+
+        $service = $this->fakeScanService([
+            ['error' => true, 'code' => 429, 'message' => 'rate limited', 'headers' => []],
+            ['error' => true, 'code' => 429, 'message' => 'rate limited', 'headers' => []],
+            ['error' => true, 'code' => 429, 'message' => 'rate limited', 'headers' => []],
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Plato API error while listing patients: rate limited');
+
+        try {
+            $service->fetchAllPatients();
+        } finally {
+            $this->assertSame([10, 20], $service->pauses);
+        }
+    }
+
+    public function test_retry_delay_honours_retry_after_header(): void
+    {
+        $service = $this->fakeScanService([]);
+
+        $this->assertSame(
+            2000,
+            $service->exposedRetryDelayMs(['headers' => ['retry-after' => '2']], 1000, 0)
+        );
+        $this->assertSame(
+            4000,
+            $service->exposedRetryDelayMs(['headers' => []], 1000, 2)
+        );
+    }
+
+    /**
+     * @param  array<int, array<string,mixed>>  $responses
+     */
+    private function fakeScanService(array $responses): PlatoDuplicateService
+    {
+        return new class(app(PlatoProxyService::class), $responses) extends PlatoDuplicateService
+        {
+            /** @var array<int, array<string,mixed>> */
+            public array $responses;
+
+            /** @var array<int, int> */
+            public array $pauses = [];
+
+            private int $calls = 0;
+
+            public function __construct(PlatoProxyService $proxy, array $responses)
+            {
+                parent::__construct($proxy);
+                $this->responses = $responses;
+            }
+
+            protected function requestPatientPage(int $page): array
+            {
+                return $this->responses[$this->calls++] ?? ['data' => []];
+            }
+
+            protected function pause(int $milliseconds): void
+            {
+                $this->pauses[] = $milliseconds;
+            }
+
+            public function exposedRetryDelayMs(array $result, int $baseMs, int $attempt): int
+            {
+                return $this->retryDelayMs($result, $baseMs, $attempt);
+            }
+        };
+    }
 }

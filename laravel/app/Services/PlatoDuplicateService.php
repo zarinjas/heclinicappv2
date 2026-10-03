@@ -113,7 +113,7 @@ class PlatoDuplicateService
         $page = 1;
 
         while ($page <= self::MAX_PAGES) {
-            $result = $this->plato->proxy('GET', 'patient', ['current_page' => $page]);
+            $result = $this->fetchPatientPage($page);
 
             if (! empty($result['error'])) {
                 throw new \RuntimeException(
@@ -153,9 +153,76 @@ class PlatoDuplicateService
             }
 
             $page++;
+            $this->throttlePages();
         }
 
         return $all;
+    }
+
+    /**
+     * Fetch one patient page, retrying with exponential backoff when Plato
+     * answers HTTP 429 (rate limited). Honours Plato's retry-after header when
+     * present. Gives up after the configured number of attempts so the caller
+     * can surface a clear error instead of hammering the API.
+     *
+     * @return array<string,mixed>
+     */
+    protected function fetchPatientPage(int $page): array
+    {
+        $attempts = max(1, (int) config('plato.duplicate_scan.max_retries', 5));
+        $baseMs = max(0, (int) config('plato.duplicate_scan.retry_base_ms', 1000));
+        $result = [];
+
+        for ($attempt = 0; $attempt < $attempts; $attempt++) {
+            $result = $this->requestPatientPage($page);
+
+            if (($result['code'] ?? null) !== 429) {
+                return $result;
+            }
+
+            if ($attempt < $attempts - 1) {
+                $this->pause($this->retryDelayMs($result, $baseMs, $attempt));
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    protected function requestPatientPage(int $page): array
+    {
+        return $this->plato->proxy('GET', 'patient', ['current_page' => $page]);
+    }
+
+    /**
+     * Pause briefly between pages so a full scan stays under Plato's rate limit.
+     */
+    protected function throttlePages(): void
+    {
+        $this->pause(max(0, (int) config('plato.duplicate_scan.throttle_ms', 250)));
+    }
+
+    /**
+     * @param  array<string,mixed>  $result
+     */
+    protected function retryDelayMs(array $result, int $baseMs, int $attempt): int
+    {
+        $retryAfter = $result['headers']['retry-after'] ?? null;
+
+        if (is_numeric($retryAfter)) {
+            return (int) $retryAfter * 1000;
+        }
+
+        return $baseMs * (2 ** $attempt);
+    }
+
+    protected function pause(int $milliseconds): void
+    {
+        if ($milliseconds > 0) {
+            usleep($milliseconds * 1000);
+        }
     }
 
     // ---------------------------------------------------------------------
