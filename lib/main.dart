@@ -199,6 +199,10 @@ class _MyAppState extends State<MyApp> {
 
     interceptor.onUnauthorized = () {
       FFAppState().isLoggedIn = false;
+      // Drop the persisted token too. The splash treats a non-empty `tokenauth`
+      // as "logged in", so leaving it behind would bounce the user straight
+      // back to Home with the same dead token and loop on 401.
+      FFAppState().tokenauth = '';
       final context = appNavigatorKey.currentContext;
       if (context != null) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();

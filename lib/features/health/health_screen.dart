@@ -6,7 +6,6 @@ import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_chip.dart';
 import 'documents_tab.dart';
 import 'records_tab.dart';
-import 'vitals_tab.dart';
 
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
@@ -18,7 +17,8 @@ class HealthScreen extends StatefulWidget {
 class _HealthScreenState extends State<HealthScreen> {
   int _currentTab = 0;
 
-  static const _tabs = ['Records', 'Vitals', 'Documents'];
+  // Vitals are hidden from the patient app.
+  static const _tabs = ['Records', 'Documents'];
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +75,6 @@ class _HealthScreenState extends State<HealthScreen> {
       index: _currentTab,
       children: const [
         RecordsTab(),
-        VitalsTab(),
         DocumentsTab(),
       ],
     );

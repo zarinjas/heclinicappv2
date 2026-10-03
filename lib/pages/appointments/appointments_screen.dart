@@ -9,6 +9,7 @@ import '/core/theme/app_radius.dart' as core;
 import '/core/theme/app_spacing.dart' as core;
 import '/core/widgets/app_button.dart';
 import '/core/widgets/modern_toast.dart';
+import '/core/services/appointment_cache.dart';
 import '/core/widgets/app_app_bar.dart';
 import '/core/widgets/app_chip.dart';
 import '/components/empty_state_widget.dart';
@@ -40,6 +41,8 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   List<Map<String, dynamic>> _upcomingAppointments = [];
   List<Map<String, dynamic>> _pastAppointments = [];
 
+  bool _isRefreshing = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,117 +50,175 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   }
 
   Future<void> _loadAppointments() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
+    // Paint the last known appointments immediately so the screen is never
+    // blocked behind a cold network round-trip, then refresh in the background.
+    final hadCache = await _hydrateFromCache();
+    if (mounted && hadCache) {
+      setState(() {
+        _isLoading = false;
+        _hasError = false;
+      });
+    }
+    await _refreshAppointments();
+  }
 
+  Future<bool> _hydrateFromCache() async {
     try {
-      if (!_codesLoaded) {
-        final codesResult = await GetAppointmentCodeCall.call();
-        if (codesResult.succeeded) {
-          final codes = GetAppointmentCodeCall.codes(codesResult.jsonBody) ?? [];
-          final names = GetAppointmentCodeCall.names(codesResult.jsonBody) ?? [];
-          final locCodes = GetAppointmentCodeCall.codelocation(codesResult.jsonBody) ?? [];
-          final locNames = GetAppointmentCodeCall.namelocation(codesResult.jsonBody) ?? [];
+      final codesBody = await AppointmentCache.loadCodes();
+      if (codesBody != null) _applyCodes(codesBody);
 
-          if (codes.isNotEmpty) {
-            FFAppState().Listcode = codes;
-            FFAppState().ListDoctorName = names;
-            _locationCodes = locCodes;
-            _locationNames = locNames;
-            _codesLoaded = true;
-          } else if (FFAppState().Listcode.isNotEmpty) {
-            _codesLoaded = true;
-          }
-          safeSetState(() {});
-        }
-      }
+      final apptBody = await AppointmentCache.loadAppointments();
+      if (apptBody == null || !mounted) return false;
 
-      final patientId = FFAppState().idplato;
-      if (patientId.isEmpty) {
+      final parsed = _parseAppointments(apptBody);
+      setState(() {
+        _upcomingAppointments = parsed.upcoming;
+        _pastAppointments = parsed.past;
+        _isLoading = false;
+        _hasError = false;
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _refreshAppointments() async {
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+
+    final patientId = FFAppState().idplato;
+    if (patientId.isEmpty) {
+      if (mounted) {
         setState(() {
           _upcomingAppointments = [];
           _pastAppointments = [];
           _isLoading = false;
           _hasError = false;
         });
-        return;
       }
+      _isRefreshing = false;
+      return;
+    }
 
+    // Kick off the (rarely changing) code list and the appointment list at the
+    // same time instead of waiting for the codes before fetching appointments.
+    final codesFuture = _ensureCodes();
+    try {
       final result = await GetAppointmentCall.call(
         patientId: patientId,
         forceRefresh: true,
       );
+      await codesFuture;
+
+      if (!mounted) return;
 
       if (result.succeeded) {
-        final jsonBody = result.jsonBody;
-        final starts = GetAppointmentCall.start(jsonBody) ?? [];
-        final ends = GetAppointmentCall.end(jsonBody) ?? [];
-        final titles = GetAppointmentCall.title(jsonBody) ?? [];
-        final doctorCodes = GetAppointmentCall.doctorCode(jsonBody) ?? [];
-        final locationCodes = GetAppointmentCall.locationCode(jsonBody) ?? [];
-        final appointmentIds = GetAppointmentCall.appointmentId(jsonBody) ?? [];
-
-        final now = DateTime.now();
-        final upcoming = <Map<String, dynamic>>[];
-        final past = <Map<String, dynamic>>[];
-
-        for (int i = 0; i < starts.length; i++) {
-          final startStr = starts[i];
-          final startDt = DateTime.tryParse(startStr);
-          final endDt = DateTime.tryParse(ends.length > i ? ends[i] : '');
-
-          final doctorCode = doctorCodes.length > i ? doctorCodes[i] : '';
-          final locationCodeVal = locationCodes.length > i ? locationCodes[i] : '';
-          final title = titles.length > i ? titles[i] : '';
-
-          final doctorName = _getDoctorName(doctorCode);
-          final locationName = _getLocationName(locationCodeVal);
-
-          final appointment = {
-            'index': i,
-            'title': title,
-            'start': startDt,
-            'end': endDt,
-            'doctorCode': doctorCode,
-            'doctorName': doctorName,
-            'locationCode': locationCodeVal,
-            'locationName': locationName,
-            'color': _getColorForCode(doctorCode),
-            'isUpcoming': startDt != null && startDt.isAfter(now),
-            'appointmentId': appointmentIds.length > i ? appointmentIds[i] : '',
-          };
-
-          if (startDt != null && startDt.isAfter(now)) {
-            upcoming.add(appointment);
-          } else {
-            past.add(appointment);
-          }
-        }
-
-        past.sort((a, b) => (b['start'] as DateTime?)?.compareTo(a['start'] as DateTime? ?? DateTime(0)) ?? 0);
-
+        final parsed = _parseAppointments(result.jsonBody);
         setState(() {
-          _upcomingAppointments = upcoming;
-          _pastAppointments = past;
+          _upcomingAppointments = parsed.upcoming;
+          _pastAppointments = parsed.past;
           _isLoading = false;
           _hasError = false;
         });
+        await AppointmentCache.saveAppointments(result.jsonBody);
       } else {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-          _errorMessage = 'Could not load appointments';
-        });
+        _finishWithError();
       }
     } catch (_) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-        _errorMessage = 'Could not load appointments';
-      });
+      await codesFuture;
+      if (!mounted) return;
+      _finishWithError();
+    } finally {
+      _isRefreshing = false;
     }
+  }
+
+  void _finishWithError() {
+    // Keep whatever we already painted; only surface the error when there is
+    // nothing to show at all.
+    final hasData =
+        _upcomingAppointments.isNotEmpty || _pastAppointments.isNotEmpty;
+    setState(() {
+      _isLoading = false;
+      _hasError = !hasData;
+      _errorMessage = 'Could not load appointments';
+    });
+  }
+
+  Future<void> _ensureCodes() async {
+    if (_codesLoaded) return;
+    try {
+      final codesResult = await GetAppointmentCodeCall.call();
+      if (codesResult.succeeded) {
+        _applyCodes(codesResult.jsonBody);
+        await AppointmentCache.saveCodes(codesResult.jsonBody);
+      }
+    } catch (_) {}
+  }
+
+  void _applyCodes(dynamic jsonBody) {
+    final codes = GetAppointmentCodeCall.codes(jsonBody) ?? [];
+    final names = GetAppointmentCodeCall.names(jsonBody) ?? [];
+    final locCodes = GetAppointmentCodeCall.codelocation(jsonBody) ?? [];
+    final locNames = GetAppointmentCodeCall.namelocation(jsonBody) ?? [];
+
+    if (codes.isNotEmpty) {
+      FFAppState().Listcode = codes;
+      FFAppState().ListDoctorName = names;
+      _locationCodes = locCodes;
+      _locationNames = locNames;
+      _codesLoaded = true;
+    } else if (FFAppState().Listcode.isNotEmpty) {
+      _codesLoaded = true;
+    }
+  }
+
+  _AppointmentBuckets _parseAppointments(dynamic jsonBody) {
+    final starts = GetAppointmentCall.start(jsonBody) ?? [];
+    final ends = GetAppointmentCall.end(jsonBody) ?? [];
+    final titles = GetAppointmentCall.title(jsonBody) ?? [];
+    final doctorCodes = GetAppointmentCall.doctorCode(jsonBody) ?? [];
+    final locationCodes = GetAppointmentCall.locationCode(jsonBody) ?? [];
+    final appointmentIds = GetAppointmentCall.appointmentId(jsonBody) ?? [];
+
+    final now = DateTime.now();
+    final upcoming = <Map<String, dynamic>>[];
+    final past = <Map<String, dynamic>>[];
+
+    for (int i = 0; i < starts.length; i++) {
+      final startStr = starts[i];
+      final startDt = DateTime.tryParse(startStr);
+      final endDt = DateTime.tryParse(ends.length > i ? ends[i] : '');
+
+      final doctorCode = doctorCodes.length > i ? doctorCodes[i] : '';
+      final locationCodeVal = locationCodes.length > i ? locationCodes[i] : '';
+      final title = titles.length > i ? titles[i] : '';
+
+      final appointment = {
+        'index': i,
+        'title': title,
+        'start': startDt,
+        'end': endDt,
+        'doctorCode': doctorCode,
+        'doctorName': _getDoctorName(doctorCode),
+        'locationCode': locationCodeVal,
+        'locationName': _getLocationName(locationCodeVal),
+        'color': _getColorForCode(doctorCode),
+        'isUpcoming': startDt != null && startDt.isAfter(now),
+        'appointmentId': appointmentIds.length > i ? appointmentIds[i] : '',
+      };
+
+      if (startDt != null && startDt.isAfter(now)) {
+        upcoming.add(appointment);
+      } else {
+        past.add(appointment);
+      }
+    }
+
+    past.sort((a, b) => (b['start'] as DateTime?)?.compareTo(a['start'] as DateTime? ?? DateTime(0)) ?? 0);
+
+    return _AppointmentBuckets(upcoming, past);
   }
 
   String _getDoctorName(String code) {
@@ -637,13 +698,13 @@ class _AppointmentsScreenWidgetState extends State<AppointmentsScreenWidget>
   Widget _buildAppointmentList(List<Map<String, dynamic>> appointments, bool isUpcoming) {
     if (appointments.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _loadAppointments,
+        onRefresh: _refreshAppointments,
         child: SingleChildScrollView(physics: const AlwaysScrollableScrollPhysics(), child: SizedBox(height: MediaQuery.of(context).size.height * 0.6, child: EmptyStateWidget(icon: Icons.event_busy, title: isUpcoming ? 'No upcoming appointments' : 'No past appointments', subtitle: isUpcoming ? 'Book your first visit today' : 'Your completed appointments will appear here', actionLabel: isUpcoming ? 'Book Now' : null, onAction: isUpcoming ? () => context.push('/branchSelectionScreen') : null))),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: _loadAppointments,
+      onRefresh: _refreshAppointments,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -807,4 +868,11 @@ class _InfoCard extends StatelessWidget {
       ]),
     );
   }
+}
+
+class _AppointmentBuckets {
+  const _AppointmentBuckets(this.upcoming, this.past);
+
+  final List<Map<String, dynamic>> upcoming;
+  final List<Map<String, dynamic>> past;
 }

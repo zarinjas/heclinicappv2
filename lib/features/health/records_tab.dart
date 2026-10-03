@@ -28,7 +28,8 @@ class _RecordsTabState extends State<RecordsTab> {
   String _activeFilter = 'All';
   List<HealthRecord> _records = const [];
 
-  static const _filters = ['All', 'Notes', 'Letters', 'MC'];
+  // Case notes are P&C clinic records and must never be shown to the patient.
+  static const _filters = ['All', 'Letters', 'MC'];
 
   @override
   void initState() {
@@ -57,10 +58,8 @@ class _RecordsTabState extends State<RecordsTab> {
       final records = <HealthRecord>[];
       final wantAll = _activeFilter == 'All';
 
-      // Only fetch what the active filter needs.
-      if (wantAll || _activeFilter == 'Notes') {
-        records.addAll(await _loadNotes(patientId));
-      }
+      // Only fetch what the active filter needs. Case notes are intentionally
+      // not fetched: they are P&C and must not reach the patient app.
       if (wantAll || _activeFilter == 'Letters') {
         records.addAll(await _loadLetters(patientId));
       }
@@ -84,37 +83,6 @@ class _RecordsTabState extends State<RecordsTab> {
         });
       }
     }
-  }
-
-  Future<List<HealthRecord>> _loadNotes(String patientId) async {
-    final response = await GetReportCall.call(patientId: patientId, forceRefresh: true);
-    if (!response.succeeded) return const [];
-
-    final body = response.jsonBody;
-    final notes = GetReportCall.note(body);
-    if (notes == null) return const [];
-
-    final times = GetReportCall.time(body);
-    final categories = GetReportCall.kategori(body);
-    final authors = GetReportCall.author(body);
-    final diagnoses = GetReportCall.diagnosis(body);
-    final attachments = GetReportCall.attachment(body);
-
-    return [
-      for (var i = 0; i < notes.length; i++)
-        HealthRecord(
-          type: HealthRecordType.note,
-          // Notes arrive as HTML from the WYSIWYG editor; strip the tags first
-          // so the card title never shows raw markup like "<p".
-          title: _shortTitle(stripHtmlToSingleLine(notes[i])),
-          date: _at(times, i) ?? '',
-          author: _at(authors, i) ?? '',
-          detailData: notes[i],
-          category: _at(categories, i),
-          diagnosis: _diagnosisAt(diagnoses, i),
-          attachments: _attachmentsAt(attachments, i),
-        ),
-    ];
   }
 
   Future<List<HealthRecord>> _loadLetters(String patientId) async {
@@ -167,29 +135,8 @@ class _RecordsTabState extends State<RecordsTab> {
     ];
   }
 
-  static String _shortTitle(String text) =>
-      text.length > 80 ? '${text.substring(0, 80)}...' : text;
-
   static T? _at<T>(List<T>? list, int i) =>
       list != null && i < list.length ? list[i] : null;
-
-  static List<String>? _diagnosisAt(List<dynamic>? list, int i) {
-    final value = _at(list, i);
-    if (value is List) return value.map((e) => e.toString()).toList();
-    return null;
-  }
-
-  /// Plato returns note attachments as either a single URL string or a list of
-  /// URLs. Normalise both into a `List<String>`.
-  static List<String>? _attachmentsAt(List<dynamic>? list, int i) {
-    final value = _at(list, i);
-    if (value is List) {
-      final urls = value.map((e) => e.toString()).where((e) => e.isNotEmpty);
-      return urls.isEmpty ? null : urls.toList();
-    }
-    if (value is String && value.trim().isNotEmpty) return [value.trim()];
-    return null;
-  }
 
   void _openDetail(HealthRecord record) {
     Navigator.of(context).push(

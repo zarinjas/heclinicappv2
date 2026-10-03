@@ -11,7 +11,6 @@ import '/core/theme/app_text_styles.dart';
 import '/core/widgets/app_dialog.dart';
 import '/core/widgets/app_toast.dart';
 import '/core/widgets/branch_picker_sheet.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -48,14 +47,11 @@ class _ReportsWidgetState extends State<ReportsWidget>
 
     _model.tabBarController = TabController(
       vsync: this,
-      length: 3,
+      length: 2,
       initialIndex: 0,
     )..addListener(() {
           safeSetState(() {});
-          if (_model.tabBarCurrentIndex == 1 && _model.vitalsData.isEmpty && !_model.isLoadingVitals) {
-            _loadVitals();
-          }
-          if (_model.tabBarCurrentIndex == 2 && _model.documentsList.isEmpty && !_model.isLoadingDocuments) {
+          if (_model.tabBarCurrentIndex == 1 && _model.documentsList.isEmpty && !_model.isLoadingDocuments) {
             _loadDocuments();
           }
         });
@@ -83,44 +79,14 @@ class _ReportsWidgetState extends State<ReportsWidget>
       final patientId = FFAppState().idplato;
       final records = <HealthRecord>[];
 
-      final needNotes =
-          _model.selectedFilter == FilterType.all ||
-          _model.selectedFilter == FilterType.notes;
+      // Clinical case notes are P&C and must never be shown in the patient app,
+      // so they are not fetched here.
       final needLetters =
           _model.selectedFilter == FilterType.all ||
           _model.selectedFilter == FilterType.letters;
       final needMc =
           _model.selectedFilter == FilterType.all ||
           _model.selectedFilter == FilterType.mc;
-
-      if (needNotes) {
-        final notesResponse = await GetReportCall.call(patientId: patientId, forceRefresh: forceRefresh);
-        if (notesResponse.succeeded) {
-          final body = notesResponse.jsonBody;
-          final notes = GetReportCall.note(body);
-          final times = GetReportCall.time(body);
-          final kategoris = GetReportCall.kategori(body);
-          final authors = GetReportCall.author(body);
-          final diagnosisList = GetReportCall.diagnosis(body);
-          if (notes != null) {
-            for (var i = 0; i < notes.length; i++) {
-              records.add(HealthRecord(
-                type: RecordType.note,
-                title: (notes[i].length > 80)
-                    ? '${notes[i].substring(0, 80)}...'
-                    : notes[i],
-                date: i < (times?.length ?? 0) ? (times?[i] ?? '') : '',
-                author: i < (authors?.length ?? 0) ? (authors?[i] ?? '') : '',
-                detailData: notes[i],
-                kategori: kategoris != null && i < kategoris.length ? kategoris[i] : null,
-                diagnosis: i < (diagnosisList?.length ?? 0)
-                    ? (diagnosisList?[i] is List ? List<String>.from(diagnosisList![i]) : null)
-                    : null,
-              ));
-            }
-          }
-        }
-      }
 
       if (needLetters) {
         final lettersResponse = await LetterCall.call(patientId: patientId);
@@ -174,104 +140,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
       if (!forceRefresh) {
         _model.errorMessage = 'Failed to load records';
         _model.isLoading = false;
-        safeSetState(() {});
-      }
-    }
-  }
-
-  String _inferUnit(String vitalName) {
-    final lower = vitalName.toLowerCase();
-    if (lower.contains('weight') || lower.contains('berat')) return 'kg';
-    if (lower.contains('pressure') || lower.contains('blood')) return 'mmHg';
-    if (lower.contains('glucose') || lower.contains('gula')) return 'mmol/L';
-    if (lower.contains('heart') || lower.contains('pulse')) return 'bpm';
-    if (lower.contains('temperature') || lower.contains('suhu')) return '°C';
-    if (lower.contains('spo2') || lower.contains('oxygen') || lower.contains('saturation')) return '%';
-    if (lower.contains('height') || lower.contains('tinggi')) return 'cm';
-    if (lower.contains('bmi')) return 'kg/m²';
-    if (lower.contains('cholesterol')) return 'mmol/L';
-    return '';
-  }
-
-  Future<void> _loadVitals({bool forceRefresh = false}) async {
-    if (!forceRefresh) {
-      _model.isLoadingVitals = true;
-      _model.vitalsError = null;
-      safeSetState(() {});
-    }
-
-    try {
-      final patientId = FFAppState().idplato;
-      final response = await GetVitalsGraphingCall.call(patientId: patientId, forceRefresh: forceRefresh);
-
-      if (!response.succeeded) {
-        if (!forceRefresh) {
-          _model.vitalsError = 'Failed to load vitals data';
-          _model.isLoadingVitals = false;
-          safeSetState(() {});
-        }
-        return;
-      }
-
-      final body = response.jsonBody;
-      if (body is! Map<String, dynamic> || body.isEmpty) {
-        if (!forceRefresh) {
-          _model.vitalsData = [];
-          _model.isLoadingVitals = false;
-          safeSetState(() {});
-        }
-        return;
-      }
-
-      final vitals = <VitalType>[];
-
-      for (final entry in body.entries) {
-        final name = entry.key.toString();
-        final rawData = entry.value;
-
-        if (rawData is! List) continue;
-
-        final dataPoints = <VitalDataPoint>[];
-
-        for (final item in rawData) {
-          if (item is! Map<String, dynamic>) continue;
-
-          DateTime? timestamp;
-          if (item['timestamp'] != null) {
-            timestamp = DateTime.tryParse(item['timestamp'].toString());
-          } else if (item['time'] != null) {
-            timestamp = DateTime.tryParse(item['time'].toString());
-          } else if (item['date'] != null) {
-            timestamp = DateTime.tryParse(item['date'].toString());
-          }
-
-          double? value;
-          if (item['value'] != null) {
-            value = double.tryParse(item['value'].toString());
-          }
-
-          if (timestamp != null && value != null) {
-            dataPoints.add(VitalDataPoint(timestamp: timestamp, value: value));
-          }
-        }
-
-        if (dataPoints.isNotEmpty) {
-          dataPoints.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-          vitals.add(VitalType(
-            name: name,
-            unit: _inferUnit(name),
-            dataPoints: dataPoints,
-          ));
-        }
-      }
-
-      _model.vitalsData = vitals;
-      _model.isLoadingVitals = false;
-      safeSetState(() {});
-    } catch (e) {
-      if (!forceRefresh) {
-        _model.vitalsError = 'Failed to load vitals data';
-        _model.isLoadingVitals = false;
         safeSetState(() {});
       }
     }
@@ -502,7 +370,9 @@ class _ReportsWidgetState extends State<ReportsWidget>
         vertical: AppSpacing.sm,
       ),
       child: Row(
-        children: FilterType.values.map((filter) {
+        children: FilterType.values
+            .where((f) => f != FilterType.notes)
+            .map((filter) {
           final isSelected = _model.selectedFilter == filter;
           final label = switch (filter) {
             FilterType.all => 'All',
@@ -679,174 +549,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
     );
   }
 
-  Widget _buildVitalChartCard(VitalType vital) {
-    if (vital.dataPoints.isEmpty) return const SizedBox.shrink();
-
-    final spots = vital.dataPoints.map((p) {
-      return FlSpot(
-        p.timestamp.millisecondsSinceEpoch.toDouble(),
-        p.value,
-      );
-    }).toList();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Card(
-        color: AppColors.surface,
-        elevation: 0.0,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: const BorderSide(color: AppColors.divider, width: 1.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                vital.name,
-                style: AppTextStyles.heading3.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              if (vital.unit.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  vital.unit,
-                  style: AppTextStyles.body2.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.md),
-              SizedBox(
-                height: 200,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: null,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: AppColors.divider,
-                          strokeWidth: 0.5,
-                        );
-                      },
-                    ),
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              value.toStringAsFixed(vital.unit == 'mmHg' || vital.unit == 'bpm' ? 0 : 1),
-                              style: AppTextStyles.caption.copyWith(
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textSecondary,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          interval: spots.length > 1
-                              ? (spots.last.x - spots.first.x) /
-                                  (spots.length > 6 ? 6 : spots.length)
-                              : 1,
-                          getTitlesWidget: (value, meta) {
-                            final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                            final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                            return Padding(
-                              padding: const EdgeInsets.only(top: AppSpacing.xs),
-                                child: Text(
-                                  '${months[date.month - 1]} ${date.day}',
-                                  style: AppTextStyles.caption.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: spots,
-                        isCurved: true,
-                        curveSmoothness: 0.3,
-                        color: AppColors.accent,
-                        barWidth: 2.0,
-                        dotData: const FlDotData(show: true),
-                        belowBarData: BarAreaData(show: false),
-                      ),
-                    ],
-                    minX: spots.isNotEmpty ? spots.first.x : 0,
-                    maxX: spots.isNotEmpty ? spots.last.x : 0,
-                    lineTouchData: const LineTouchData(enabled: true),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVitalsTab() {
-    if (_model.isLoadingVitals) {
-      return ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        itemCount: 2,
-        itemBuilder: (_, __) => const SkeletonCard(height: 200),
-      );
-    }
-
-    if (_model.vitalsError != null) {
-      return Center(
-        child: ErrorStateWidget(
-          message: _model.vitalsError!,
-          onRetry: _loadVitals,
-        ),
-      );
-    }
-
-    if (_model.vitalsData.isEmpty) {
-      return const EmptyStateWidget(
-        icon: Icons.monitor_heart_outlined,
-        title: 'No vitals recorded',
-        subtitle: 'Your health trends will appear here',
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => _loadVitals(forceRefresh: true),
-      color: AppColors.accent,
-      backgroundColor: AppColors.primary,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        itemCount: _model.vitalsData.length,
-        itemBuilder: (_, index) =>
-            _buildVitalChartCard(_model.vitalsData[index]),
-      ),
-    );
-  }
 
   Widget _buildDocumentCard(PatientDocument doc) {
     final dateFormatted = doc.uploadedAt.length >= 10
@@ -1364,10 +1066,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
                   text: 'Records',
                 ),
                 Tab(
-                  icon: Icon(Icons.monitor_heart_outlined, size: 22.0),
-                  text: 'Vitals',
-                ),
-                Tab(
                   icon: Icon(Icons.folder_outlined, size: 22.0),
                   text: 'Documents',
                 ),
@@ -1379,7 +1077,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildRecordsTab(),
-                  _buildVitalsTab(),
                   _buildDocumentsTab(),
                 ],
               ),

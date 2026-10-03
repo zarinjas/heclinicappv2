@@ -43,4 +43,16 @@ return [
 
     'voucher_path' => env('PLATO_VOUCHER_PATH'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Duplicate report snapshot
+    |--------------------------------------------------------------------------
+    |
+    | Where the read-only duplicate-patient scan (plato:scan-duplicates) writes
+    | its JSON snapshot. Defaults to storage/app/private/plato-duplicates.json.
+    |
+    */
+
+    'duplicate_snapshot_path' => env('PLATO_DUPLICATE_SNAPSHOT_PATH'),
+
 ];

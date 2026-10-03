@@ -21,7 +21,7 @@ use Illuminate\Validation\Rules\Password;
 class AuthController extends Controller
 {
     /** How long a mobile access token remains valid before it expires. */
-    private const TOKEN_TTL_DAYS = 30;
+    private const TOKEN_TTL_DAYS = 90;
 
     public function __construct(
         private readonly PlatoProxyService $plato,

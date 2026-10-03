@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '/app_state.dart';
 import '/backend/api_requests/api_calls.dart';
 import '/backend/api_requests/loyalty_api.dart';
+import '/core/services/appointment_cache.dart';
 import '/core/theme/app_colors.dart';
 import '/core/theme/app_radius.dart';
 import '/core/theme/app_spacing.dart';
@@ -28,6 +29,7 @@ import '/core/services/models/video.dart';
 import '/core/services/models/promotion.dart';
 import '/core/services/models/clinic_info.dart';
 import '/core/widgets/app_app_bar.dart';
+import '/core/widgets/app_card.dart';
 import '/core/widgets/app_chip.dart';
 import '/core/widgets/app_empty_state.dart';
 
@@ -40,10 +42,12 @@ import '/core/widgets/featured_article_banner.dart';
 import '/core/widgets/gradient_hero_slider.dart';
 import '/core/widgets/loyalty_card.dart';
 import '/core/widgets/mini_article_card.dart';
+import '/core/widgets/package_progress_card.dart';
 import '/core/widgets/section_header.dart';
 import '/core/widgets/video_card.dart';
 import '/components/doctor_detail_sheet.dart';
 import '/info_page/hemed_info/hemed_info_widget.dart';
+import '/flutter_flow/custom_functions.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -64,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _promoLoaded = false;
   bool _clinicInfoLoaded = false;
   bool _loyaltyLoaded = false;
+  bool _pkgLoaded = false;
 
   bool _heroErr = false;
   bool _apptErr = false;
@@ -73,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _videoErr = false;
   bool _loyaltyErr = false;
   bool _clinicInfoErr = false;
+  bool _pkgErr = false;
 
   List<HeroBanner> _heroes = HeroBanner.fallbackList;
   List<Doctor> _doctors = Doctor.fallbackList;
@@ -83,6 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ClinicInfo> _clinicInfos = ClinicInfo.fallbackList;
 
   int _loyaltyBalance = 0;
+
+  List<_PatientPackage> _packages = const [];
 
   dynamic _apptResponse;
 
@@ -104,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadPromotions(),
       _loadClinicInfo(),
       _loadLoyalty(),
+      _loadPackages(),
       _loadUnreadNotifications(),
     ]);
     if (mounted) setState(() {});
@@ -145,13 +154,38 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final id = FFAppState().idplato;
       if (id.isEmpty) { if (mounted) setState(() => _apptLoaded = true); return; }
-      _apptResponse = await GetAppointmentUpcomingCall.call(patientId: id);
+
+      // Paint the cached appointment instantly, then refresh from the network
+      // so the card is never blocked behind a cold request.
+      if (_apptResponse == null) {
+        final cached = await AppointmentCache.loadUpcoming();
+        if (cached != null && mounted) {
+          setState(() {
+            _apptResponse = ApiCallResponse(cached, const {}, 200);
+            _apptLoaded = true;
+            _apptErr = false;
+          });
+        }
+      }
+
+      final response = await GetAppointmentUpcomingCall.call(patientId: id);
+      if (response.succeeded) {
+        await AppointmentCache.saveUpcoming(response.jsonBody);
+      }
       if (mounted) setState(() {
         _apptLoaded = true;
-        _apptErr = !(_apptResponse?.succeeded ?? false);
+        if (response.succeeded) {
+          _apptResponse = response;
+          _apptErr = false;
+        } else if (_apptResponse == null) {
+          _apptErr = true;
+        }
       });
     } catch (_) {
-      if (mounted) setState(() { _apptLoaded = true; _apptErr = true; });
+      if (mounted) setState(() {
+        _apptLoaded = true;
+        if (_apptResponse == null) _apptErr = true;
+      });
     }
   }
 
@@ -171,6 +205,83 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (_) {
       if (mounted) setState(() { _loyaltyLoaded = true; _loyaltyErr = true; });
+    }
+  }
+
+  Future<void> _loadPackages() async {
+    try {
+      final id = FFAppState().idplato;
+      if (id.isEmpty) {
+        if (mounted) setState(() => _pkgLoaded = true);
+        return;
+      }
+
+      // Package sessions are tracked by clinic staff in Plato: a combo package
+      // is an invoice line with inventory == 'package' and a `redemptions`
+      // count, and each redeemed session is another treatment line sharing the
+      // same given_id + invoice_id. Remaining = total - redeemed.
+      final response = await GetInvoiceCall.call(patientId: id);
+      if (!response.succeeded) {
+        if (mounted) setState(() { _pkgLoaded = true; _pkgErr = true; });
+        return;
+      }
+
+      final body = response.jsonBody;
+      final names = GetInvoiceCall.itemname(body);
+      final inventory = GetInvoiceCall.inventori(body);
+      final givenIds = GetInvoiceCall.givenid(body);
+      final categories = GetInvoiceCall.kategori(body);
+      final redemptions = GetInvoiceCall.redemptions(body);
+      final others = GetInvoiceCall.otherpackage(body);
+      final invoiceIds = GetInvoiceCall.idlist(body);
+
+      final packages = <_PatientPackage>[];
+      final seen = <String>{};
+
+      if (names != null &&
+          inventory != null &&
+          givenIds != null &&
+          categories != null &&
+          redemptions != null &&
+          others != null &&
+          invoiceIds != null) {
+        for (var i = 0; i < names.length; i++) {
+          if (i >= inventory.length || inventory[i] != 'package') continue;
+          if (i >= givenIds.length || i >= invoiceIds.length) continue;
+
+          final givenId = givenIds[i];
+          // Same package can appear on several invoices — show it once.
+          if (givenId.isEmpty || !seen.add(givenId)) continue;
+
+          final total = i < redemptions.length ? redemptions[i] : 0;
+          final remainingRaw = countMatchingGivenId(
+            others,
+            givenId,
+            givenIds,
+            categories,
+            redemptions,
+            invoiceIds,
+            invoiceIds[i],
+          );
+          final remaining = int.tryParse(remainingRaw ?? '') ?? 0;
+
+          packages.add(_PatientPackage(
+            name: names[i],
+            total: total,
+            remaining: remaining < 0 ? 0 : remaining,
+          ));
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _packages = packages;
+          _pkgLoaded = true;
+          _pkgErr = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() { _pkgLoaded = true; _pkgErr = true; });
     }
   }
 
@@ -339,6 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildQuickActions(isDark),
                 _buildLoyaltySection(isDark),
                 _buildAppointmentSection(isDark),
+                _buildPackagesSection(isDark),
                 _buildVouchersSection(isDark),
                 _buildDoctorsSection(isDark),
                 _buildBranchesSection(isDark),
@@ -519,6 +631,71 @@ class _HomeScreenState extends State<HomeScreen> {
         showProgress: false,
         onRedeem: () => context.pushNamed('/my-points'),
         onViewHistory: () => context.pushNamed('/my-points'),
+      ),
+    );
+  }
+
+  Widget _buildPackagesSection(bool isDark) {
+    final textPrimary =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSecondary =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    Widget emptyState() {
+      return AppCard(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space16,
+          vertical: AppSpacing.space24,
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.medical_information_outlined,
+              size: 36,
+              color: textSecondary,
+            ),
+            const SizedBox(height: AppSpacing.space8),
+            Text(
+              'No Packages Available',
+              style: AppTextStyles.body1.copyWith(
+                fontWeight: FontWeight.w600,
+                color: textPrimary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.space4),
+            Text(
+              'Your treatment packages will appear here',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body2.copyWith(color: textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'My Packages'),
+          const SizedBox(height: 12),
+          if (!_pkgLoaded)
+            AppSkeleton.card(height: 88)
+          else if (_pkgErr || _packages.isEmpty)
+            emptyState()
+          else
+            ..._packages.map(
+              (p) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.space12),
+                child: PackageProgressCard(
+                  name: p.name,
+                  total: p.total,
+                  remaining: p.remaining,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -995,4 +1172,17 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+/// A treatment package shown on the home screen with its session balance.
+class _PatientPackage {
+  const _PatientPackage({
+    required this.name,
+    required this.total,
+    required this.remaining,
+  });
+
+  final String name;
+  final int total;
+  final int remaining;
 }

@@ -25,6 +25,9 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _userEmail = prefs.getString('ff_userEmail') ?? _userEmail;
     });
+    _safeInit(() {
+      _tokenauth = prefs.getString('tokenuser') ?? _tokenauth;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -73,6 +76,13 @@ class FFAppState extends ChangeNotifier {
   String get tokenauth => _tokenauth;
   set tokenauth(String value) {
     _tokenauth = value;
+    // Persist so the session survives an app restart. Without this the token
+    // lived only in memory: after relaunch `tokenauth` came back empty while
+    // `ff_isLoggedIn` stayed true, so the first API call returned 401 and the
+    // interceptor force-logged the user out.
+    try {
+      prefs.setString('tokenuser', value);
+    } catch (_) {}
   }
 
   String _fcmtoken = '';

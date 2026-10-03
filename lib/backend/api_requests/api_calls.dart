@@ -1497,48 +1497,6 @@ class GetReportCall {
           .toList();
 }
 
-class GetVitalsGraphingCall {
-  static Future<ApiCallResponse> call({
-    String? patientId = '',
-    bool forceRefresh = false,
-  }) async {
-    final int? modifiedSince = forceRefresh
-        ? null
-        : await ModifiedSinceHelper.getLastFetchTimestamp('vitals_graphing');
-
-    final params = <String, String>{};
-    if (modifiedSince != null) {
-      params['modified_since'] = modifiedSince.toString();
-    }
-
-    final response = await ApiManager.instance.makeApiCall(
-      callName: 'GetVitalsGraphing',
-      apiUrl: '${EnvConfig.platomBaseUrl}/patient/${patientId}/graphing',
-      callType: ApiCallType.GET,
-      headers: {
-        'Authorization': 'Bearer ${FFAppState().tokenauth}',
-        'db': 'hemedclinic',
-      },
-      params: params,
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-
-    if (response.succeeded) {
-      await ModifiedSinceHelper.setLastFetchTimestamp(
-        'vitals_graphing',
-        ModifiedSinceHelper.now(),
-      );
-    }
-
-    return response;
-  }
-}
-
 class LetterCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',

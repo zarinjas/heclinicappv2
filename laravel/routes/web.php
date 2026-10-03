@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\LoyaltyRedemptionController;
 use App\Http\Controllers\Admin\LoyaltyRewardController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
+use App\Http\Controllers\Admin\PatientDuplicateController;
 use App\Http\Controllers\Admin\PlatoSettingsController;
 use App\Http\Controllers\Admin\RecordController;
 use App\Http\Controllers\Admin\SystemSettingsController;
@@ -179,6 +180,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     });
 
     Route::middleware(['auth', 'role:super_admin'])->group(function (): void {
+        Route::get('patient-duplicates', [PatientDuplicateController::class, 'index'])->name('patient-duplicates.index');
+        Route::post('patient-duplicates/scan', [PatientDuplicateController::class, 'scan'])->name('patient-duplicates.scan');
+        Route::get('patient-duplicates/export', [PatientDuplicateController::class, 'export'])->name('patient-duplicates.export');
+
         Route::get('settings/plato', [PlatoSettingsController::class, 'index'])->name('settings.plato');
         Route::post('settings/plato', [PlatoSettingsController::class, 'update'])->name('settings.plato.update');
         Route::post('settings/plato/test', [PlatoSettingsController::class, 'testConnection'])->name('settings.plato.test');

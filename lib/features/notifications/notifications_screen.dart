@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../app_state.dart';
 import '../../core/services/notification_inbox_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
+import '../../core/theme/app_shadows.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_app_bar.dart';
@@ -27,6 +29,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _hasError = false;
   bool _markingAllRead = false;
   List<InboxNotification> _notifications = const [];
+
+  int get _unreadCount =>
+      _notifications.where((n) => !n.isRead).length;
 
   @override
   void initState() {
@@ -117,7 +122,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         context.push('/myBookingPage');
         break;
       case 'health/records':
-      case 'health/vitals':
       case 'health/documents':
         context.pushNamed('Reports',
             queryParameters: {'id': FFAppState().idplato});
@@ -131,16 +135,52 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  List<_NotificationGroup> _grouped() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    final todayItems = <InboxNotification>[];
+    final yesterdayItems = <InboxNotification>[];
+    final earlierItems = <InboxNotification>[];
+
+    for (final notification in _notifications) {
+      final created = notification.createdAt;
+      if (created == null) {
+        earlierItems.add(notification);
+        continue;
+      }
+      final day = DateTime(created.year, created.month, created.day);
+      if (day == today) {
+        todayItems.add(notification);
+      } else if (day == yesterday) {
+        yesterdayItems.add(notification);
+      } else {
+        earlierItems.add(notification);
+      }
+    }
+
+    return [
+      _NotificationGroup('Today', todayItems),
+      _NotificationGroup('Yesterday', yesterdayItems),
+      _NotificationGroup('Earlier', earlierItems),
+    ];
+  }
+
   Widget _buildSkeleton() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
-      itemCount: 5,
-      itemBuilder: (_, __) => Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.space16,
-          vertical: AppSpacing.space4,
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.space16,
+        AppSpacing.space12,
+        AppSpacing.space16,
+        AppSpacing.space32,
+      ),
+      children: List.generate(
+        6,
+        (_) => Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.space12),
+          child: AppSkeleton.listItem(),
         ),
-        child: AppSkeleton.listItem(),
       ),
     );
   }
@@ -155,34 +195,126 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  Widget _buildSummaryCard() {
+    final unread = _unreadCount;
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.space20),
+      padding: const EdgeInsets.all(AppSpacing.space16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, AppColors.accentBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        boxShadow: AppShadows.shadowMid,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.16),
+              borderRadius: BorderRadius.circular(AppRadius.radiusMD),
+            ),
+            child: const Icon(
+              Icons.mark_email_unread_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.space12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$unread new notification${unread == 1 ? '' : 's'}',
+                  style: AppTextStyles.heading3.copyWith(color: Colors.white),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Stay up to date with your clinic updates',
+                  style: AppTextStyles.body2.copyWith(
+                    color: Colors.white.withOpacity(0.85),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: AppSpacing.space4,
+        top: AppSpacing.space4,
+        bottom: AppSpacing.space8,
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: AppTextStyles.label.copyWith(
+          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg;
 
+    final Widget? trailing;
+    if (_markingAllRead) {
+      trailing = const SizedBox(
+        width: 24,
+        height: 24,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.accent,
+        ),
+      );
+    } else if (_unreadCount > 0) {
+      trailing = GestureDetector(
+        onTap: _markAllRead,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.done_all_rounded,
+              size: 16,
+              color: AppColors.accent,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Mark all read',
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      trailing = null;
+    }
+
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppAppBar.sub(
         title: 'Notifications',
-        trailing: _markingAllRead
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.accent,
-                ),
-              )
-            : GestureDetector(
-                onTap: _markAllRead,
-                child: Text(
-                  'Mark all read',
-                  style: AppTextStyles.label.copyWith(
-                    color: AppColors.accent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+        trailing: trailing,
       ),
       body: _buildBody(),
     );
@@ -210,32 +342,50 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _load,
-      color: AppColors.accent,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.space8),
-        itemCount: _notifications.length,
-        separatorBuilder: (_, __) => const Divider(
-          height: 1,
-          indent: AppSpacing.space16,
-          endIndent: AppSpacing.space16,
-        ),
-        itemBuilder: (context, index) {
-          final notif = _notifications[index];
-          return NotificationItem(
-            key: ValueKey('notification_${notif.id}'),
+    final children = <Widget>[];
+    if (_unreadCount > 0) children.add(_buildSummaryCard());
+
+    for (final group in _grouped()) {
+      if (group.notifications.isEmpty) continue;
+      children.add(_buildSectionLabel(group.label));
+      for (final notif in group.notifications) {
+        children.add(Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.space12),
+          child: NotificationItem(
+            id: notif.id,
             title: notif.title,
             body: notif.body,
             createdAt: notif.createdAt,
             isRead: notif.isRead,
             type: notif.type,
             deepLink: notif.deepLink,
+            imageUrl: notif.imageUrl,
             onTap: () => _handleTap(notif),
             onDismiss: () => _markRead(notif),
-          );
-        },
+          ),
+        ));
+      }
+    }
+
+    return RefreshIndicator(
+      onRefresh: _load,
+      color: AppColors.accent,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.space16,
+          AppSpacing.space12,
+          AppSpacing.space16,
+          AppSpacing.space32,
+        ),
+        children: children,
       ),
     );
   }
+}
+
+class _NotificationGroup {
+  const _NotificationGroup(this.label, this.notifications);
+
+  final String label;
+  final List<InboxNotification> notifications;
 }
