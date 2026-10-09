@@ -2,21 +2,24 @@
 
 namespace App\Services;
 
+use App\Jobs\SendPushNotification;
 use App\Models\Appointment;
 use App\Models\NotificationLog;
 use App\Models\Patient;
 use App\Models\PatientNotification;
-use App\Jobs\SendPushNotification;
 use App\Notifications\AppointmentNotification;
 use App\Notifications\GeneralNotification;
 use App\Notifications\PatientDocumentUploaded;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 final class NotificationService
 {
     private FirebaseService $firebase;
+
     private PlatoProxyService $platoProxy;
+
     private FcmService $fcm;
 
     public function __construct(FirebaseService $firebase, PlatoProxyService $platoProxy, FcmService $fcm)
@@ -109,19 +112,19 @@ final class NotificationService
             'target_audience' => $targeting['target_audience'] ?? 'All',
         ];
 
-        if (!empty($targeting['user_refs'])) {
+        if (! empty($targeting['user_refs'])) {
             $pushData['user_refs'] = $targeting['user_refs'];
         }
 
-        if (!empty($targeting['branch_ids'])) {
+        if (! empty($targeting['branch_ids'])) {
             $pushData['branch_ids'] = $targeting['branch_ids'];
         }
 
-        if (!empty($targeting['doctor_ids'])) {
+        if (! empty($targeting['doctor_ids'])) {
             $pushData['doctor_ids'] = $targeting['doctor_ids'];
         }
 
-        if (!empty($targeting['target_date_range'])) {
+        if (! empty($targeting['target_date_range'])) {
             $pushData['target_date_range'] = $targeting['target_date_range'];
         }
 
@@ -272,7 +275,7 @@ final class NotificationService
         // Fallback: the legacy Firestore queue consumed by the Cloud Function.
         $result = $this->firebase->writePushNotification($payload);
 
-        if (!($result['success'] ?? false)) {
+        if (! ($result['success'] ?? false)) {
             Log::channel('plato')->warning('Push notification failed', [
                 'error' => $result['error'] ?? 'Unknown',
             ]);
@@ -411,6 +414,75 @@ final class NotificationService
             'status' => $this->resolveLogStatus($delivered),
             'sent_at' => now(),
         ]);
+    }
+
+    /**
+     * Reminder for an upcoming Plato appointment that was NOT booked through the
+     * app (e.g. a follow-up treatment scheduled by clinic staff in Plato). Sent
+     * by the plato:send-appointment-reminders command at 3 and 1 days before.
+     */
+    public function sendPlatoAppointmentReminder(
+        string $patientPlatoId,
+        string $platoAppointmentId,
+        string $starttime,
+        ?string $doctor,
+        ?string $branch,
+        int $daysBefore,
+    ): bool {
+        $when = Carbon::parse($starttime, 'Asia/Kuala_Lumpur');
+
+        $relative = $daysBefore === 1 ? 'tomorrow' : "in {$daysBefore} days";
+        $title = $daysBefore === 1
+            ? 'Appointment Reminder — Tomorrow'
+            : "Appointment Reminder — in {$daysBefore} days";
+        $body = sprintf(
+            'Your appointment with %s at %s on %s %s is %s.',
+            $doctor ?: 'our doctor',
+            $branch ?: 'our clinic',
+            $when->format('d M Y'),
+            $when->format('g:i A'),
+            $relative,
+        );
+
+        $channels = ['push', 'in_app'];
+        $delivered = [];
+
+        if (in_array('push', $channels, true)) {
+            $result = $this->sendPush($title, $body, [
+                'parameter_data' => json_encode([
+                    'plato_appointment_id' => $platoAppointmentId,
+                    'patient_plato_id' => $patientPlatoId,
+                ]),
+                'initial_page_name' => 'AppointmentsScreen',
+                'target_audience' => 'All',
+                'type' => 'appointment_reminder',
+                'patient_ids' => [$patientPlatoId],
+            ]);
+            $delivered['push'] = (bool) ($result['success'] ?? false);
+        }
+
+        if (in_array('in_app', $channels, true)) {
+            $delivered['in_app'] = $this->writeInAppNotify(
+                $title,
+                $body,
+                'appointments',
+                'appointment_reminder',
+                $patientPlatoId,
+            );
+        }
+
+        NotificationLog::create([
+            'type' => 'appointment_reminder',
+            'title' => $title,
+            'body' => $body,
+            'target_type' => 'appointment',
+            'target_ids' => [$platoAppointmentId],
+            'channels' => $channels,
+            'status' => $this->resolveLogStatus($delivered),
+            'sent_at' => now(),
+        ]);
+
+        return in_array(true, $delivered, true);
     }
 
     public function sendDocumentUploadedNotification(string $patientPlatoId, string $filename, ?string $patientName = null): void
@@ -779,9 +851,9 @@ final class NotificationService
 
         try {
             $query = ['current_page' => 1];
-            if (!empty($appointment->patient_nric)) {
+            if (! empty($appointment->patient_nric)) {
                 $query['nric'] = $appointment->patient_nric;
-            } elseif (!empty($appointment->patient_name)) {
+            } elseif (! empty($appointment->patient_name)) {
                 $query['name'] = $appointment->patient_name;
             }
 
@@ -789,7 +861,7 @@ final class NotificationService
             $patients = $this->extractPatients($result);
 
             foreach ($patients as $patient) {
-                if (!empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
+                if (! empty($patient['email']) && filter_var($patient['email'], FILTER_VALIDATE_EMAIL)) {
                     return $patient['email'];
                 }
             }

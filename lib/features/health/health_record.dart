@@ -33,8 +33,6 @@ class HealthRecord {
 
   String get typeLabel {
     switch (type) {
-      case HealthRecordType.note:
-        return 'Clinical Note';
       case HealthRecordType.letter:
         return 'Letter';
       case HealthRecordType.lab:

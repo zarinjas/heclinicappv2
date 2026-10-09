@@ -175,7 +175,7 @@ class _RecordsTabState extends State<RecordsTab> {
             AppEmptyState(
               icon: Icons.assignment_outlined,
               title: 'No records found',
-              subtitle: 'Your clinical notes will appear here',
+              subtitle: 'Your letters and medical certificates will appear here',
             ),
           ],
         ),

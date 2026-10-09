@@ -37,7 +37,7 @@ class AppEmptyState extends StatelessWidget {
   static const noRecords = AppEmptyState(
     icon: Icons.assignment_outlined,
     title: 'No records found',
-    subtitle: 'Your clinical notes will appear here',
+    subtitle: 'Your letters and medical certificates will appear here',
   );
 
   static const noArticles = AppEmptyState(

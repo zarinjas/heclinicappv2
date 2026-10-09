@@ -5,7 +5,6 @@ import '/index.dart';
 import '/components/skeleton_loaders.dart';
 import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
-import '/component/alert_report/alert_report_widget.dart';
 import '/theme/app_theme.dart';
 import '/core/theme/app_text_styles.dart';
 import '/core/widgets/app_dialog.dart';
@@ -79,8 +78,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
       final patientId = FFAppState().idplato;
       final records = <HealthRecord>[];
 
-      // Clinical case notes are P&C and must never be shown in the patient app,
-      // so they are not fetched here.
       final needLetters =
           _model.selectedFilter == FilterType.all ||
           _model.selectedFilter == FilterType.letters;
@@ -212,37 +209,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
 
   void _onRecordTap(HealthRecord record) {
     switch (record.type) {
-      case RecordType.note:
-        if (record.detailData != null) {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (_) => DraggableScrollableSheet(
-              initialChildSize: 0.85,
-              minChildSize: 0.4,
-              maxChildSize: 0.95,
-              builder: (_, scrollController) => Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: AlertReportWidget(
-                    author: record.author,
-                    time: record.date,
-                    note: record.detailData!,
-                    kategori: record.kategori,
-                    diagnosis: record.diagnosis,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-        break;
       case RecordType.letter:
         if (record.detailData != null) {
           showModalBottomSheet(
@@ -370,13 +336,10 @@ class _ReportsWidgetState extends State<ReportsWidget>
         vertical: AppSpacing.sm,
       ),
       child: Row(
-        children: FilterType.values
-            .where((f) => f != FilterType.notes)
-            .map((filter) {
+        children: FilterType.values.map((filter) {
           final isSelected = _model.selectedFilter == filter;
           final label = switch (filter) {
             FilterType.all => 'All',
-            FilterType.notes => 'Notes',
             FilterType.letters => 'Letters',
             FilterType.mc => 'MC',
           };
@@ -418,7 +381,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
 
   Widget _buildRecordCard(HealthRecord record) {
     final iconData = switch (record.type) {
-      RecordType.note => Icons.description,
       RecordType.letter => Icons.mail_outline,
       RecordType.mc => Icons.assignment_outlined,
     };
@@ -525,7 +487,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
       return const EmptyStateWidget(
         icon: Icons.article_outlined,
         title: 'No records found',
-        subtitle: 'Your clinical notes will appear here',
+        subtitle: 'Your letters and medical certificates will appear here',
       );
     }
 

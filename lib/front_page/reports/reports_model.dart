@@ -1,5 +1,4 @@
 import '/backend/api_requests/api_calls.dart';
-import '/component/alert_report/alert_report_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -14,9 +13,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:webviewx_plus/webviewx_plus.dart';
 
-enum RecordType { note, letter, mc }
+enum RecordType { letter, mc }
 
-enum FilterType { all, notes, letters, mc }
+enum FilterType { all, letters, mc }
 
 class HealthRecord {
   final RecordType type;
@@ -24,8 +23,6 @@ class HealthRecord {
   final String date;
   final String author;
   final String? detailData;
-  final String? kategori;
-  final List<String>? diagnosis;
 
   const HealthRecord({
     required this.type,
@@ -33,8 +30,6 @@ class HealthRecord {
     required this.date,
     required this.author,
     this.detailData,
-    this.kategori,
-    this.diagnosis,
   });
 }
 
