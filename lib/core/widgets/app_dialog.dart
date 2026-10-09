@@ -69,16 +69,79 @@ class AppDialog extends StatelessWidget {
                       child: isDestructive
                           ? AppButton.destructive(
                               label: confirmLabel,
-                              onPressed: () =>
-                                  Navigator.of(context).pop(true),
+                              onPressed: () => Navigator.of(context).pop(true),
                               isFullWidth: true,
                             )
                           : AppButton.primary(
                               label: confirmLabel,
-                              onPressed: () =>
-                                  Navigator.of(context).pop(true),
+                              onPressed: () => Navigator.of(context).pop(true),
                               isFullWidth: true,
                             ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static Future<bool?> update(
+    BuildContext context, {
+    required String localVersion,
+    required String storeVersion,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
+    final secondaryText =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AppDialog._(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.space24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.system_update_alt_rounded,
+                  size: 48,
+                  color: AppColors.accent,
+                ),
+                const SizedBox(height: AppSpacing.space16),
+                Text(
+                  'Update Available',
+                  style: AppTextStyles.heading3.copyWith(color: textColor),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.space8),
+                Text(
+                  'A new version ($storeVersion) is available. You are on '
+                  '$localVersion. Update for the latest features and fixes.',
+                  style: AppTextStyles.body1.copyWith(color: secondaryText),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.space24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppButton.ghost(
+                        label: 'Later',
+                        onPressed: () => Navigator.of(context).pop(false),
+                        isFullWidth: true,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.space12),
+                    Expanded(
+                      child: AppButton.primary(
+                        label: 'Update now',
+                        onPressed: () => Navigator.of(context).pop(true),
+                        isFullWidth: true,
+                      ),
                     ),
                   ],
                 ),
@@ -122,8 +185,7 @@ class AppDialog extends StatelessWidget {
                     const SizedBox(height: AppSpacing.space8),
                     Text(
                       message,
-                      style:
-                          AppTextStyles.body1.copyWith(color: secondaryText),
+                      style: AppTextStyles.body1.copyWith(color: secondaryText),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -166,8 +228,7 @@ class AppDialog extends StatelessWidget {
               ),
               decoration: BoxDecoration(
                 color: surface,
-                borderRadius:
-                    BorderRadius.circular(AppRadius.radiusXL),
+                borderRadius: BorderRadius.circular(AppRadius.radiusXL),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -183,8 +244,7 @@ class AppDialog extends StatelessWidget {
                   const SizedBox(height: AppSpacing.space16),
                   Text(
                     message,
-                    style:
-                        AppTextStyles.body1.copyWith(color: secondaryText),
+                    style: AppTextStyles.body1.copyWith(color: secondaryText),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -237,8 +297,7 @@ class AppDialog extends StatelessWidget {
                       vertical: AppSpacing.space12,
                     ),
                     decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(AppRadius.radiusMD),
+                      borderRadius: BorderRadius.circular(AppRadius.radiusMD),
                       border: Border.all(
                         color: AppColors.accent,
                         width: 2,
@@ -266,8 +325,7 @@ class AppDialog extends StatelessWidget {
                     const SizedBox(height: AppSpacing.space8),
                     Text(
                       instructions,
-                      style:
-                          AppTextStyles.body2.copyWith(color: secondaryText),
+                      style: AppTextStyles.body2.copyWith(color: secondaryText),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -308,8 +366,7 @@ class AppDialog extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 400),
             decoration: BoxDecoration(
               color: surface,
-              borderRadius:
-                  BorderRadius.circular(AppRadius.radiusXL),
+              borderRadius: BorderRadius.circular(AppRadius.radiusXL),
               boxShadow: AppShadows.shadowHigh,
             ),
             child: child,

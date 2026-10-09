@@ -33,6 +33,7 @@ import 'core/services/onboarding_service.dart';
 import 'core/services/telehealth_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/device_token_service.dart';
+import 'core/services/app_update_service.dart';
 
 /// Runs a CMS/branding init in the background and swallows failures — every
 /// service falls back to cached/fallback data on its own, so a slow or broken
@@ -116,6 +117,8 @@ void main() async {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _safeInit(actions.requestNotificationPermissionsUser);
     _safeInit(actions.setupFCMForegroundHandler);
+    // Soft prompt only: checks the store and offers an update the user can skip.
+    unawaited(AppUpdateService.instance.checkAndPrompt());
   });
 }
 
@@ -223,8 +226,7 @@ class _MyAppState extends State<MyApp> {
       if (context != null) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Server error. Please try again. (${statusCode})'),
+          content: Text('Server error. Please try again. (${statusCode})'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 4),
           action: SnackBarAction(
