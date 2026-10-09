@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Services\PatientMergeService;
+use App\Services\PlatoPatientMergeService;
 use App\Services\PlatoProxyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,7 +65,15 @@ class AppAccountController extends Controller
             ? $this->fetchPlatoRecords($account)
             : null;
 
-        return view('admin.app-accounts.show', compact('account', 'candidates', 'platoRecords'));
+        $merge = app(PlatoPatientMergeService::class);
+
+        return view('admin.app-accounts.show', [
+            'account' => $account,
+            'candidates' => $candidates,
+            'platoRecords' => $platoRecords,
+            'mergeEnabled' => $merge->enabled(),
+            'mergePhrase' => $merge->acknowledgePhrase(),
+        ]);
     }
 
     public function merge(Request $request): RedirectResponse
@@ -138,6 +147,60 @@ class AppAccountController extends Controller
         return redirect()
             ->route('admin.app-accounts.show', ['account' => $account, 'lookup' => 1])
             ->with('success', 'Account relinked to the selected Plato record.');
+    }
+
+    /**
+     * Merge two Plato patient records via Plato's `patient/merge` endpoint.
+     *
+     * DESTRUCTIVE and IRREVERSIBLE. Disabled unless `plato.merge.enabled` is
+     * set, requires typing Plato's acknowledgement phrase, and re-verifies that
+     * both records belong to this patient before calling Plato.
+     */
+    public function mergePlato(Request $request, Patient $account, PlatoPatientMergeService $merge): RedirectResponse
+    {
+        $validated = $request->validate([
+            'survivor_id' => ['required', 'string', 'max:191'],
+            'merged_id' => ['required', 'string', 'max:191', 'different:survivor_id'],
+            'acknowledge' => ['required', 'string'],
+        ]);
+
+        $back = fn (string $type, string $message) => redirect()
+            ->route('admin.app-accounts.show', ['account' => $account, 'lookup' => 1])
+            ->with($type, $message);
+
+        if (! $merge->enabled()) {
+            return $back('error', 'Plato merge is disabled on this server. Set PLATO_MERGE_ENABLED=true to enable it.');
+        }
+
+        if ($validated['acknowledge'] !== $merge->acknowledgePhrase()) {
+            return $back('error', 'Please type the acknowledgement phrase exactly to confirm.');
+        }
+
+        // Both records must genuinely belong to this patient's NRIC/phone.
+        if (! $this->platoRecordBelongsToAccount($account, $validated['survivor_id'])
+            || ! $this->platoRecordBelongsToAccount($account, $validated['merged_id'])) {
+            return $back('error', 'Both records must belong to this patient\'s NRIC or phone.');
+        }
+
+        $result = $merge->merge($validated['survivor_id'], $validated['merged_id']);
+
+        if (! empty($result['error'])) {
+            return $back('error', 'Plato merge failed: '.($result['message'] ?? 'unknown error'));
+        }
+
+        // Point the app account at the surviving record.
+        if ($account->idplato !== $validated['survivor_id']) {
+            $account->update(['idplato' => $validated['survivor_id']]);
+        }
+
+        Log::info('Admin merged Plato patient records', [
+            'patient_id' => $account->id,
+            'survivor_id' => $validated['survivor_id'],
+            'merged_id' => $validated['merged_id'],
+            'admin_id' => $request->user()->id,
+        ]);
+
+        return $back('success', 'Plato records merged into the surviving record. Letters and medical certificates may take a moment to appear.');
     }
 
     /**

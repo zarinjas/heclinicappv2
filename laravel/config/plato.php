@@ -74,4 +74,25 @@ return [
         'retry_base_ms' => env('PLATO_DUPLICATE_RETRY_BASE_MS', 1000),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Plato patient merge
+    |--------------------------------------------------------------------------
+    |
+    | Merges two Plato patient records into one. Plato requires the exact
+    | acknowledgement string and the action CANNOT be undone, so this is
+    | disabled by default. Confirm the request/response field names with Plato
+    | before enabling; they are configurable so the contract can be corrected
+    | without a code change.
+    |
+    */
+
+    'merge' => [
+        'enabled' => env('PLATO_MERGE_ENABLED', false),
+        'path' => env('PLATO_MERGE_PATH', 'patient/merge'),
+        'acknowledge' => env('PLATO_MERGE_ACKNOWLEDGE', 'I understand that this action cannot be undone'),
+        'primary_field' => env('PLATO_MERGE_PRIMARY_FIELD', 'primary_id'),
+        'secondary_field' => env('PLATO_MERGE_SECONDARY_FIELD', 'secondary_id'),
+    ],
+
 ];
