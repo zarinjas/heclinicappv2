@@ -204,17 +204,18 @@ class AppAccountController extends Controller
     }
 
     /**
-     * Search Plato for every patient record sharing this account's NRIC
-     * (preferred) or phone, so staff can see which record actually holds the
-     * patient's letters/MC before relinking.
+     * Search Plato for every patient record sharing this account's NRIC and/or
+     * phone, so staff can see which record actually holds the patient's
+     * letters before relinking. Plato often holds several records for the same
+     * person, and the app only ever reads one of them.
      *
      * @return array{identifier: array<string,string>|null, records: array<int, array<string,mixed>>, error: string|null}
      */
     private function fetchPlatoRecords(Patient $account): array
     {
-        $query = $this->platoSearchQuery($account);
+        $queries = $this->platoSearchQueries($account);
 
-        if ($query === null) {
+        if ($queries === []) {
             return [
                 'identifier' => null,
                 'records' => [],
@@ -223,17 +224,39 @@ class AppAccountController extends Controller
         }
 
         $plato = app(PlatoProxyService::class);
-        $response = $plato->proxy('GET', 'search/patient', $query);
+        $rows = [];
+        $seen = [];
+        $firstError = null;
 
-        if (! empty($response['error'])) {
-            return [
-                'identifier' => $query,
-                'records' => [],
-                'error' => $response['message'] ?? 'Plato search failed.',
-            ];
+        foreach ($queries as $query) {
+            $response = $plato->proxy('GET', 'search/patient', $query);
+
+            if (! empty($response['error'])) {
+                $firstError ??= $response['message'] ?? 'Plato search failed.';
+
+                continue;
+            }
+
+            foreach ($response['data'] ?? [] as $row) {
+                if (! is_array($row)) {
+                    continue;
+                }
+                $id = (string) ($row['_id'] ?? '');
+                if ($id === '' || isset($seen[$id])) {
+                    continue;
+                }
+                $seen[$id] = true;
+                $rows[] = $row;
+            }
         }
 
-        $rows = is_array($response['data'] ?? null) ? $response['data'] : [];
+        if ($rows === [] && $firstError !== null) {
+            return [
+                'identifier' => $queries[0],
+                'records' => [],
+                'error' => $firstError,
+            ];
+        }
 
         // Oldest first — this is the record the app links to on registration.
         usort($rows, fn ($a, $b): int => strcmp(
@@ -252,6 +275,8 @@ class AppAccountController extends Controller
                 ->where('idplato', $platoId)
                 ->first(['id', 'name', 'deleted_at']);
 
+            $letters = $this->fetchLetterPreview($plato, $platoId);
+
             $records[] = [
                 'plato_id' => $platoId,
                 'name' => $row['name'] ?? '',
@@ -259,52 +284,62 @@ class AppAccountController extends Controller
                 'telephone' => $row['telephone'] ?? ($row['phone'] ?? ''),
                 'email' => $row['email'] ?? '',
                 'created_on' => $row['created_on'] ?? '',
-                'letters' => $this->countPlatoLetters($plato, $platoId),
+                'letters' => $letters['count'],
+                'letter_preview' => $letters['preview'],
                 'documents' => $this->countLocalDocuments($platoId),
                 'linked_account_id' => $linked?->id,
                 'linked_account_name' => $linked?->name,
             ];
         }
 
-        return ['identifier' => $query, 'records' => $records, 'error' => null];
+        return ['identifier' => $queries[0], 'records' => $records, 'error' => null];
     }
 
     /**
-     * @return array<string,string>|null
+     * Every distinct identifier we can search Plato by for this account.
+     *
+     * @return array<int, array<string,string>>
      */
-    private function platoSearchQuery(Patient $account): ?array
+    private function platoSearchQueries(Patient $account): array
     {
+        $queries = [];
+
         if (! empty($account->nric)) {
-            return ['nric' => $account->nric];
+            $queries[] = ['nric' => $account->nric];
         }
 
         if (! empty($account->telephone)) {
-            return ['telephone' => $account->telephone];
+            $queries[] = ['telephone' => $account->telephone];
         }
 
-        return null;
+        return $queries;
     }
 
     /**
-     * Whether Plato's search returns $platoId for this account's identifier.
+     * Whether Plato's search returns $platoId for any of this account's
+     * identifiers (NRIC or phone).
      */
     private function platoRecordBelongsToAccount(Patient $account, string $platoId): bool
     {
-        $query = $this->platoSearchQuery($account);
+        $queries = $this->platoSearchQueries($account);
 
-        if ($query === null) {
+        if ($queries === []) {
             return false;
         }
 
-        $response = app(PlatoProxyService::class)->proxy('GET', 'search/patient', $query);
+        $plato = app(PlatoProxyService::class);
 
-        if (! empty($response['error'])) {
-            return false;
-        }
+        foreach ($queries as $query) {
+            $response = $plato->proxy('GET', 'search/patient', $query);
 
-        foreach ($response['data'] ?? [] as $row) {
-            if ((string) ($row['_id'] ?? '') === $platoId) {
-                return true;
+            if (! empty($response['error'])) {
+                continue;
+            }
+
+            foreach ($response['data'] ?? [] as $row) {
+                if ((string) ($row['_id'] ?? '') === $platoId) {
+                    return true;
+                }
             }
         }
 
@@ -312,9 +347,12 @@ class AppAccountController extends Controller
     }
 
     /**
-     * Number of letters Plato holds for a record (first page, capped at 20).
+     * Letters Plato holds for a record (first page, capped at 20) plus a short
+     * subject/date preview so staff can tell which record has the data.
+     *
+     * @return array{count:int|null, preview:array<int, array{subject:?string, created_on:?string}>}
      */
-    private function countPlatoLetters(PlatoProxyService $plato, string $platoId): ?int
+    private function fetchLetterPreview(PlatoProxyService $plato, string $platoId): array
     {
         $response = $plato->proxy('GET', 'letter', [
             'patient_id' => $platoId,
@@ -322,12 +360,27 @@ class AppAccountController extends Controller
         ]);
 
         if (! empty($response['error'])) {
-            return null;
+            return ['count' => null, 'preview' => []];
         }
 
         $rows = $response['data'] ?? [];
 
-        return is_array($rows) ? count($rows) : null;
+        if (! is_array($rows)) {
+            return ['count' => null, 'preview' => []];
+        }
+
+        $preview = [];
+        foreach (array_slice($rows, 0, 3) as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $preview[] = [
+                'subject' => $row['subject'] ?? null,
+                'created_on' => $row['created_on'] ?? null,
+            ];
+        }
+
+        return ['count' => count($rows), 'preview' => $preview];
     }
 
     /**

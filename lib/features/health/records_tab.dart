@@ -86,7 +86,10 @@ class _RecordsTabState extends State<RecordsTab> {
   }
 
   Future<List<HealthRecord>> _loadLetters(String patientId) async {
-    final response = await LetterCall.call(patientId: patientId);
+    // Always fetch fresh: a `modified_since` timestamp cached from a previous
+    // session can hide older letters after the account is relinked to the
+    // correct Plato record.
+    final response = await LetterCall.call(patientId: patientId, forceRefresh: true);
     if (!response.succeeded) return const [];
 
     final body = response.jsonBody;

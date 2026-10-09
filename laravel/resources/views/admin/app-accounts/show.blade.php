@@ -167,6 +167,10 @@
                     <span class="font-medium text-amber-600">This does not merge Plato data</span> —
                     ask the clinic to merge duplicate records inside Plato for a permanent fix.
                 </p>
+                <p class="text-xs text-amber-700 mt-2">
+                    After relinking or merging, the patient must <span class="font-semibold">log out and log back in</span>
+                    in the app — the app caches which Plato record it reads until the next login.
+                </p>
             </div>
             @if ($platoRecords !== null)
                 <a href="{{ route('admin.app-accounts.show', ['account' => $account, 'lookup' => 1]) }}"
@@ -232,7 +236,17 @@
                                 <td class="px-6 py-4 text-gray-500">{{ $record['telephone'] ?: '—' }}</td>
                                 <td class="px-6 py-4 text-gray-500 whitespace-nowrap">{{ $record['created_on'] ?: '—' }}</td>
                                 <td class="px-6 py-4 text-gray-500">
-                                    {{ $record['letters'] === null ? '—' : $record['letters'].($record['letters'] >= 20 ? '+' : '') }}
+                                    <div class="font-medium text-[#0F1B3D]">
+                                        {{ $record['letters'] === null ? '—' : $record['letters'].($record['letters'] >= 20 ? '+' : '') }}
+                                    </div>
+                                    @foreach ($record['letter_preview'] as $letter)
+                                        <div class="text-xs text-gray-400 mt-0.5 truncate max-w-[16rem]">
+                                            {{ \Illuminate\Support\Str::limit(strip_tags((string) ($letter['subject'] ?: 'Untitled')), 40) }}
+                                            @if (! empty($letter['created_on']))
+                                                · {{ \Illuminate\Support\Str::limit((string) $letter['created_on'], 10, '') }}
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </td>
                                 <td class="px-6 py-4 text-gray-500">{{ $record['documents'] }}</td>
                                 <td class="px-6 py-4 text-right">

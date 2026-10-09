@@ -88,6 +88,37 @@ class AppAccountRelinkTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_lookup_merges_nric_and_phone_matches_with_letter_preview(): void
+    {
+        $admin = $this->makeAdmin();
+        $account = $this->makePatient(['nric' => '900101010001', 'telephone' => '601111110001', 'idplato' => 'PLATO-A']);
+
+        Http::fake(function ($request) {
+            $url = $request->url();
+
+            if (str_contains($url, 'search/patient')) {
+                return str_contains($url, 'nric=')
+                    ? Http::response([['_id' => 'PLATO-A', 'name' => 'A', 'nric' => '900101010001', 'created_on' => '2024-01-01']], 200)
+                    : Http::response([['_id' => 'PLATO-B', 'name' => 'B', 'nric' => '900101010002', 'created_on' => '2025-01-01']], 200);
+            }
+
+            if (str_contains($url, 'letter')) {
+                return str_contains($url, 'PLATO-B')
+                    ? Http::response([['subject' => 'Referral to Cardiology', 'created_on' => '2025-06-01']], 200)
+                    : Http::response([], 200);
+            }
+
+            return Http::response([], 200);
+        });
+
+        $this->actingAs($admin)
+            ->get(route('admin.app-accounts.show', ['account' => $account, 'lookup' => 1]))
+            ->assertOk()
+            ->assertSee('PLATO-A')
+            ->assertSee('PLATO-B')
+            ->assertSee('Referral to Cardiology');
+    }
+
     public function test_relink_updates_idplato_to_selected_record(): void
     {
         $admin = $this->makeAdmin();
