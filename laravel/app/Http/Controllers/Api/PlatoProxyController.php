@@ -11,6 +11,16 @@ use Illuminate\Support\Facades\RateLimiter;
 
 final class PlatoProxyController extends Controller
 {
+    /**
+     * Plato paths the patient app must never be able to read, whatever app
+     * version the caller runs. Clinical case notes are P&C clinic records;
+     * older app builds still request them directly, so they are blocked here
+     * at the proxy edge rather than relying on a client-side update.
+     */
+    private const FORBIDDEN_PATH_PATTERNS = [
+        '#^patient/[^/]+/notes?(/|$)#i',
+    ];
+
     private PlatoProxyService $service;
 
     public function __construct(PlatoProxyService $service)
@@ -38,6 +48,14 @@ final class PlatoProxyController extends Controller
         $method = strtoupper($request->method());
         $query = $request->query();
         $body = $request->all();
+
+        if ($this->isForbiddenPath($path)) {
+            return response()->json([
+                'error' => true,
+                'code' => 403,
+                'message' => 'This resource is not available in the patient app.',
+            ], Response::HTTP_FORBIDDEN);
+        }
 
         if (! $this->authorizesPatientScope($request, $path, $query, $body)) {
             return response()->json([
@@ -98,6 +116,22 @@ final class PlatoProxyController extends Controller
         }
 
         return $response;
+    }
+
+    /**
+     * Whether the requested Plato path is blanket-denied for the patient app.
+     */
+    private function isForbiddenPath(string $path): bool
+    {
+        $normalisedPath = ltrim($path, '/');
+
+        foreach (self::FORBIDDEN_PATH_PATTERNS as $pattern) {
+            if (preg_match($pattern, $normalisedPath) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
