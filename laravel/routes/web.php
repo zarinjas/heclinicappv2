@@ -98,6 +98,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('app-accounts', [AppAccountController::class, 'index'])->name('app-accounts.index');
         Route::get('app-accounts/{account}', [AppAccountController::class, 'show'])->name('app-accounts.show');
         Route::post('app-accounts/merge', [AppAccountController::class, 'merge'])->name('app-accounts.merge');
+        Route::post('app-accounts/{account}/relink', [AppAccountController::class, 'relink'])->name('app-accounts.relink');
         Route::get('records', [RecordController::class, 'index'])->name('records.index');
         Route::post('records/email', [RecordController::class, 'updateDefaultEmail'])->name('records.email.update');
         Route::delete('records/{record}', [RecordController::class, 'destroy'])->name('records.destroy');
