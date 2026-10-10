@@ -119,6 +119,23 @@ class AppAccountRelinkTest extends TestCase
             ->assertSee('Referral to Cardiology');
     }
 
+    public function test_lookup_warns_when_linked_record_no_longer_exists(): void
+    {
+        $admin = $this->makeAdmin();
+        $account = $this->makePatient(['nric' => '900101010001', 'idplato' => 'PLATO-GONE']);
+
+        $this->fakePlato([
+            ['_id' => 'PLATO-A', 'name' => 'A', 'nric' => '900101010001', 'created_on' => '2024-01-01'],
+            ['_id' => 'PLATO-B', 'name' => 'B', 'nric' => '900101010001', 'created_on' => '2025-01-01'],
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.app-accounts.show', ['account' => $account, 'lookup' => 1]))
+            ->assertOk()
+            ->assertSee('currently points to is missing from Plato')
+            ->assertSee('PLATO-GONE');
+    }
+
     public function test_relink_updates_idplato_to_selected_record(): void
     {
         $admin = $this->makeAdmin();

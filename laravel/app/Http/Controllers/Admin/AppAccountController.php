@@ -220,6 +220,8 @@ class AppAccountController extends Controller
                 'identifier' => null,
                 'records' => [],
                 'error' => 'This account has no NRIC or phone to search Plato by.',
+                'current_id' => (string) ($account->idplato ?? ''),
+                'current_missing' => false,
             ];
         }
 
@@ -255,6 +257,8 @@ class AppAccountController extends Controller
                 'identifier' => $queries[0],
                 'records' => [],
                 'error' => $firstError,
+                'current_id' => (string) ($account->idplato ?? ''),
+                'current_missing' => false,
             ];
         }
 
@@ -292,7 +296,17 @@ class AppAccountController extends Controller
             ];
         }
 
-        return ['identifier' => $queries[0], 'records' => $records, 'error' => null];
+        $currentId = (string) ($account->idplato ?? '');
+        $returnedIds = array_column($records, 'plato_id');
+        $currentMissing = $currentId !== '' && ! in_array($currentId, $returnedIds, true);
+
+        return [
+            'identifier' => $queries[0],
+            'records' => $records,
+            'error' => null,
+            'current_id' => $currentId,
+            'current_missing' => $currentMissing,
+        ];
     }
 
     /**

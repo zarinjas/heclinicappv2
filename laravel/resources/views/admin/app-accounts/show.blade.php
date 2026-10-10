@@ -207,6 +207,20 @@
                 = <span class="font-medium text-gray-600">{{ implode(', ', array_values($platoRecords['identifier'])) }}</span>
                 · {{ count($platoRecords['records']) }} record(s) found
             </div>
+
+            @if (! empty($platoRecords['current_missing']))
+                <div class="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+                    <p class="font-semibold">The record this app account currently points to is missing from Plato.</p>
+                    <p class="mt-1 text-xs">
+                        Current Plato id: <span class="font-mono">{{ $platoRecords['current_id'] }}</span>.
+                        Plato does not return it, so it was probably merged into another record or deleted.
+                        The app reads this id, so letters, MC and documents stored under it disappear.
+                        Pick a valid record below and press <span class="font-medium">Use this record</span>, then
+                        have the patient log out and back in.
+                    </p>
+                </div>
+            @endif
+
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
