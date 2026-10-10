@@ -121,17 +121,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'appointments':
         context.push('/myBookingPage');
         break;
-      case 'health/records':
       case 'health/documents':
-        context.pushNamed('Reports',
-            queryParameters: {'id': FFAppState().idplato});
+        // New Health tab, Documents sub-tab.
+        context.pushNamed('HealthDocuments');
+        break;
+      case 'health/records':
+        // New Health tab, Records sub-tab.
+        context.pushNamed('Reports');
         break;
       case 'profile':
         context.pushNamed('HomepageNew');
         break;
       default:
-        context.pushNamed('Reports',
-            queryParameters: {'id': FFAppState().idplato});
+        context.pushNamed('Reports');
     }
   }
 

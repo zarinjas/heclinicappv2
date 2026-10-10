@@ -5,9 +5,15 @@ class ModifiedSinceHelper {
 
   static const String _prefix = 'ms_';
 
+  /// Always returns null.
+  ///
+  /// These list endpoints previously sent `modified_since` to fetch only rows
+  /// changed since the last request. That is a *delta*, but the UI REPLACED its
+  /// full list with the delta, so a newly uploaded document/letter appeared
+  /// once and then vanished on the next refresh (and older rows never came
+  /// back). Returning null forces every caller to fetch the full list.
   static Future<int?> getLastFetchTimestamp(String endpointName) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('$_prefix$endpointName');
+    return null;
   }
 
   static Future<void> setLastFetchTimestamp(

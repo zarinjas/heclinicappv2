@@ -7,6 +7,7 @@ import '/components/empty_state_widget.dart';
 import '/components/error_state_widget.dart';
 import '/theme/app_theme.dart';
 import '/core/theme/app_text_styles.dart';
+import '/core/utils/html_text.dart';
 import '/core/widgets/app_dialog.dart';
 import '/core/widgets/app_toast.dart';
 import '/core/widgets/branch_picker_sheet.dart';
@@ -97,7 +98,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
             for (var i = 0; i < subjects.length; i++) {
               records.add(HealthRecord(
                 type: RecordType.letter,
-                title: subjects[i],
+                title: stripHtmlToSingleLine(subjects[i]),
                 date: i < (tgLs?.length ?? 0) ? (tgLs?[i] ?? '') : '',
                 author: i < (authors?.length ?? 0) ? (authors?[i] ?? '') : '',
                 detailData: htmls != null && i < htmls.length ? htmls[i] : null,
@@ -177,10 +178,12 @@ class _ReportsWidgetState extends State<ReportsWidget>
         for (var i = 0; i < names.length; i++) {
           docs.add(PatientDocument(
             id: ids != null && i < ids.length ? ids[i] : 0,
-            name: names[i],
+            name: stripHtmlToSingleLine(names[i]),
             url: i < (urls?.length ?? 0) ? (urls?[i] ?? '') : '',
             uploadedAt: i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
-            adminNote: adminNotes != null && i < adminNotes.length ? adminNotes[i] : null,
+            adminNote: adminNotes != null && i < adminNotes.length
+                ? stripHtmlToSingleLine(adminNotes[i])
+                : null,
             sizeBytes: i < (sizeBytes?.length ?? 0) ? (sizeBytes?[i] ?? 0) : 0,
             mimeType: mimeTypes != null && i < mimeTypes.length ? mimeTypes[i] : null,
             source: sources != null && i < sources.length ? sources[i] : 'admin',

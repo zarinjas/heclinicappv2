@@ -16,8 +16,9 @@ import '/front_page/profile/profile_widget.dart';
 
 class MainShell extends StatefulWidget {
   final String? initialTab;
+  final int healthTab;
 
-  const MainShell({super.key, this.initialTab});
+  const MainShell({super.key, this.initialTab, this.healthTab = 0});
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -73,12 +74,12 @@ class _MainShellState extends State<MainShell> {
         children: [
           IndexedStack(
             index: _currentTab,
-            children: const [
-              HomeScreen(),
-              AppointmentsScreenWidget(),
-              HealthScreen(),
-              NotificationsScreen(),
-              ProfileWidget(),
+            children: [
+              const HomeScreen(),
+              const AppointmentsScreenWidget(),
+              HealthScreen(initialTab: widget.healthTab),
+              const NotificationsScreen(),
+              const ProfileWidget(),
             ],
           ),
           Positioned(

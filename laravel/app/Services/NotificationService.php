@@ -133,6 +133,9 @@ final class NotificationService
 
     public function sendManualEmailNotification(string $title, string $body, ?string $recipientEmail, ?string $imageUrl = null): bool
     {
+        $title = $this->plainText($title);
+        $body = $this->plainText($body);
+
         if (empty(trim((string) $recipientEmail))) {
             Log::channel('plato')->warning('Manual email notification skipped — no recipient email provided', [
                 'title' => $title,
@@ -210,6 +213,9 @@ final class NotificationService
 
     private function sendPush(string $title, string $body, array $options, ?int $logId = null): array
     {
+        $title = $this->plainText($title);
+        $body = $this->plainText($body);
+
         $payload = array_merge([
             'title' => $title,
             'body' => $body,
@@ -487,6 +493,8 @@ final class NotificationService
 
     public function sendDocumentUploadedNotification(string $patientPlatoId, string $filename, ?string $patientName = null): void
     {
+        $filename = $this->plainText($filename);
+
         $title = 'New Document Available';
         $body = $patientName
             ? sprintf('A new document "%s" has been uploaded for %s.', $filename, $patientName)
@@ -606,6 +614,9 @@ final class NotificationService
 
     private function writeInAppNotify(string $title, string $body, string $deepLink, string $type, ?string $idPatient, ?string $imageUrl = null): bool
     {
+        $title = $this->plainText($title);
+        $body = $this->plainText($body);
+
         // Primary store: our own DB, read by the app over the authenticated API.
         $stored = false;
 
@@ -639,6 +650,26 @@ final class NotificationService
         ]);
 
         return $stored;
+    }
+
+    /**
+     * Strip HTML and decode entities so push payloads, in-app rows and emails
+     * never show raw markup (e.g. "</a><a><b></b>") that staff paste into CMS
+     * fields such as a document title.
+     */
+    private function plainText(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+
+        $text = preg_replace('/<br\s*\/?>/i', ' ', $value) ?? $value;
+        $text = preg_replace('/<\/(p|div|li|h[1-6])>/i', ' ', $text) ?? $text;
+        $text = strip_tags($text);
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/\s+/', ' ', $text) ?? $text;
+
+        return trim($text);
     }
 
     private function sendInApp(string $title, string $body, Appointment $appointment, string $deepLink = 'appointments', string $type = 'appointment_confirmed'): bool

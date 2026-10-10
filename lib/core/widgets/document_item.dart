@@ -14,6 +14,7 @@ class DocumentItem extends StatelessWidget {
   final String uploadedAt;
   final int sizeBytes;
   final bool canDelete;
+  final bool isNew;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
@@ -25,6 +26,7 @@ class DocumentItem extends StatelessWidget {
     required this.uploadedAt,
     this.sizeBytes = 0,
     this.canDelete = false,
+    this.isNew = false,
     this.onTap,
     this.onDelete,
   });
@@ -64,13 +66,38 @@ class DocumentItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  style: AppTextStyles.heading3.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: AppTextStyles.heading3.copyWith(
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isNew) ...[
+                      const SizedBox(width: AppSpacing.space8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent,
+                          borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.space4),
                 Text(

@@ -16,6 +16,7 @@ class HealthRecordCard extends StatelessWidget {
     required this.title,
     required this.doctorName,
     required this.date,
+    this.isNew = false,
     this.onTap,
   });
 
@@ -23,6 +24,7 @@ class HealthRecordCard extends StatelessWidget {
   final String title;
   final String doctorName;
   final String date;
+  final bool isNew;
   final VoidCallback? onTap;
 
   @override
@@ -37,11 +39,21 @@ class HealthRecordCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTextStyles.heading3,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: AppTextStyles.heading3,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isNew) ...[
+                      const SizedBox(width: AppSpacing.space8),
+                      const _NewBadge(),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.space4),
                 Text(
@@ -63,6 +75,30 @@ class HealthRecordCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _NewBadge extends StatelessWidget {
+  const _NewBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.accent,
+        borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+      ),
+      child: const Text(
+        'NEW',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }

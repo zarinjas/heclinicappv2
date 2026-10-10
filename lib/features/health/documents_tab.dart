@@ -5,9 +5,12 @@ import '../../core/widgets/app_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../backend/api_requests/api_calls.dart';
+import '../../core/services/seen_store.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/html_text.dart';
 import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_skeleton.dart';
@@ -80,11 +83,22 @@ class _DocumentsTabState extends State<DocumentsTab> {
   bool _hasError = false;
   bool _isUploading = false;
   List<_PatientDocument> _documents = const [];
+  Set<String> _seen = const {};
+  String _query = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  static const _seenCategory = 'documents';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadDocuments());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadDocuments() async {
@@ -99,9 +113,11 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
       // Without a Plato id there is no patient to scope the request to.
       if (patientId.isEmpty) {
+        final seen = await SeenStore.seenFor(_seenCategory);
         if (mounted) {
           setState(() {
             _documents = const [];
+            _seen = seen;
             _isLoading = false;
           });
         }
@@ -110,7 +126,6 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
       final response = await GetPatientDocumentsCall.call(
         patientId: patientId,
-        forceRefresh: true,
       );
 
       if (!mounted) return;
@@ -123,8 +138,16 @@ class _DocumentsTabState extends State<DocumentsTab> {
         return;
       }
 
+      final documents = _parse(response.jsonBody);
+      final seen = await SeenStore.ensureInitialized(
+        _seenCategory,
+        documents.map(_docKey),
+      );
+
+      if (!mounted) return;
       setState(() {
-        _documents = _parse(response.jsonBody);
+        _documents = documents;
+        _seen = seen;
         _isLoading = false;
         _hasError = false;
       });
@@ -153,19 +176,56 @@ class _DocumentsTabState extends State<DocumentsTab> {
     T? at<T>(List<T>? list, int i) =>
         list != null && i < list.length ? list[i] : null;
 
+    // Names and admin notes are authored by clinic staff in the CMS and may
+    // contain pasted HTML; strip tags so the list shows readable text. Keep the
+    // original name as a fallback if stripping leaves nothing.
+    String? clean(String? value) =>
+        value == null ? null : stripHtmlToSingleLine(value);
+    String cleanName(String value) {
+      final cleaned = stripHtmlToSingleLine(value);
+      return cleaned.isEmpty ? value : cleaned;
+    }
+
     return [
       for (var i = 0; i < names.length; i++)
         _PatientDocument(
           id: at(ids, i) ?? 0,
-          name: names[i],
+          name: cleanName(names[i]),
           url: at(urls, i) ?? '',
           uploadedAt: at(uploadedAts, i) ?? '',
-          adminNote: at(adminNotes, i),
+          adminNote: clean(at(adminNotes, i)),
           sizeBytes: at(sizes, i) ?? 0,
           mimeType: at(mimeTypes, i),
           source: at(sources, i) ?? 'admin',
         ),
     ];
+  }
+
+  String _docKey(_PatientDocument doc) =>
+      doc.id > 0 ? 'doc:${doc.id}' : 'doc:${doc.name}|${doc.uploadedAt}';
+
+  String _yearOf(_PatientDocument doc) {
+    final parsed = DateTime.tryParse(doc.uploadedAt);
+    if (parsed != null) return parsed.year.toString();
+    final match = RegExp(r'(19|20)\d{2}').firstMatch(doc.uploadedAt);
+    return match?.group(0) ?? 'Earlier';
+  }
+
+  List<_PatientDocument> get _visibleDocuments {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return _documents;
+    return _documents.where((d) {
+      return d.name.toLowerCase().contains(q) ||
+          d.typeLabel.toLowerCase().contains(q) ||
+          d.formattedDate.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  Future<void> _markSeen(_PatientDocument doc) async {
+    await SeenStore.markSeen(_seenCategory, _docKey(doc));
+    if (mounted) {
+      setState(() => _seen = {..._seen, _docKey(doc)});
+    }
   }
 
   /// Signed document URLs expire (default 60 min), so re-fetch a fresh one for
@@ -178,7 +238,6 @@ class _DocumentsTabState extends State<DocumentsTab> {
     try {
       final response = await GetPatientDocumentsCall.call(
         patientId: patientId,
-        forceRefresh: true,
       );
       if (!response.succeeded) return null;
 
@@ -197,6 +256,8 @@ class _DocumentsTabState extends State<DocumentsTab> {
   }
 
   Future<void> _openDocument(_PatientDocument doc) async {
+    await _markSeen(doc);
+
     var url = doc.url;
     if (url.isEmpty) {
       _showMessage('This document has no file attached.');
@@ -413,13 +474,19 @@ class _DocumentsTabState extends State<DocumentsTab> {
   }
 
   Widget _buildContent() {
+    final visible = _visibleDocuments;
+    final groups = <String, List<_PatientDocument>>{};
+    for (final doc in visible) {
+      groups.putIfAbsent(_yearOf(doc), () => []).add(doc);
+    }
+
     return Column(
       children: [
-        // Upload button
+        _buildSearchField(),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.space16,
-            AppSpacing.space16,
+            AppSpacing.space12,
             AppSpacing.space16,
             0,
           ),
@@ -450,20 +517,22 @@ class _DocumentsTabState extends State<DocumentsTab> {
                   ),
           ),
         ),
-        // Document list or empty state
         Expanded(
-          child: _documents.isEmpty
+          child: visible.isEmpty
               ? RefreshIndicator(
                   onRefresh: _loadDocuments,
                   color: AppColors.accent,
                   child: ListView(
-                    children: const [
-                      SizedBox(height: AppSpacing.space48),
+                    children: [
+                      const SizedBox(height: AppSpacing.space48),
                       AppEmptyState(
                         icon: Icons.description_outlined,
-                        title: 'No documents yet',
-                        subtitle:
-                            'Upload a document or wait for your clinic to share one',
+                        title: _query.isEmpty
+                            ? 'No documents yet'
+                            : 'No matching documents',
+                        subtitle: _query.isEmpty
+                            ? 'Upload a document or wait for your clinic to share one'
+                            : 'Try a different search term',
                       ),
                     ],
                   ),
@@ -471,28 +540,95 @@ class _DocumentsTabState extends State<DocumentsTab> {
               : RefreshIndicator(
                   onRefresh: _loadDocuments,
                   color: AppColors.accent,
-                  child: ListView.separated(
+                  child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.space16),
-                    itemCount: _documents.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.space12),
-                    itemBuilder: (_, i) {
-                      final doc = _documents[i];
-                      return DocumentItem(
-                        name: doc.name,
-                        fileType: doc.fileType,
-                        typeLabel: doc.typeLabel,
-                        uploadedAt: doc.formattedDate,
-                        sizeBytes: doc.sizeBytes,
-                        canDelete: doc.source == 'patient' && doc.id > 0,
-                        onTap: () => _openDocument(doc),
-                        onDelete: () => _onDeleteDocument(doc),
-                      );
-                    },
+                    children: [
+                      for (final entry in groups.entries) ...[
+                        _buildYearLabel(entry.key),
+                        for (final doc in entry.value)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: AppSpacing.space12),
+                            child: DocumentItem(
+                              name: doc.name,
+                              fileType: doc.fileType,
+                              typeLabel: doc.typeLabel,
+                              uploadedAt: doc.formattedDate,
+                              sizeBytes: doc.sizeBytes,
+                              canDelete: doc.source == 'patient' && doc.id > 0,
+                              isNew: !_seen.contains(_docKey(doc)),
+                              onTap: () => _openDocument(doc),
+                              onDelete: () => _onDeleteDocument(doc),
+                            ),
+                          ),
+                      ],
+                    ],
                   ),
                 ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSearchField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fill = isDark ? AppColors.surfaceDark : AppColors.surface;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.space16,
+        AppSpacing.space16,
+        AppSpacing.space16,
+        0,
+      ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) => setState(() => _query = value),
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search documents',
+          prefixIcon: const Icon(Icons.search, size: 20),
+          suffixIcon: _query.isEmpty
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+          filled: true,
+          fillColor: fill,
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.space12,
+            horizontal: AppSpacing.space12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildYearLabel(String year) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: AppSpacing.space4,
+        top: AppSpacing.space4,
+        bottom: AppSpacing.space8,
+      ),
+      child: Text(
+        year,
+        style: AppTextStyles.label.copyWith(
+          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+        ),
+      ),
     );
   }
 }

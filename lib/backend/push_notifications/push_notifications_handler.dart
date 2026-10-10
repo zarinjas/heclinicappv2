@@ -58,14 +58,8 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
 
       if (notifType == 'document_uploaded') {
         _incrementNotifBadge();
-        final parameterData = getInitialParameterData(message.data);
-        final patientId = getParameter<String>(parameterData, 'patient_plato_id') ??
-            FFAppState().idplato;
-        _navigateToPage(
-          context,
-          'Reports',
-          queryParameters: {'id': patientId},
-        );
+        // Open the new Health tab's Documents sub-tab.
+        _navigateToPage(context, 'HealthDocuments');
         return;
       }
 

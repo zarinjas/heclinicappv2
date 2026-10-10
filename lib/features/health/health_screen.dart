@@ -8,17 +8,26 @@ import 'documents_tab.dart';
 import 'records_tab.dart';
 
 class HealthScreen extends StatefulWidget {
-  const HealthScreen({super.key});
+  const HealthScreen({super.key, this.initialTab = 0});
+
+  /// 0 = Records, 1 = Documents.
+  final int initialTab;
 
   @override
   State<HealthScreen> createState() => _HealthScreenState();
 }
 
 class _HealthScreenState extends State<HealthScreen> {
-  int _currentTab = 0;
+  late int _currentTab;
 
   // Vitals are hidden from the patient app.
   static const _tabs = ['Records', 'Documents'];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentTab = widget.initialTab.clamp(0, _tabs.length - 1);
+  }
 
   @override
   Widget build(BuildContext context) {

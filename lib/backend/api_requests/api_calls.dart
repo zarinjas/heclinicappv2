@@ -1391,18 +1391,15 @@ class LetterCall {
     String? patientId = '',
     bool forceRefresh = false,
   }) async {
-    final int? modifiedSince = forceRefresh
-        ? null
-        : await ModifiedSinceHelper.getLastFetchTimestamp('letter');
-
+    // Always fetch the full list. The old `modified_since` optimisation only
+    // returned records changed since the previous fetch and REPLACED the list,
+    // so a newly added letter appeared once and then vanished on the next
+    // refresh (and older letters never came back).
     final response = await PaginationHelper.fetchAllPages((currentPage) {
       final params = <String, String>{
         'patient_id': patientId ?? '',
         'current_page': currentPage.toString(),
       };
-      if (modifiedSince != null) {
-        params['modified_since'] = modifiedSince.toString();
-      }
       return ApiManager.instance.makeApiCall(
         callName: 'Letter',
         apiUrl: '${EnvConfig.platomBaseUrl}/letter',
@@ -1420,13 +1417,6 @@ class LetterCall {
         alwaysAllowBody: false,
       );
     });
-
-    if (response.succeeded) {
-      await ModifiedSinceHelper.setLastFetchTimestamp(
-        'letter',
-        ModifiedSinceHelper.now(),
-      );
-    }
 
     return response;
   }
@@ -2141,15 +2131,11 @@ class GetPatientDocumentsCall {
     String? patientId = '',
     bool forceRefresh = false,
   }) async {
-    final int? modifiedSince = forceRefresh
-        ? null
-        : await ModifiedSinceHelper.getLastFetchTimestamp('patient_documents');
-
+    // Always fetch the full list. The old `modified_since` optimisation only
+    // returned documents changed since the previous fetch and REPLACED the
+    // list, so a newly uploaded document appeared once and then vanished on
+    // the next refresh.
     final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
-    final params = <String, String>{};
-    if (modifiedSince != null) {
-      params['modified_since'] = modifiedSince.toString();
-    }
 
     final response = await ApiManager.instance.makeApiCall(
       callName: 'GetPatientDocuments',
@@ -2158,7 +2144,7 @@ class GetPatientDocumentsCall {
       headers: {
         'Authorization': 'Bearer ${FFAppState().tokenauth}',
       },
-      params: params,
+      params: const {},
       returnBody: true,
       encodeBodyUtf8: false,
       decodeUtf8: false,
@@ -2166,13 +2152,6 @@ class GetPatientDocumentsCall {
       isStreamingApi: false,
       alwaysAllowBody: false,
     );
-
-    if (response.succeeded) {
-      await ModifiedSinceHelper.setLastFetchTimestamp(
-        'patient_documents',
-        ModifiedSinceHelper.now(),
-      );
-    }
 
     return response;
   }

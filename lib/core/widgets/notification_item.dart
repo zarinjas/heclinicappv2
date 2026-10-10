@@ -6,6 +6,7 @@ import '../theme/app_radius.dart';
 import '../theme/app_shadows.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/html_text.dart';
 
 class NotificationItem extends StatelessWidget {
   final int? id;
@@ -86,6 +87,9 @@ class NotificationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Titles/bodies are authored in the CMS and may contain HTML fragments.
+    final safeTitle = stripHtmlToSingleLine(title);
+    final safeBody = stripHtmlToSingleLine(body);
     final titleColor = isDark ? AppColors.textPrimaryDark : AppColors.primary;
     final bodyColor =
         isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
@@ -129,7 +133,7 @@ class NotificationItem extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    title,
+                                    safeTitle,
                                     style: AppTextStyles.heading3.copyWith(
                                       color: titleColor,
                                       fontWeight:
@@ -151,10 +155,10 @@ class NotificationItem extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            if (body.isNotEmpty) ...[
+                            if (safeBody.isNotEmpty) ...[
                               const SizedBox(height: AppSpacing.space4),
                               Text(
-                                body,
+                                safeBody,
                                 style:
                                     AppTextStyles.body1.copyWith(color: bodyColor),
                                 maxLines: 2,

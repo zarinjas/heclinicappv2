@@ -199,17 +199,20 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: ChangePasswordWidget.routePath,
           builder: (context, params) => ChangePasswordWidget(),
         ),
+        // Health records. The legacy FlutterFlow ReportsWidget is no longer
+        // reachable — every entry point (tabs, notifications, deep links) opens
+        // the rewritten Health tab instead.
         FFRoute(
-          name: ReportsWidget.routeName,
-          path: ReportsWidget.routePath,
-          builder: (context, params) => params.isEmpty
-              ? const MainShell(initialTab: 'health')
-              : ReportsWidget(
-                  id: params.getParam(
-                    'id',
-                    ParamType.String,
-                  ),
-                ),
+          name: 'Reports',
+          path: '/reports',
+          builder: (context, params) => const MainShell(initialTab: 'health'),
+        ),
+        // Documents tab of the Health screen, used by document notifications.
+        FFRoute(
+          name: 'HealthDocuments',
+          path: '/health/documents',
+          builder: (context, params) =>
+              const MainShell(initialTab: 'health', healthTab: 1),
         ),
         // Legacy FlutterFlow home route, kept as a push-notification target.
         FFRoute(

@@ -13,12 +13,18 @@ final class PlatoProxyController extends Controller
 {
     /**
      * Plato paths the patient app must never be able to read, whatever app
-     * version the caller runs. Clinical case notes are P&C clinic records;
-     * older app builds still request them directly, so they are blocked here
-     * at the proxy edge rather than relying on a client-side update.
+     * version the caller runs.
+     *
+     * Both "casenote" (clinical case notes) and "admin note" are P&C clinic
+     * records that must never surface in the patient app. Older app builds
+     * still request them directly, so they are blocked here at the proxy edge
+     * rather than relying on a client-side update.
      */
     private const FORBIDDEN_PATH_PATTERNS = [
         '#^patient/[^/]+/notes?(/|$)#i',
+        '#^patient/[^/]+/casenotes?(/|$)#i',
+        '#^patient/[^/]+/adminnotes?(/|$)#i',
+        '#^patient/[^/]+/admin(/|$)#i',
     ];
 
     private PlatoProxyService $service;

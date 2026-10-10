@@ -104,6 +104,17 @@ class PatientDataScopingTest extends TestCase
             ->assertStatus(403);
     }
 
+    public function test_proxy_blocks_casenote_and_admin_note_even_for_the_owner(): void
+    {
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        foreach (['casenote', 'casenotes', 'adminnote', 'adminnotes', 'admin'] as $path) {
+            $this->actingAs($patient, 'sanctum')
+                ->getJson("/api/v2/plato/patient/PLATO-A/{$path}")
+                ->assertStatus(403);
+        }
+    }
+
     public function test_proxy_rejects_another_patients_query_parameter(): void
     {
         $attacker = $this->makePatient('PLATO-A', '900101010001');
