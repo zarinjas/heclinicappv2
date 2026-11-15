@@ -28,6 +28,12 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _tokenauth = prefs.getString('tokenuser') ?? _tokenauth;
     });
+    _safeInit(() {
+      _idplato = prefs.getString('ff_idplato') ?? _idplato;
+    });
+    _safeInit(() {
+      _name = prefs.getString('ff_name') ?? _name;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -113,6 +119,12 @@ class FFAppState extends ChangeNotifier {
   String get idplato => _idplato;
   set idplato(String value) {
     _idplato = value;
+    // Persist so Records/Documents still work after an app restart. Without
+    // this, `idplato` came back empty on relaunch and every patient-scoped
+    // screen showed nothing until the user logged out and back in.
+    try {
+      prefs.setString('ff_idplato', value);
+    } catch (_) {}
   }
 
   String _coutnnotif = '0';
@@ -199,6 +211,9 @@ class FFAppState extends ChangeNotifier {
   String get name => _name;
   set name(String value) {
     _name = value;
+    try {
+      prefs.setString('ff_name', value);
+    } catch (_) {}
   }
 
   bool _fingerprint = false;

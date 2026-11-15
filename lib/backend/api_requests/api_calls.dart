@@ -35,8 +35,6 @@ class MedicalAppsApiGroup {
   static GetMedicalCertificateCall getMedicalCertificateCall =
       GetMedicalCertificateCall();
   static ForgotchangeCall forgotchangeCall = ForgotchangeCall();
-  static GetQueueStatusCall getQueueStatusCall = GetQueueStatusCall();
-  static GetPaymentHistoryCall getPaymentHistoryCall = GetPaymentHistoryCall();
 }
 
 class RegisterCall {
@@ -2302,60 +2300,6 @@ class DeletePatientDocumentCall {
         response,
         r'''$.message''',
       ));
-}
-
-class GetQueueStatusCall {
-  Future<ApiCallResponse> call() async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'GetQueueStatus',
-      apiUrl: '${EnvConfig.platomBaseUrl}/queue/status',
-      callType: ApiCallType.GET,
-      headers: {},
-      params: {},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  String? queueNumber(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.queue_number'''));
-  String? patientName(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.patient_name'''));
-  String? status(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.status'''));
-  String? estimatedWait(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.estimated_wait'''));
-  String? currentServing(dynamic response) =>
-      castToType<String>(getJsonField(response, r'''$.current_serving'''));
-}
-
-class GetPaymentHistoryCall {
-  Future<ApiCallResponse> call({int page = 1, int limit = 20}) async {
-    return ApiManager.instance.makeApiCall(
-      callName: 'GetPaymentHistory',
-      apiUrl: '${EnvConfig.platomBaseUrl}/payment',
-      callType: ApiCallType.GET,
-      headers: {},
-      params: {'current_page': page, 'limit': limit},
-      returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
-      cache: false,
-      isStreamingApi: false,
-      alwaysAllowBody: false,
-    );
-  }
-
-  List<dynamic>? data(dynamic response) =>
-      getJsonField(response, r'''$.data''') as List<dynamic>?;
-  int? currentPage(dynamic response) =>
-      castToType<int>(getJsonField(response, r'''$.current_page'''));
-  int? lastPage(dynamic response) =>
-      castToType<int>(getJsonField(response, r'''$.last_page'''));
 }
 
 class ApiPagingParams {

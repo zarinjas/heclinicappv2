@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -122,6 +124,72 @@ class PatientDataScopingTest extends TestCase
         $this->actingAs($attacker, 'sanctum')
             ->getJson('/api/v2/plato/letter?patient_id=PLATO-B')
             ->assertStatus(403);
+    }
+
+    public function test_proxy_requires_patient_scope_for_patient_data_lists(): void
+    {
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        // Without a patient_id these endpoints would return every patient's
+        // records because the proxy uses the privileged server token.
+        foreach (['letter', 'invoice', 'payment', 'appointment'] as $path) {
+            $this->actingAs($patient, 'sanctum')
+                ->getJson("/api/v2/plato/{$path}")
+                ->assertStatus(403);
+        }
+    }
+
+    public function test_proxy_allows_scoped_letter_request(): void
+    {
+        config(['plato.base_url' => 'https://plato.test/api/db']);
+        Cache::flush();
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        $this->actingAs($patient, 'sanctum')
+            ->getJson('/api/v2/plato/letter?patient_id=PLATO-A')
+            ->assertOk();
+    }
+
+    public function test_proxy_does_not_require_scope_for_slots(): void
+    {
+        config(['plato.base_url' => 'https://plato.test/api/db']);
+        Cache::flush();
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        $this->actingAs($patient, 'sanctum')
+            ->getJson('/api/v2/plato/appointment/slots')
+            ->assertOk();
+    }
+
+    public function test_proxy_strips_clinical_note_fields_from_patient_record(): void
+    {
+        config(['plato.base_url' => 'https://plato.test/api/db']);
+        Cache::flush();
+        Http::fake([
+            'https://plato.test/api/db/patient/*' => Http::response([[
+                '_id' => 'PLATO-A',
+                'name' => 'Test User',
+                'nric' => '900101010001',
+                'casenote' => 'secret clinical note',
+                'admin_note' => 'secret admin note',
+                'notes' => 'more secrets',
+            ]], 200),
+        ]);
+
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        $response = $this->actingAs($patient, 'sanctum')
+            ->getJson('/api/v2/plato/patient/PLATO-A')
+            ->assertOk();
+
+        $this->assertSame('Test User', $response->json('0.name'));
+        $this->assertArrayNotHasKey('casenote', $response->json('0'));
+        $this->assertArrayNotHasKey('admin_note', $response->json('0'));
+        $this->assertArrayNotHasKey('notes', $response->json('0'));
     }
 
     public function test_document_urls_are_signed_and_not_raw_storage_links(): void

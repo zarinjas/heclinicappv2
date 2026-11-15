@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\LoyaltyConfigController;
 use App\Http\Controllers\Admin\LoyaltyRedemptionController;
 use App\Http\Controllers\Admin\LoyaltyRewardController;
+use App\Http\Controllers\Admin\McpController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PatientController;
 use App\Http\Controllers\Admin\PatientDuplicateController;
@@ -192,6 +193,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('settings/system', [SystemSettingsController::class, 'index'])->name('settings.system');
         Route::post('settings/system', [SystemSettingsController::class, 'update'])->name('settings.system.update');
         Route::post('settings/system/test-whatsapp', [SystemSettingsController::class, 'testWhatsapp'])->name('settings.system.test-whatsapp');
+
+        Route::get('mcp', [McpController::class, 'index'])->name('mcp.index');
+        Route::post('mcp/toggle', [McpController::class, 'toggle'])->name('mcp.toggle');
+        Route::post('mcp/regenerate', [McpController::class, 'regenerate'])->name('mcp.regenerate');
         Route::resource('users', UserController::class);
         Route::get('loyalty/settings', [LoyaltyConfigController::class, 'index'])->name('loyalty.config');
         Route::post('loyalty/settings', [LoyaltyConfigController::class, 'update'])->name('loyalty.config.update');

@@ -31,6 +31,31 @@ class HealthRecord {
     this.attachments,
   });
 
+  factory HealthRecord.fromJson(Map<String, dynamic> json) => HealthRecord(
+        type: HealthRecordType.values.firstWhere(
+          (t) => t.name == json['type'],
+          orElse: () => HealthRecordType.letter,
+        ),
+        title: (json['title'] ?? '').toString(),
+        date: (json['date'] ?? '').toString(),
+        author: (json['author'] ?? '').toString(),
+        detailData: json['detailData'] as String?,
+        category: json['category'] as String?,
+        diagnosis: (json['diagnosis'] as List?)?.map((e) => e.toString()).toList(),
+        attachments: (json['attachments'] as List?)?.map((e) => e.toString()).toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'type': type.name,
+        'title': title,
+        'date': date,
+        'author': author,
+        if (detailData != null) 'detailData': detailData,
+        if (category != null) 'category': category,
+        if (diagnosis != null) 'diagnosis': diagnosis,
+        if (attachments != null) 'attachments': attachments,
+      };
+
   String get typeLabel {
     switch (type) {
       case HealthRecordType.letter:
@@ -42,9 +67,14 @@ class HealthRecord {
     }
   }
 
-  /// Letters arrive as HTML; the detail screen strips tags for display.
-  bool get isHtml => type == HealthRecordType.letter;
+  /// Content is HTML when the payload looks like markup (letters, and medical
+  /// certificates that arrive through the `letter` endpoint).
+  bool get isHtml => (detailData ?? '').contains('<');
 
-  /// The MC is a file path rather than inline content.
-  bool get isFile => type == HealthRecordType.mc;
+  /// The record points at a hosted file (e.g. a PDF) rather than inline content.
+  bool get isFile {
+    final data = detailData;
+    if (data == null || data.trim().isEmpty || isHtml) return false;
+    return Uri.tryParse(data)?.hasScheme ?? false;
+  }
 }

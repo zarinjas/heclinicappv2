@@ -14,6 +14,7 @@ import '../../core/widgets/app_empty_state.dart';
 import '../../env_config.dart';
 import 'document_viewer_screen.dart';
 import 'health_record.dart';
+import 'letter_html_view.dart';
 
 /// Shows the full content of a single clinical record.
 ///
@@ -86,20 +87,44 @@ class RecordDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
       appBar: AppAppBar.sub(title: record.typeLabel),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(isDark),
-            const SizedBox(height: AppSpacing.space16),
-            _buildContent(context, isDark),
-            if (record.attachments != null && record.attachments!.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.space16),
-              _buildAttachments(context, isDark),
-            ],
-          ],
+      body: record.isHtml
+          ? _buildHtmlBody(isDark)
+          : _buildScrollBody(context, isDark),
+    );
+  }
+
+  Widget _buildHtmlBody(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(AppSpacing.space16),
+          child: _buildHeader(isDark),
         ),
+        Expanded(
+          child: LetterHtmlView(
+            html: record.detailData ?? '',
+            authToken: FFAppState().tokenauth,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScrollBody(BuildContext context, bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.space16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(isDark),
+          const SizedBox(height: AppSpacing.space16),
+          _buildContent(context, isDark),
+          if (record.attachments != null && record.attachments!.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.space16),
+            _buildAttachments(context, isDark),
+          ],
+        ],
       ),
     );
   }

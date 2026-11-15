@@ -71,7 +71,8 @@ android {
         // iOS is unaffected and keeps com.hemedgroup.heclinicapps, so that
         // listing continues to receive ordinary version updates.
         applicationId "com.heclinicapp"
-        minSdkVersion 23
+        // Play automatic integrity protection requires minSdk 24+.
+        minSdkVersion 24
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../flutter_flow/nav/nav.dart' show appNavigatorKey;
@@ -41,6 +42,10 @@ class AppUpdateService {
   static const _iosCountry = 'my';
   static const _androidLocale = 'en_US';
 
+  /// Remembers the last store version the user chose to skip, so the soft
+  /// prompt never nags for the same release.
+  static const _dismissedKey = 'app_update_dismissed_version';
+
   bool _prompted = false;
 
   /// Fetches the store version. Returns null when the platform is unsupported,
@@ -68,6 +73,10 @@ class AppUpdateService {
       final status = await check();
       if (status == null || !status.canUpdate) return;
 
+      // Never nag for a release the user already chose to skip.
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getString(_dismissedKey) == status.storeVersion) return;
+
       // Let the first screen settle before interrupting with the prompt.
       await Future.delayed(const Duration(seconds: 2));
 
@@ -85,6 +94,9 @@ class AppUpdateService {
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
+      } else if (wantsUpdate == false) {
+        // Soft prompt: remember the skip and keep the user on their version.
+        await prefs.setString(_dismissedKey, status.storeVersion);
       }
     } catch (e) {
       debugPrint('AppUpdateService.checkAndPrompt failed: $e');
@@ -106,9 +118,15 @@ class AppUpdateService {
     if (results == null || results.isEmpty) return null;
 
     final result = results.first as Map<String, dynamic>;
+    final storeVersion = _cleanVersion(result['version'] as String? ?? '');
+
+    // Defensive: ignore implausible versions so a bad/partial lookup can never
+    // produce a bogus "update available" prompt.
+    if (!_isPlausibleStoreVersion(storeVersion, localVersion)) return null;
+
     return AppUpdateStatus(
       localVersion: _cleanVersion(localVersion),
-      storeVersion: _cleanVersion(result['version'] as String? ?? ''),
+      storeVersion: storeVersion,
       storeUrl: result['trackViewUrl'] as String? ?? '',
       releaseNotes: result['releaseNotes'] as String?,
     );
@@ -129,12 +147,28 @@ class AppUpdateService {
         ?.group(1);
     if (match == null) return null;
 
+    final storeVersion = _cleanVersion(match);
+
+    // The Play page is scraped, so the regex can occasionally capture an
+    // unrelated number (e.g. a rating like "4.5"). Reject implausible jumps so
+    // users on the latest build never see a bogus "update available" prompt.
+    if (!_isPlausibleStoreVersion(storeVersion, localVersion)) return null;
+
     return AppUpdateStatus(
       localVersion: _cleanVersion(localVersion),
-      storeVersion: _cleanVersion(match),
+      storeVersion: storeVersion,
       storeUrl:
           'https://play.google.com/store/apps/details?id=$_androidPackageId',
     );
+  }
+
+  /// Guards against scraped numbers that are not a real app version by
+  /// rejecting versions implausibly far ahead of the installed one (allows the
+  /// next major release, rejects wildly different majors).
+  static bool _isPlausibleStoreVersion(String store, String local) {
+    final s = _parts(store);
+    final l = _parts(local);
+    return s[0] <= l[0] + 1;
   }
 
   static String _cleanVersion(String version) =>

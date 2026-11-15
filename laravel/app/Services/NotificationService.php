@@ -131,6 +131,77 @@ final class NotificationService
         return $this->sendPush($title, $body, $pushData);
     }
 
+    /**
+     * Send a manual notification to a specific set of patients (by idplato).
+     *
+     * Used by the admin MCP integration so a marketing campaign's registrants
+     * can be targeted directly instead of by branch/doctor/date.
+     *
+     * @param  array<int, string>  $patientIds
+     * @param  array<int, string>  $channels
+     * @return array<string, mixed>
+     */
+    public function sendToPatients(
+        array $patientIds,
+        string $title,
+        string $body,
+        array $channels = ['push', 'in_app'],
+        ?string $imageUrl = null,
+    ): array {
+        $patientIds = array_values(array_unique(array_filter(array_map(
+            static fn ($id) => (string) $id,
+            $patientIds,
+        ))));
+
+        if ($patientIds === []) {
+            return ['success' => false, 'error' => 'No patients matched the target audience.'];
+        }
+
+        $delivered = [];
+        $pushResult = [];
+        $inAppCount = 0;
+
+        if (in_array('push', $channels, true)) {
+            $pushResult = $this->sendPush($title, $body, [
+                'image_url' => $imageUrl,
+                'initial_page_name' => 'notificationPage',
+                'target_audience' => 'All',
+                'type' => 'campaign',
+                'patient_ids' => $patientIds,
+            ]);
+            $delivered['push'] = (bool) ($pushResult['success'] ?? false);
+        }
+
+        if (in_array('in_app', $channels, true)) {
+            foreach ($patientIds as $patientId) {
+                if ($this->writeInAppNotify($title, $body, 'profile', 'campaign', $patientId, $imageUrl)) {
+                    $inAppCount++;
+                }
+            }
+
+            $delivered['in_app'] = $inAppCount > 0;
+        }
+
+        $log = NotificationLog::create([
+            'type' => 'campaign',
+            'title' => $this->plainText($title),
+            'body' => $this->plainText($body),
+            'image_url' => $imageUrl,
+            'target_type' => 'campaign',
+            'target_ids' => $patientIds,
+            'channels' => $channels,
+            'status' => $this->resolveLogStatus($delivered),
+            'sent_at' => now(),
+        ]);
+
+        return [
+            'success' => in_array(true, $delivered, true),
+            'notification_log_id' => $log->id,
+            'patients' => count($patientIds),
+            'in_app' => $inAppCount,
+        ] + $pushResult;
+    }
+
     public function sendManualEmailNotification(string $title, string $body, ?string $recipientEmail, ?string $imageUrl = null): bool
     {
         $title = $this->plainText($title);

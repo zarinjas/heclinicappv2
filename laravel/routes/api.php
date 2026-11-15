@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\CmsLegalPageController as ApiCmsLegalPageController
 use App\Http\Controllers\Api\BranchConfigController;
 use App\Http\Controllers\Api\DoctorConfigController;
 use App\Http\Controllers\Api\LoyaltyController;
+use App\Http\Controllers\Api\McpServerController;
 use App\Http\Controllers\Api\NotificationInboxController;
 use App\Http\Controllers\Api\PatientDocumentController;
 use App\Http\Controllers\Api\PlatoProxyController;
@@ -24,6 +25,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// ─── Claude / MCP endpoint ───────────────────────────────────────────────────
+// Streamable HTTP MCP server. Auth is a bearer token generated in the admin
+// panel (Admin → Claude / MCP), not a Sanctum patient token.
+Route::match(['get', 'post'], '/mcp', [McpServerController::class, 'handle'])
+    ->middleware('mcp.auth')
+    ->name('mcp.handle');
 
 // ─── Mobile Patient Auth (public) ────────────────────────────────────────────
 Route::prefix('v2/auth')->name('auth.')->group(function () {

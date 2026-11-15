@@ -27,6 +27,21 @@ final class PlatoProxyController extends Controller
         '#^patient/[^/]+/admin(/|$)#i',
     ];
 
+    /**
+     * Endpoints that return a patient's own records. When the patient scope is
+     * omitted Plato returns EVERY patient's records for these, so a matching
+     * `patient_id`-style parameter is mandatory. Non-patient endpoints
+     * (appointment/slots, appointment/codes, appointments/calendars) are
+     * deliberately excluded.
+     */
+    private const PATIENT_SCOPED_PATH_PATTERNS = [
+        '#^letters?$#i',
+        '#^invoices?$#i',
+        '#^payments?$#i',
+        '#^appointment$#i',
+        '#^appointment/[^/]+/(cancel|update|reschedule|delete)$#i',
+    ];
+
     private PlatoProxyService $service;
 
     public function __construct(PlatoProxyService $service)
@@ -73,8 +88,11 @@ final class PlatoProxyController extends Controller
 
         $result = $this->service->proxy($method, $path, $query, $body);
 
+        $data = $result['data'] ?? $result;
+        $data = $this->stripSensitiveFields($path, $data);
+
         $response = response()->json(
-            $result['data'] ?? $result,
+            $data,
             $result['status'] ?? 200
         );
 
@@ -162,6 +180,7 @@ final class PlatoProxyController extends Controller
         }
 
         // Query/body-identified patient resources, e.g. letter?patient_id={id}.
+        $scopeSupplied = false;
         foreach (['patient_id', 'patientId', 'id_patient'] as $field) {
             $requestedId = $query[$field] ?? $body[$field] ?? null;
 
@@ -169,12 +188,78 @@ final class PlatoProxyController extends Controller
                 continue;
             }
 
+            $scopeSupplied = true;
+
             if (! is_scalar($requestedId) || $ownId === '' || (string) $requestedId !== $ownId) {
                 return false;
             }
         }
 
+        // Endpoints that return every patient's data when the scope is omitted
+        // must carry a matching patient id.
+        if ($this->requiresPatientScope($normalisedPath) && ! $scopeSupplied) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Whether the path is a patient-data endpoint that must carry a scope.
+     */
+    private function requiresPatientScope(string $path): bool
+    {
+        foreach (self::PATIENT_SCOPED_PATH_PATTERNS as $pattern) {
+            if (preg_match($pattern, $path) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Remove clinical / administrative note fields from a patient record so
+     * casenote and admin note never reach the patient app, even though the app
+     * does not display them. Only the bare patient record endpoint is affected.
+     */
+    private function stripSensitiveFields(string $path, mixed $data): mixed
+    {
+        $normalisedPath = ltrim($path, '/');
+
+        // Only `patient/{id}` itself — not subresources that already have their
+        // own access rules.
+        if (preg_match('#^patient/[^/]+/?$#i', $normalisedPath) !== 1) {
+            return $data;
+        }
+
+        if (! is_array($data)) {
+            return $data;
+        }
+
+        // Plato returns the record as a single-element list.
+        if (array_is_list($data)) {
+            return array_map(fn ($row) => $this->stripSensitiveFieldsFromRecord($row), $data);
+        }
+
+        return $this->stripSensitiveFieldsFromRecord($data);
+    }
+
+    private function stripSensitiveFieldsFromRecord(mixed $record): mixed
+    {
+        if (! is_array($record)) {
+            return $record;
+        }
+
+        foreach (array_keys($record) as $key) {
+            $lower = strtolower((string) $key);
+
+            if (str_contains($lower, 'note') || $lower === 'admin') {
+                unset($record[$key]);
+            }
+        }
+
+        return $record;
     }
 
     /**

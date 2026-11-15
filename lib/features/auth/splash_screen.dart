@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app_state.dart';
+import '../../backend/api_requests/heclinic_auth_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/services/branding_service.dart';
@@ -45,6 +46,14 @@ class _SplashScreenState extends State<SplashScreen> {
     final appState = FFAppState();
     final isLoggedIn = appState.isLoggedIn || appState.tokenauth.isNotEmpty;
 
+    // Refresh the patient profile (notably `idplato`) from the server so
+    // patient-scoped screens keep working after a restart, and so any
+    // server-side change (e.g. an admin relink) is picked up. Best-effort: a
+    // failure falls back to the persisted values and never blocks the app.
+    if (isLoggedIn && appState.tokenauth.isNotEmpty) {
+      await _refreshProfile(appState);
+    }
+
     // For logged-out users, warm the onboarding media cache during the splash
     // window so the background video/GIF plays instantly on the next screen.
     if (!isLoggedIn) {
@@ -59,6 +68,22 @@ class _SplashScreenState extends State<SplashScreen> {
       // logged-out users (first launch / after logout).
       context.go(isLoggedIn ? '/' : '/onboarding');
     });
+  }
+
+  Future<void> _refreshProfile(FFAppState appState) async {
+    try {
+      final response = await HeclinicAuthApi.meCall
+          .call(token: appState.tokenauth)
+          .timeout(const Duration(seconds: 8));
+      if (!response.succeeded) return;
+
+      appState.idplato = MeCall.idplato(response.jsonBody) ?? appState.idplato;
+      appState.name = MeCall.name(response.jsonBody) ?? appState.name;
+      appState.userEmail =
+          MeCall.email(response.jsonBody) ?? appState.userEmail;
+    } catch (_) {
+      // Offline or timed out — keep the persisted values.
+    }
   }
 
   Future<void> _prefetchOnboardingMedia() async {

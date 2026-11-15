@@ -42,9 +42,22 @@ String resolveBackendUrl(String url, {String? baseUrl}) {
   final origin = _originOf(base);
   if (origin.isEmpty) return url;
 
-  final path = uri.hasScheme
-      ? (uri.path.isEmpty ? '/' : uri.path)
-      : (url.startsWith('/') ? url : '/$url');
+  // Loopback host (e.g. http://localhost:8080/...): keep the path and rebase
+  // only the host.
+  if (uri.hasScheme) {
+    final path = uri.path.isEmpty ? '/' : uri.path;
+    final query = uri.hasQuery ? '?${uri.query}' : '';
+    return '$origin$path$query';
+  }
+
+  // Relative path: resolve against the base URL including its path prefix
+  // (e.g. /pdfs/mc_001.pdf with base .../api/v2/plato becomes
+  // .../api/v2/plato/pdfs/mc_001.pdf).
+  final baseUri = Uri.tryParse(base);
+  final basePath = baseUri != null && baseUri.path.isNotEmpty
+      ? baseUri.path.replaceAll(RegExp(r'/+$'), '')
+      : '';
+  final path = url.startsWith('/') ? url : '/$url';
   final query = uri.hasQuery ? '?${uri.query}' : '';
-  return '$origin$path$query';
+  return '$origin$basePath$path$query';
 }

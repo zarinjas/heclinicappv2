@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../backend/api_requests/api_calls.dart';
 import '../../core/services/seen_store.dart';
-import '../../core/utils/api_url.dart';
 import '../../core/utils/html_text.dart';
-import '../../env_config.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -15,6 +13,7 @@ import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_skeleton.dart';
 import '../../core/widgets/health_record_card.dart';
+import 'health_cache.dart';
 import 'health_record.dart';
 import 'record_detail_screen.dart';
 
@@ -28,8 +27,9 @@ class RecordsTab extends StatefulWidget {
 class _RecordsTabState extends State<RecordsTab> {
   bool _isLoading = true;
   bool _hasError = false;
+  bool _fromCache = false;
   String _activeFilter = 'All';
-  List<HealthRecord> _records = const [];
+  List<HealthRecord> _all = const [];
   Set<String> _seen = const {};
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
@@ -53,64 +53,79 @@ class _RecordsTabState extends State<RecordsTab> {
 
   Future<void> _loadRecords() async {
     if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
-
     final patientId = FFAppState().idplato;
 
     if (patientId.isEmpty) {
-      final seen = await SeenStore.seenFor(_seenCategory);
-      if (!mounted) return;
       setState(() {
-        _records = const [];
-        _seen = seen;
+        _all = const [];
         _isLoading = false;
+        _hasError = false;
+        _fromCache = false;
       });
       return;
     }
 
-    try {
-      final records = <HealthRecord>[];
-      final wantAll = _activeFilter == 'All';
-
-      // Only fetch what the active filter needs. Case notes are intentionally
-      // not fetched: they are P&C and must not reach the patient app.
-      if (wantAll || _activeFilter == 'Letters') {
-        records.addAll(await _loadLetters(patientId));
-      }
-      if (wantAll || _activeFilter == 'MC') {
-        records.addAll(await _loadMedicalCertificate());
-      }
-
-      // Newest first.
-      records.sort((a, b) => _sortKey(b).compareTo(_sortKey(a)));
-
-      final seen = await SeenStore.ensureInitialized(
-        _seenCategory,
-        records.map(_recordKey),
-      );
-
-      if (!mounted) return;
+    // Show cached records immediately so the list survives offline, rate
+    // limits and transient API failures.
+    final cached = await HealthCache.readRecords(patientId);
+    if (!mounted) return;
+    if (cached != null && cached.isNotEmpty) {
       setState(() {
-        _records = records;
-        _seen = seen;
+        _all = cached;
         _isLoading = false;
+        _fromCache = true;
       });
-    } catch (_) {
-      if (mounted) {
+    } else {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
+
+    // Refresh from Plato in the background.
+    try {
+      final letters = await _loadLetters(patientId);
+      if (!mounted) return;
+
+      if (letters != null) {
+        letters.sort((a, b) => _sortKey(b).compareTo(_sortKey(a)));
         setState(() {
+          _all = letters;
           _isLoading = false;
-          _hasError = true;
+          _hasError = false;
+          _fromCache = false;
         });
+        final seen = await SeenStore.ensureInitialized(
+          _seenCategory,
+          letters.map(_recordKey),
+        );
+        if (mounted) setState(() => _seen = seen);
+        await HealthCache.writeRecords(patientId, letters);
+      } else {
+        _handleFetchFailure();
       }
+    } catch (_) {
+      _handleFetchFailure();
     }
   }
 
-  Future<List<HealthRecord>> _loadLetters(String patientId) async {
+  void _handleFetchFailure() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      if (_all.isEmpty) {
+        _hasError = true;
+      } else {
+        _fromCache = true;
+      }
+    });
+  }
+
+  /// Returns the letters, or null when the API call fails (so the caller can
+  /// keep previously-cached records instead of blanking the list).
+  Future<List<HealthRecord>?> _loadLetters(String patientId) async {
     final response = await LetterCall.call(patientId: patientId);
-    if (!response.succeeded) return const [];
+    if (!response.succeeded) return null;
 
     final body = response.jsonBody;
     final subjects = LetterCall.subject(body);
@@ -132,65 +147,45 @@ class _RecordsTabState extends State<RecordsTab> {
     ];
   }
 
-  Future<List<HealthRecord>> _loadMedicalCertificate() async {
-    final response = await MedicalAppsApiGroup.getMedicalCertificateCall.call(
-      auth: 'Bearer ${FFAppState().tokenauth}',
-    );
-    if (!response.succeeded) return const [];
-
-    // The endpoint returns every certificate; show them all (not just the
-    // newest one).
-    final rows =
-        MedicalAppsApiGroup.getMedicalCertificateCall.data(response.jsonBody);
-    if (rows == null || rows.isEmpty) {
-      // Fallback for a single-object payload shape.
-      final single =
-          MedicalAppsApiGroup.getMedicalCertificateCall.path(response.jsonBody);
-      if (single == null || single.isEmpty) return const [];
-      return [
-        HealthRecord(
-          type: HealthRecordType.mc,
-          title: single.split('/').last,
-          date:
-              MedicalAppsApiGroup.getMedicalCertificateCall.tgl(response.jsonBody) ??
-                  '',
-          author: '',
-          detailData:
-              resolveBackendUrl(single, baseUrl: EnvConfig.medicalAppsBaseUrl),
-        ),
-      ];
-    }
-
-    final records = <HealthRecord>[];
-    for (final row in rows) {
-      if (row is! Map) continue;
-
-      final path = row['path'];
-      if (path is! String || path.isEmpty) continue;
-
-      records.add(HealthRecord(
-        type: HealthRecordType.mc,
-        title: path.split('/').last,
-        date: (row['created_at'] ?? row['created_on'] ?? '').toString(),
-        author: '',
-        // Plato returns a relative path (e.g. /pdfs/mc_001.pdf); resolve it to
-        // an absolute URL so the detail screen can actually open the file.
-        detailData: resolveBackendUrl(
-          path,
-          baseUrl: EnvConfig.medicalAppsBaseUrl,
-        ),
-      ));
-    }
-
-    return records;
+  /// A letter is treated as a medical certificate when its subject marks it as
+  /// one (Plato exposes MCs through the same `letter` endpoint).
+  static bool _isMedicalCertificate(String title) {
+    final t = title.toLowerCase();
+    return t.contains('medical certificate') || t.contains('medical leave') ||
+        RegExp(r'\bmc\b').hasMatch(t);
   }
 
   static T? _at<T>(List<T>? list, int i) =>
       list != null && i < list.length ? list[i] : null;
 
   /// Stable identity for the "seen" store.
-  String _recordKey(HealthRecord record) =>
-      '${record.type.name}:${record.title}|${record.date}';
+  String _recordKey(HealthRecord record) => '${record.title}|${record.date}';
+
+  List<HealthRecord> get _filteredRecords {
+    if (_activeFilter != 'MC') return List<HealthRecord>.of(_all);
+    return _all
+        .where((l) => _isMedicalCertificate(l.title))
+        .map((l) => HealthRecord(
+              type: HealthRecordType.mc,
+              title: l.title,
+              date: l.date,
+              author: l.author,
+              detailData: l.detailData,
+            ))
+        .toList();
+  }
+
+  List<HealthRecord> get _visibleRecords {
+    final q = _query.trim().toLowerCase();
+    final records = _filteredRecords;
+    if (q.isEmpty) return records;
+    return records.where((r) {
+      return r.title.toLowerCase().contains(q) ||
+          r.author.toLowerCase().contains(q) ||
+          r.date.toLowerCase().contains(q) ||
+          r.typeLabel.toLowerCase().contains(q);
+    }).toList();
+  }
 
   /// Sort by real date where possible, falling back to the raw string.
   DateTime _sortKey(HealthRecord record) {
@@ -227,17 +222,6 @@ class _RecordsTabState extends State<RecordsTab> {
     );
   }
 
-  List<HealthRecord> get _visibleRecords {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return _records;
-    return _records.where((r) {
-      return r.title.toLowerCase().contains(q) ||
-          r.author.toLowerCase().contains(q) ||
-          r.date.toLowerCase().contains(q) ||
-          r.typeLabel.toLowerCase().contains(q);
-    }).toList();
-  }
-
   /// Records grouped by year, newest group first.
   Map<String, List<HealthRecord>> _grouped(List<HealthRecord> records) {
     final groups = <String, List<HealthRecord>>{};
@@ -253,8 +237,46 @@ class _RecordsTabState extends State<RecordsTab> {
       children: [
         _buildSearchField(),
         _buildFilterRow(),
+        if (_fromCache) _buildStaleBanner(),
         Expanded(child: _buildBody()),
       ],
+    );
+  }
+
+  Widget _buildStaleBanner() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final text = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.space16,
+        AppSpacing.space8,
+        AppSpacing.space16,
+        0,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space12,
+        vertical: AppSpacing.space8,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadius.radiusLG),
+        border: Border.all(color: AppColors.warning),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_outlined,
+              size: 16, color: AppColors.warning),
+          const SizedBox(width: AppSpacing.space8),
+          Expanded(
+            child: Text(
+              "Can't refresh — showing saved records",
+              style: AppTextStyles.body2.copyWith(color: text),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -411,8 +433,6 @@ class _RecordsTabState extends State<RecordsTab> {
                 onTap: () {
                   if (_activeFilter != filter) {
                     setState(() => _activeFilter = filter);
-                    // Re-fetch so the filter actually changes the results.
-                    _loadRecords();
                   }
                 },
               ),

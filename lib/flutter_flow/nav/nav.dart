@@ -168,18 +168,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               : const AppointmentsScreenWidget(),
         ),
         FFRoute(
-          name: QueueTrackerScreenWidget.routeName,
-          path: QueueTrackerScreenWidget.routePath,
-          builder: (context, params) => const QueueTrackerScreenWidget(),
-        ),
-        FFRoute(
-          name: PaymentHistoryScreenWidget.routeName,
-          path: PaymentHistoryScreenWidget.routePath,
-          builder: (context, params) => const PaymentHistoryScreenWidget(),
-        ),
-
-
-        FFRoute(
           name: SplashScreen.legacyRouteName,
           path: SplashScreen.legacyRoutePath,
           builder: (context, params) => const SplashScreen(),

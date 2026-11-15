@@ -101,5 +101,11 @@ Go to your device's settings, enable notifications, and never miss an important 
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- The app uses only standard/exempt encryption (HTTPS via the OS). This
+	     key answers App Store Connect's export-compliance question automatically
+	     so it is never asked again on upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

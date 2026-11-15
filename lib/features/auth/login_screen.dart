@@ -52,6 +52,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
   }
 
+  /// Normalised key for a biometric account label: lower-cased email, or
+  /// digits-only phone, so the same account entered in different formats
+  /// (phone vs email, spaces/dashes) is not mistaken for a different user.
+  static String _accountLabelKey(String? raw) {
+    final value = (raw ?? '').trim().toLowerCase();
+    if (value.isEmpty) return '';
+    if (value.contains('@')) return value;
+    return value.replaceAll(RegExp(r'[^\d]'), '');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -107,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       switch (result.status) {
         case BiometricUnlockStatus.success:
-          await _resumeSessionWithToken(result.token!);
+          await _resumeSessionWithToken(result.token!, auto: auto);
           break;
 
         case BiometricUnlockStatus.notEnrolled:
@@ -135,7 +145,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Restores a session from a biometric-unlocked token. The token is verified
   /// against the backend so a revoked/expired one cannot grant offline access.
-  Future<void> _resumeSessionWithToken(String token) async {
+  ///
+  /// [auto] is true when this was triggered by the silent prompt on mount, in
+  /// which case a dead token falls back to the password form without an
+  /// alarming full-screen error.
+  Future<void> _resumeSessionWithToken(String token, {bool auto = false}) async {
     setState(() {
       _isLoading = true;
       _showError = false;
@@ -153,12 +167,22 @@ class _LoginScreenState extends State<LoginScreen> {
       final tokenRejected = statusCode == 401 || statusCode == 403;
 
       if (tokenRejected) {
-        await BiometricAuthService.instance.disable();
+        // Keep the enrolment. A rejected session token must NOT wipe Face ID /
+        // fingerprint: the user enabled it once for this device, and the next
+        // successful password/social login refreshes the stored token silently
+        // (see _offerBiometricEnrolment). Dropping it here forced returning
+        // users to re-enable biometrics every time their session expired.
         if (!mounted) return;
+
+        if (auto) {
+          // Silent fallback: just show the password form underneath.
+          return;
+        }
+
         setState(() {
-          _hasSavedBioCreds = false;
           _errorMessage =
-              'Your saved session has expired. Please sign in with your password.';
+              'Your saved session has expired. Please sign in with your password. '
+              '$_biometricLabel stays enabled and will update automatically.';
           _showError = true;
         });
         return;
@@ -166,7 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!response.succeeded) {
         // Server or connectivity problem. Keep the enrolment intact so the
-        // user can simply try again.
+        // user can simply try again. On the silent auto-prompt, just fall back
+        // to the password form without an alarming banner.
+        if (auto) return;
         setState(() {
           _errorMessage =
               'Could not reach the server. Please check your connection and try again.';
@@ -189,9 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) context.go('/');
     } catch (_) {
-      // Network exception — again, do not punish the user by dropping their
-      // biometric enrolment.
-      if (mounted) {
+      // Network exception — never drop the enrolment. Silent on auto-prompt.
+      if (!auto && mounted) {
         setState(() {
           _errorMessage = 'Network error. Please check your connection.';
           _showError = true;
@@ -211,13 +236,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (await bio.isEnabled()) {
       final enrolledFor = await bio.accountLabel();
+      final enrolledKey = _accountLabelKey(enrolledFor);
+      final newKey = _accountLabelKey(accountLabel);
 
       // Signing in as a different account must not leave the previous user's
       // enrolment in place — biometrics would otherwise unlock whichever
       // account happened to be stored last, under the old account's label.
-      if (enrolledFor != null &&
-          accountLabel.isNotEmpty &&
-          enrolledFor != accountLabel) {
+      // Compare a normalised key so the same account entered as phone vs email
+      // is not treated as a different user.
+      if (enrolledKey.isNotEmpty && newKey.isNotEmpty && enrolledKey != newKey) {
         await bio.disable();
         // Fall through and offer enrolment for the account just signed in.
       } else {

@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '/core/services/biometric_auth_service.dart';
 import '/core/services/device_token_service.dart';
+import '/features/health/health_cache.dart';
 
 Future<void> logout() async {
   // Biometric enrolment deliberately SURVIVES logout so the user can sign back
@@ -24,13 +25,22 @@ Future<void> logout() async {
   // a personal device. Turning the toggle off in Settings, or signing in as a
   // different account, erases it.
   final bio = BiometricAuthService.instance;
-  final keepBiometric = await bio.isEnabled();
-
   final prefs = await SharedPreferences.getInstance();
+
+  // Decide purely from the non-secret flag. isEnabled() also reads the
+  // keystore, which can transiently fail on a cold start — that would wrongly
+  // wipe the saved Face ID / fingerprint session on every logout.
+  final keepBiometric =
+      prefs.getBool(BiometricAuthService.prefKeyEnabled) ?? false;
+
   await prefs.clear(); // Menghapus semua data
 
+  // Wipe cached health records/documents so the next account never sees them.
+  await HealthCache.clear();
+
   // prefs.clear() wiped the enabled flag, so restore it. The token itself
-  // lives in the keystore and was never touched by clear().
+  // lives in the keystore and was never touched by clear(), so returning users
+  // can sign back in with a single Face ID / fingerprint tap.
   if (keepBiometric) {
     await prefs.setBool(BiometricAuthService.prefKeyEnabled, true);
   } else {
@@ -42,6 +52,8 @@ Future<void> logout() async {
   // (router + splash check these values to decide where to navigate).
   FFAppState().isLoggedIn = false;
   FFAppState().tokenauth = '';
+  FFAppState().idplato = '';
+  FFAppState().name = '';
   FFAppState().fingerprint = keepBiometric;
   // Forget the cached push registration so the next login re-registers this
   // device against the new account.

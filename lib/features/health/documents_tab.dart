@@ -18,6 +18,7 @@ import '../../core/widgets/branch_picker_sheet.dart';
 import '../../core/widgets/document_item.dart';
 import '../../flutter_flow/flutter_flow_util.dart';
 import 'document_viewer_screen.dart';
+import 'health_cache.dart';
 
 /// A document belonging to the logged-in patient, as returned by
 /// `GET /api/v2/patients/{id}/documents`.
@@ -41,6 +42,28 @@ class _PatientDocument {
     this.adminNote,
     this.mimeType,
   });
+
+  factory _PatientDocument.fromMap(Map<String, dynamic> m) => _PatientDocument(
+        id: (m['id'] as num?)?.toInt() ?? 0,
+        name: (m['name'] ?? '').toString(),
+        url: (m['url'] ?? '').toString(),
+        uploadedAt: (m['uploadedAt'] ?? '').toString(),
+        adminNote: m['adminNote'] as String?,
+        sizeBytes: (m['sizeBytes'] as num?)?.toInt() ?? 0,
+        mimeType: m['mimeType'] as String?,
+        source: (m['source'] ?? 'admin').toString(),
+      );
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'name': name,
+        'url': url,
+        'uploadedAt': uploadedAt,
+        if (adminNote != null) 'adminNote': adminNote,
+        'sizeBytes': sizeBytes,
+        if (mimeType != null) 'mimeType': mimeType,
+        'source': source,
+      };
 
   DocumentFileType get fileType {
     final mime = (mimeType ?? '').toLowerCase();
@@ -81,6 +104,7 @@ class DocumentsTab extends StatefulWidget {
 class _DocumentsTabState extends State<DocumentsTab> {
   bool _isLoading = true;
   bool _hasError = false;
+  bool _fromCache = false;
   bool _isUploading = false;
   List<_PatientDocument> _documents = const [];
   Set<String> _seen = const {};
@@ -103,27 +127,37 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
   Future<void> _loadDocuments() async {
     if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
+    final patientId = FFAppState().idplato;
+
+    // Without a Plato id there is no patient to scope the request to.
+    if (patientId.isEmpty) {
+      setState(() {
+        _documents = const [];
+        _isLoading = false;
+        _hasError = false;
+        _fromCache = false;
+      });
+      return;
+    }
+
+    // Serve cached documents immediately so the list survives offline / rate
+    // limits / transient failures.
+    final cached = await HealthCache.readDocuments(patientId);
+    if (!mounted) return;
+    if (cached != null && cached.isNotEmpty) {
+      setState(() {
+        _documents = cached.map(_PatientDocument.fromMap).toList();
+        _isLoading = false;
+        _fromCache = true;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+    }
 
     try {
-      final patientId = FFAppState().idplato;
-
-      // Without a Plato id there is no patient to scope the request to.
-      if (patientId.isEmpty) {
-        final seen = await SeenStore.seenFor(_seenCategory);
-        if (mounted) {
-          setState(() {
-            _documents = const [];
-            _seen = seen;
-            _isLoading = false;
-          });
-        }
-        return;
-      }
-
       final response = await GetPatientDocumentsCall.call(
         patientId: patientId,
       );
@@ -131,10 +165,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
       if (!mounted) return;
 
       if (!response.succeeded) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
+        _handleDocumentsFailure();
         return;
       }
 
@@ -150,15 +181,27 @@ class _DocumentsTabState extends State<DocumentsTab> {
         _seen = seen;
         _isLoading = false;
         _hasError = false;
+        _fromCache = false;
       });
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
-      }
+      await HealthCache.writeDocuments(
+        patientId,
+        documents.map((d) => d.toMap()).toList(),
+      );
+    } catch (_) {
+      _handleDocumentsFailure();
     }
+  }
+
+  void _handleDocumentsFailure() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      if (_documents.isEmpty) {
+        _hasError = true;
+      } else {
+        _fromCache = true;
+      }
+    });
   }
 
   List<_PatientDocument> _parse(dynamic body) {
@@ -483,6 +526,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
     return Column(
       children: [
         _buildSearchField(),
+        if (_fromCache) _buildStaleBanner(),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.space16,
@@ -567,6 +611,43 @@ class _DocumentsTabState extends State<DocumentsTab> {
                 ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStaleBanner() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final text = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.space16,
+        AppSpacing.space8,
+        AppSpacing.space16,
+        0,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space12,
+        vertical: AppSpacing.space8,
+      ),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadius.radiusFull),
+        border: Border.all(color: AppColors.warning),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_outlined,
+              size: 16, color: AppColors.warning),
+          const SizedBox(width: AppSpacing.space8),
+          Expanded(
+            child: Text(
+              "Can't refresh — showing saved documents",
+              style: AppTextStyles.body2.copyWith(color: text),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -12,13 +12,18 @@ class PaginationHelper {
   static Future<ApiCallResponse> fetchAllPages(
     PageFetcher pageFetcher, {
     int perPage = _kDefaultPerPage,
+    int maxPages = 200,
   }) async {
     final List<dynamic> allRecords = [];
     int currentPage = 1;
     ApiCallResponse lastResponse = ApiCallResponse(null, {}, -1);
     bool hasMore = true;
 
-    while (hasMore) {
+    // Guards against an endpoint that ignores `current_page` and keeps
+    // returning the same full page: without this the loop would never end.
+    String? previousPageSignature;
+
+    while (hasMore && currentPage <= maxPages) {
       final response = await pageFetcher(currentPage);
 
       if (!response.succeeded) {
@@ -33,6 +38,14 @@ class PaginationHelper {
 
       final body = response.jsonBody;
       final List<dynamic> records = _extractRecords(body);
+
+      final signature = json.encode(records);
+      if (previousPageSignature != null && signature == previousPageSignature) {
+        // The server repeated the previous page — stop instead of looping.
+        hasMore = false;
+        break;
+      }
+      previousPageSignature = signature;
 
       allRecords.addAll(records);
 

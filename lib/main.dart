@@ -29,11 +29,13 @@ import 'core/services/branch_service.dart';
 import 'core/services/package_service.dart';
 import 'core/services/promotion_service.dart';
 import 'core/services/branding_service.dart';
+import 'core/services/biometric_auth_service.dart';
 import 'core/services/onboarding_service.dart';
 import 'core/services/telehealth_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/device_token_service.dart';
 import 'core/services/app_update_service.dart';
+import 'features/health/health_cache.dart';
 
 /// Runs a CMS/branding init in the background and swallows failures — every
 /// service falls back to cached/fallback data on its own, so a slow or broken
@@ -79,6 +81,10 @@ void main() async {
   } catch (e) {
     debugPrint('initializePersistedState failed: $e');
   }
+
+  // Purge any plaintext credentials written by pre-secure-storage builds on
+  // every launch (fire-and-forget), so stale secrets never linger.
+  BiometricAuthService.instance.migrateLegacyCredentials();
 
   // Push the current FCM token to the backend for already-logged-in users and
   // keep it in sync when FCM rotates it. Fire-and-forget so it never delays
@@ -201,11 +207,19 @@ class _MyAppState extends State<MyApp> {
     final interceptor = ApiInterceptor.instance;
 
     interceptor.onUnauthorized = () {
+      // While already logged out, a 401 is an expected probe result — e.g. the
+      // biometric token check on the login screen, which handles it locally.
+      // Ignoring it here prevents the login screen from being rebuilt, which
+      // would re-trigger the biometric prompt in a confusing loop.
+      if (!FFAppState().isLoggedIn) return;
+
       FFAppState().isLoggedIn = false;
       // Drop the persisted token too. The splash treats a non-empty `tokenauth`
       // as "logged in", so leaving it behind would bounce the user straight
       // back to Home with the same dead token and loop on 401.
       FFAppState().tokenauth = '';
+      // Never leave another account's cached records/documents on the device.
+      HealthCache.clear();
       final context = appNavigatorKey.currentContext;
       if (context != null) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
