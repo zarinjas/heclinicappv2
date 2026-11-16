@@ -253,6 +253,10 @@ class _MyAppState extends State<MyApp> {
     };
 
     interceptor.onRateLimited = (callName) {
+      if (callName == 'PatientHealthRecords' ||
+          callName == 'GetPatientDocuments') {
+        return;
+      }
       final context = appNavigatorKey.currentContext;
       if (context != null) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();

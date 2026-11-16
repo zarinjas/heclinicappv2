@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Patient;
 use App\Models\PlatoHealthRecordEvent;
 use App\Models\Setting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 final class PlatoHealthRecordNotificationService
@@ -21,7 +22,11 @@ final class PlatoHealthRecordNotificationService
     {
         $stats = ['patients' => 0, 'discovered' => 0, 'sent' => 0, 'failed' => 0];
         $bootstrapKey = 'plato_health_record_notifications_bootstrapped';
-        $bootstrap = ! Setting::query()->where('key', $bootstrapKey)->exists();
+        $bootstrapSetting = Setting::query()->where('key', $bootstrapKey)->first();
+        $bootstrap = $bootstrapSetting === null;
+        $initializedAt = $bootstrapSetting?->value
+            ? Carbon::parse($bootstrapSetting->value)
+            : null;
 
         Patient::query()
             ->whereNotNull('idplato')
@@ -65,6 +70,14 @@ final class PlatoHealthRecordNotificationService
                             }
 
                             if ($bootstrap || $event->notified_at !== null) {
+                                continue;
+                            }
+
+                            // A paginated/API-cache miss can reveal old rows on
+                            // a later run. Never notify those as if they were
+                            // newly uploaded after notification sync started.
+                            if ($initializedAt === null || ! $this->isNewSince($record, $initializedAt)) {
+                                $event->update(['notified_at' => now()]);
                                 continue;
                             }
 
@@ -133,5 +146,19 @@ final class PlatoHealthRecordNotificationService
             (string) ($record['date'] ?? ''),
             strip_tags($detail),
         ]));
+    }
+
+    private function isNewSince(array $record, Carbon $initializedAt): bool
+    {
+        $date = trim((string) ($record['date'] ?? ''));
+        if ($date === '') {
+            return false;
+        }
+
+        try {
+            return Carbon::parse($date)->isAfter($initializedAt);
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

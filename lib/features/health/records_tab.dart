@@ -272,7 +272,7 @@ class _RecordsTabState extends State<RecordsTab> {
           const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
-              "Can't refresh — showing saved records",
+              'Records are saved on this device. Pull down to check for updates.',
               style: AppTextStyles.body2.copyWith(color: text),
             ),
           ),

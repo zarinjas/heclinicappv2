@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Reads patient-facing records from Plato without exposing private notes.
@@ -17,6 +18,38 @@ final class PlatoHealthRecordService
      * @return array<int, array<string, mixed>>
      */
     public function recordsForPatient(string $patientId): array
+    {
+        $cacheKey = 'plato:health-records:'.$patientId;
+        $cached = Cache::get($cacheKey);
+        if (is_array($cached) && isset($cached['records'], $cached['fetched_at'])) {
+            $age = now()->diffInSeconds($cached['fetched_at']);
+            if ($age < 600) {
+                return $cached['records'];
+            }
+        }
+
+        try {
+            $records = $this->fetchRecords($patientId);
+        } catch (\Throwable) {
+            return is_array($cached['records'] ?? null) ? $cached['records'] : [];
+        }
+
+        // A transient Plato failure can look like an empty page. Keep the
+        // last known records instead of making the patient app appear empty.
+        if ($records === [] && is_array($cached['records'] ?? null) && $cached['records'] !== []) {
+            return $cached['records'];
+        }
+
+        Cache::put($cacheKey, [
+            'records' => $records,
+            'fetched_at' => now(),
+        ], now()->addHours(2));
+
+        return $records;
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function fetchRecords(string $patientId): array
     {
         $records = [];
 

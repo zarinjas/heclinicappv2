@@ -26,7 +26,7 @@ class HealthCache {
   static Future<File> _recordsFile(String patientId) async {
     final dir = await _dir();
     // Version 2 excludes generic letters and private note data from the cache.
-    return File('${dir.path}/health_records_v2_${_safeId(patientId)}.json');
+    return File('${dir.path}/health_records_v3_${_safeId(patientId)}.json');
   }
 
   static Future<File> _documentsFile(String patientId) async {

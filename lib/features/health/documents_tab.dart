@@ -669,7 +669,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
           const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
-              "Can't refresh — showing saved documents",
+              'Documents are saved on this device. Pull down to check for updates.',
               style: AppTextStyles.body2.copyWith(color: text),
             ),
           ),
