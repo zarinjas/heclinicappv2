@@ -130,8 +130,8 @@ class PlatoAppointmentReminderService
             $stats['failed']++;
 
             Log::channel('plato')->error('Plato appointment reminder failed', [
-                'plato_appointment_id' => $id,
-                'patient_plato_id' => $patient->idplato,
+                'appointment_ref' => hash('sha256', $id),
+                'patient_ref' => hash('sha256', (string) $patient->idplato),
                 'days_before' => $daysBefore,
                 'error' => $e->getMessage(),
             ]);

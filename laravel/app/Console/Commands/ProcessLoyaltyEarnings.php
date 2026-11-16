@@ -37,7 +37,7 @@ class ProcessLoyaltyEarnings extends Command
 
                 if (! empty($result['error'])) {
                     Log::channel('plato')->warning('Loyalty invoice fetch failed', [
-                        'patient_id' => $patient->idplato,
+                        'patient_ref' => hash('sha256', (string) $patient->idplato),
                         'result'     => $result['message'] ?? 'unknown',
                     ]);
                     $skipped++;
@@ -80,7 +80,7 @@ class ProcessLoyaltyEarnings extends Command
                 }
             } catch (\Exception $e) {
                 Log::channel('plato')->error('Loyalty processing error', [
-                    'patient_id' => $patient->idplato,
+                    'patient_ref' => hash('sha256', (string) $patient->idplato),
                     'error'      => $e->getMessage(),
                 ]);
                 $skipped++;

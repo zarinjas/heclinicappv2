@@ -8,9 +8,13 @@ import 'package:flutter/material.dart';
 // Begin custom action code
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+
+import '/features/health/health_cache.dart';
 
 final _foregroundNotifPlugin = FlutterLocalNotificationsPlugin();
 final _handledForegroundMessageIds = <String?>{};
@@ -54,16 +58,21 @@ Future<void> setupFCMForegroundHandler() async {
     final notifType = message.data['type'] as String?;
     final msgTitle = message.notification?.title ?? message.data['title'] ?? '';
     final msgBody = message.notification?.body ?? message.data['body'] ?? '';
-    final appointmentId =
-        message.data['appointment_id'] as String? ?? '';
+    final appointmentId = message.data['appointment_id'] as String? ?? '';
     final payload = notifType == 'appointment_confirmed'
         ? '{"type":"appointment_confirmed","appointment_id":"$appointmentId"}'
-        : '';
+        : notifType == 'health_record_available'
+            ? '{"type":"health_record_available"}'
+            : '';
     final channelId = notifType == 'appointment_confirmed'
         ? 'appointment_channel_id'
         : 'default_channel_id';
 
     if (notifType == 'appointment_confirmed') {
+      _incrementNotifBadgeForeground();
+    }
+    if (notifType == 'health_record_available') {
+      HealthCache.invalidate(FFAppState().idplato);
       _incrementNotifBadgeForeground();
     }
 
@@ -81,10 +90,9 @@ Future<void> setupFCMForegroundHandler() async {
             notifType == 'appointment_confirmed'
                 ? 'Appointment Notifications'
                 : 'Default Channel',
-            channelDescription:
-                notifType == 'appointment_confirmed'
-                    ? 'Notifikasi appointment confirmation'
-                    : 'Channel untuk notifikasi FCM di foreground',
+            channelDescription: notifType == 'appointment_confirmed'
+                ? 'Notifikasi appointment confirmation'
+                : 'Channel untuk notifikasi FCM di foreground',
             importance: Importance.max,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -103,10 +111,9 @@ Future<void> setupFCMForegroundHandler() async {
             notifType == 'appointment_confirmed'
                 ? 'Appointment Notifications'
                 : 'Default Channel',
-            channelDescription:
-                notifType == 'appointment_confirmed'
-                    ? 'Notifikasi appointment confirmation'
-                    : 'Channel untuk notifikasi FCM di foreground',
+            channelDescription: notifType == 'appointment_confirmed'
+                ? 'Notifikasi appointment confirmation'
+                : 'Channel untuk notifikasi FCM di foreground',
             importance: Importance.max,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -135,7 +142,11 @@ void _navigateToAppointments(String payload) {
   try {
     final navigatorContext = appNavigatorKey.currentContext;
     if (navigatorContext != null) {
-      navigatorContext.pushNamed('AppointmentsScreen');
+      final data = jsonDecode(payload);
+      final type = data is Map ? data['type'] : null;
+      navigatorContext.pushNamed(
+        type == 'health_record_available' ? 'Reports' : 'AppointmentsScreen',
+      );
     }
   } catch (e) {
     print('Error navigating from foreground notification: $e');

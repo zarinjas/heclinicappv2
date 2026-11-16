@@ -87,8 +87,18 @@ class _PatientDocument {
     if (parsed == null) return uploadedAt;
     final local = parsed.toLocal();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${local.day} ${months[local.month - 1]} ${local.year}';
   }
@@ -150,6 +160,20 @@ class _DocumentsTabState extends State<DocumentsTab> {
         _isLoading = false;
         _fromCache = true;
       });
+
+      if (await HealthCache.documentsAreFresh(patientId)) {
+        final seen = await SeenStore.ensureInitialized(
+          _seenCategory,
+          _documents.map(_docKey),
+        );
+        if (mounted) {
+          setState(() {
+            _seen = seen;
+            _fromCache = false;
+          });
+        }
+        return;
+      }
     } else {
       setState(() {
         _isLoading = true;
@@ -346,7 +370,8 @@ class _DocumentsTabState extends State<DocumentsTab> {
       builder: (sheetContext) => Container(
         decoration: const BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.radiusXL)),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.radiusXL)),
         ),
         padding: const EdgeInsets.all(AppSpacing.space16),
         child: SafeArea(
@@ -370,13 +395,15 @@ class _DocumentsTabState extends State<DocumentsTab> {
               ),
               const SizedBox(height: AppSpacing.space8),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
+                leading:
+                    const Icon(Icons.picture_as_pdf, color: AppColors.error),
                 title: const Text('PDF file'),
                 subtitle: const Text('Blood test, MC, lab report...'),
                 onTap: () => Navigator.pop(sheetContext, 'file'),
               ),
               ListTile(
-                leading: const Icon(Icons.photo_outlined, color: AppColors.accent),
+                leading:
+                    const Icon(Icons.photo_outlined, color: AppColors.accent),
                 title: const Text('Photo from gallery'),
                 subtitle: const Text('Photo of a report or scan'),
                 onTap: () => Navigator.pop(sheetContext, 'image'),

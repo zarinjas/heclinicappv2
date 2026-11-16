@@ -20,10 +20,27 @@ return [
 
     'cache' => [
         'enabled' => env('PLATO_CACHE_ENABLED', true),
+        'store' => env('PLATO_CACHE_STORE', env('CACHE_STORE', 'redis')),
         'ttl_facility' => env('PLATO_CACHE_TTL_FACILITY', 300),
         'ttl_doctor' => env('PLATO_CACHE_TTL_DOCTOR', 300),
         'ttl_slots' => env('PLATO_CACHE_TTL_SLOTS', 60),
+        'ttl_appointment' => env('PLATO_CACHE_TTL_APPOINTMENT', 30),
+        'ttl_invoice' => env('PLATO_CACHE_TTL_INVOICE', 60),
+        'ttl_clinical' => env('PLATO_CACHE_TTL_CLINICAL', 300),
         'ttl_default' => env('PLATO_CACHE_TTL_DEFAULT', 120),
+        'stale_while_revalidate' => env('PLATO_CACHE_STALE_TTL', 900),
+    ],
+
+    'retry' => [
+        'max_attempts' => env('PLATO_RETRY_MAX_ATTEMPTS', 3),
+        'base_delay_ms' => env('PLATO_RETRY_BASE_DELAY_MS', 250),
+        'max_delay_ms' => env('PLATO_RETRY_MAX_DELAY_MS', 5000),
+    ],
+
+    'concurrency' => [
+        'max' => env('PLATO_MAX_CONCURRENT_REQUESTS', 4),
+        'wait_ms' => env('PLATO_CONCURRENCY_WAIT_MS', 100),
+        'timeout_ms' => env('PLATO_CONCURRENCY_TIMEOUT_MS', 3000),
     ],
 
     'log_requests' => env('PLATO_LOG_REQUESTS', true),

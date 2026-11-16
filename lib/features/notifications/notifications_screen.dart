@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../health/health_cache.dart';
 import '/core/widgets/app_toast.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,8 +31,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   bool _markingAllRead = false;
   List<InboxNotification> _notifications = const [];
 
-  int get _unreadCount =>
-      _notifications.where((n) => !n.isRead).length;
+  int get _unreadCount => _notifications.where((n) => !n.isRead).length;
 
   @override
   void initState() {
@@ -106,7 +106,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           .toList();
     });
 
-    final remaining = await NotificationInboxService.instance.markRead(notification.id);
+    final remaining =
+        await NotificationInboxService.instance.markRead(notification.id);
     if (remaining != null && mounted) _syncBadge(remaining);
   }
 
@@ -127,6 +128,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         break;
       case 'health/records':
         // New Health tab, Records sub-tab.
+        await HealthCache.invalidate(FFAppState().idplato);
         context.pushNamed('Reports');
         break;
       case 'profile':

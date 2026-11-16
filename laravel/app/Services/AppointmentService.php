@@ -50,7 +50,7 @@ final class AppointmentService
                 Log::channel('plato')->error('Plato appointment creation failed', [
                     'appointment_id' => $appointment->id,
                     'error' => $errorMessage,
-                    'response' => $result,
+                    'status' => $result['status'] ?? null,
                 ]);
 
                 throw new \RuntimeException($errorMessage);
@@ -63,6 +63,10 @@ final class AppointmentService
                 'status' => 'confirmed',
                 'plato_response' => $result,
             ]);
+
+            if ($appointment->patient_plato_id) {
+                $this->plato->invalidatePatient((string) $appointment->patient_plato_id);
+            }
 
             try {
                 $this->notifications->sendAppointmentConfirmation($appointment);

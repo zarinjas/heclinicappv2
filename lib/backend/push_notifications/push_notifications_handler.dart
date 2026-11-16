@@ -11,6 +11,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../../index.dart';
 import '../../main.dart';
+import '../../features/health/health_cache.dart';
 
 final _handledMessageIds = <String?>{};
 
@@ -60,6 +61,13 @@ class _PushNotificationsHandlerState extends State<PushNotificationsHandler> {
         _incrementNotifBadge();
         // Open the new Health tab's Documents sub-tab.
         _navigateToPage(context, 'HealthDocuments');
+        return;
+      }
+
+      if (notifType == 'health_record_available') {
+        await HealthCache.invalidate(FFAppState().idplato);
+        _incrementNotifBadge();
+        _navigateToPage(context, 'Reports');
         return;
       }
 

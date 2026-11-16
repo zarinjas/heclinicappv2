@@ -181,7 +181,7 @@ final class LoyaltyController extends Controller
         Log::channel('plato')->info('Loyalty webhook received', [
             'event'       => $event,
             'object_type' => $objectType,
-            'object_id'   => $objectId,
+            'object_ref'  => hash('sha256', (string) $objectId),
         ]);
 
         // Always ack immediately; process in the background.
@@ -206,7 +206,7 @@ final class LoyaltyController extends Controller
 
             if (! empty($result['error'])) {
                 Log::channel('plato')->warning('Loyalty webhook invoice fetch failed', [
-                    'invoice_id' => $invoiceId,
+                    'invoice_ref' => hash('sha256', $invoiceId),
                     'result'     => $result['message'] ?? 'unknown',
                 ]);
 
@@ -230,7 +230,7 @@ final class LoyaltyController extends Controller
 
             if (! in_array($status, ['', 'paid', 'finalized', 'completed', 'done'], true)) {
                 Log::channel('plato')->info('Loyalty webhook: invoice not finalized, skipping', [
-                    'invoice_id' => $invoiceId,
+                    'invoice_ref' => hash('sha256', $invoiceId),
                     'status'     => $status,
                 ]);
 
@@ -239,7 +239,7 @@ final class LoyaltyController extends Controller
 
             if (empty($patientId)) {
                 Log::channel('plato')->warning('Loyalty webhook: invoice has no patient_id', [
-                    'invoice_id' => $invoiceId,
+                    'invoice_ref' => hash('sha256', $invoiceId),
                 ]);
 
                 return;
@@ -248,7 +248,7 @@ final class LoyaltyController extends Controller
             $this->loyalty->earnFromInvoice($invoiceId, $invoiceTotal, (string) $patientId, $nric ? (string) $nric : null);
         } catch (\Exception $e) {
             Log::channel('plato')->error('Loyalty webhook processing error', [
-                'invoice_id' => $invoiceId,
+                'invoice_ref' => hash('sha256', $invoiceId),
                 'error'      => $e->getMessage(),
             ]);
         }

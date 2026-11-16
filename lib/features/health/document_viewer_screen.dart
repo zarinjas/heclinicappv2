@@ -15,6 +15,7 @@ import '../../core/utils/api_url.dart';
 import '../../core/widgets/app_app_bar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_toast.dart';
+import 'health_cache.dart';
 
 enum _DocKind { image, pdf, other }
 
@@ -99,6 +100,12 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
     }
 
     try {
+      final cached = await HealthCache.readFile(_resolvedUrl);
+      if (cached != null) {
+        await _displayBytes(cached);
+        return;
+      }
+
       final response = await http
           .get(uri, headers: _authHeaders)
           .timeout(const Duration(seconds: 60));
@@ -111,55 +118,58 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
       }
 
       final bytes = response.bodyBytes;
-      if (!mounted) return;
-
-      final kind = await _detectKind(bytes);
-      if (!mounted) return;
-
-      if (kind == _DocKind.image) {
-        setState(() {
-          _bytes = bytes;
-          _kind = kind;
-          _loading = false;
-        });
-        return;
-      }
-
-      if (kind == _DocKind.pdf) {
-        // Write the downloaded bytes to a temp file so the native PDF renderer
-        // can display it on both iOS and Android (no external viewer needed).
-        final dir = await getTemporaryDirectory();
-        final file = File(
-          '${dir.path}/doc_${DateTime.now().millisecondsSinceEpoch}.pdf',
-        );
-        await file.writeAsBytes(bytes, flush: true);
-        if (!mounted) {
-          try {
-            file.delete();
-          } catch (_) {}
-          return;
-        }
-
-        setState(() {
-          _bytes = bytes;
-          _kind = kind;
-          _tempPdfFile = file;
-          _loading = false;
-        });
-        return;
-      }
-
-      setState(() {
-        _error = 'This file type is not supported for in-app preview. '
-            'Use "Download" to save it.';
-        _loading = false;
-      });
+      await HealthCache.writeFile(_resolvedUrl, bytes);
+      await _displayBytes(bytes);
     } catch (_) {
       _fail(
         'Could not open this document. It may be damaged or the link may have '
         'expired — pull to refresh the list and try again.',
       );
     }
+  }
+
+  Future<void> _displayBytes(Uint8List bytes) async {
+    if (!mounted) return;
+
+    final kind = await _detectKind(bytes);
+    if (!mounted) return;
+
+    if (kind == _DocKind.image) {
+      setState(() {
+        _bytes = bytes;
+        _kind = kind;
+        _loading = false;
+      });
+      return;
+    }
+
+    if (kind == _DocKind.pdf) {
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/health_preview_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
+      await file.writeAsBytes(bytes, flush: true);
+      if (!mounted) {
+        try {
+          await file.delete();
+        } catch (_) {}
+        return;
+      }
+
+      setState(() {
+        _bytes = bytes;
+        _kind = kind;
+        _tempPdfFile = file;
+        _loading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _error = 'This file type is not supported for in-app preview. '
+          'Use "Download" to save it.';
+      _loading = false;
+    });
   }
 
   void _fail(String message) {
@@ -210,7 +220,8 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
   }
 
   String _safeFileName() {
-    final base = widget.name.trim().isNotEmpty ? widget.name.trim() : 'document';
+    final base =
+        widget.name.trim().isNotEmpty ? widget.name.trim() : 'document';
     final cleaned = base.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final hasExtension = RegExp(r'\.[a-zA-Z0-9]{1,5}$').hasMatch(cleaned);
     return hasExtension ? cleaned : '$cleaned.$_fileExtension';

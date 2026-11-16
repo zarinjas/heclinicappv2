@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'health_record.dart';
@@ -13,19 +15,64 @@ import 'health_record.dart';
 class HealthCache {
   HealthCache._();
 
-  static Future<Directory> _dir() => getApplicationDocumentsDirectory();
+  static const Duration freshness = Duration(minutes: 30);
+  static const int _maxCachedFileBytes = 25 * 1024 * 1024;
+
+  static Future<Directory> _dir() => getApplicationSupportDirectory();
 
   static String _safeId(String patientId) =>
       patientId.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
 
   static Future<File> _recordsFile(String patientId) async {
     final dir = await _dir();
-    return File('${dir.path}/health_records_${_safeId(patientId)}.json');
+    // Version 2 excludes generic letters and private note data from the cache.
+    return File('${dir.path}/health_records_v2_${_safeId(patientId)}.json');
   }
 
   static Future<File> _documentsFile(String patientId) async {
     final dir = await _dir();
     return File('${dir.path}/health_documents_${_safeId(patientId)}.json');
+  }
+
+  static Future<File> _invalidatedFile(String kind, String patientId) async {
+    final dir = await _dir();
+    return File('${dir.path}/health_${kind}_invalidated_${_safeId(patientId)}');
+  }
+
+  static Future<bool> recordsAreFresh(String patientId) =>
+      _isFresh(_recordsFile(patientId), _invalidatedFile('records', patientId));
+
+  static Future<bool> documentsAreFresh(String patientId) => _isFresh(
+      _documentsFile(patientId), _invalidatedFile('documents', patientId));
+
+  static Future<bool> _isFresh(
+    Future<File> cacheFile,
+    Future<File> invalidatedFile,
+  ) async {
+    try {
+      final file = await cacheFile;
+      if (!await file.exists()) return false;
+      final cacheStat = await file.stat();
+      if (DateTime.now().difference(cacheStat.modified) > freshness)
+        return false;
+
+      final invalidated = await invalidatedFile;
+      if (!await invalidated.exists()) return true;
+      return (await invalidated.stat()).modified.isBefore(cacheStat.modified);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> invalidate(String patientId) async {
+    if (patientId.isEmpty) return;
+    try {
+      final file = await _invalidatedFile('records', patientId);
+      await file.writeAsString(DateTime.now().toIso8601String(), flush: true);
+      final documents = await _invalidatedFile('documents', patientId);
+      await documents.writeAsString(DateTime.now().toIso8601String(),
+          flush: true);
+    } catch (_) {}
   }
 
   static Future<List<HealthRecord>?> readRecords(String patientId) async {
@@ -56,6 +103,7 @@ class HealthCache {
         jsonEncode(records.map((r) => r.toJson()).toList()),
         flush: true,
       );
+      await _clearInvalidation('records', patientId);
     } catch (_) {}
   }
 
@@ -86,6 +134,45 @@ class HealthCache {
     try {
       final file = await _documentsFile(patientId);
       await file.writeAsString(jsonEncode(documents), flush: true);
+      await _clearInvalidation('documents', patientId);
+    } catch (_) {}
+  }
+
+  static Future<void> _clearInvalidation(String kind, String patientId) async {
+    try {
+      final file = await _invalidatedFile(kind, patientId);
+      if (await file.exists()) await file.delete();
+    } catch (_) {}
+  }
+
+  static String _fileKey(String url) {
+    final uri = Uri.tryParse(url);
+    final stable =
+        uri == null ? url : uri.replace(query: '', fragment: '').toString();
+    return sha256.convert(utf8.encode(stable)).toString();
+  }
+
+  static Future<File> _cachedFile(String url) async {
+    final dir = await _dir();
+    return File('${dir.path}/health_file_${_fileKey(url)}.bin');
+  }
+
+  static Future<Uint8List?> readFile(String url) async {
+    if (url.isEmpty) return null;
+    try {
+      final file = await _cachedFile(url);
+      if (!await file.exists()) return null;
+      return await file.readAsBytes();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> writeFile(String url, Uint8List bytes) async {
+    if (url.isEmpty || bytes.length > _maxCachedFileBytes) return;
+    try {
+      final file = await _cachedFile(url);
+      await file.writeAsBytes(bytes, flush: true);
     } catch (_) {}
   }
 
@@ -108,6 +195,9 @@ class HealthCache {
   static bool _isHealthCacheFile(String path) {
     final name = path.split('/').last;
     return name.startsWith('health_records_') ||
-        name.startsWith('health_documents_');
+        name.startsWith('health_documents_') ||
+        name.startsWith('health_records_invalidated_') ||
+        name.startsWith('health_documents_invalidated_') ||
+        name.startsWith('health_file_');
   }
 }

@@ -33,13 +33,13 @@ class HealthRecord {
 
   factory HealthRecord.fromJson(Map<String, dynamic> json) => HealthRecord(
         type: HealthRecordType.values.firstWhere(
-          (t) => t.name == json['type'],
+          (t) => t.name == (json['type'] ?? 'letter'),
           orElse: () => HealthRecordType.letter,
         ),
         title: (json['title'] ?? '').toString(),
         date: (json['date'] ?? '').toString(),
         author: (json['author'] ?? '').toString(),
-        detailData: json['detailData'] as String?,
+        detailData: (json['detailData'] ?? json['detail_data']) as String?,
         category: json['category'] as String?,
         diagnosis: (json['diagnosis'] as List?)?.map((e) => e.toString()).toList(),
         attachments: (json['attachments'] as List?)?.map((e) => e.toString()).toList(),
@@ -62,6 +62,8 @@ class HealthRecord {
         return 'Letter';
       case HealthRecordType.lab:
         return 'Lab Result';
+      case HealthRecordType.radiology:
+        return 'Radiology';
       case HealthRecordType.mc:
         return 'Medical Certificate';
     }

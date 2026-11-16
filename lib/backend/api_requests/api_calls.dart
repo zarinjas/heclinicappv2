@@ -1457,6 +1457,33 @@ class LetterCall {
           .toList();
 }
 
+/// Patient-facing Plato records. The Laravel endpoint filters out private
+/// casenotes/admin notes before anything reaches the device.
+class PatientHealthRecordsCall {
+  static Future<ApiCallResponse> call({String? patientId = ''}) async {
+    final baseUrl = EnvConfig.platomBaseUrl.replaceAll('/plato', '');
+
+    return ApiManager.instance.makeApiCall(
+      callName: 'PatientHealthRecords',
+      apiUrl: '$baseUrl/patients/${patientId ?? ''}/health-records',
+      callType: ApiCallType.GET,
+      headers: {
+        'Authorization': 'Bearer ${FFAppState().tokenauth}',
+      },
+      params: const {},
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static List<dynamic>? records(dynamic response) =>
+      getJsonField(response, r'''$.records''', true) as List?;
+}
+
 class GetInvoiceCall {
   static Future<ApiCallResponse> call({
     String? patientId = '',

@@ -86,7 +86,7 @@ class RecordDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.scaffoldBgDark : AppColors.scaffoldBg,
-      appBar: AppAppBar.sub(title: record.typeLabel),
+      appBar: AppAppBar.sub(title: 'Health record'),
       body: record.isHtml
           ? _buildHtmlBody(isDark)
           : _buildScrollBody(context, isDark),
@@ -245,7 +245,8 @@ class RecordDetailScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.picture_as_pdf, color: AppColors.accent),
+                const Icon(Icons.insert_drive_file_outlined,
+                    color: AppColors.accent),
                 const SizedBox(width: AppSpacing.space12),
                 Expanded(child: Text(record.title, style: AppTextStyles.body1)),
               ],
@@ -254,7 +255,7 @@ class RecordDetailScreen extends StatelessWidget {
             FilledButton.icon(
               onPressed: () => _openFile(context),
               icon: const Icon(Icons.open_in_new, size: 18),
-              label: const Text('Open certificate'),
+              label: const Text('Open file'),
             ),
           ],
         ),

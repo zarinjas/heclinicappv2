@@ -7,7 +7,7 @@ import '../theme/app_text_styles.dart';
 import 'app_card.dart';
 import 'app_skeleton.dart';
 
-enum HealthRecordType { letter, lab, mc }
+enum HealthRecordType { letter, lab, radiology, mc }
 
 class HealthRecordCard extends StatelessWidget {
   const HealthRecordCard({
@@ -132,6 +132,7 @@ class _TypeIcon extends StatelessWidget {
     return switch (type) {
       HealthRecordType.letter => Icons.mail_outlined,
       HealthRecordType.lab => Icons.science_outlined,
+      HealthRecordType.radiology => Icons.image_search_outlined,
       HealthRecordType.mc => Icons.assignment_outlined,
     };
   }

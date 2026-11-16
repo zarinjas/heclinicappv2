@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Jobs\ProcessPlatoLoyaltyEarnings;
+use App\Jobs\SyncPlatoHealthRecords;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -16,4 +18,6 @@ Schedule::command('plato:send-appointment-reminders')
     ->dailyAt('09:00')
     ->timezone('Asia/Kuala_Lumpur');
 
-Schedule::command('app:process-loyalty-earnings')->everyFiveMinutes();
+Schedule::job(new SyncPlatoHealthRecords)->everyFiveMinutes()->onOneServer();
+
+Schedule::job(new ProcessPlatoLoyaltyEarnings)->everyFiveMinutes()->onOneServer();

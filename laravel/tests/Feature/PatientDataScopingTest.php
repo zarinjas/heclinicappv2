@@ -251,4 +251,62 @@ class PatientDataScopingTest extends TestCase
 
         $this->assertNull($patient->fresh()->fcm_token);
     }
+
+    public function test_health_records_expose_only_allowed_plato_files(): void
+    {
+        config(['plato.base_url' => 'https://plato.test/api/db']);
+        Cache::flush();
+        Http::fake([
+            'https://plato.test/api/db/letter*' => Http::response([
+                ['subject' => 'Medical Certificate', 'html' => '<p>MC</p>', 'created_on' => '2026-11-16'],
+                ['subject' => 'Referral Letter', 'html' => '<p>private</p>', 'created_on' => '2026-11-16'],
+            ], 200),
+            'https://plato.test/api/db/patient/PLATO-A/note*' => Http::response([
+                [
+                    'folder_name' => 'Labs',
+                    'timestamp' => '2026-11-16',
+                    'attachments' => ['/files/lab.pdf'],
+                    'note' => 'not returned',
+                ],
+                [
+                    'folder_name' => 'Radiology',
+                    'timestamp' => '2026-11-15',
+                    'attachments' => [['path' => '/files/xray.pdf', 'name' => 'X-ray.pdf']],
+                ],
+                [
+                    'folder_name' => 'Casenotes',
+                    'timestamp' => '2026-11-14',
+                    'attachments' => ['/files/private.pdf'],
+                    'note' => 'private',
+                ],
+                [
+                    'folder_name' => 'Admin',
+                    'timestamp' => '2026-11-13',
+                    'attachments' => ['/files/admin.pdf'],
+                ],
+            ], 200),
+        ]);
+
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        $response = $this->actingAs($patient, 'sanctum')
+            ->getJson('/api/v2/patients/PLATO-A/health-records')
+            ->assertOk();
+
+        $records = $response->json('records');
+        $this->assertCount(3, $records);
+        $this->assertSame(['mc', 'lab', 'radiology'], array_column($records, 'type'));
+        $this->assertStringContainsString('/health-record-file', $records[1]['detail_data']);
+        $this->assertStringNotContainsString('private', json_encode($records));
+        $this->assertStringNotContainsString('admin.pdf', json_encode($records));
+    }
+
+    public function test_health_records_are_scoped_to_the_logged_in_patient(): void
+    {
+        $patient = $this->makePatient('PLATO-A', '900101010001');
+
+        $this->actingAs($patient, 'sanctum')
+            ->getJson('/api/v2/patients/PLATO-B/health-records')
+            ->assertStatus(403);
+    }
 }

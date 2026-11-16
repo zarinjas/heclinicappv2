@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../backend/api_requests/api_calls.dart';
 import '../../core/services/seen_store.dart';
+import '../../core/utils/api_url.dart';
 import '../../core/utils/html_text.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_chip.dart';
 import '../../core/widgets/app_empty_state.dart';
 import '../../core/widgets/app_error_state.dart';
 import '../../core/widgets/app_skeleton.dart';
 import '../../core/widgets/health_record_card.dart';
+import '../../env_config.dart';
 import 'health_cache.dart';
 import 'health_record.dart';
 import 'record_detail_screen.dart';
@@ -28,14 +29,10 @@ class _RecordsTabState extends State<RecordsTab> {
   bool _isLoading = true;
   bool _hasError = false;
   bool _fromCache = false;
-  String _activeFilter = 'All';
   List<HealthRecord> _all = const [];
   Set<String> _seen = const {};
   String _query = '';
   final TextEditingController _searchController = TextEditingController();
-
-  // Case notes are P&C clinic records and must never be shown to the patient.
-  static const _filters = ['All', 'Letters', 'MC'];
 
   static const _seenCategory = 'records';
 
@@ -75,6 +72,20 @@ class _RecordsTabState extends State<RecordsTab> {
         _isLoading = false;
         _fromCache = true;
       });
+
+      if (await HealthCache.recordsAreFresh(patientId)) {
+        final seen = await SeenStore.ensureInitialized(
+          _seenCategory,
+          cached.map(_recordKey),
+        );
+        if (mounted) {
+          setState(() {
+            _seen = seen;
+            _fromCache = false;
+          });
+        }
+        return;
+      }
     } else {
       setState(() {
         _isLoading = true;
@@ -84,23 +95,23 @@ class _RecordsTabState extends State<RecordsTab> {
 
     // Refresh from Plato in the background.
     try {
-      final letters = await _loadLetters(patientId);
+      final records = await _loadHealthRecords(patientId);
       if (!mounted) return;
 
-      if (letters != null) {
-        letters.sort((a, b) => _sortKey(b).compareTo(_sortKey(a)));
+      if (records != null) {
+        records.sort((a, b) => _sortKey(b).compareTo(_sortKey(a)));
         setState(() {
-          _all = letters;
+          _all = records;
           _isLoading = false;
           _hasError = false;
           _fromCache = false;
         });
         final seen = await SeenStore.ensureInitialized(
           _seenCategory,
-          letters.map(_recordKey),
+          records.map(_recordKey),
         );
         if (mounted) setState(() => _seen = seen);
-        await HealthCache.writeRecords(patientId, letters);
+        await HealthCache.writeRecords(patientId, records);
       } else {
         _handleFetchFailure();
       }
@@ -123,61 +134,42 @@ class _RecordsTabState extends State<RecordsTab> {
 
   /// Returns the letters, or null when the API call fails (so the caller can
   /// keep previously-cached records instead of blanking the list).
-  Future<List<HealthRecord>?> _loadLetters(String patientId) async {
-    final response = await LetterCall.call(patientId: patientId);
+  Future<List<HealthRecord>?> _loadHealthRecords(String patientId) async {
+    final response = await PatientHealthRecordsCall.call(patientId: patientId);
     if (!response.succeeded) return null;
 
-    final body = response.jsonBody;
-    final subjects = LetterCall.subject(body);
-    if (subjects == null) return const [];
+    final rows = PatientHealthRecordsCall.records(response.jsonBody);
+    if (rows == null) return const [];
 
-    final htmls = LetterCall.html(body);
-    final dates = LetterCall.tgl(body);
-    final authors = LetterCall.author(body);
+    return rows.whereType<Map>().map((raw) {
+      final row = Map<String, dynamic>.from(raw);
+      final rawType = (row['type'] ?? 'letter').toString();
+      final type = HealthRecordType.values.firstWhere(
+        (value) => value.name == rawType,
+        orElse: () => HealthRecordType.letter,
+      );
+      final rawDetail = row['detail_data'] ?? row['detailData'];
+      final detail = rawDetail is String && !rawDetail.contains('<')
+          ? resolveBackendUrl(rawDetail, baseUrl: EnvConfig.platomBaseUrl)
+          : rawDetail?.toString();
 
-    return [
-      for (var i = 0; i < subjects.length; i++)
-        HealthRecord(
-          type: HealthRecordType.letter,
-          title: stripHtmlToSingleLine(subjects[i]),
-          date: _at(dates, i) ?? '',
-          author: _at(authors, i) ?? '',
-          detailData: _at(htmls, i),
-        ),
-    ];
+      return HealthRecord(
+        type: type,
+        title:
+            stripHtmlToSingleLine((row['title'] ?? 'Health record').toString()),
+        date: (row['date'] ?? '').toString(),
+        author: stripHtmlToSingleLine((row['author'] ?? '').toString()),
+        detailData: detail,
+      );
+    }).toList();
   }
-
-  /// A letter is treated as a medical certificate when its subject marks it as
-  /// one (Plato exposes MCs through the same `letter` endpoint).
-  static bool _isMedicalCertificate(String title) {
-    final t = title.toLowerCase();
-    return t.contains('medical certificate') || t.contains('medical leave') ||
-        RegExp(r'\bmc\b').hasMatch(t);
-  }
-
-  static T? _at<T>(List<T>? list, int i) =>
-      list != null && i < list.length ? list[i] : null;
 
   /// Stable identity for the "seen" store.
   String _recordKey(HealthRecord record) => '${record.title}|${record.date}';
 
-  List<HealthRecord> get _filteredRecords {
-    if (_activeFilter != 'MC') return List<HealthRecord>.of(_all);
-    return _all
-        .where((l) => _isMedicalCertificate(l.title))
-        .map((l) => HealthRecord(
-              type: HealthRecordType.mc,
-              title: l.title,
-              date: l.date,
-              author: l.author,
-              detailData: l.detailData,
-            ))
-        .toList();
-  }
-
   List<HealthRecord> get _visibleRecords {
     final q = _query.trim().toLowerCase();
-    final records = _filteredRecords;
+    final records = List<HealthRecord>.of(_all);
     if (q.isEmpty) return records;
     return records.where((r) {
       return r.title.toLowerCase().contains(q) ||
@@ -205,8 +197,18 @@ class _RecordsTabState extends State<RecordsTab> {
     final parsed = DateTime.tryParse(record.date);
     if (parsed == null) return record.date;
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${parsed.day} ${months[parsed.month - 1]} ${parsed.year}';
   }
@@ -236,7 +238,6 @@ class _RecordsTabState extends State<RecordsTab> {
     return Column(
       children: [
         _buildSearchField(),
-        _buildFilterRow(),
         if (_fromCache) _buildStaleBanner(),
         Expanded(child: _buildBody()),
       ],
@@ -344,7 +345,8 @@ class _RecordsTabState extends State<RecordsTab> {
             const SizedBox(height: AppSpacing.space48),
             AppEmptyState(
               icon: Icons.assignment_outlined,
-              title: _query.isEmpty ? 'No records found' : 'No matching records',
+              title:
+                  _query.isEmpty ? 'No records found' : 'No matching records',
               subtitle: _query.isEmpty
                   ? 'Your letters and medical certificates will appear here'
                   : 'Try a different search term',
@@ -370,8 +372,9 @@ class _RecordsTabState extends State<RecordsTab> {
                 child: HealthRecordCard(
                   recordType: record.type,
                   title: record.title,
-                  doctorName:
-                      record.author.isNotEmpty ? record.author : record.typeLabel,
+                  doctorName: record.author.isNotEmpty
+                      ? record.author
+                      : 'Health record',
                   date: _formatDate(record),
                   isNew: !_seen.contains(_recordKey(record)),
                   onTap: () => _openDetail(record),
@@ -409,37 +412,6 @@ class _RecordsTabState extends State<RecordsTab> {
       itemCount: 5,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space12),
       itemBuilder: (_, i) => AppSkeleton.listItem(),
-    );
-  }
-
-  Widget _buildFilterRow() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.space16,
-        AppSpacing.space12,
-        AppSpacing.space16,
-        AppSpacing.space8,
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: _filters.map((filter) {
-            return Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.space8),
-              child: AppChip(
-                label: filter,
-                type: AppChipType.filter,
-                isSelected: _activeFilter == filter,
-                onTap: () {
-                  if (_activeFilter != filter) {
-                    setState(() => _activeFilter = filter);
-                  }
-                },
-              ),
-            );
-          }).toList(),
-        ),
-      ),
     );
   }
 }

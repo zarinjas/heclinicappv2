@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\LoyaltyController;
 use App\Http\Controllers\Api\McpServerController;
 use App\Http\Controllers\Api\NotificationInboxController;
 use App\Http\Controllers\Api\PatientDocumentController;
+use App\Http\Controllers\Api\PatientHealthRecordController;
 use App\Http\Controllers\Api\PlatoProxyController;
 use App\Http\Controllers\Api\UserVoucherController;
 use Illuminate\Http\Request;
@@ -187,6 +188,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/v2/patients/{id}/documents', [PatientDocumentController::class, 'index'])
         ->name('patients.documents');
+    Route::get('/v2/patients/{id}/health-records', [PatientHealthRecordController::class, 'index'])
+        ->name('patients.health-records');
+    Route::get('/v2/patients/{id}/health-record-file', [PatientHealthRecordController::class, 'file'])
+        ->name('patients.health-record-file');
     Route::post('/v2/patients/{id}/documents', [PatientDocumentController::class, 'store'])
         ->name('patients.documents.store');
     Route::delete('/v2/patients/{id}/documents/{document}', [PatientDocumentController::class, 'destroy'])

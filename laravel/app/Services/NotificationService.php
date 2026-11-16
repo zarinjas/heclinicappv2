@@ -604,6 +604,44 @@ final class NotificationService
         ]);
     }
 
+    public function sendHealthRecordAvailableNotification(string $patientPlatoId, string $recordTitle): void
+    {
+        $title = 'New health record available';
+        $body = sprintf('A new record "%s" is available in your Health records.', $this->plainText($recordTitle));
+        $channels = ['push', 'in_app'];
+        $delivered = [];
+
+        $result = $this->sendPush($title, $body, [
+            'parameter_data' => json_encode([
+                'patient_plato_id' => $patientPlatoId,
+            ]),
+            'initial_page_name' => 'Reports',
+            'target_audience' => 'All',
+            'type' => 'health_record_available',
+            'patient_ids' => [$patientPlatoId],
+        ]);
+        $delivered['push'] = (bool) ($result['success'] ?? false);
+
+        $delivered['in_app'] = $this->writeInAppNotify(
+            $title,
+            $body,
+            'health/records',
+            'health_record_available',
+            $patientPlatoId,
+        );
+
+        NotificationLog::create([
+            'type' => 'health_record_available',
+            'title' => $title,
+            'body' => $body,
+            'target_type' => 'patient',
+            'target_ids' => [$patientPlatoId],
+            'channels' => $channels,
+            'status' => $this->resolveLogStatus($delivered),
+            'sent_at' => now(),
+        ]);
+    }
+
     public function sendManualNotification(NotificationLog $log): void
     {
         $channels = $log->channels ?? [];
@@ -895,7 +933,7 @@ final class NotificationService
             }
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Failed to resolve patient id from Plato', [
-                'term' => $term,
+                'term_ref' => hash('sha256', $term),
                 'error' => $e->getMessage(),
             ]);
         }
@@ -916,7 +954,7 @@ final class NotificationService
             }
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Failed to resolve patient email by id from Plato', [
-                'patient_id' => $patientId,
+                'patient_ref' => hash('sha256', $patientId),
                 'error' => $e->getMessage(),
             ]);
         }
@@ -970,14 +1008,14 @@ final class NotificationService
 
             Log::channel('plato')->warning('No email found for patient in Plato', [
                 'appointment_id' => $appointment->id,
-                'patient_nric' => $appointment->patient_nric,
+                'patient_ref' => hash('sha256', (string) ($appointment->patient_nric ?: $appointment->patient_name)),
             ]);
 
             return null;
         } catch (\Exception $e) {
             Log::channel('plato')->warning('Failed to resolve patient email from Plato', [
                 'appointment_id' => $appointment->id,
-                'patient_nric' => $appointment->patient_nric,
+                'patient_ref' => hash('sha256', (string) ($appointment->patient_nric ?: $appointment->patient_name)),
                 'error' => $e->getMessage(),
             ]);
 

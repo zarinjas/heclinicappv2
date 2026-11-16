@@ -88,6 +88,10 @@ final class PlatoProxyController extends Controller
 
         $result = $this->service->proxy($method, $path, $query, $body);
 
+        if ($method !== 'GET' && empty($result['error'])) {
+            $this->service->invalidatePatient((string) ($request->user()->idplato ?? ''));
+        }
+
         $data = $result['data'] ?? $result;
         $data = $this->stripSensitiveFields($path, $data);
 

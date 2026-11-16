@@ -63,15 +63,15 @@ final class PlatoPatientMergeService
     {
         Log::channel('plato')->info('Plato patient merge request', [
             'path' => $this->path(),
-            'survivor_id' => $survivorId,
-            'merged_id' => $mergedId,
+            'survivor_ref' => hash('sha256', $survivorId),
+            'merged_ref' => hash('sha256', $mergedId),
         ]);
 
         $result = $this->plato->proxy('POST', $this->path(), [], $this->payload($survivorId, $mergedId));
 
         Log::channel('plato')->info('Plato patient merge response', [
-            'survivor_id' => $survivorId,
-            'merged_id' => $mergedId,
+            'survivor_ref' => hash('sha256', $survivorId),
+            'merged_ref' => hash('sha256', $mergedId),
             'error' => $result['error'] ?? false,
             'code' => $result['code'] ?? 200,
             'message' => $result['message'] ?? null,
