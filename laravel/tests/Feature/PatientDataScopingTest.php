@@ -266,7 +266,12 @@ class PatientDataScopingTest extends TestCase
                     'folder_name' => 'Labs',
                     'timestamp' => '2026-11-16',
                     'attachments' => ['/files/lab.pdf'],
-                    'note' => 'not returned',
+                    'note' => 'Safe laboratory report text',
+                ],
+                [
+                    'folder_name' => 'Labs',
+                    'timestamp' => '2026-11-12',
+                    'note' => 'Older text-only lab result',
                 ],
                 [
                     'folder_name' => 'Radiology',
@@ -294,9 +299,10 @@ class PatientDataScopingTest extends TestCase
             ->assertOk();
 
         $records = $response->json('records');
-        $this->assertCount(3, $records);
-        $this->assertSame(['mc', 'lab', 'radiology'], array_column($records, 'type'));
+        $this->assertCount(4, $records);
+        $this->assertSame(['mc', 'lab', 'radiology', 'lab'], array_column($records, 'type'));
         $this->assertStringContainsString('/health-record-file', $records[1]['detail_data']);
+        $this->assertStringContainsString('Older text-only lab result', json_encode($records));
         $this->assertStringNotContainsString('private', json_encode($records));
         $this->assertStringNotContainsString('admin.pdf', json_encode($records));
     }

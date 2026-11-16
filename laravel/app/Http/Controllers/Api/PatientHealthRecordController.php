@@ -30,12 +30,13 @@ final class PatientHealthRecordController extends Controller
         $records = $this->records->recordsForPatient($id);
         foreach ($records as &$record) {
             $detail = $record['detail_data'] ?? null;
-            if (is_string($detail) && $detail !== '' && ! str_contains($detail, '<')) {
+            if (($record['is_file'] ?? false) && is_string($detail) && $detail !== '') {
                 $record['detail_data'] = route('patients.health-record-file', [
                     'id' => $id,
                     'source' => rtrim(strtr(base64_encode($detail), '+/', '-_'), '='),
                 ]);
             }
+            unset($record['is_file']);
         }
         unset($record);
 

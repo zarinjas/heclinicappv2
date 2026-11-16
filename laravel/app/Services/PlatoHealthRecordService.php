@@ -59,12 +59,15 @@ final class PlatoHealthRecordService
                     date: $this->date($row),
                     author: $this->stringValue($row['author'] ?? $row['doctor'] ?? ''),
                     detailData: $file['url'],
+                    isFile: true,
                 );
             }
 
             // Some lab integrations send an HTML report instead of a file.
             if ($files === []) {
-                $report = $this->stringValue($row['report'] ?? $row['html'] ?? null);
+                $report = $this->stringValue(
+                    $row['report'] ?? $row['html'] ?? $row['note'] ?? null,
+                );
                 if ($report !== '') {
                     $records[] = $this->record(
                         source: "note:{$baseId}:report",
@@ -238,6 +241,13 @@ final class PlatoHealthRecordService
             }
         }
 
+        $note = trim(preg_replace('/\s+/', ' ', strip_tags(
+            $this->stringValue($row['note'] ?? ''),
+        )) ?? '');
+        if ($note !== '') {
+            return Str::limit($note, 100);
+        }
+
         return match ($type) {
             'radiology' => 'Radiology record',
             'mc' => 'Medical Certificate',
@@ -270,6 +280,7 @@ final class PlatoHealthRecordService
         string $date,
         string $author,
         ?string $detailData,
+        bool $isFile = false,
     ): array {
         return [
             'id' => $source,
@@ -278,6 +289,7 @@ final class PlatoHealthRecordService
             'date' => $date,
             'author' => strip_tags($author),
             'detail_data' => $detailData,
+            'is_file' => $isFile,
         ];
     }
 }
