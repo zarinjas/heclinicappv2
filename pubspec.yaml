@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # ios/Runner/Info.plist reads it straight from here via FLUTTER_BUILD_NUMBER.
 # The last shipped build was 37, so this continues from 38 rather than
 # restarting at 1 — even though Android ships as a brand new listing.
-version: 1.0.9+72
+version: 1.0.9+75
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -169,9 +169,9 @@ flutter_launcher_icons:
   ios: true
   web:
     generate: true
-  image_path: 'assets/images/app_launcher_icon.png'
+  image_path: 'assets/hemed-logo.png'
   adaptive_icon_background: '#122560'
-  adaptive_icon_foreground: 'assets/images/adaptive_foreground_icon.png'
+  adaptive_icon_foreground: 'assets/hemed-logo.png'
 
 
 # For information on the generic Dart part of this file, see the

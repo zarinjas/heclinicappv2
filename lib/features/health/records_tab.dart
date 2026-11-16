@@ -29,6 +29,7 @@ class _RecordsTabState extends State<RecordsTab> {
   bool _isLoading = true;
   bool _hasError = false;
   bool _fromCache = false;
+  DateTime? _lastSynced;
   List<HealthRecord> _all = const [];
   Set<String> _seen = const {};
   String _query = '';
@@ -59,6 +60,7 @@ class _RecordsTabState extends State<RecordsTab> {
         _hasError = false;
         _fromCache = false;
       });
+      _lastSynced = await HealthCache.recordsLastSynced(patientId);
       return;
     }
 
@@ -105,6 +107,7 @@ class _RecordsTabState extends State<RecordsTab> {
           _isLoading = false;
           _hasError = false;
           _fromCache = false;
+          _lastSynced = DateTime.now();
         });
         final seen = await SeenStore.ensureInitialized(
           _seenCategory,
@@ -238,13 +241,13 @@ class _RecordsTabState extends State<RecordsTab> {
     return Column(
       children: [
         _buildSearchField(),
-        if (_fromCache) _buildStaleBanner(),
+        _buildSyncStatus(),
         Expanded(child: _buildBody()),
       ],
     );
   }
 
-  Widget _buildStaleBanner() {
+  Widget _buildSyncStatus() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.surfaceDark : AppColors.surface;
     final text = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
@@ -263,22 +266,39 @@ class _RecordsTabState extends State<RecordsTab> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(AppRadius.radiusLG),
-        border: Border.all(color: AppColors.warning),
+        border: Border.all(
+          color: _fromCache ? AppColors.warning : AppColors.success,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_outlined,
-              size: 16, color: AppColors.warning),
+          Icon(
+            _fromCache ? Icons.cloud_off_outlined : Icons.cloud_done_outlined,
+            size: 16,
+            color: _fromCache ? AppColors.warning : AppColors.success,
+          ),
           const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
-              'Records are saved on this device. Pull down to check for updates.',
+              _fromCache
+                  ? 'Saved on this device - Pull down to sync'
+                  : _lastSynced == null
+                      ? 'Up to date'
+                      : 'Up to date - ${_syncAge(_lastSynced!)}',
               style: AppTextStyles.body2.copyWith(color: text),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _syncAge(DateTime time) {
+    final age = DateTime.now().difference(time);
+    if (age.inMinutes < 1) return 'just now';
+    if (age.inHours < 1) return '${age.inMinutes}m ago';
+    if (age.inDays < 1) return '${age.inHours}h ago';
+    return '${age.inDays}d ago';
   }
 
   Widget _buildSearchField() {
@@ -328,8 +348,9 @@ class _RecordsTabState extends State<RecordsTab> {
 
     if (_hasError) {
       return AppErrorState(
-        title: 'Failed to load records',
-        subtitle: 'Please check your connection and try again',
+        title: 'Records are temporarily unavailable',
+        subtitle:
+            'Pull down to try again. Saved records will appear when available.',
         onRetry: _loadRecords,
       );
     }
@@ -376,6 +397,9 @@ class _RecordsTabState extends State<RecordsTab> {
                       ? record.author
                       : 'Health record',
                   date: _formatDate(record),
+                  secondaryMeta: record.isFile
+                      ? 'PDF file · Tap to open and download'
+                      : 'Text record',
                   isNew: !_seen.contains(_recordKey(record)),
                   onTap: () => _openDetail(record),
                 ),

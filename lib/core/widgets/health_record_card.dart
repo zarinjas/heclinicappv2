@@ -16,6 +16,7 @@ class HealthRecordCard extends StatelessWidget {
     required this.title,
     required this.doctorName,
     required this.date,
+    this.secondaryMeta,
     this.isNew = false,
     this.onTap,
   });
@@ -24,6 +25,7 @@ class HealthRecordCard extends StatelessWidget {
   final String title;
   final String doctorName;
   final String date;
+  final String? secondaryMeta;
   final bool isNew;
   final VoidCallback? onTap;
 
@@ -64,6 +66,18 @@ class HealthRecordCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (secondaryMeta != null && secondaryMeta!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.space2),
+                  Text(
+                    secondaryMeta!,
+                    style: AppTextStyles.body2.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
             ),
           ),
@@ -147,9 +161,11 @@ class HealthRecordCardSkeleton extends StatelessWidget {
     final base = isDark ? AppColors.skeletonBaseDark : AppColors.skeletonBase;
 
     Widget box(double w, double h) => Container(
-      width: w, height: h,
-      decoration: BoxDecoration(color: base, borderRadius: BorderRadius.circular(4)),
-    );
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+              color: base, borderRadius: BorderRadius.circular(4)),
+        );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.space16),
@@ -160,7 +176,8 @@ class HealthRecordCardSkeleton extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(color: base, shape: BoxShape.circle),
           ),
           const SizedBox(width: AppSpacing.space16),

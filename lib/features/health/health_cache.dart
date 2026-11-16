@@ -45,6 +45,22 @@ class HealthCache {
   static Future<bool> documentsAreFresh(String patientId) => _isFresh(
       _documentsFile(patientId), _invalidatedFile('documents', patientId));
 
+  static Future<DateTime?> recordsLastSynced(String patientId) =>
+      _lastModified(_recordsFile(patientId));
+
+  static Future<DateTime?> documentsLastSynced(String patientId) =>
+      _lastModified(_documentsFile(patientId));
+
+  static Future<DateTime?> _lastModified(Future<File> cacheFile) async {
+    try {
+      final file = await cacheFile;
+      if (!await file.exists()) return null;
+      return (await file.stat()).modified;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<bool> _isFresh(
     Future<File> cacheFile,
     Future<File> invalidatedFile,

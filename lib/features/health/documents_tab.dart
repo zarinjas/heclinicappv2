@@ -115,6 +115,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
   bool _isLoading = true;
   bool _hasError = false;
   bool _fromCache = false;
+  DateTime? _lastSynced;
   bool _isUploading = false;
   List<_PatientDocument> _documents = const [];
   Set<String> _seen = const {};
@@ -147,6 +148,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
         _hasError = false;
         _fromCache = false;
       });
+      _lastSynced = await HealthCache.documentsLastSynced(patientId);
       return;
     }
 
@@ -206,6 +208,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
         _isLoading = false;
         _hasError = false;
         _fromCache = false;
+        _lastSynced = DateTime.now();
       });
       await HealthCache.writeDocuments(
         patientId,
@@ -526,8 +529,9 @@ class _DocumentsTabState extends State<DocumentsTab> {
     if (_isLoading) return _buildSkeleton();
     if (_hasError) {
       return AppErrorState(
-        title: 'Failed to load documents',
-        subtitle: 'Please check your connection and try again',
+        title: 'Documents are temporarily unavailable',
+        subtitle:
+            'Pull down to try again. Saved documents will appear when available.',
         onRetry: _loadDocuments,
       );
     }
@@ -553,7 +557,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
     return Column(
       children: [
         _buildSearchField(),
-        if (_fromCache) _buildStaleBanner(),
+        _buildSyncStatus(),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.space16,
@@ -641,7 +645,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
     );
   }
 
-  Widget _buildStaleBanner() {
+  Widget _buildSyncStatus() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.surfaceDark : AppColors.surface;
     final text = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
@@ -660,22 +664,39 @@ class _DocumentsTabState extends State<DocumentsTab> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(AppRadius.radiusFull),
-        border: Border.all(color: AppColors.warning),
+        border: Border.all(
+          color: _fromCache ? AppColors.warning : AppColors.success,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.cloud_off_outlined,
-              size: 16, color: AppColors.warning),
+          Icon(
+            _fromCache ? Icons.cloud_off_outlined : Icons.cloud_done_outlined,
+            size: 16,
+            color: _fromCache ? AppColors.warning : AppColors.success,
+          ),
           const SizedBox(width: AppSpacing.space8),
           Expanded(
             child: Text(
-              'Documents are saved on this device. Pull down to check for updates.',
+              _fromCache
+                  ? 'Saved on this device - Pull down to sync'
+                  : _lastSynced == null
+                      ? 'Up to date'
+                      : 'Up to date - ${_syncAge(_lastSynced!)}',
               style: AppTextStyles.body2.copyWith(color: text),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _syncAge(DateTime time) {
+    final age = DateTime.now().difference(time);
+    if (age.inMinutes < 1) return 'just now';
+    if (age.inHours < 1) return '${age.inMinutes}m ago';
+    if (age.inDays < 1) return '${age.inHours}h ago';
+    return '${age.inDays}d ago';
   }
 
   Widget _buildSearchField() {

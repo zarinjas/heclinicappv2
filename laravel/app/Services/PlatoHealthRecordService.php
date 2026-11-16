@@ -20,11 +20,21 @@ final class PlatoHealthRecordService
     public function recordsForPatient(string $patientId): array
     {
         $cacheKey = 'plato:health-records:'.$patientId;
-        $cached = Cache::get($cacheKey);
+        // Records must remain available if the optional cache backend is down.
+        // A cache outage should never turn this patient endpoint into a 500.
+        try {
+            $cached = Cache::get($cacheKey);
+        } catch (\Throwable) {
+            $cached = null;
+        }
         if (is_array($cached) && isset($cached['records'], $cached['fetched_at'])) {
-            $age = now()->diffInSeconds($cached['fetched_at']);
-            if ($age < 600) {
-                return $cached['records'];
+            try {
+                $age = now()->diffInSeconds($cached['fetched_at']);
+                if ($age < 600) {
+                    return is_array($cached['records']) ? $cached['records'] : [];
+                }
+            } catch (\Throwable) {
+                // Ignore malformed/stale cache entries and fetch fresh data.
             }
         }
 
@@ -40,10 +50,14 @@ final class PlatoHealthRecordService
             return $cached['records'];
         }
 
-        Cache::put($cacheKey, [
-            'records' => $records,
-            'fetched_at' => now(),
-        ], now()->addHours(2));
+        try {
+            Cache::put($cacheKey, [
+                'records' => $records,
+                'fetched_at' => now(),
+            ], now()->addHours(2));
+        } catch (\Throwable) {
+            // Cache is an optimisation only; do not fail the API response.
+        }
 
         return $records;
     }
