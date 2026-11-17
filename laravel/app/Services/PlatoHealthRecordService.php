@@ -38,10 +38,17 @@ final class PlatoHealthRecordService
             }
         }
 
+        $upstreamFailed = false;
         try {
-            $records = $this->fetchRecords($patientId);
+            $records = $this->fetchRecords($patientId, $upstreamFailed);
         } catch (\Throwable) {
             return is_array($cached['records'] ?? null) ? $cached['records'] : [];
+        }
+
+        // Do not overwrite a good cache with an empty/partial response when
+        // Plato rate-limits one of the paginated requests.
+        if ($upstreamFailed) {
+            return is_array($cached['records'] ?? null) ? $cached['records'] : $records;
         }
 
         // A transient Plato failure can look like an empty page. Keep the
@@ -63,11 +70,11 @@ final class PlatoHealthRecordService
     }
 
     /** @return array<int, array<string, mixed>> */
-    private function fetchRecords(string $patientId): array
+    private function fetchRecords(string $patientId, bool &$upstreamFailed = false): array
     {
         $records = [];
 
-        foreach ($this->fetchAll('letter', ['patient_id' => $patientId]) as $row) {
+        foreach ($this->fetchAll('letter', ['patient_id' => $patientId], $upstreamFailed) as $row) {
             if (! is_array($row) || ! $this->isMedicalCertificate($row)) {
                 continue;
             }
@@ -82,7 +89,7 @@ final class PlatoHealthRecordService
             );
         }
 
-        foreach ($this->fetchAll('patient/'.rawurlencode($patientId).'/note', []) as $row) {
+        foreach ($this->fetchAll('patient/'.rawurlencode($patientId).'/note', [], $upstreamFailed) as $row) {
             if (! is_array($row) || ! $this->isAllowedClinicalFile($row)) {
                 continue;
             }
@@ -138,13 +145,14 @@ final class PlatoHealthRecordService
     /**
      * @return array<int, mixed>
      */
-    private function fetchAll(string $path, array $query): array
+    private function fetchAll(string $path, array $query, bool &$upstreamFailed = false): array
     {
         $all = [];
 
         for ($page = 1; $page <= self::MAX_PAGES; $page++) {
             $result = $this->plato->proxy('GET', $path, $query + ['current_page' => $page]);
             if (! empty($result['error'])) {
+                $upstreamFailed = true;
                 break;
             }
 

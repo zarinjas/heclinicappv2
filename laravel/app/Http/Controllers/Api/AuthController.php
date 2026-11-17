@@ -230,8 +230,6 @@ class AuthController extends Controller
     // -------------------------------------------------------------------------
     public function login(Request $request): JsonResponse
     {
-        $this->rateLimit('login', 10, 60);
-
         $request->validate([
             'identifier' => 'required|string',
             'password' => 'required|string',
@@ -239,6 +237,10 @@ class AuthController extends Controller
         ]);
 
         $identifier = trim($request->input('identifier'));
+        // Rate-limit each account separately. Limiting only by IP causes all
+        // patients behind the same mobile carrier/Wi-Fi NAT to share the ten
+        // login attempts per minute bucket.
+        $this->rateLimit('login:'.sha1(strtolower($identifier)), 10, 60);
         $countryCode = $request->filled('country_code') ? $request->input('country_code') : null;
         $patient = $this->findPatientByIdentifier($identifier, $countryCode);
 
