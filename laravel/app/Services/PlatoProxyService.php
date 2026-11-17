@@ -285,9 +285,25 @@ final class PlatoProxyService
             ? $path
             : rtrim($this->baseUrl(), '/').'/'.ltrim($path, '/');
 
-        return Http::timeout($this->timeout())
-            ->withToken($this->token())
+        $databaseToken = $this->token();
+        $response = Http::timeout($this->timeout())
+            ->withToken($databaseToken)
             ->get($url);
+
+        // The admin UI stores a token in the database, which can outlive a
+        // rotated deployment token in .env. Retry once with the deployment
+        // token so existing PDF links do not fail with 401 until someone
+        // manually opens the settings page.
+        $deploymentToken = (string) config('plato.api_token');
+        if ($response->status() === 401
+            && $deploymentToken !== ''
+            && ! hash_equals($databaseToken, $deploymentToken)) {
+            $response = Http::timeout($this->timeout())
+                ->withToken($deploymentToken)
+                ->get($url);
+        }
+
+        return $response;
     }
 
     public function healthCheck(): array
