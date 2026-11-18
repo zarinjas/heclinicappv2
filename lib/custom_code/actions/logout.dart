@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '/core/services/biometric_auth_service.dart';
 import '/core/services/device_token_service.dart';
 import '/features/health/health_cache.dart';
+import '/core/services/document_cache_service.dart';
 
 Future<void> logout() async {
   // Biometric enrolment deliberately SURVIVES logout so the user can sign back
@@ -37,6 +38,7 @@ Future<void> logout() async {
 
   // Wipe cached health records/documents so the next account never sees them.
   await HealthCache.clear();
+  await DocumentCacheService.instance.clear();
 
   // prefs.clear() wiped the enabled flag, so restore it. The token itself
   // lives in the keystore and was never touched by clear(), so returning users

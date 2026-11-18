@@ -42,6 +42,7 @@ class PatientDocument {
   final int sizeBytes;
   final String? mimeType;
   final String source;
+  final String? localPath;
 
   const PatientDocument({
     required this.id,
@@ -52,6 +53,7 @@ class PatientDocument {
     this.sizeBytes = 0,
     this.mimeType,
     this.source = 'admin',
+    this.localPath,
   });
 }
 

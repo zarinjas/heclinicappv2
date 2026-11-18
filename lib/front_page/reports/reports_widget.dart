@@ -11,6 +11,7 @@ import '/core/utils/html_text.dart';
 import '/core/widgets/app_dialog.dart';
 import '/core/widgets/app_toast.dart';
 import '/core/widgets/branch_picker_sheet.dart';
+import '/core/services/document_cache_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -50,11 +51,13 @@ class _ReportsWidgetState extends State<ReportsWidget>
       length: 2,
       initialIndex: 0,
     )..addListener(() {
-          safeSetState(() {});
-          if (_model.tabBarCurrentIndex == 1 && _model.documentsList.isEmpty && !_model.isLoadingDocuments) {
-            _loadDocuments();
-          }
-        });
+        safeSetState(() {});
+        if (_model.tabBarCurrentIndex == 1 &&
+            _model.documentsList.isEmpty &&
+            !_model.isLoadingDocuments) {
+          _loadDocuments();
+        }
+      });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       safeSetState(() {});
@@ -79,11 +82,9 @@ class _ReportsWidgetState extends State<ReportsWidget>
       final patientId = FFAppState().idplato;
       final records = <HealthRecord>[];
 
-      final needLetters =
-          _model.selectedFilter == FilterType.all ||
+      final needLetters = _model.selectedFilter == FilterType.all ||
           _model.selectedFilter == FilterType.letters;
-      final needMc =
-          _model.selectedFilter == FilterType.all ||
+      final needMc = _model.selectedFilter == FilterType.all ||
           _model.selectedFilter == FilterType.mc;
 
       if (needLetters) {
@@ -152,7 +153,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
 
     try {
       final patientId = FFAppState().idplato;
-      final response = await GetPatientDocumentsCall.call(patientId: patientId, forceRefresh: forceRefresh);
+      final response = await GetPatientDocumentsCall.call(
+          patientId: patientId, forceRefresh: forceRefresh);
 
       if (!response.succeeded) {
         if (!forceRefresh) {
@@ -180,13 +182,16 @@ class _ReportsWidgetState extends State<ReportsWidget>
             id: ids != null && i < ids.length ? ids[i] : 0,
             name: stripHtmlToSingleLine(names[i]),
             url: i < (urls?.length ?? 0) ? (urls?[i] ?? '') : '',
-            uploadedAt: i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
+            uploadedAt:
+                i < (uploadedAts?.length ?? 0) ? (uploadedAts?[i] ?? '') : '',
             adminNote: adminNotes != null && i < adminNotes.length
                 ? stripHtmlToSingleLine(adminNotes[i])
                 : null,
             sizeBytes: i < (sizeBytes?.length ?? 0) ? (sizeBytes?[i] ?? 0) : 0,
-            mimeType: mimeTypes != null && i < mimeTypes.length ? mimeTypes[i] : null,
-            source: sources != null && i < sources.length ? sources[i] : 'admin',
+            mimeType:
+                mimeTypes != null && i < mimeTypes.length ? mimeTypes[i] : null,
+            source:
+                sources != null && i < sources.length ? sources[i] : 'admin',
           ));
         }
       }
@@ -194,6 +199,16 @@ class _ReportsWidgetState extends State<ReportsWidget>
       _model.documentsList = docs;
       _model.isLoadingDocuments = false;
       safeSetState(() {});
+
+      // Refresh signed URLs online, then keep a private offline copy. A
+      // failed download does not hide the online document.
+      for (final doc in docs) {
+        try {
+          await DocumentCacheService.instance.download(doc.id, doc.url);
+        } catch (_) {
+          // Offline or temporarily rate-limited: use the existing online URL.
+        }
+      }
     } catch (e) {
       if (!forceRefresh) {
         _model.documentsError = 'Failed to load documents';
@@ -236,8 +251,7 @@ class _ReportsWidgetState extends State<ReportsWidget>
                       height: 4,
                       decoration: BoxDecoration(
                         color: AppColors.divider,
-                        borderRadius:
-                            BorderRadius.circular(AppRadius.full),
+                        borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                     ),
                     Padding(
@@ -514,7 +528,6 @@ class _ReportsWidgetState extends State<ReportsWidget>
     );
   }
 
-
   Widget _buildDocumentCard(PatientDocument doc) {
     final dateFormatted = doc.uploadedAt.length >= 10
         ? doc.uploadedAt.substring(0, 10)
@@ -574,7 +587,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                           ),
                         ),
                       ],
-                      if (doc.adminNote != null && doc.adminNote!.isNotEmpty) ...[
+                      if (doc.adminNote != null &&
+                          doc.adminNote!.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           doc.adminNote!,
@@ -684,7 +698,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
               ),
               const SizedBox(height: AppSpacing.sm),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: AppColors.error),
+                leading:
+                    const Icon(Icons.picture_as_pdf, color: AppColors.error),
                 title: Text(
                   'PDF file',
                   style: AppTextStyles.button.copyWith(
@@ -701,7 +716,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                 onTap: () => Navigator.pop(sheetContext, 'file'),
               ),
               ListTile(
-                leading: const Icon(Icons.photo_outlined, color: AppColors.accent),
+                leading:
+                    const Icon(Icons.photo_outlined, color: AppColors.accent),
                 title: Text(
                   'Photo from gallery',
                   style: AppTextStyles.button.copyWith(
@@ -790,8 +806,34 @@ class _ReportsWidgetState extends State<ReportsWidget>
     }
   }
 
-  void _onDocumentTap(PatientDocument doc) {
+  Future<void> _onDocumentTap(PatientDocument doc) async {
     if (doc.url.isEmpty) return;
+
+    // Signed document links expire; refresh immediately before opening.
+    await _loadDocuments(forceRefresh: true);
+    if (!mounted) return;
+    final freshDoc =
+        _model.documentsList.where((item) => item.id == doc.id).firstOrNull;
+    if (freshDoc == null || freshDoc.url.isEmpty) {
+      AppToast.error(context,
+          message: 'Document unavailable. Pull to refresh and try again.');
+      return;
+    }
+    doc = freshDoc;
+    final localFile = await DocumentCacheService.instance.cachedFile(doc.id);
+    if (localFile != null && await localFile.exists()) {
+      doc = PatientDocument(
+        id: doc.id,
+        name: doc.name,
+        url: Uri.file(localFile.path).toString(),
+        uploadedAt: doc.uploadedAt,
+        adminNote: doc.adminNote,
+        sizeBytes: doc.sizeBytes,
+        mimeType: doc.mimeType,
+        source: doc.source,
+        localPath: localFile.path,
+      );
+    }
 
     final isImage = doc.mimeType?.startsWith('image/') ?? false;
 
@@ -824,7 +866,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
                         height: MediaQuery.sizeOf(context).height * 0.6,
                         color: AppColors.primary,
                         child: const Center(
-                          child: CircularProgressIndicator(color: AppColors.accent),
+                          child: CircularProgressIndicator(
+                              color: AppColors.accent),
                         ),
                       );
                     },
@@ -965,23 +1008,30 @@ class _ReportsWidgetState extends State<ReportsWidget>
           ),
         ),
         Expanded(
-          child: _model.documentsList.isEmpty
-              ? const EmptyStateWidget(
-                  icon: Icons.folder_outlined,
-                  title: 'No documents yet',
-                  subtitle: 'Upload a document or wait for your clinic to share one',
-                )
-              : RefreshIndicator(
-                  onRefresh: () => _loadDocuments(forceRefresh: true),
-                  color: AppColors.accent,
-                  backgroundColor: AppColors.primary,
-                  child: ListView.builder(
+          child: RefreshIndicator(
+            onRefresh: () => _loadDocuments(forceRefresh: true),
+            color: AppColors.accent,
+            backgroundColor: AppColors.primary,
+            child: _model.documentsList.isEmpty
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 120),
+                      EmptyStateWidget(
+                        icon: Icons.folder_outlined,
+                        title: 'No documents yet',
+                        subtitle:
+                            'Upload a document or wait for your clinic to share one',
+                      ),
+                    ],
+                  )
+                : ListView.builder(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     itemCount: _model.documentsList.length,
                     itemBuilder: (_, index) =>
                         _buildDocumentCard(_model.documentsList[index]),
                   ),
-                ),
+          ),
         ),
       ],
     );
@@ -1015,7 +1065,8 @@ class _ReportsWidgetState extends State<ReportsWidget>
             TabBar(
               isScrollable: false,
               labelColor: AppColors.textInverse,
-              unselectedLabelColor: AppColors.textInverse.withValues(alpha: 0.6),
+              unselectedLabelColor:
+                  AppColors.textInverse.withValues(alpha: 0.6),
               labelStyle: AppTextStyles.body1.copyWith(
                 fontWeight: FontWeight.w600,
               ),
