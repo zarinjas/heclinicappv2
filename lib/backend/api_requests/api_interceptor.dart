@@ -5,7 +5,8 @@ import 'api_manager.dart';
 typedef OnUnauthorizedCallback = void Function();
 typedef OnServerErrorCallback = void Function(int statusCode, String callName);
 typedef OnNetworkErrorCallback = void Function(String message);
-typedef OnClientErrorCallback = void Function(int statusCode, String callName, String apiUrl);
+typedef OnClientErrorCallback = void Function(
+    int statusCode, String callName, String apiUrl);
 typedef OnRateLimitedCallback = void Function(String callName);
 
 class ApiInterceptor {
@@ -77,6 +78,17 @@ class ApiInterceptor {
     } finally {
       _isHandling = false;
     }
+  }
+
+  /// Entry point for requests that bypass [ApiManager] (e.g. raw `http.get`
+  /// calls to our own Bearer-token-protected routes, such as downloading a
+  /// health record file). A 401 there means the same thing it means
+  /// everywhere else — the token is invalid or expired — and must trigger
+  /// the same "session expired" flow instead of being shown as a one-off
+  /// inline error that leaves the user stuck pulling-to-refresh forever.
+  void reportUnauthorized() {
+    if (_isHandling) return;
+    _handleUnauthorized();
   }
 
   void _handleServerError(int statusCode, String callName) {

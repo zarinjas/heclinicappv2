@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../backend/api_requests/api_interceptor.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -110,6 +111,18 @@ class _DocumentViewerScreenState extends State<DocumentViewerScreen> {
           .get(uri, headers: _authHeaders)
           .timeout(const Duration(seconds: 60));
       if (response.statusCode != 200) {
+        // This request goes straight through `http`, bypassing ApiManager /
+        // ApiInterceptor. For Bearer-authenticated requests (our own backend,
+        // e.g. the health-record-file route) a 401 means the session token
+        // itself is invalid or expired — not that this one link expired.
+        // Feed it into the same interceptor every other API call uses so the
+        // app logs out and prompts a fresh login instead of leaving the user
+        // stuck re-opening a document that will never succeed.
+        if (response.statusCode == 401 && _authHeaders != null) {
+          ApiInterceptor.instance.reportUnauthorized();
+          _fail('Your session has expired. Please log in again.');
+          return;
+        }
         _fail(
           'Could not load this document (HTTP ${response.statusCode}). '
           'The link may have expired — pull to refresh the list and try again.',

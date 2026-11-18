@@ -23,6 +23,19 @@ class AuthController extends Controller
     /** How long a mobile access token remains valid before it expires. */
     private const TOKEN_TTL_DAYS = 90;
 
+    /** Rotate a valid mobile token without requiring the patient to log in again. */
+    public function refresh(Request $request): JsonResponse
+    {
+        $patient = $request->user();
+        abort_if($patient === null, 401);
+
+        $current = $patient->currentAccessToken();
+        $token = $this->issueToken($patient);
+        $current?->delete();
+
+        return response()->json(['status' => true, 'token' => $token]);
+    }
+
     public function __construct(
         private readonly PlatoProxyService $plato,
         private readonly OtpService $otp,

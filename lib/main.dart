@@ -35,6 +35,7 @@ import 'core/services/telehealth_service.dart';
 import 'core/services/legal_service.dart';
 import 'core/services/device_token_service.dart';
 import 'core/services/app_update_service.dart';
+import 'core/services/token_refresh_service.dart';
 import 'features/health/health_cache.dart';
 
 /// Runs a CMS/branding init in the background and swallows failures — every
@@ -90,6 +91,11 @@ void main() async {
   // keep it in sync when FCM rotates it. Fire-and-forget so it never delays
   // the first frame; the call no-ops when there is no auth token yet.
   DeviceTokenService.instance.register();
+
+  // Rotate the mobile access token once a day while it is still valid, so an
+  // active user's 90-day session never hits its hard expiry. Fire-and-forget
+  // and a no-op when logged out.
+  unawaited(TokenRefreshService.instance.maybeRefresh());
 
   // Load all CMS + branding data in the background so the app renders with
   // cached/fallback content immediately and refreshes in place once the

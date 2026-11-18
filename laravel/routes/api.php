@@ -52,6 +52,7 @@ Route::prefix('v2/auth')->name('auth.')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     // Cheap "is this token still good?" probe used by biometric quick-login.
     Route::get('/v2/auth/me', [AuthController::class, 'me'])->name('auth.me');
+    Route::post('/v2/auth/refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
     Route::match(['put', 'patch'], '/v2/auth/me', [AuthController::class, 'updateMe'])
         ->name('auth.me.update');
     Route::post('/v2/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');

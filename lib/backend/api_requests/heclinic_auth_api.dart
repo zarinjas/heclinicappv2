@@ -356,6 +356,35 @@ class MeCall {
 }
 
 // ---------------------------------------------------------------------------
+// POST /v2/auth/refresh (requires current Bearer token)
+// Rotates the token before its 90-day expiry without a password login.
+// ---------------------------------------------------------------------------
+class RefreshTokenCall {
+  Future<ApiCallResponse> call({String? token = ''}) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'HeclinicRefreshToken',
+      apiUrl: '${HeclinicAuthApi.baseUrl}/refresh',
+      callType: ApiCallType.POST,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      params: const {},
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: false,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+
+  static String? token(dynamic response) =>
+      castToType<String>(getJsonField(response, r'''$.token'''));
+}
+
+// ---------------------------------------------------------------------------
 // PATCH /v2/auth/me   (requires Bearer token)
 // Updates the patient's own editable profile fields.
 // ---------------------------------------------------------------------------
