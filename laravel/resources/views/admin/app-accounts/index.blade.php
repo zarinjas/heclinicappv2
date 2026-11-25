@@ -23,6 +23,21 @@
                 </a>
             @endif
         </form>
+        <a href="{{ route('admin.app-accounts.export', request()->only('search', 'view')) }}"
+           class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-[#0F1B3D] bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+           title="Download all matching app registrations as CSV">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14a2 2 0 002-2v-3M3 16v3a2 2 0 002 2"/>
+            </svg>
+            Export CSV
+        </a>
+    </div>
+
+    <div class="mb-6 flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <svg class="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z"/>
+        </svg>
+        <p>Export ini ikut carian/filter yang dipilih dan mengandungi semua pendaftaran app, termasuk akaun yang telah dipadam, untuk semakan duplicate sebelum merge atau delete.</p>
     </div>
 
     <div class="flex flex-wrap items-center gap-3 mb-4">

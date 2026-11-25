@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AppAccountController extends Controller
 {
@@ -53,6 +54,61 @@ class AppAccountController extends Controller
         $duplicateGroups = $this->duplicateGroups();
 
         return view('admin.app-accounts.index', compact('accounts', 'duplicateGroups', 'view'));
+    }
+
+    /**
+     * Export all app registrations matching the current list filters.
+     * Includes soft-deleted accounts so the clinic can audit every registration.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $query = Patient::withTrashed();
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search): void {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('nric', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('telephone', 'like', "%{$search}%");
+            });
+        }
+
+        $view = $request->input('view');
+        if ($view === 'linked') {
+            $query->whereNotNull('idplato');
+        } elseif ($view === 'not_linked') {
+            $query->whereNull('idplato');
+        }
+
+        $filename = 'app-accounts-'.now()->format('Ymd-His').'.csv';
+
+        return response()->streamDownload(function () use ($query): void {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, [
+                'account_id', 'name', 'nric', 'phone', 'email', 'apple_sub',
+                'plato_id', 'registered_at', 'deleted_at', 'status',
+            ]);
+
+            $query->orderBy('created_at', 'desc')->chunk(500, function ($accounts) use ($out): void {
+                foreach ($accounts as $account) {
+                    fputcsv($out, [
+                        $account->id,
+                        $account->name,
+                        $account->nric,
+                        $account->telephone,
+                        $account->email,
+                        $account->apple_sub,
+                        $account->idplato,
+                        $account->created_at?->toIso8601String(),
+                        $account->deleted_at?->toIso8601String(),
+                        $account->trashed() ? 'deleted' : ($account->idplato ? 'linked' : 'not_linked'),
+                    ]);
+                }
+            });
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function show(Request $request, Patient $account): View

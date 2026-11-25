@@ -97,6 +97,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('patients/{patient}/reset-password', [PatientController::class, 'resetPassword'])
             ->name('patients.reset-password');
         Route::get('app-accounts', [AppAccountController::class, 'index'])->name('app-accounts.index');
+        Route::get('app-accounts/export', [AppAccountController::class, 'export'])->name('app-accounts.export');
         Route::get('app-accounts/{account}', [AppAccountController::class, 'show'])->name('app-accounts.show');
         Route::post('app-accounts/merge', [AppAccountController::class, 'merge'])->name('app-accounts.merge');
         Route::post('app-accounts/{account}/relink', [AppAccountController::class, 'relink'])->name('app-accounts.relink');
